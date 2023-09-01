@@ -1,0 +1,97 @@
+####### NGX - XPolicy Config #########
+---
+server:
+    error:
+        include-message: never
+        include-binding-errors: always
+        include-exception: false
+        include-stacktrace: never
+    tomcat:
+        basedir: C:/XPolicy/Log
+        accesslog:
+            enabled: true
+    temp:
+        dir: C:/XPolicy/temp
+    connection-timeout: 120000
+
+        
+#logging:
+#    level:
+#        org:
+#            apache:
+#                tomcat: DEBUG
+#                catalina: DEBUG
+
+logging:
+    file:
+        name: C:/Xpolicy/logs/xpolicy.log
+    level:
+        root: INFO
+upload:
+    base:
+        dir: C:/Xpolicy/bulk/upload
+    max:
+        record: 100
+jwt:
+    security:
+        key: j3H5Ld5nYmGWyULy6xwpOgfSH++NgKXnJMq20vpfd+8=t
+    access:
+        validity: 60000
+             
+spring:
+    cloud:
+        loadbalancer:
+            ribbon:
+                enabled: false
+    config:
+        activate:
+            profile: dev
+    datasource:
+        initialization-mode: always
+        #password: F3bru@ry02mth
+        #username: ngxadmin@nxgroup01-mysqldbserver
+        #driverClassName: com.mysql.jdbc.Driver  
+        #url: jdbc:mysql://nxgroup01-mysqldbserver.mysql.database.azure.com:3306/xpolicy?useSSL=true
+        password: Anaconda1521@
+        username: entityscdbuser
+        driverClassName: org.postgresql.Driver
+        url: jdbc:postgresql://209.159.155.84/xpolicy
+    jpa:
+        hibernate:
+            ddl-auto: update
+            #dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+            dialect: org.hibernate.dialect.PostgreSQLDialect
+        show-sql: true  
+xpolicy:
+    download:
+        policy:
+            base:
+                dir: C:/NGX/Policy
+    ngx:
+        email:
+            domain: ngxgroup.com
+        dc:
+            group: ngxgroup.com
+            regulation: regulation.ngxgroup.com
+            realestate: exchange.ngxgroup.com
+            limited: exchange.ngxgroup.com
+    qrcode:
+        height: 115
+        width: 115
+        image:
+            url: C:/Apps/Java/XPolicy/target/xpolicy-1.0/WEB-INF/classes/images/qrcode
+    password:
+        default: Password!23
+        web: Password!23
+        mobile: Password!23
+        ussd: Password!23
+        reset:
+            time: 1
+        retry:
+            count: 3
+        change:
+            days: 30
+    encryption:
+        key:
+            mian: FLWSECK-f6be2996841f1da0dfb7e27b9a3bd5bf-X
+            web: yG4b7jm8NHkv8s0vfwaS

@@ -1,0 +1,131 @@
+/* 
+    Created on : Mar 17, 2023, 1:09:49 PM
+    Author     : briano
+*/
+htnl, body{
+    color: black;
+}
+
+.text-primary{
+    color: #018b48 !important;
+}
+
+.form-icon{
+    color: #018b48 !important;
+}
+
+.btn-primary{
+    background-color: #018b48 !important;
+}
+
+text-secondary{
+    color: #7ded07 !important;
+}
+
+.btn-secondary{
+    background-color: #7ded07 !important;
+}
+
+
+.userInput {
+    display: flex;
+    justify-content: center;
+}
+
+.inputs {
+    margin: 5px;
+    height: 35px;
+    width: 45px;
+    border: 1px solid #018b48 !important;
+    border-radius: 5px;
+    text-align: center;
+    font-family: arimo;
+    font-size: 1.2rem;
+    color: #018b48 !important;
+}
+
+#qrcode-image{
+    position: relative;
+    height: 350px;
+    width: 320px;
+}
+
+.img-70{
+    width: 70% !important;
+    height: 70% !important;
+}
+
+.img-50{
+    width: 50% !important;
+    height: 50% !important;
+}
+
+.text-capitalize{
+    text-transform: capitalize !important;
+}
+
+#loader {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    z-index: 1;
+    width: 120px;
+    height: 120px;
+    margin: -76px 0 0 -76px;
+    border: 16px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 16px solid #018b48;
+    border-bottom: 16px solid #018b48;
+    background-color: #00ff00;
+    -webkit-animation: spin 2s linear infinite;
+    animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Add animation to "page content" */
+.animate-bottom {
+    position: relative;
+    -webkit-animation-name: animatebottom;
+    -webkit-animation-duration: 1s;
+    animation-name: animatebottom;
+    animation-duration: 1s
+}
+
+@-webkit-keyframes animatebottom {
+    from {
+        opacity:0
+    }
+    to {
+        opacity:1
+    }
+}
+
+@keyframes animatebottom {
+    from{
+        opacity:0
+    }
+    to{
+        opacity:1
+    }
+}
+
+#top {
+    display: none;
+}
