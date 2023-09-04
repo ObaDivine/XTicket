@@ -68,7 +68,7 @@
                                 <div class="row mb-1">
                                     <label class="col-sm-3 col-form-label col-form-label-sm" for="company">Company</label>
                                     <div class="col-sm-9">
-                                        <select class="form-select" data-choices="data-choices" th:field="*{updateCompany}" th:onload="|fetchUpdateDivision(0,0)|" th:onchange="|fetchUpdateDivision(0,0)|" required="required">
+                                        <select class="form-select" data-choices="data-choices" th:field="*{updateCompany}" th:onchange="|fetchUpdateDivision(0,0)|" required="required" >
                                             <option value="">--- Select Company ---</option>
                                             <option th:each="fa : ${companyList}" th:value="${fa.id}" th:text="${fa.companyName}"></option>
                                         </select>
@@ -77,7 +77,7 @@
                                 <div class="row mb-1">
                                     <label class="col-sm-3 col-form-label col-form-label-sm" for="division">Division</label>
                                     <div class="col-sm-9">
-                                        <select class="form-select" data-choices="data-choices" th:field="*{updateDivision}" th:onload="|fetchUpdateDepartment(0,0)|" th:onchange="|fetchUpdateDepartment(0,0)|" required="required">
+                                        <select class="form-select" data-choices="data-choices" th:field="*{updateDivision}" th:onchange="|fetchUpdateDepartment(0,0)|" required="required">
                                             <option value="">---</option>                                      
                                         </select>
                                     </div>
@@ -123,7 +123,7 @@
                                     </div>
                                 </div>
                                 <div class="row mb-1 mt-2">
-                                    <div class="offset-lg-3 col-sm-9">
+                                    <div class="offset-lg-3 col-sm-9 input-group-sm">
                                         <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#confirmModal" th:text="${id == 0 ? 'Add Policy': 'Update Policy'}">Add Policy</button>
                                         <a th:if="${#request.isUserInRole('LIST_POLICY')}" class="btn btn-secondary btn-sm" href="#!" th:href="@{/admin/policy}">Policy List</a>
                                         <a th:if="${#request.isUserInRole('LIST_POLICY')}" class="btn btn-secondary btn-sm" href="#!" th:href="@{/admin/policy/review}">Policy Review List</a>
@@ -156,5 +156,10 @@
             </div>         
         </main>
         <th:block th:include="~{fragments/entityscFragments :: scriptfiles}"></th:block>
+        <script>
+            fetchUpdateDepartment(0, 0);
+            setTimeout(1000);
+            fetchUpdateDivision(0, 0);
+        </script>
     </body>
 </html>
