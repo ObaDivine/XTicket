@@ -85,27 +85,29 @@ function fetchUpdateDivision(company, divisionToSet) {
     }
     ;
 
-    $.ajax({
-        url: "/xpolicy/division/fetch/" + companyToSearch,
-        type: "GET",
-        dataType: "json",
-        success: function (data) {
-            var html = '<option value="">--Select Division --</option>';
-            var len = data.length;
-            for (var i = 0; i < len; i++) {
-                html += '<option value="' + data[i].id + '">' + data[i].divisionName + '</option>';
+    if (companyToSearch !== null && companyToSearch !== '') {
+        $.ajax({
+            url: "/xpolicy/division/fetch/" + companyToSearch,
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                var html = '<option value="">--Select Division --</option>';
+                var len = data.length;
+                for (var i = 0; i < len; i++) {
+                    html += '<option value="' + data[i].id + '">' + data[i].divisionName + '</option>';
+                }
+                html += '</option>';
+                $('#updateDivision').html(html);
+                if (divisionToSet !== 0) {
+                    $('#updateDivision').val(divisionToSet);
+                }
+                ;
+            },
+            error: function (xhr, status) {
+                alert(xhr);
             }
-            html += '</option>';
-            $('#updateDivision').html(html);
-            if (divisionToSet !== 0) {
-                $('#updateDivision').val(divisionToSet);
-            }
-            ;
-        },
-        error: function (xhr, status) {
-            alert(xhr);
-        }
-    });
+        });
+    }
 }
 ;
 function fetchUpdateDepartment(division, departmentToSet) {
@@ -116,27 +118,30 @@ function fetchUpdateDepartment(division, departmentToSet) {
         divisionToSearch = division;
     }
     ;
-    $.ajax({
-        url: "/xpolicy/department/fetch/" + divisionToSearch,
-        type: "GET",
-        dataType: "json",
-        success: function (data) {
-            var html = '<option value="">--Select Department --</option>';
-            var len = data.length;
-            for (var i = 0; i < len; i++) {
-                html += '<option value="' + data[i].id + '">' + data[i].departmentName + '</option>';
+
+    if (divisionToSearch !== null && divisionToSearch !== '') {
+        $.ajax({
+            url: "/xpolicy/department/fetch/" + divisionToSearch,
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                var html = '<option value="">--Select Department --</option>';
+                var len = data.length;
+                for (var i = 0; i < len; i++) {
+                    html += '<option value="' + data[i].id + '">' + data[i].departmentName + '</option>';
+                }
+                html += '</option>';
+                $('#updateDepartment').html(html);
+                if (departmentToSet !== 0) {
+                    $('#updateDepartment').val(departmentToSet);
+                }
+                ;
+            },
+            error: function (xhr, status) {
+                alert(xhr);
             }
-            html += '</option>';
-            $('#updateDepartment').html(html);
-            if (departmentToSet !== 0) {
-                $('#updateDepartment').val(departmentToSet);
-            }
-            ;
-        },
-        error: function (xhr, status) {
-            alert(xhr);
-        }
-    });
+        });
+    }
 }
 ;
 
