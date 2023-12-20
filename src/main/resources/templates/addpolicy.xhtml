@@ -30,14 +30,13 @@
                                         <select class="form-select" data-choices="data-choices" th:field="*{policyType}" required="required">
                                             <option value="">-- Select Policy Type --</option>
                                             <option value="CHT">Charter</option>
+                                            <option value="COM">Committees &amp; Association</option>
                                             <option value="FRM">Form</option>
-                                            <option value="FWK">Framework</option>
                                             <option value="POL">Policy</option>
-                                            <option value="PRO">Procedures</option>
                                             <option value="RPT">Reports</option>
                                             <option value="SCH">Schedule</option>
-                                            <option value="STD">Standards</option>
                                             <option value="SOP">Standard Operating Procedure</option>
+                                            <option value="TEM">Templates</option>
                                         </select>
                                     </div>
                                 </div>
@@ -119,7 +118,7 @@
                                 <div class="row mb-1">
                                     <label class="col-sm-3 col-form-label col-form-label-sm" for="division">Document</label>
                                     <div class="col-sm-9">
-                                        <input class="form-control form-control-sm" th:field="*{fileUpload}" type="file" />
+                                        <input class="form-control form-control-sm" th:field="*{fileUpload}" type="file" accept=".doc, .docx, .xls, .xlsx, .pdf" />
                                     </div>
                                 </div>
                                 <div class="row mb-1 mt-2">

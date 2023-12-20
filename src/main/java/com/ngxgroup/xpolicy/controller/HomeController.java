@@ -23,7 +23,6 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -214,7 +213,7 @@ public class HomeController {
     @GetMapping("/policy/download/{fileName:.+}")
     public void downloadPolicy(@PathVariable("fileName") String fileName, Model model, HttpServletRequest httpRequest, HttpServletResponse httpResponse, Principal principal) throws IOException {
         String destinationDirectory = policyBaseDir + "/";
-        File file = new File(destinationDirectory + fileName + ".pdf");
+        File file = new File(destinationDirectory + fileName);
         if (file.exists()) {
             //get the mimetype
             String mimeType = URLConnection.guessContentTypeFromName(file.getName());
@@ -254,7 +253,6 @@ public class HomeController {
         model.addAttribute("policyList", response);
         model.addAttribute("companyList", xpolicyService.getCompanyList());
         model.addAttribute("principalName", xpolicyService.getPrincipalName(principal.getName()));
-        model.addAttribute("refererPage", "Policy Update");
         model.addAttribute("alertMessage", alertMessage);
         resetAlertMessage();
         return "addpolicy";
@@ -286,9 +284,9 @@ public class HomeController {
         model.addAttribute("xpolicyPayload", response);
         model.addAttribute("companyList", xpolicyService.getCompanyList());
         model.addAttribute("principalName", xpolicyService.getPrincipalName(principal.getName()));
-        model.addAttribute("companyId", response.getCompany());
-        model.addAttribute("divisionId", response.getDivision());
-        model.addAttribute("departmentId", response.getDepartment());
+        model.addAttribute("companyId", response.getUpdateCompany());
+        model.addAttribute("divisionId", response.getUpdateDivision());
+        model.addAttribute("departmentId", response.getUpdateDepartment());
         model.addAttribute("refererPage", "Policy Update");
         return "addpolicy";
     }
@@ -319,9 +317,9 @@ public class HomeController {
         return "redirect:/admin/policy/pending";
     }
 
-    @GetMapping("/admin/policy/decline/{id}")
-    public String declinePolicy(@PathVariable("id") String id, Model model, HttpServletRequest httpRequest, HttpServletResponse httpResponse, Principal principal) {
-        XPolicyPayload response = xpolicyService.processDeclinePolicy(id, principal.getName());
+    @PostMapping("/admin/policy/decline")
+    public String declinePolicy(@ModelAttribute("xpolicyPayload") XPolicyPayload requestPayload, Model model, HttpServletRequest httpRequest, HttpServletResponse httpResponse, Principal principal) {
+        XPolicyPayload response = xpolicyService.processDeclinePolicy(requestPayload, principal.getName());
         alertMessage = response.getResponseMessage();
         return "redirect:/admin/policy/pending";
     }
@@ -332,6 +330,7 @@ public class HomeController {
         model.addAttribute("xpolicyPayload", new XPolicyPayload());
         model.addAttribute("policyList", response);
         model.addAttribute("principalName", xpolicyService.getPrincipalName(principal.getName()));
+        model.addAttribute("companyList", xpolicyService.getCompanyList());
         model.addAttribute("alertMessage", alertMessage);
         resetAlertMessage();
         return "managepolicyreview";
@@ -343,6 +342,7 @@ public class HomeController {
         model.addAttribute("xpolicyPayload", new XPolicyPayload());
         model.addAttribute("policyList", response);
         model.addAttribute("principalName", xpolicyService.getPrincipalName(principal.getName()));
+        model.addAttribute("companyList", xpolicyService.getCompanyList());
         model.addAttribute("alertMessage", alertMessage);
         resetAlertMessage();
         return "addpolicyreview";
@@ -359,7 +359,8 @@ public class HomeController {
         model.addAttribute("policyList", policyList);
         model.addAttribute("xpolicyPayload", response);
         model.addAttribute("principalName", xpolicyService.getPrincipalName(principal.getName()));
-        model.addAttribute("refererPage", "Policy Update");
+        model.addAttribute("companyList", xpolicyService.getCompanyList());
+//        model.addAttribute("refererPage", "Policy Update");
         return "addpolicyreview";
     }
 
@@ -385,6 +386,7 @@ public class HomeController {
         model.addAttribute("userList", response);
         model.addAttribute("xpolicyPayload", new XPolicyPayload());
         model.addAttribute("companyList", xpolicyService.getCompanyList());
+        model.addAttribute("roleList", xpolicyService.getRoleGroupList());
         model.addAttribute("principalName", xpolicyService.getPrincipalName(principal.getName()));
         model.addAttribute("alertMessage", alertMessage);
         resetAlertMessage();
@@ -397,9 +399,9 @@ public class HomeController {
         model.addAttribute("userList", response);
         model.addAttribute("xpolicyPayload", new XPolicyPayload());
         model.addAttribute("companyList", xpolicyService.getCompanyList());
+        model.addAttribute("roleList", xpolicyService.getRoleGroupList());
         model.addAttribute("principalName", xpolicyService.getPrincipalName(principal.getName()));
         model.addAttribute("alertMessage", alertMessage);
-        model.addAttribute("refererPage", "User Update");
         resetAlertMessage();
         return "adduser";
     }
@@ -415,6 +417,7 @@ public class HomeController {
         model.addAttribute("xpolicyPayload", requestPayload);
         model.addAttribute("userList", userList);
         model.addAttribute("companyList", xpolicyService.getCompanyList());
+        model.addAttribute("roleList", xpolicyService.getRoleGroupList());
         model.addAttribute("principalName", xpolicyService.getPrincipalName(principal.getName()));
         model.addAttribute("alertMessage", response.getResponseMessage());
         return "adduser";
@@ -429,7 +432,11 @@ public class HomeController {
         }
         model.addAttribute("xpolicyPayload", response);
         model.addAttribute("companyList", xpolicyService.getCompanyList());
+        model.addAttribute("roleList", xpolicyService.getRoleGroupList());
         model.addAttribute("principalName", xpolicyService.getPrincipalName(principal.getName()));
+        model.addAttribute("companyId", response.getUpdateCompany());
+        model.addAttribute("divisionId", response.getUpdateDivision());
+        model.addAttribute("departmentId", response.getUpdateDepartment());
         model.addAttribute("refererPage", "User Update");
         return "adduser";
     }
@@ -481,7 +488,6 @@ public class HomeController {
         model.addAttribute("roleList", xpolicyService.getRoleGroupList());
         model.addAttribute("principalName", xpolicyService.getPrincipalName(principal.getName()));
         model.addAttribute("groupRolesPayload", null);
-        model.addAttribute("refererPage", "User Update");
         return "addroles";
     }
 

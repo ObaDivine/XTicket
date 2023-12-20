@@ -1,19 +1,35 @@
 package com.ngxgroup.xpolicy.service;
 
 import com.google.gson.Gson;
+import com.ngxgroup.xpolicy.payload.LogPayload;
+import com.ngxgroup.xpolicy.payload.XPolicyPayload;
+import static com.ngxgroup.xpolicy.service.XPolicyServiceImpl.logger;
 import de.taimos.totp.TOTP;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Properties;
 import java.util.StringJoiner;
+import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
+import javax.mail.BodyPart;
+import javax.mail.Message;
+import javax.mail.Multipart;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import org.apache.commons.codec.binary.Base32;
 import org.apache.commons.codec.binary.Hex;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 /**
@@ -27,9 +43,23 @@ public class GenericServiceImpl implements GenericService {
     Gson gson;
     @Value("${xpolicy.encryption.key.web}")
     private String encryptionKey;
+    @Value("${email.login}")
+    private String mailLogin;
+    @Value("${email.from}")
+    private String mailFrom;
+    @Value("${email.password}")
+    private String mailPassword;
+    @Value("${email.host}")
+    private String mailHost;
+    @Value("${email.port}")
+    private String mailPort;
+    @Value("${email.protocol}")
+    private String mailProtocol;
+    @Value("${email.trust}")
+    private String mailTrust;
     private static SecretKeySpec secretKey;
     private static byte[] key;
-    Logger logger = LoggerFactory.getLogger(GenericServiceImpl.class);
+    static final Logger logger = Logger.getLogger(XPolicyServiceImpl.class.getName());
 
     @Override
     public String decryptString(String textToDecrypt) {
@@ -104,4 +134,59 @@ public class GenericServiceImpl implements GenericService {
         return base32.encodeToString(bytes);
     }
 
+    @Async
+    public CompletableFuture<String> sendEmail(XPolicyPayload requestPayload, String principal) {
+        LogPayload log = new LogPayload();
+        log.setUsername(principal);
+        log.setSource("Send Mail");
+        try {
+            JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+            mailSender.setHost(mailHost);
+            mailSender.setPort(Integer.parseInt(mailPort));
+
+            mailSender.setUsername(mailLogin);
+            mailSender.setPassword(mailPassword);
+
+            Properties props = mailSender.getJavaMailProperties();
+            props.put("mail.transport.protocol", mailProtocol);
+            props.put("mail.smtp.auth", "true");
+            props.put("mail.smtp.starttls.enable", "false");
+            props.put("mail.debug", "true");
+            props.put("mail.smtp.ssl.trust", mailTrust);
+
+            MimeMessage emailDetails = mailSender.createMimeMessage();
+            emailDetails.setFrom(mailFrom);
+            emailDetails.setRecipients(Message.RecipientType.TO, requestPayload.getRecipientEmail());
+            emailDetails.setSubject(requestPayload.getEmailSubject());
+
+            BodyPart messageBodyPart = new MimeBodyPart();
+            messageBodyPart.setContent(requestPayload.getEmailBody(), "text/html");
+
+            if (requestPayload.getAttachmentFilePath() != null && !requestPayload.getAttachmentFilePath().equalsIgnoreCase("")) {
+                //Add the attachment
+                MimeBodyPart attachmentBodyPart = new MimeBodyPart();
+                DataSource source = new FileDataSource(requestPayload.getAttachmentFilePath());
+                attachmentBodyPart.setDataHandler(new DataHandler(source));
+                attachmentBodyPart.setFileName(requestPayload.getAttachmentFilePath());
+
+                Multipart multipart = new MimeMultipart();
+                multipart.addBodyPart(messageBodyPart);
+                multipart.addBodyPart(attachmentBodyPart);
+                emailDetails.setContent(multipart);
+            }
+            Multipart multipart = new MimeMultipart();
+            multipart.addBodyPart(messageBodyPart);
+            emailDetails.setContent(multipart);
+
+            mailSender.send(emailDetails);
+            log.setMessage(requestPayload.getEmailSubject() + " mail sent to " + requestPayload.getRecipientEmail());
+            log.setSeverity("INFO");
+            logger.log(Level.SEVERE, gson.toJson(log));
+        } catch (Exception ex) {
+            log.setMessage(ex.getMessage());
+            log.setSeverity("SEVERE");
+            logger.log(Level.SEVERE, gson.toJson(log));
+        }
+        return CompletableFuture.completedFuture("Success");
+    }
 }

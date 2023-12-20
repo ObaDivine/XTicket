@@ -20,18 +20,16 @@
                             <h5 class="text-700 fw-semi-bold" th:case="SOP">Standard Operating Procedures</h5>
                             <h4 class="mb-2 text-1100 text-primary" th:case="CHT">Charters Listing</h4>
                             <h5 class="text-700 fw-semi-bold" th:case="CHT">Charters</h5>
-                            <h4 class="mb-2 text-1100 text-primary" th:case="PRO">Procedures Listing</h4>
-                            <h5 class="text-700 fw-semi-bold" th:case="PRO">Procedures</h5>
-                            <h4 class="mb-2 text-1100 text-primary" th:case="FWK">Frameworks Listing</h4>
-                            <h5 class="text-700 fw-semi-bold" th:case="FWK">Frameworks</h5>
+                            <h4 class="mb-2 text-1100 text-primary" th:case="COM">Committees &amp; Association Listing</h4>
+                            <h5 class="text-700 fw-semi-bold" th:case="COM">Committees &mp; Association</h5>
                             <h4 class="mb-2 text-1100 text-primary" th:case="FRM">Forms Listing</h4>
                             <h5 class="text-700 fw-semi-bold" th:case="FRM">Forms</h5>
-                            <h4 class="mb-2 text-1100 text-primary" th:case="STD">Standards Listing</h4>
-                            <h5 class="text-700 fw-semi-bold" th:case="STD">Standards</h5>
                             <h4 class="mb-2 text-1100 text-primary" th:case="SCH">Schedule Listing</h4>
                             <h5 class="text-700 fw-semi-bold" th:case="SCH">Schedule</h5>
                             <h4 class="mb-2 text-1100 text-primary" th:case="RPT">Report Listing</h4>
                             <h5 class="text-700 fw-semi-bold" th:case="RPT">Report</h5>
+                            <h4 class="mb-2 text-1100 text-primary" th:case="TEM">Templates Listing</h4>
+                            <h5 class="text-700 fw-semi-bold" th:case="TEM">Templates</h5>
                         </div>
                         <div class="col-md-3 col-auto">
                             <h4 class="mb-2 text-1100 text-primary" th:text="'Welcome ' + ${principalName}">Welcome Brian</h4>
@@ -98,7 +96,7 @@
                                                         <span>Under Review</span>
                                                     </div>
                                                 </th>
-                                                <th class="sort text-end align-middle pe-0 ps-4" scope="col"></th>
+                                                <th class="sort text-end align-middle pe-0 ps-4" scope="col">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody class="list" id="deal-tables-body">
@@ -117,9 +115,9 @@
                                                             <span th:if="${rec.policyType.policyTypeCode == 'RPT'}" class="fa fa-chart-bar text-primary">XPolicy</span>
                                                         </div>
                                                         <div>
-                                                            <a class="fs-0 fw-bold text-capitalize" href="#!" th:href="@{'/policy/download/' + ${rec.policyName}}" target="_blank" th:text="${rec.policyName}">Download</a>
+                                                            <a class="fs-0 fw-bold text-capitalize" href="#!" th:href="@{'/policy/download/' + ${rec.policyDocumentId} + '.' + ${rec.policyDocumentExt}}" target="_blank" th:text="${rec.policyName}">Download</a>
                                                             <div class="d-flex align-items-center">
-                                                                <a class="fs-0 fw-bold" href="#!" th:href="@{'/policy/download/' + ${rec.policyDocumentId}}" target="_blank">
+                                                                <a class="fs-0 fw-bold" href="#!" th:href="@{'/policy/download/' + ${rec.policyDocumentId} + '.' + ${rec.policyDocumentExt}}" target="_blank">
                                                                     <p class="mb-0 text-1000 fw-semi-bold fs--1 me-2">View Policy</p>
                                                                 </a>
                                                                 <a type="button" href="" class="fs-0 fw-bold" th:onclick="|fetchPolicyDetails([[${rec.id}]])|" data-todo-offcanvas-toogle="data-todo-offcanvas-toogle" data-todo-offcanvas-target="#offcanvasRight" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
@@ -138,7 +136,7 @@
                                                     <div class="font-sans-serif btn-reveal-trigger position-static">
                                                         <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs--2" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs--2"></span></button>
                                                         <div class="dropdown-menu dropdown-menu-end py-2">
-                                                            <a class="dropdown-item" href="#!" th:href="@{'/policy/download/' + ${rec.policyDocumentId}}" target="_blank">View</a>
+                                                            <a class="dropdown-item" href="#!" th:href="@{'/policy/download/' + ${rec.policyDocumentId} + '.' + ${rec.policyDocumentExt}}" target="_blank">View</a>
                                                             <a class="dropdown-item" href="#!"  th:onclick="|fetchPolicyDetails([[${rec.id}]])|" data-todo-offcanvas-toogle="data-todo-offcanvas-toogle" data-todo-offcanvas-target="#offcanvasRight" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">Details</a>
                                                         </div>
                                                     </div>

@@ -51,6 +51,7 @@
                                         <thead>
                                             <tr>
                                                 <th class="sort white-space-nowrap align-middle text-capitalize" scope="col" data-sort="policy" style="width:30%;">Policy Name</th>
+                                                <th class="sort white-space-nowrap align-middle text-capitalize" scope="col" data-sort="action" style="width:1%;">Action</th>
                                                 <th class="sort white-space-nowrap align-middle text-capitalize" scope="col" data-sort="description" style="width:10%;">Policy Description</th>
                                                 <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="company" style="width:10%;">
                                                     <div class="d-inline-flex flex-center">
@@ -100,7 +101,7 @@
                                                         <span>Last Review</span>
                                                     </div>
                                                 </th>
-                                                <th class="sort align-middle pe-5 ps-4" scope="col"  data-sort="underReview" style="width:8%;">
+                                                <th class="sort align-middle pe-5 ps-4" scope="col"  data-sort="underReview" style="width:7%;">
                                                     <div class="d-inline-flex flex-center">
                                                         <div class="d-flex align-items-center px-1 py-1 bg-primary-100 rounded me-2">
                                                             <span class="text-warning-600 dark__text-warning-300" data-feather="edit"></span>
@@ -108,7 +109,6 @@
                                                         <span>Under Review</span>
                                                     </div>
                                                 </th>
-                                                <th class="sort align-middle align-middle pe-0 ps-4" scope="col"></th>
                                             </tr>
                                         </thead>
                                         <tbody class="list" id="deal-tables-body">
@@ -125,11 +125,21 @@
                                                             <span class="fa fa-align-justify fs-0 ms-1 me-1 text-primary" th:if="${rec.policyType.policyTypeCode == 'STD'}"></span>
                                                         </div>
                                                         <div>
-                                                            <a class="fs-0 fw-bold" href="#!" th:href="@{'/policy/download/' + ${rec.policyDocumentId}}" target="_blank" th:text="${rec.policyName}">Download</a>
+                                                            <a class="fs-0 fw-bold" href="#!" th:href="@{'/policy/download/' + ${rec.policyDocumentId} + '.' + ${rec.policyDocumentExt}}" target="_blank" th:text="${rec.policyName}">Download</a>
                                                             <div class="d-flex align-items-center">
                                                                 <p class="mb-0 text-1000 fw-semi-bold fs--1 me-2" th:text="${rec.policyType.policyTypeName}">Policy type</p>
                                                                 <p class="mb-0 text-1000 fw-semi-bold fs--1 me-2" th:text="${rec.policyCode}">Policy code</p>
                                                             </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end">
+                                                    <div class="font-sans-serif btn-reveal-trigger position-static">
+                                                        <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs--2" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs--2"></span></button>
+                                                        <div class="dropdown-menu dropdown-menu-end py-2">
+                                                            <a th:if="${#request.isUserInRole('UPDATE_POLICY')}" class="dropdown-item" href="#!" th:href="@{'/admin/policy/edit/' + ${rec.policyDocumentId}}">Update</a>
+                                                            <a th:if="${#request.isUserInRole('REVIEW_POLICY')}" class="dropdown-item" href="#!" th:href="@{'/admin/policy/review/' + ${rec.policyDocumentId}}">Review</a>
+                                                            <a th:if="${#request.isUserInRole('DELETE_POLICY')}" class="dropdown-item" th:onclick="|deletePolicy([[${rec.id}]])|">Delete</a>
                                                         </div>
                                                     </div>
                                                 </td>
@@ -141,16 +151,6 @@
                                                 <td class="datecreated align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000" th:text="${#temporals.format(rec.createdAt, 'yyyy-MM-dd')}">Date created</td>
                                                 <td class="lastReview align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000" th:text="${rec.lastReview}">Last review</td>
                                                 <td class="underReview align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000" th:text="${rec.underReview}">Under review</td>
-                                                <td class="align-middle white-space-nowrap align-middle pe-0 ps-4">
-                                                    <div class="font-sans-serif btn-reveal-trigger position-static">
-                                                        <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs--2" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs--2"></span></button>
-                                                        <div class="dropdown-menu dropdown-menu-end py-2">
-                                                            <a th:if="${#request.isUserInRole('UPDATE_POLICY')}" class="dropdown-item" href="#!" th:href="@{'/admin/policy/edit/' + ${rec.policyDocumentId}}">Update</a>
-                                                            <a th:if="${#request.isUserInRole('REVIEW_POLICY')}" class="dropdown-item" href="#!" th:href="@{'/admin/policy/review/' + ${rec.policyDocumentId}}">Review</a>
-                                                            <a th:if="${#request.isUserInRole('DELETE_POLICY')}" class="dropdown-item" th:onclick="|deletePolicy([[${rec.id}]])|">Delete</a>
-                                                        </div>
-                                                    </div>
-                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>

@@ -41,23 +41,23 @@
                                                         <span class="fas fa-user text-900 fs--1 form-icon text-primary"></span>
                                                     </div>
                                                     <div class="form-icon-container">
-                                                        <input class="form-control form-icon-input" th:field="*{password}" type="password" placeholder="Password" required="required" />
+                                                        <input class="form-control form-icon-input" th:field="*{password}" type="password" placeholder="Domain Password" required="required" />
                                                         <span class="fas fa-key text-900 fs--1 form-icon text-primary"></span>
                                                     </div>
                                                     <div class="form-icon-container">
                                                         <p>Enter OTP from your Microsoft Authenticator</p>
-                                                        <div class="auth-form-box">
+                                                        <div class="auth-form-box digit-group" data-group-name="digits" data-autosubmit="false">
                                                             <div class="form-icon-container userInput">
-                                                                <input type="text" th:field="*{otp1}" maxlength="1" onkeyup="clickEvent(this, 'otp2')" class="inputs" required="required"/>
-                                                                <input type="text" th:field="*{otp2}" maxlength="1" onkeyup="clickEvent(this, 'otp3')" class="inputs" required="required"/>
-                                                                <input type="text" th:field="*{otp3}" maxlength="1" onkeyup="clickEvent(this, 'otp4')" class="inputs" required="required"/>
-                                                                <input type="text" th:field="*{otp4}" maxlength="1" onkeyup="clickEvent(this, 'otp5')" class="inputs" required="required"/>
-                                                                <input type="text" th:field="*{otp5}" maxlength="1" onkeyup="clickEvent(this, 'otp6')" class="inputs" required="required"/>
-                                                                <input type="text" th:field="*{otp6}" maxlength="1" class="inputs" required="required"/>
+                                                                <input type="text" th:field="*{otp1}" data-next="otp2" class="inputs" required="required"/>
+                                                                <input type="text" th:field="*{otp2}" data-next="otp3" data-previous="otp1" class="inputs" required="required"/>
+                                                                <input type="text" th:field="*{otp3}" data-next="otp4" data-previous="otp2" class="inputs" required="required"/>
+                                                                <input type="text" th:field="*{otp4}" data-next="otp5" data-previous="otp3" class="inputs" required="required"/>
+                                                                <input type="text" th:field="*{otp5}" data-next="otp6" data-previous="otp4" class="inputs" required="required"/>
+                                                                <input type="text" th:field="*{otp6}" data-previous="otp5" class="inputs" required="required"/>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <button class="btn btn-primary w-100 mb-3 mt-3" type="submit">Sign In</button>
+                                                    <button class="btn btn-primary w-100 mb-3 mt-3" type="submit" id="signin">Sign In</button>
                                                     <div class="text-center">
                                                         <p class="text-secondary pb-1 mb-1">Not registered?</p>
                                                         <a class="fs--1 fw-bold text-primary" href="" data-bs-target="#qrcodeModal" data-bs-toggle="modal">Scan QR Code here to register</a>                                                        
@@ -93,7 +93,7 @@
                     </div>
                 </div>
             </div>    
-<!--            <th:block th:include="~{fragments/entityscFragments :: navbarScript}"></th:block>-->
+            <!--            <th:block th:include="~{fragments/entityscFragments :: navbarScript}"></th:block>-->
         </main>        
         <th:block th:include="~{fragments/entityscFragments :: scriptfiles}"></th:block>
     </body>   

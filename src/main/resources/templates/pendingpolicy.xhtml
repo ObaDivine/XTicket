@@ -667,25 +667,34 @@
                     </div>
                 </div>
             </div>
-            <div class="modal fade" id="policyDeclineModal" tabindex="-1" aria-labelledby="policyDeclineModal" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-top">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h6 class="modal-title text-primary">X-Policy</h6>
-                            <button class="btn p-1" type="button" data-bs-dismiss="modal" aria-label="Close">
-                                <span class="fas fa-times fs--1"></span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <p>Pending Policy record will be deleted if declined. Proceed?</p>
-                        </div>
-                        <div class="modal-footer">
-                            <a id="declinePolicy" class="btn btn-sm btn-danger btn-sm" type="button">Decline</a>
-                            <button class="btn btn-sm btn-outline-primary btn-sm" type="button" data-bs-dismiss="modal">Close</button>
+            <form id="policyDeclineForm" th:object="${xpolicyPayload}" th:action="@{/admin/policy/decline}" method="POST">
+                <div class="modal fade" id="policyDeclineModal" tabindex="-1" aria-labelledby="policyDeclineModal" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-top">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h6 class="modal-title text-primary">X-Policy</h6>
+                                <button class="btn p-1" type="button" data-bs-dismiss="modal" aria-label="Close">
+                                    <span class="fas fa-times fs--1"></span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Pending Policy record will be deleted if declined. Proceed?</p>
+                                <div class="row mb-1">
+                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="comment">Reason for Declining</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control form-control-sm" th:field="*{comment}" placeholder="Reason for declining" required="required" />
+                                        <input type="hidden" id="reference" name="reference" value="" required="required"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-sm btn-danger btn-sm" type="submit">Decline</button>
+                                <button class="btn btn-sm btn-outline-primary btn-sm" type="button" data-bs-dismiss="modal">Close</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>            
+                </div>    
+            </form>
         </main>
         <th:block th:include="~{fragments/entityscFragments :: scriptfiles}"></th:block>
     </body>

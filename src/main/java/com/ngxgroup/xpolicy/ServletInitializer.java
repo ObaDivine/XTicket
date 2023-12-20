@@ -21,7 +21,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class ServletInitializer extends SpringBootServletInitializer implements ApplicationRunner {
 
     @Autowired
@@ -571,21 +571,12 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
                 xpolicyRepository.createPolicyType(newType);
             }
 
-            PolicyType procedure = xpolicyRepository.getPolicyTypeUsingCode("PRO");
-            if (procedure == null) {
-                PolicyType newType = new PolicyType();
-                newType.setCreatedAt(LocalDateTime.now());
-                newType.setPolicyTypeCode("PRO");
-                newType.setPolicyTypeName("Procedures");
-                xpolicyRepository.createPolicyType(newType);
-            }
-
-            PolicyType framework = xpolicyRepository.getPolicyTypeUsingCode("FWK");
+            PolicyType framework = xpolicyRepository.getPolicyTypeUsingCode("COM");
             if (framework == null) {
                 PolicyType newType = new PolicyType();
                 newType.setCreatedAt(LocalDateTime.now());
-                newType.setPolicyTypeCode("FWK");
-                newType.setPolicyTypeName("Framework");
+                newType.setPolicyTypeCode("COM");
+                newType.setPolicyTypeName("Committees And Association");
                 xpolicyRepository.createPolicyType(newType);
             }
 
@@ -598,12 +589,12 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
                 xpolicyRepository.createPolicyType(newType);
             }
 
-            PolicyType standard = xpolicyRepository.getPolicyTypeUsingCode("STD");
+            PolicyType standard = xpolicyRepository.getPolicyTypeUsingCode("TEM");
             if (standard == null) {
                 PolicyType newType = new PolicyType();
                 newType.setCreatedAt(LocalDateTime.now());
-                newType.setPolicyTypeCode("STD");
-                newType.setPolicyTypeName("Standards");
+                newType.setPolicyTypeCode("TEM");
+                newType.setPolicyTypeName("Templates");
                 xpolicyRepository.createPolicyType(newType);
             }
 
@@ -641,10 +632,10 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
         appRoles.put("SOP", "View Standard Operating Procedures accross entities");
         appRoles.put("CHARTER", "View Charters accross entities");
         appRoles.put("FORMS", "View Forms accross entities");
-        appRoles.put("FRAMEWORK", "View Frameworks accross entities");
-        appRoles.put("STANDARD", "View Standards accross entities");
-        appRoles.put("PROCEDURE", "View Procedures accross entities");
+        appRoles.put("TEMPLATES", "View Templates accross entities");
+        appRoles.put("COMMITTEES AND ASSOCIATION", "View Committees and Association accross entities");
         appRoles.put("SCHEDULE", "View Schedules accross entities");
+        appRoles.put("REPORT", "View Reports accross entities");
 
         for (Map.Entry<String, String> role : appRoles.entrySet()) {
             //Check if the role exist already
@@ -731,16 +722,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
                 xpolicyRepository.createGroupRoles(newGroupRole);
             }
 
-            AppRoles appRoleProcedure = xpolicyRepository.getRoleUsingRoleName("PROCEDURE");
-            if (appRoleProcedure != null) {
-                GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleProcedure);
-                newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(adminGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
-            }
-
-            AppRoles appRoleStandard = xpolicyRepository.getRoleUsingRoleName("STANDARD");
+            AppRoles appRoleStandard = xpolicyRepository.getRoleUsingRoleName("COMMITTEES AND ASSOCIATION");
             if (appRoleStandard != null) {
                 GroupRoles newGroupRole = new GroupRoles();
                 newGroupRole.setAppRole(appRoleStandard);
@@ -749,7 +731,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
                 xpolicyRepository.createGroupRoles(newGroupRole);
             }
 
-            AppRoles appRoleFramework = xpolicyRepository.getRoleUsingRoleName("FRAMEWORK");
+            AppRoles appRoleFramework = xpolicyRepository.getRoleUsingRoleName("TEMPLATES");
             if (appRoleFramework != null) {
                 GroupRoles newGroupRole = new GroupRoles();
                 newGroupRole.setAppRole(appRoleFramework);
@@ -829,16 +811,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
                 xpolicyRepository.createGroupRoles(newGroupRole);
             }
 
-            AppRoles appRoleProcedure = xpolicyRepository.getRoleUsingRoleName("PROCEDURE");
-            if (appRoleProcedure != null) {
-                GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleProcedure);
-                newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(userGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
-            }
-
-            AppRoles appRoleStandard = xpolicyRepository.getRoleUsingRoleName("STANDARD");
+            AppRoles appRoleStandard = xpolicyRepository.getRoleUsingRoleName("COMMITTEES AND ASSOCIATION");
             if (appRoleStandard != null) {
                 GroupRoles newGroupRole = new GroupRoles();
                 newGroupRole.setAppRole(appRoleStandard);
@@ -847,7 +820,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
                 xpolicyRepository.createGroupRoles(newGroupRole);
             }
 
-            AppRoles appRoleFramework = xpolicyRepository.getRoleUsingRoleName("FRAMEWORK");
+            AppRoles appRoleFramework = xpolicyRepository.getRoleUsingRoleName("TEMPLATES");
             if (appRoleFramework != null) {
                 GroupRoles newGroupRole = new GroupRoles();
                 newGroupRole.setAppRole(appRoleFramework);
@@ -903,16 +876,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
                 xpolicyRepository.createGroupRoles(newGroupRole);
             }
 
-            AppRoles appRoleProcedure = xpolicyRepository.getRoleUsingRoleName("PROCEDURE");
-            if (appRoleProcedure != null) {
-                GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleProcedure);
-                newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(policyUploadGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
-            }
-
-            AppRoles appRoleStandard = xpolicyRepository.getRoleUsingRoleName("STANDARD");
+            AppRoles appRoleStandard = xpolicyRepository.getRoleUsingRoleName("COMMITTEES AND ASSOCIATION");
             if (appRoleStandard != null) {
                 GroupRoles newGroupRole = new GroupRoles();
                 newGroupRole.setAppRole(appRoleStandard);
@@ -921,7 +885,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
                 xpolicyRepository.createGroupRoles(newGroupRole);
             }
 
-            AppRoles appRoleFramework = xpolicyRepository.getRoleUsingRoleName("FRAMEWORK");
+            AppRoles appRoleFramework = xpolicyRepository.getRoleUsingRoleName("TEMPLATES");
             if (appRoleFramework != null) {
                 GroupRoles newGroupRole = new GroupRoles();
                 newGroupRole.setAppRole(appRoleFramework);

@@ -51,6 +51,7 @@
                                             <tr>
                                                 <th class="sort white-space-nowrap align-middle text-capitalize" scope="col"  data-sort="email" style="width:auto;">Email</th>
                                                 <th class="sort white-space-nowrap align-middle text-capitalize" scope="col" data-sort="name" style="width:auto;">Names</th>
+                                                <th class="sort white-space-nowrap align-middle text-capitalize" scope="col" data-sort="name" style="width:auto;">Action</th>
                                                 <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="company" style="width:auto;">
                                                     <div class="d-inline-flex flex-center">
                                                         <div class="d-flex align-items-center px-1 py-1 bg-primary-100 rounded me-2">
@@ -113,7 +114,6 @@
                                                         <span>Role</span>
                                                     </div>
                                                 </th>
-                                                <th class="sort align-middle align-middle pe-0 ps-4" scope="col"></th>
                                             </tr>
                                         </thead>
                                         <tbody class="list" id="deal-tables-body">
@@ -130,14 +130,7 @@
                                                     </div>
                                                 </td>
                                                 <td class="username align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end"  th:text="${rec.name}">Name</td>
-                                                <td class="company align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end"   th:text="${rec.company.companyName}">Company name</td>
-                                                <td class="division align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.division.divisionName}">Division</td>
-                                                <td class="department align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.department.departmentName}">Department</td>
-                                                <td class="accessLevel align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.accessLevel}">Access Level</td>
-                                                <td class="policyChampion align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.policyChampion}">Policy Champion</td>
-                                                <td class="datecreated align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000" th:text="${#temporals.format(rec.createdAt,'yyyy-MM-dd')}">Date created</td>
-                                                <td class="role align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000" th:text="${rec.role.groupName}">Role</td>
-                                                <td class="align-middle white-space-nowrap align-middle pe-0 ps-4">
+                                                <td class="align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end">
                                                     <div class="font-sans-serif btn-reveal-trigger position-static">
                                                         <button
                                                             class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs--2"  type="button" data-bs-toggle="dropdown" data-boundary="window"
@@ -148,6 +141,13 @@
                                                         </div>
                                                     </div>
                                                 </td>
+                                                <td class="company align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end"   th:text="${rec.company.companyName}">Company name</td>
+                                                <td class="division align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.division.divisionName}">Division</td>
+                                                <td class="department align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.department.departmentName}">Department</td>
+                                                <td class="accessLevel align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.accessLevel}">Access Level</td>
+                                                <td class="policyChampion align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.policyChampion}">Policy Champion</td>
+                                                <td class="datecreated align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000" th:text="${#temporals.format(rec.createdAt,'yyyy-MM-dd')}">Date created</td>
+                                                <td class="role align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000" th:text="${rec.role.groupName}">Role</td>
                                             </tr>
                                         </tbody>
                                     </table>

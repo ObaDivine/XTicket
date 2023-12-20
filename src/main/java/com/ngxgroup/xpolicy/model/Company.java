@@ -40,4 +40,6 @@ public class Company implements Serializable {
     private String companyHead;
     @Column(name = "domain_controller")
     private String domainController;
+    @Column(name = "domain_controller_ip")
+    private String domainControllerIp;
 }

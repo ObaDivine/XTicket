@@ -49,6 +49,8 @@ public class PolicyTemp implements Serializable {
     private String policyAuthor;
     @Column(name = "policy_document_id")
     private String policyDocumentId;
+    @Column(name = "policy_document_ext")
+    private String policyDocumentExt;
     @Column(name = "under_review")
     private boolean underReview = false;
     @Column(name = "expiry_date")

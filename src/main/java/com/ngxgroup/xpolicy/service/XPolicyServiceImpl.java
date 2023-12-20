@@ -79,6 +79,8 @@ public class XPolicyServiceImpl implements XPolicyService {
     private String uploadBaseDir;
     @Value("${xpolicy.ngx.email.domain}")
     private String emailDomain;
+    @Value("${xpolicy.email.notification}")
+    private String emailNotification;
     static final Logger logger = Logger.getLogger(XPolicyServiceImpl.class.getName());
 
     @Override
@@ -122,14 +124,59 @@ public class XPolicyServiceImpl implements XPolicyService {
             if (!response.equalsIgnoreCase("Success")) {
                 //Check for network connection
                 if (response.equalsIgnoreCase(appUser.getCompany().getDomainController() + ":389")) {
-                    String message = messageSource.getMessage("appMessages.connection.failed", new Object[]{appUser.getCompany().getDomainController()}, Locale.ENGLISH);
+                    //Try again using the IP Address of the Domain Controller
+                    response = authenticateADUser(requestPayload.getEmail(), requestPayload.getPassword(), appUser.getCompany().getDomainControllerIp(), "");
+                    if (response.equalsIgnoreCase(appUser.getCompany().getDomainControllerIp() + ":389")) {
+                        String message = messageSource.getMessage("appMessages.connection.failed", new Object[]{appUser.getCompany().getDomainController()}, Locale.ENGLISH);
+                        log.setMessage(message);
+                        log.setSeverity("INFO");
+                        log.setSource("Login");
+                        log.setUsername(requestPayload.getEmail());
+                        logger.log(Level.INFO, gson.toJson(log));
+                        xpolicyPayload.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+                        xpolicyPayload.setResponseMessage(message);
+                        return xpolicyPayload;
+                    }
+
+                    //Connection succeeded
+                    if (!totp.equalsIgnoreCase(userOTP)) {
+                        String message = messageSource.getMessage("appMessages.invalid.totp", new Object[]{requestPayload.getEmail()}, Locale.ENGLISH);
+                        log.setMessage(message);
+                        log.setSeverity("INFO");
+                        log.setSource("Login");
+                        log.setUsername(requestPayload.getEmail());
+                        logger.log(Level.INFO, gson.toJson(log));
+                        xpolicyPayload.setResponseCode(ResponseCodes.FAILED_LOGIN.getResponseCode());
+                        xpolicyPayload.setResponseMessage(message);
+                        return xpolicyPayload;
+                    }
+                    //Clear failed login
+                    appUser.setLoginFailCount(0);
+                    xpolicyRepository.updateAppUser(appUser);
+                    xpolicyRepository.updateAppUser(appUser);
+
+                    AuditLog newAudit = new AuditLog();
+                    newAudit.setAuditAction(appUser.getName() + " Login as " + requestPayload.getEmail());
+                    newAudit.setAuditCategory("Login");
+                    newAudit.setAuditClass("Login");
+                    newAudit.setCreatedAt(LocalDateTime.now());
+                    newAudit.setNewValue("");
+                    newAudit.setOldValue("");
+                    newAudit.setRefNo("");
+                    newAudit.setUsername(requestPayload.getEmail());
+                    xpolicyRepository.createAuditLog(newAudit);
+
+                    String message = messageSource.getMessage("appMessages.success.signin", new Object[0], Locale.ENGLISH);
+                    xpolicyPayload.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                    xpolicyPayload.setResponseMessage(message);
+
+                    //Set the last login
+                    appUser.setLastLogin(LocalDate.now());
                     log.setMessage(message);
                     log.setSeverity("INFO");
                     log.setSource("Login");
                     log.setUsername(requestPayload.getEmail());
                     logger.log(Level.INFO, gson.toJson(log));
-                    xpolicyPayload.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
-                    xpolicyPayload.setResponseMessage(message);
                     return xpolicyPayload;
                 }
 
@@ -164,17 +211,19 @@ public class XPolicyServiceImpl implements XPolicyService {
                 xpolicyPayload.setResponseMessage(message);
                 return xpolicyPayload;
             }
-//            if (!totp.equalsIgnoreCase(userOTP)) {
-//                String message = messageSource.getMessage("appMessages.invalid.totp", new Object[]{requestPayload.getEmail()}, Locale.ENGLISH);
-//                log.setMessage(message);
-//                log.setSeverity("INFO");
-//                log.setSource("Login");
-//                log.setUsername(requestPayload.getEmail());
-//                logger.log(Level.INFO, gson.toJson(log));
-//                xpolicyPayload.setResponseCode(ResponseCodes.FAILED_LOGIN.getResponseCode());
-//                xpolicyPayload.setResponseMessage(message);
-//                return xpolicyPayload;
-//            }
+
+            if (!totp.equalsIgnoreCase(userOTP)) {
+                String message = messageSource.getMessage("appMessages.invalid.totp", new Object[]{requestPayload.getEmail()}, Locale.ENGLISH);
+                log.setMessage(message);
+                log.setSeverity("INFO");
+                log.setSource("Login");
+                log.setUsername(requestPayload.getEmail());
+                logger.log(Level.INFO, gson.toJson(log));
+                xpolicyPayload.setResponseCode(ResponseCodes.FAILED_LOGIN.getResponseCode());
+                xpolicyPayload.setResponseMessage(message);
+                return xpolicyPayload;
+            }
+
             //Clear failed login
             appUser.setLoginFailCount(0);
             xpolicyRepository.updateAppUser(appUser);
@@ -266,8 +315,8 @@ public class XPolicyServiceImpl implements XPolicyService {
             env.put(Context.SECURITY_CREDENTIALS, password);
 
             // attempt to authenticate
-//            DirContext ctx = new InitialDirContext(env);
-//            ctx.close();
+            DirContext ctx = new InitialDirContext(env);
+            ctx.close();
             return "Success";
         } catch (Exception ex) {
             log.setMessage(ex.getMessage());
@@ -301,9 +350,9 @@ public class XPolicyServiceImpl implements XPolicyService {
 
             String decryptedSecretKey = genericService.decryptString(appUser.getTwoFactorSecretKey());
             String qrcodeData = "otpauth://totp/"
-                    + URLEncoder.encode("Nigerian Exchange Group" + ":" + requestPayload.getEmail(), "UTF-8").replace("+", "%20")
+                    + URLEncoder.encode("NGX Group Policy" + ":" + requestPayload.getEmail(), "UTF-8").replace("+", "%20")
                     + "?secret=" + URLEncoder.encode(decryptedSecretKey, "UTF-8").replace("+", "%20")
-                    + "&issuer=" + URLEncoder.encode("Nigerian Exchange Group", "UTF-8").replace("+", "%20");
+                    + "&issuer=" + URLEncoder.encode("NGX Group Policy", "UTF-8").replace("+", "%20");
 
             BitMatrix matrix = new MultiFormatWriter().encode(qrcodeData, BarcodeFormat.QR_CODE, qrCodeWidth, qrCodeHeight);
             String dest = qrCodeBaseDir + "/" + requestPayload.getEmail() + ".png";
@@ -704,7 +753,8 @@ public class XPolicyServiceImpl implements XPolicyService {
 
                 //Check the file extension
                 String extension = FilenameUtils.getExtension(requestPayload.getFileUpload().getOriginalFilename());
-                if (!"pdf".equalsIgnoreCase(extension)) {
+                if (!"pdf".equalsIgnoreCase(extension) && !"doc".equalsIgnoreCase(extension) && !"docx".equalsIgnoreCase(extension)
+                        && !"xls".equalsIgnoreCase(extension) && !"xlsx".equalsIgnoreCase(extension)) {
                     message = messageSource.getMessage("appMessages.policy.file.notsupported", new Object[]{"PDF"}, Locale.ENGLISH);
                     log.setMessage(message);
                     log.setSeverity("INFO");
@@ -718,7 +768,7 @@ public class XPolicyServiceImpl implements XPolicyService {
 
                 //Create a directory and dump the file
                 String documentId = UUID.randomUUID().toString().replace("-", "");
-                String path = uploadBaseDir + "/" + documentId + ".pdf";
+                String path = uploadBaseDir + "/" + documentId + "." + extension;
                 File newFile = new File(path);
                 FileCopyUtils.copy(requestPayload.getFileUpload().getBytes(), newFile);
 
@@ -742,8 +792,9 @@ public class XPolicyServiceImpl implements XPolicyService {
                 newPolicy.setPolicyCode(requestPayload.getPolicyCode());
                 newPolicy.setPolicyDescription(requestPayload.getPolicyDescription());
                 newPolicy.setPolicyDocumentId(documentId);
+                newPolicy.setPolicyDocumentExt(extension);
                 PolicyType policyType = xpolicyRepository.getPolicyTypeUsingCode(requestPayload.getPolicyType());
-                newPolicy.setPolicyName(WordUtils.capitalizeFully(requestPayload.getPolicyName()));
+                newPolicy.setPolicyName(requestPayload.getPolicyName());
                 newPolicy.setPolicyType(policyType);
                 newPolicy.setUnderReview(requestPayload.isUnderReview());
                 newPolicy.setActionType("NEW");
@@ -769,6 +820,17 @@ public class XPolicyServiceImpl implements XPolicyService {
                 logger.log(Level.INFO, gson.toJson(log));
                 xpolicyPayload.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
                 xpolicyPayload.setResponseMessage(message);
+
+                //Send email notification
+                XPolicyPayload emailPayload = new XPolicyPayload();
+                emailPayload.setRecipientEmail(emailNotification);
+                emailPayload.setEmailBody("<h5>Dear Sir/Madam,</h5>\n"
+                        + "<p>This is to bring to your notice that you have a pending Policy/SOP <b>" + requestPayload.getPolicyName() + "</b> awaiting your approval.</p> \n"
+                        + "<p>Regards</p>\n"
+                        + "<p>Nigerian Exchange Group</p>\n");
+                emailPayload.setEmailSubject("X-Policy Upload");
+                genericService.sendEmail(emailPayload, principal);
+
                 return xpolicyPayload;
             }
 
@@ -842,13 +904,12 @@ public class XPolicyServiceImpl implements XPolicyService {
                     return xpolicyPayload;
                 }
 
-                long fileSize = newFile.length() / (1024 * 1024);
-                policyRecord.setFileSize(String.valueOf(fileSize) + " MB");
-
                 //Create a directory and dump the file
-                String path = uploadBaseDir + "/" + policyRecord.getPolicyDocumentId() + ".pdf";
+                String path = uploadBaseDir + "/" + policyRecord.getPolicyDocumentId() + "." + extension;
                 newFile = new File(path);
                 FileCopyUtils.copy(requestPayload.getFileUpload().getBytes(), newFile);
+                long fileSize = newFile.length() / (1024 * 1024);
+                policyRecord.setFileSize(String.valueOf(fileSize) + " MB");
 
             }
 
@@ -870,8 +931,9 @@ public class XPolicyServiceImpl implements XPolicyService {
             policyTemp.setPolicyCode(requestPayload.getPolicyCode());
             policyTemp.setPolicyDescription(requestPayload.getPolicyDescription());
             PolicyType policyType = xpolicyRepository.getPolicyTypeUsingCode(requestPayload.getPolicyType());
-            policyTemp.setPolicyName(WordUtils.capitalizeFully(requestPayload.getPolicyName()));
+            policyTemp.setPolicyName(requestPayload.getPolicyName());
             policyTemp.setPolicyDocumentId(policyRecord.getPolicyDocumentId());
+            policyTemp.setPolicyDocumentExt(policyRecord.getPolicyDocumentExt());
             policyTemp.setPolicyType(policyType);
             policyTemp.setActionType("EDIT");
             policyTemp.setUnderReview(requestPayload.isUnderReview());
@@ -902,7 +964,7 @@ public class XPolicyServiceImpl implements XPolicyService {
         } catch (Exception ex) {
             log.setMessage(ex.getMessage());
             log.setSeverity("INFO");
-            log.setSource("Update Policy");
+            log.setSource("Create Policy");
             log.setUsername(principal);
             logger.log(Level.INFO, gson.toJson(log));
             xpolicyPayload.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
@@ -1052,12 +1114,7 @@ public class XPolicyServiceImpl implements XPolicyService {
                 newUser.setName(requestPayload.getFullName());
                 newUser.setPolicyChampion(requestPayload.isPolicyChampion());
                 newUser.setResetTime(LocalDateTime.now());
-                RoleGroups role = null;
-                if (requestPayload.getUserType().equalsIgnoreCase("ADMIN")) {
-                    role = xpolicyRepository.getRoleGroupUsingGroupName("ADMIN");
-                } else {
-                    role = xpolicyRepository.getRoleGroupUsingGroupName("USER");
-                }
+                RoleGroups role = xpolicyRepository.getRoleGroupUsingId(Long.valueOf(requestPayload.getRoleName()));
                 newUser.setRole(role);
                 newUser.setTwoFactorSecretKey(genericService.encryptString(genericService.generateTOTPSecretKey()));
                 newUser.setUpdatedAt(LocalDateTime.now());
@@ -1144,12 +1201,7 @@ public class XPolicyServiceImpl implements XPolicyService {
             appUser.setLoginFailCount(requestPayload.isFailedLogin() ? 0 : appUser.getLoginFailCount());
             appUser.setName(requestPayload.getFullName());
             appUser.setPolicyChampion(requestPayload.isPolicyChampion());
-            RoleGroups role = null;
-            if (requestPayload.getUserType().equalsIgnoreCase("ADMIN")) {
-                role = xpolicyRepository.getRoleGroupUsingGroupName("ADMIN");
-            } else {
-                role = xpolicyRepository.getRoleGroupUsingGroupName("USER");
-            }
+            RoleGroups role = xpolicyRepository.getRoleGroupUsingId(Long.parseLong(requestPayload.getRoleName()));
             appUser.setRole(role);
             appUser.setUserType(requestPayload.getUserType());
             String newValues = gson.toJson(appUser);
@@ -1283,6 +1335,7 @@ public class XPolicyServiceImpl implements XPolicyService {
             xpolicyPayload.setUpdateDepartment(appUser.getDepartment().getId().toString());
             xpolicyPayload.setFullName(appUser.getName());
             xpolicyPayload.setId(appUser.getId().intValue());
+            xpolicyPayload.setRoleName(appUser.getRole().getId().toString());
             xpolicyPayload.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
             xpolicyPayload.setResponseMessage("Success");
             return xpolicyPayload;
@@ -1412,7 +1465,6 @@ public class XPolicyServiceImpl implements XPolicyService {
     @Override
     public XPolicyPayload generateReport(XPolicyPayload requestPayload) {
         XPolicyPayload xpolicyPayload = new XPolicyPayload();
-        String message = "";
         List<Policy> policies = new ArrayList<>();
         List<AppUser> appUsers = new ArrayList<>();
         LogPayload log = new LogPayload();
@@ -1636,6 +1688,17 @@ public class XPolicyServiceImpl implements XPolicyService {
                     logger.log(Level.INFO, gson.toJson(log));
                     xpolicyPayload.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
                     xpolicyPayload.setResponseMessage(message);
+
+                    //Send email notification
+                    XPolicyPayload emailPayload = new XPolicyPayload();
+                    emailPayload.setRecipientEmail(emailNotification);
+                    emailPayload.setEmailBody("<h5>Dear Sir/Madam,</h5>\n"
+                            + "<p>Trust your day is going well.</p> \n"
+                            + "<p>This is to bring to your notice that the policy with name <b>" + pendingPolicy.getPolicyName() + "</b> has been approved and successfully uploaded on the X-Policy.</p> \n"
+                            + "<p>Regards</p>\n"
+                            + "<p>Nigerian Exchange Group</p>\n");
+                    emailPayload.setEmailSubject("Policy Approved");
+                    genericService.sendEmail(emailPayload, principal);
                     return xpolicyPayload;
                 }
                 case "EDIT": {
@@ -1653,6 +1716,7 @@ public class XPolicyServiceImpl implements XPolicyService {
                         policy.setPolicyCode(pendingPolicy.getPolicyCode());
                         policy.setPolicyDescription(pendingPolicy.getPolicyDescription());
                         policy.setPolicyDocumentId(pendingPolicy.getPolicyDocumentId());
+                        policy.setPolicyDocumentExt(pendingPolicy.getPolicyDocumentExt());
                         policy.setPolicyName(pendingPolicy.getPolicyName());
                         policy.setPolicyType(pendingPolicy.getPolicyType());
                         policy.setUnderReview(pendingPolicy.isUnderReview());
@@ -1681,6 +1745,17 @@ public class XPolicyServiceImpl implements XPolicyService {
                         logger.log(Level.INFO, gson.toJson(log));
                         xpolicyPayload.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
                         xpolicyPayload.setResponseMessage(message);
+
+                        //Send email notification
+                        XPolicyPayload emailPayload = new XPolicyPayload();
+                        emailPayload.setRecipientEmail(emailNotification);
+                        emailPayload.setEmailBody("<h5>Dear Sir/Madam,</h5>\n"
+                                + "<p>Trust your day is going well.</p> \n"
+                                + "<p>This is to bring to your notice that the policy with name <b>" + pendingPolicy.getPolicyName() + "</b> has been updated.</p> \n"
+                                + "<p>Regards</p>\n"
+                                + "<p>Nigerian Exchange Group</p>\n");
+                        emailPayload.setEmailSubject("X-Policy Update");
+                        genericService.sendEmail(emailPayload, principal);
                         return xpolicyPayload;
                     }
                 }
@@ -1689,6 +1764,31 @@ public class XPolicyServiceImpl implements XPolicyService {
                     if (policy != null) {
                         //Delete from the pending
                         xpolicyRepository.deletePolicyTemp(pendingPolicy);
+
+                        //Check Policy Read for the policy
+                        List<PolicyRead> policyRead = xpolicyRepository.getPolicyReadUsingPolicy(policy);
+                        if (policyRead != null) {
+                            for (PolicyRead polRead : policyRead) {
+                                xpolicyRepository.deletePolicyRead(polRead);
+                            }
+                        }
+
+                        //Check Policy Review
+                        List<PolicyReview> policyReview = xpolicyRepository.getPolicyReviewUsingPolicy(policy);
+                        if (policyReview != null) {
+                            for (PolicyReview polRev : policyReview) {
+                                xpolicyRepository.deletePolicyReview(polRev);
+                            }
+                        }
+
+                        //Delete from the Policy
+                        xpolicyRepository.deletePolicy(policy);
+
+                        //Delete the file associated with the policy
+                        //Create a directory and dump the file
+                        String path = uploadBaseDir + "/" + policy.getPolicyDocumentId() + "." + policy.getPolicyDocumentExt();
+                        File file = new File(path);
+                        file.delete();
 
                         //Create audit log
                         AuditLog newAudit = new AuditLog();
@@ -1710,6 +1810,17 @@ public class XPolicyServiceImpl implements XPolicyService {
                         logger.log(Level.INFO, gson.toJson(log));
                         xpolicyPayload.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
                         xpolicyPayload.setResponseMessage(message);
+
+                        //Send email notification
+                        XPolicyPayload emailPayload = new XPolicyPayload();
+                        emailPayload.setRecipientEmail(emailNotification);
+                        emailPayload.setEmailBody("<h5>Dear Sir/Madam,</h5>\n"
+                                + "<p>Trust your day is going well.</p> \n"
+                                + "<p>This is to bring to your notice that the policy with name <b>" + pendingPolicy.getPolicyName() + "</b> has been deleted.</p> \n"
+                                + "<p>Regards</p>\n"
+                                + "<p>Nigerian Exchange Group</p>\n");
+                        emailPayload.setEmailSubject("X-Policy Delete");
+                        genericService.sendEmail(emailPayload, principal);
                         return xpolicyPayload;
                     }
                 }
@@ -1738,14 +1849,14 @@ public class XPolicyServiceImpl implements XPolicyService {
     }
 
     @Override
-    public XPolicyPayload processDeclinePolicy(String id, String principal) {
+    public XPolicyPayload processDeclinePolicy(XPolicyPayload requestPayload, String principal) {
         XPolicyPayload xpolicyPayload = new XPolicyPayload();
         String message = "";
         LogPayload log = new LogPayload();
         try {
-            PolicyTemp pendingPolicy = xpolicyRepository.getPolicyTempUsingDocumentId(id);
+            PolicyTemp pendingPolicy = xpolicyRepository.getPolicyTempUsingDocumentId(requestPayload.getReference());
             if (pendingPolicy == null) {
-                message = messageSource.getMessage("appMessages.policy.notexist", new Object[]{id}, Locale.ENGLISH);
+                message = messageSource.getMessage("appMessages.policy.notexist", new Object[]{requestPayload.getReference()}, Locale.ENGLISH);
                 log.setMessage(message);
                 log.setSeverity("INFO");
                 log.setSource("Decline Policy");
@@ -1769,7 +1880,7 @@ public class XPolicyServiceImpl implements XPolicyService {
             newAudit.setCreatedAt(LocalDateTime.now());
             newAudit.setNewValue("");
             newAudit.setOldValue("");
-            newAudit.setRefNo(id);
+            newAudit.setRefNo(requestPayload.getReference());
             newAudit.setUsername(principal);
             xpolicyRepository.createAuditLog(newAudit);
 
@@ -1781,6 +1892,18 @@ public class XPolicyServiceImpl implements XPolicyService {
             logger.log(Level.INFO, gson.toJson(log));
             xpolicyPayload.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
             xpolicyPayload.setResponseMessage(message);
+
+            //Send email notification
+            XPolicyPayload emailPayload = new XPolicyPayload();
+            emailPayload.setRecipientEmail(pendingPolicy.getCreatedBy());
+            emailPayload.setEmailBody("<h5>Dear Sir/Madam,</h5>\n"
+                    + "<p>Trust your day is going well.</p>\n"
+                    + "<p>This is to bring to your notice that the approval of policy with name <b>" + pendingPolicy.getPolicyName() + "</b> has been declined. </p>\n"
+                    + "<p>This is due to <b>" + requestPayload.getComment() + "</b>. Please reload after addressing the issue raised.</p>\n"
+                    + "<p>Regards</p>\n"
+                    + "<p>Nigerian Exchange Group</p>\n");
+            emailPayload.setEmailSubject("X-Policy Decline");
+            genericService.sendEmail(emailPayload, principal);
             return xpolicyPayload;
         } catch (Exception ex) {
             log.setMessage(ex.getMessage());

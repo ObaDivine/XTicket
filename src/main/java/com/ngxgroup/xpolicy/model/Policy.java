@@ -3,7 +3,6 @@ package com.ngxgroup.xpolicy.model;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -49,6 +48,8 @@ public class Policy implements Serializable {
     private String policyAuthor;
     @Column(name = "policy_document_id")
     private String policyDocumentId;
+    @Column(name = "policy_document_ext")
+    private String policyDocumentExt;
     @Column(name = "under_review")
     private boolean underReview = false;
     @Column(name = "expiry_date")

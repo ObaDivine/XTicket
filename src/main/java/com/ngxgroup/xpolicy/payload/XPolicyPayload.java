@@ -72,4 +72,10 @@ public class XPolicyPayload {
     private String rolesToUpdate;
     private String roleExist;
     private String roleGroup;
+    private String recipientEmail;
+    private String emailSubject;
+    private String emailBody;
+    private String attachmentFilePath;
+    private String comment;
+    private String reference;
 }

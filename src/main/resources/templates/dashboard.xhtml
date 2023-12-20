@@ -86,7 +86,7 @@
                                     <div class="col-12 col-md-auto flex-1">
                                         <div>
                                             <div class="form-check mb-1 mb-md-0 d-flex align-items-center lh-1"  th:onclick="|fetchPolicyDetails([[${rec.id}]])|" data-todo-offcanvas-toogle="data-todo-offcanvas-toogle" data-todo-offcanvas-target="#offcanvasRight" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
-                                                <a class="form-check-label mb-0 fs-0 me-2 line-clamp-1 flex-grow-1 flex-md-grow-0" th:href="@{'/policy/download/' + ${rec.policyDocumentId}}" target="_blank"><span class="text-capitalize" th:text="${rec.policyName}"></span></a>
+                                                <a class="form-check-label mb-0 fs-0 me-2 line-clamp-1 flex-grow-1 flex-md-grow-0" th:href="@{'/policy/download/' + ${rec.policyDocumentId} + '.' + ${rec.policyDocumentExt}}" target="_blank"><span class="text-capitalize" th:text="${rec.policyName}"></span></a>
                                                 <div class="badge badge-phoenix fs--2 badge-phoenix-primary">
                                                     <a type="button" href="" class="fs-0 fw-bold" th:onclick="|fetchPolicyDetails([[${rec.id}]])|" data-todo-offcanvas-toogle="data-todo-offcanvas-toogle" data-todo-offcanvas-target="#offcanvasRight" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
                                                         <p class="mb-0 text-1000 fw-semi-bold fs--1 me-2" >View Policy Details</p>
@@ -167,7 +167,7 @@
                                     </div>
                                     <h3 class="mb-5">Contact Us</h3>
                                     <p class="text-700 fw-semi-bold">For any concern regarding any of <br class="d-none d-sm-block" />policies or standard operating procedures <br class="d-none d-sm-block" />Kindly contact. </p>
-                                    <p>regulation@ngxgroup.com</p>
+                                    <p>compliance@ngxgroup.com</p>
                                 </div>
                                 <div class="card-footer border-0 py-0 px-5 z-index-1">
                                     <p class="text-700 fw-semi-bold">Follow <a href="https://ngxgroup.com/">Nigerian Exchange Group </a>at <br class="d-none d-xxl-block" /> Terms &amp; Conditions for updates.</p>

@@ -14,6 +14,7 @@ import com.ngxgroup.xpolicy.model.PolicyReview;
 import com.ngxgroup.xpolicy.model.PolicyTemp;
 import com.ngxgroup.xpolicy.model.PolicyType;
 import com.ngxgroup.xpolicy.model.RoleGroups;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -451,6 +452,13 @@ public class XPolicyRepositoryImpl implements XPolicyRepository {
     }
 
     @Override
+    public PolicyRead deletePolicyRead(PolicyRead policyRead) {
+        em.remove(em.contains(policyRead) ? policyRead : em.merge(policyRead));
+        em.flush();
+        return policyRead;
+    }
+
+    @Override
     public PolicyRead getPolicyReadUsingUserAndPolicy(AppUser appUser, Policy policy) {
         TypedQuery<PolicyRead> query = em.createQuery("SELECT p FROM PolicyRead p WHERE p.appUser = :appUser AND p.policy = :policy", PolicyRead.class)
                 .setParameter("appUser", appUser)
@@ -678,6 +686,13 @@ public class XPolicyRepositoryImpl implements XPolicyRepository {
     }
 
     @Override
+    public PolicyReview deletePolicyReview(PolicyReview policyReview) {
+        em.remove(em.contains(policyReview) ? policyReview : em.merge(policyReview));
+        em.flush();
+        return policyReview;
+    }
+
+    @Override
     public List<PolicyReview> getAllPolicyReview() {
         TypedQuery<PolicyReview> query = em.createQuery("SELECT p FROM PolicyReview p", PolicyReview.class);
         List<PolicyReview> record = query.getResultList();
@@ -693,6 +708,28 @@ public class XPolicyRepositoryImpl implements XPolicyRepository {
                 .setParameter("startDate", Date.parse(startDate))
                 .setParameter("endDate", Date.parse(endDate));
         List<PolicyReview> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public List<PolicyReview> getPolicyReviewUsingPolicy(Policy policy) {
+        TypedQuery<PolicyReview> query = em.createQuery("SELECT p FROM PolicyReview p WHERE p.policy = :policy", PolicyReview.class)
+                .setParameter("policy", policy);
+        List<PolicyReview> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public List<Policy> getPolicyExpiringToday(int daysBeforeExpiry) {
+        TypedQuery<Policy> query = em.createQuery("SELECT p FROM Policy p WHERE p.expiryDate <= :today AND p.expired = false", Policy.class)
+                .setParameter("today", LocalDate.now().plusDays(daysBeforeExpiry));
+        List<Policy> record = query.getResultList();
         if (record.isEmpty()) {
             return null;
         }

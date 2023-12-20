@@ -64,7 +64,7 @@ public interface XPolicyService {
 
     XPolicyPayload processApprovePolicy(String id, String principal);
 
-    XPolicyPayload processDeclinePolicy(String id, String principal);
+    XPolicyPayload processDeclinePolicy(XPolicyPayload requestPayload, String principal);
 
     List<AppUser> getUsers();
 

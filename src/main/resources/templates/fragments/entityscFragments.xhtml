@@ -12,8 +12,8 @@
             <meta name="msapplication-TileImage" th:content="@{/images/favicons/mstile-150x150.png}" />
             <meta name="theme-color" content="#ffffff" />
             <link rel="apple-touch-icon" sizes="180x180" th:href="@{/images/favicons/apple-touch-icon.png}"></link>
-            <link rel="icon" type="image/png" sizes="32x32" th:href="@{/images/favicons/favicon-32x32.png}"></link>
-            <link rel="icon" type="image/png" sizes="16x16" th:href="@{/images/favicons/favicon-16x16.png}"></link>
+            <link rel="icon" type="image/x-icon" sizes="32x32" th:href="@{/images/favicons/favicon-32x32.ico}"></link>
+            <link rel="icon" type="image/x-icon" sizes="16x16" th:href="@{/images/favicons/favicon-16x16.ico}"></link>
             <link rel="shortcut icon" type="image/x-icon" th:href="@{/images/favicons/favicon.ico}"></link>
             <link rel="manifest" th:href="@{/images/favicons/manifest.json}"></link>
 
@@ -45,11 +45,12 @@
                     if (referer === 'Policy Update' || referer === 'User Update') {
                         fetchUpdateDivision(companyId, divisionId);
                         fetchUpdateDepartment(divisionId, departmentId);
-                    };
+                    }
+                    ;
 
                     if (message === "" || message === null || message === "null")
                         return;
-                    
+
                     Swal.fire({
                         title: 'X-Policy',
                         text: message,
@@ -119,7 +120,7 @@
                     </div>
                     <div class="search-box navbar-top-search-box d-none d-lg-block" data-list='{"valueNames":["title"]}' style="width:25rem;">
                         <div class="row gy-3 mb-1 justify-content-between">
-                            <div class="col-sm-6 col-md-6 col-lg-10">
+                            <div class="col-sm-6 col-md-6 col-lg-10 logo-text ms-2 d-none d-sm-block text-primary">Policy Repository
                             </div>
                         </div>
                     </div>
@@ -215,6 +216,13 @@
                                 </div>
                             </div>
                         </li>
+                        <li class="nav-item">
+                            <div class="theme-control-toggle fa-icon-wait px-2">
+                                <a class="btn btn-danger btn-sm d-flex flex-center w-100" href="#!" data-bs-target="#confirmLogout" data-bs-toggle="modal">
+                                    <span class="me-2 fa fa-sign-out"></span>Sign out
+                                </a>
+                            </div>
+                        </li>
                     </ul>
                 </div>
             </nav>
@@ -284,19 +292,11 @@
                                         </div>
                                     </a>
                                 </div>
-                                <div class="nav-item-wrapper" th:if="${#request.isUserInRole('PROCEDURE')}">
-                                    <a class="nav-link label-1" href="" role="button" data-bs-toggle="modal" data-bs-target="#policyModal" aria-expanded="false" th:onclick="|setPolicy('PRO')|">
+                                <div class="nav-item-wrapper" th:if="${#request.isUserInRole('COMMITTEES AND ASSOCIATION')}">
+                                    <a class="nav-link label-1" href="" role="button" data-bs-toggle="modal" data-bs-target="#policyModal" aria-expanded="false" th:onclick="|setPolicy('COM')|">
                                         <div class="d-flex align-items-center">
                                             <span class="nav-link-icon"><span class="fa fa-procedures text-primary"></span></span>
-                                            <span class="nav-link-text-wrapper"><span class="nav-link-text">Procedure</span></span>
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="nav-item-wrapper" th:if="${#request.isUserInRole('FRAMEWORK')}">
-                                    <a class="nav-link label-1" href="" role="button" data-bs-toggle="modal" data-bs-target="#policyModal" aria-expanded="false" th:onclick="|setPolicy('FWK')|">
-                                        <div class="d-flex align-items-center">
-                                            <span class="nav-link-icon"><span class="fa fa-th text-primary"></span></span>
-                                            <span class="nav-link-text-wrapper"><span class="nav-link-text">Framework</span></span>
+                                            <span class="nav-link-text-wrapper"><span class="nav-link-text">Committees &amp; Association</span></span>
                                         </div>
                                     </a>
                                 </div>
@@ -308,19 +308,19 @@
                                         </div>
                                     </a>
                                 </div>
-                                <div class="nav-item-wrapper" th:if="${#request.isUserInRole('STANDARD')}">
-                                    <a class="nav-link label-1" href="" role="button" data-bs-toggle="modal" data-bs-target="#policyModal" aria-expanded="false" th:onclick="|setPolicy('STD')|">
-                                        <div class="d-flex align-items-center">
-                                            <span class="nav-link-icon"><span class="fa fa-align-justify text-primary"></span></span>
-                                            <span class="nav-link-text-wrapper"><span class="nav-link-text">Standard</span></span>
-                                        </div>
-                                    </a>
-                                </div>
                                 <div class="nav-item-wrapper" th:if="${#request.isUserInRole('SCEDULE')}">
                                     <a class="nav-link label-1" href="" role="button" data-bs-toggle="modal" data-bs-target="#policyModal" aria-expanded="false" th:onclick="|setPolicy('SCH')|">
                                         <div class="d-flex align-items-center">
                                             <span class="nav-link-icon"><span class="fa fa-calendar text-primary"></span></span>
                                             <span class="nav-link-text-wrapper"><span class="nav-link-text">Schedule</span></span>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="nav-item-wrapper" th:if="${#request.isUserInRole('TEMPLATES')}">
+                                    <a class="nav-link label-1" href="" role="button" data-bs-toggle="modal" data-bs-target="#policyModal" aria-expanded="false" th:onclick="|setPolicy('TEM')|">
+                                        <div class="d-flex align-items-center">
+                                            <span class="nav-link-icon"><span class="fa fa-th text-primary"></span></span>
+                                            <span class="nav-link-text-wrapper"><span class="nav-link-text">Templates</span></span>
                                         </div>
                                     </a>
                                 </div>
@@ -425,13 +425,17 @@
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <button type="button" class="btn btn-link btn-close-falcon p-0" data-bs-dismiss="modal" aria-hidden="true">&times;</button>
                                 <h6 class="modal-title text-primary">X-Policy</h6>
+                                <button class="btn p-1" type="button" data-bs-dismiss="modal" aria-label="Close">
+                                    <span class="fas fa-times fs--1"></span>
+                                </button>
                             </div>
                             <div class="modal-body">
-                                <h6>Confirm you want to logout</h6><br/>
-                                <button type="submit" class="btn btn-entitysc-primary btn-sm">Logout</button>
-                                <button type="button" class="btn btn-entitysc-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                                <p>Confirm you want to logout</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-danger btn-sm">Logout</button>
+                                <button type="button" class="btn btn-outline-primary btn-sm" data-bs-dismiss="modal">Close</button>
                             </div>
                         </div>
                     </div>

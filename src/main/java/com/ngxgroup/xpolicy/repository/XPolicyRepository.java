@@ -110,6 +110,8 @@ public interface XPolicyRepository {
 
     List<Policy> getPolicies();
 
+    List<Policy> getPolicyExpiringToday(int daysBeforeExpiry);
+
     Policy getPolicyUsingId(long id);
 
     Policy getPolicyUsingName(String policyName);
@@ -127,6 +129,8 @@ public interface XPolicyRepository {
     PolicyRead createPolicyRead(PolicyRead policyRead);
 
     PolicyRead updatePolicyRead(PolicyRead policyRead);
+
+    PolicyRead deletePolicyRead(PolicyRead policyRead);
 
     PolicyRead getPolicyReadUsingUserAndPolicy(AppUser appUser, Policy policy);
 
@@ -159,7 +163,7 @@ public interface XPolicyRepository {
     List<GroupRoles> getGroupRolesUsingRoleGroup(RoleGroups roleGroup);
 
     GroupRoles createGroupRoles(GroupRoles groupRoles);
-   
+
     GroupRoles deteleGroupRoles(GroupRoles groupRoles);
 
     PolicyReview createPolicyReview(PolicyReview policyReview);
@@ -167,6 +171,10 @@ public interface XPolicyRepository {
     List<PolicyReview> getAllPolicyReview();
 
     List<PolicyReview> getPolicyReview(String startDate, String endDate);
+
+    List<PolicyReview> getPolicyReviewUsingPolicy(Policy policy);
+
+    PolicyReview deletePolicyReview(PolicyReview policyReview);
 
     List<Policy> getExpiredPolicies();
 

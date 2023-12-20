@@ -14,14 +14,6 @@ server:
         dir: C:/XPolicy/temp
     connection-timeout: 120000
 
-        
-#logging:
-#    level:
-#        org:
-#            apache:
-#                tomcat: DEBUG
-#                catalina: DEBUG
-
 logging:
     file:
         name: C:/Xpolicy/logs/xpolicy.log
@@ -47,26 +39,37 @@ spring:
         activate:
             profile: dev
     datasource:
-        initialization-mode: always
-        #password: F3bru@ry02mth
-        #username: ngxadmin@nxgroup01-mysqldbserver
-        #driverClassName: com.mysql.jdbc.Driver  
-        #url: jdbc:mysql://nxgroup01-mysqldbserver.mysql.database.azure.com:3306/xpolicy?useSSL=true
-        password: Anaconda1521@
-        username: entityscdbuser
-        driverClassName: org.postgresql.Driver
-        url: jdbc:postgresql://209.159.155.84/xpolicy
+        initialization-mode: ALWAYS
+        password: F3bru@ry02mth
+        username: ngxadmin@nxgroup01-mysqldbserver
+        driverClassName: com.mysql.jdbc.Driver  
+        url: jdbc:mysql://nxgroup01-mysqldbserver.mysql.database.azure.com:3306/xpolicy?useSSL=true
     jpa:
         hibernate:
             ddl-auto: update
-            #dialect: org.hibernate.dialect.MySQL5InnoDBDialect
-            dialect: org.hibernate.dialect.PostgreSQLDialect
-        show-sql: true  
+            dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+        show-sql: true
+
+email:
+    host: 10.172.16.170
+    port: 25
+    protocol: smtp
+    trust: 10.172.16.170
+    login: postmaster@ngxgroup.com
+    from: X-Policy
+    password: Password10$
+    
 xpolicy:
+    cron:
+        job: 0 0 11 * * ?
+    email:
+        notification: bokon@ngxgroup.com
+    expiry:
+        days: 3
     download:
         policy:
             base:
-                dir: C:/NGX/Policy
+                dir: C:/NGX/XPolicy
     ngx:
         email:
             domain: ngxgroup.com

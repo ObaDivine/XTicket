@@ -22385,7 +22385,7 @@ fieldset:disabled [data-list] .page,
 .sticky-sidebar {
     position: sticky;
     z-index: 1020;
-    top: var(--entitysc-navbar-top-height)1
+    top: var(--entitysc-navbar-top-height);
 }
 
 .circle-dashed {
@@ -25839,7 +25839,8 @@ html:not(.navbar-vertical-collapsed) .navbar-vertical.navbar-expand-xs .navbar-v
     top: var(--entitysc-navbar-top-height);
     padding: 0;
     width: 100vw;
-    background: var(--entitysc-navbar-vertical-bg-color)
+    background: var(--entitysc-navbar-vertical-bg-color);
+    border:1px solid whitesmoke;
 }
 
 .navbar-vertical .navbar-vertical-line {
@@ -25847,7 +25848,7 @@ html:not(.navbar-vertical-collapsed) .navbar-vertical.navbar-expand-xs .navbar-v
 }
 
 .navbar-vertical+.navbar-top .navbar-logo {
-    height: var(--entitysc-navbar-top-height)0.0625rem
+    height: var(--entitysc-navbar-top-height)0.0625rem;
 }
 
 .navbar-vertical+.navbar-top .navbar-toggler {
@@ -32378,7 +32379,7 @@ html:not(.navbar-vertical-collapsed) .navbar-vertical .firefox .navbar-vibrant .
 [dir=rtl] .hero-header-container .hero-image-container .hero-image-container-bg {
     -webkit-transform: scaleX(-1);
     -ms-transform: scaleX(-1);
-    transform: scaleX(-1)
+    transform: scaleX(-1);
 }
 
 .alternate-landing {
@@ -32858,8 +32859,8 @@ html:not(.navbar-vertical-collapsed) .navbar-vertical .firefox .navbar-vibrant .
 }
 
 @media(min-width: 768px) {
-    .theme-wizard .nav-item:not(.theme-wizard .nav-item: last-child) .nav-link:before {
-        top:35%
+    .theme-wizard .nav-item:not(.theme-wizard .nav-item:last-child) .nav-link:before {
+        top:35%;
     }
 }
 
