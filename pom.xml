@@ -9,12 +9,12 @@
     </parent>
 
     <groupId>com.ngxgroup</groupId>
-    <artifactId>xpolicy</artifactId>
+    <artifactId>xticket</artifactId>
     <version>1.0</version>
     <packaging>war</packaging>
 
-    <name>xpolicy</name>
-    <description>NGX Policy Repository</description>
+    <name>xticket</name>
+    <description>NGX Help Desk Ticketing Solution</description>
     
     <organization>
         <name>NGX Limited</name>
@@ -27,7 +27,7 @@
             <name>Brian Okon</name>
             <email>bokon@ngxgroup.com</email>
             <roles>
-                <role>team Lead</role>
+                <role>Team Lead</role>
             </roles>
         </developer>
     </developers>

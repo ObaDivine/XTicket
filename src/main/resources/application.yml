@@ -1,4 +1,4 @@
-####### NGX - XPolicy Config #########
+####### NGX - XTicket Config #########
 ---
 server:
     error:
@@ -7,21 +7,21 @@ server:
         include-exception: false
         include-stacktrace: never
     tomcat:
-        basedir: C:/XPolicy/Log
+        basedir: C:/XTicket/Log
         accesslog:
             enabled: true
     temp:
-        dir: C:/XPolicy/temp
+        dir: C:/XTicket/temp
     connection-timeout: 120000
 
 logging:
     file:
-        name: C:/Xpolicy/logs/xpolicy.log
+        name: C:/Xticket/logs/xticket.log
     level:
         root: INFO
 upload:
     base:
-        dir: C:/Xpolicy/bulk/upload
+        dir: C:/Xticket/bulk/upload
     max:
         record: 100
 jwt:
@@ -43,7 +43,7 @@ spring:
         password: F3bru@ry02mth
         username: ngxadmin@nxgroup01-mysqldbserver
         driverClassName: com.mysql.jdbc.Driver  
-        url: jdbc:mysql://nxgroup01-mysqldbserver.mysql.database.azure.com:3306/xpolicy?useSSL=true
+        url: jdbc:mysql://nxgroup01-mysqldbserver.mysql.database.azure.com:3306/xticket?useSSL=true
     jpa:
         hibernate:
             ddl-auto: update
@@ -56,10 +56,10 @@ email:
     protocol: smtp
     trust: 10.172.16.170
     login: postmaster@ngxgroup.com
-    from: X-Policy
+    from: X-Ticket
     password: Password10$
     
-xpolicy:
+xticket:
     cron:
         job: 0 0 11 * * ?
     email:
@@ -69,7 +69,7 @@ xpolicy:
     download:
         policy:
             base:
-                dir: C:/NGX/XPolicy
+                dir: C:/NGX/XTicket
     ngx:
         email:
             domain: ngxgroup.com
@@ -82,7 +82,7 @@ xpolicy:
         height: 115
         width: 115
         image:
-            url: C:/Apps/Java/XPolicy/target/xpolicy-1.0/WEB-INF/classes/images/qrcode
+            url: C:/Apps/Java/XTicket/target/xticket-1.0/WEB-INF/classes/images/qrcode
     password:
         default: Password!23
         web: Password!23

@@ -25,7 +25,7 @@
                                                             <img th:src="@{/images/logo_nobg.png}" alt="entitysc" width="96" height="48" src="" />
                                                         </div>
                                                     </a>
-                                                    <h3 class="mt-3 text-primary">X-Policy Repository</h3>
+                                                    <h3 class="mt-3 text-primary">X-Ticket Solution</h3>
                                                 </div>
                                             </div>
                                             <div class="position-relative z-index--1 mb-6 d-none d-sm-block text-center mt-md-15">
@@ -35,7 +35,7 @@
                                         </div>
                                         <div class="col mx-auto">
                                             <div class="auth-form-box">
-                                                <form th:object="${loginPayload}" th:action="@{/account/signin}" method="POST">
+                                                <form th:object="${loginPayload}" th:action="@{/signin}" method="POST">
                                                     <div class="form-icon-container">
                                                         <input class="form-control form-icon-input" th:field="*{email}" type="email" placeholder="Email" required="required" />
                                                         <span class="fas fa-user text-900 fs--1 form-icon text-primary"></span>
@@ -43,48 +43,14 @@
                                                     <div class="form-icon-container">
                                                         <input class="form-control form-icon-input" th:field="*{password}" type="password" placeholder="Domain Password" required="required" />
                                                         <span class="fas fa-key text-900 fs--1 form-icon text-primary"></span>
-                                                    </div>
-                                                    <div class="form-icon-container">
-                                                        <p>Enter OTP from your Microsoft Authenticator</p>
-                                                        <div class="auth-form-box digit-group" data-group-name="digits" data-autosubmit="false">
-                                                            <div class="form-icon-container userInput">
-                                                                <input type="text" th:field="*{otp1}" data-next="otp2" class="inputs" required="required"/>
-                                                                <input type="text" th:field="*{otp2}" data-next="otp3" data-previous="otp1" class="inputs" required="required"/>
-                                                                <input type="text" th:field="*{otp3}" data-next="otp4" data-previous="otp2" class="inputs" required="required"/>
-                                                                <input type="text" th:field="*{otp4}" data-next="otp5" data-previous="otp3" class="inputs" required="required"/>
-                                                                <input type="text" th:field="*{otp5}" data-next="otp6" data-previous="otp4" class="inputs" required="required"/>
-                                                                <input type="text" th:field="*{otp6}" data-previous="otp5" class="inputs" required="required"/>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                                    </div>                                                   
                                                     <button class="btn btn-primary w-100 mb-3 mt-3" type="submit" id="signin">Sign In</button>
                                                     <div class="text-center">
                                                         <p class="text-secondary pb-1 mb-1">Not registered?</p>
-                                                        <a class="fs--1 fw-bold text-primary" href="" data-bs-target="#qrcodeModal" data-bs-toggle="modal">Scan QR Code here to register</a>                                                        
+                                                        <a class="fs--1 fw-bold text-primary" href="" th:href="@{/signup}">Click here to sign up</a>                                                        
                                                     </div>
                                                 </form>
-                                            </div>
-                                            <form th:object="${loginPayload}" th:action="@{/account/qrcode}" method="POST">
-                                                <div class="modal fade" id="qrcodeModal" tabindex="-1" role="dialog" aria-labelledby="qrcodeModal" aria-hidden="true">
-                                                    <div class="modal-dialog">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <button type="button" class="btn btn-link btn-close-falcon p-0" data-bs-dismiss="modal" aria-hidden="true">&times;</button>
-                                                                <h6 class="modal-title text-primary">NGX X-Policy</h6>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <div class="form-icon-container">
-                                                                    <input class="form-control form-icon-input" th:field="*{email}" type="email" placeholder="Email" required="required" />
-                                                                    <span class="fas fa-user text-900 fs--1 form-icon text-primary"></span>
-                                                                </div>
-                                                                <br/>
-                                                                <button type="submit" class="btn btn-entitysc-primary btn-sm">Generate QR Code</button>
-                                                                <button type="button" class="btn btn-entitysc-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </form> 
+                                            </div>                                             
                                         </div>
                                     </div>
                                 </div>
@@ -93,7 +59,6 @@
                     </div>
                 </div>
             </div>    
-            <!--            <th:block th:include="~{fragments/entityscFragments :: navbarScript}"></th:block>-->
         </main>        
         <th:block th:include="~{fragments/entityscFragments :: scriptfiles}"></th:block>
     </body>   
