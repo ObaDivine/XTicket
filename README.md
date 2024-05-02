@@ -1,2 +1,2 @@
 # XTicket
-NGX Ticketing System
+Nigerian Exchange Group Ticketing System
