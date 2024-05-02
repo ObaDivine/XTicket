@@ -1,0 +1,701 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head>
+        <title>X-Policy - Pending Policies</title>
+        <th:block th:include="~{fragments/entityscFragments :: headerfiles}"></th:block>
+    </head>
+    <body onload="preloaderFunction()" style="margin: 0;">
+        <div id="loader"></div>
+        <main class="main animate-bottom" id="top" style="display:none;">
+            <div class="container-fluid px-0">
+                <th:block th:include="~{fragments/entityscFragments :: leftMenu}"></th:block>
+                <th:block th:include="~{fragments/entityscFragments :: topMenu}"></th:block>
+                <div class="content">
+                    <div class="row gy-3 mb-6 justify-content-between">
+                        <div class="col-md-9 col-auto">                           
+                            <h4 class="mb-2 text-1100 text-primary">Pending Policies</h4>
+                            <h5 class="text-700 fw-semi-bold">View and Approve Pending Policies</h5>                           
+                        </div>
+                        <div class="col-md-3 col-auto">
+                            <h4 class="mb-2 text-1100 text-primary" th:text="'Welcome ' + ${principalName}">Welcome Brian</h4>
+                        </div>
+                    </div>
+                    <div class="row mb-3 gy-6">
+                        <ul class="nav nav-underline" id="myTab" role="tablist">
+                            <li class="nav-item"><a class="nav-link active" id="home-tab" data-bs-toggle="tab" href="#tab-add" role="tab" aria-controls="tab-home" aria-selected="true">Pending Add Policy</a></li>
+                            <li class="nav-item"><a class="nav-link" id="profile-tab" data-bs-toggle="tab" href="#tab-update" role="tab" aria-controls="tab-profile" aria-selected="false">Pending Update Policy</a></li>
+                            <li class="nav-item"><a class="nav-link" id="contact-tab" data-bs-toggle="tab" href="#tab-delete" role="tab" aria-controls="tab-contact" aria-selected="false">Pending Delete Policy</a></li>
+                        </ul>
+                        <div class="tab-content mt-3" id="myTabContent">
+                            <div class="tab-pane fade show active" id="tab-add" role="tabpanel" aria-labelledby="add-tab">
+                                <div id="dealsTable" data-list='{"valueNames":["policyName","policyCode","policyType","policyDescription","documentId","company", "division","department","policyAuthor","dateCreated","expiryDate","lastReview","underReview","accessLevel"],"page":10,"pagination":true}'>
+                                    <div class="row g-3 justify-content-between mb-4">
+                                        <div class="col-auto">
+                                            <div class="d-md-flex justify-content-between">
+                                                <div>  </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <div class="d-flex">
+                                                <div class="search-box me-2">
+                                                    <form class="position-relative" data-bs-toggle="search" data-bs-display="static">
+                                                        <input class="form-control search-input search" type="search" placeholder="Search by name" aria-label="Search" />
+                                                        <span class="fas fa-search search-box-icon"></span>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="px-4 mx-lg-n6 px-lg-6">
+                                        <div class="table-responsive scrollbar mx-n1 px-1 border-top">
+                                            <table class="table table-sm fs--1 mb-0 leads-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="author">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-primary-300" data-feather="file-text"></span>
+                                                                </div>
+                                                                <span>Policy Name</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="author">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-warning-300" data-feather="code"></span>
+                                                                </div>
+                                                                <span>Policy Code</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="author">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-primary-300" data-feather="type"></span>
+                                                                </div>
+                                                                <span>Policy Type</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="author">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-warning-300" data-feather="figma"></span>
+                                                                </div>
+                                                                <span>Policy Description</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="author">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-primary-300" data-feather="sidebar"></span>
+                                                                </div>
+                                                                <span>Document ID</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="company">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-primary-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-warning-300" data-feather="aperture"></span>
+                                                                </div>
+                                                                <span>Company</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="division">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-primary-300" data-feather="box"></span>
+                                                                </div>
+                                                                <span>Division</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="department">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-primary-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-warning-300" data-feather="codesandbox"></span>
+                                                                </div>
+                                                                <span>Department</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="author">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-primary-300" data-feather="book-open"></span>
+                                                                </div>
+                                                                <span>Author</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle pe-5 ps-4" scope="col" data-sort="dateCreated">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-primary-100 rounded me-2">
+                                                                    <span class="text-warning-600 dark__text-warning-300" data-feather="calendar"></span>
+                                                                </div>
+                                                                <span>Date Created</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle pe-5 ps-4" scope="col" data-sort="dateCreated">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-primary-100 rounded me-2">
+                                                                    <span class="text-warning-600 dark__text-primary-300" data-feather="calendar"></span>
+                                                                </div>
+                                                                <span>Expiry Date</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle pe-5 ps-4" scope="col"  data-sort="lastReview">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
+                                                                    <span class="text-warning-600 dark__text-warning-300" data-feather="file"></span>
+                                                                </div>
+                                                                <span>Last Review</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle pe-5 ps-4" scope="col"  data-sort="underReview">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-primary-100 rounded me-2">
+                                                                    <span class="text-warning-600 dark__text-primary-300" data-feather="edit"></span>
+                                                                </div>
+                                                                <span>Under Review</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="author">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-warning-300" data-feather="hash"></span>
+                                                                </div>
+                                                                <span>Access Level</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle align-middle pe-0 ps-4" scope="col">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="list" id="deal-tables-body">
+                                                    <tr class="hover-actions-trigger btn-reveal-trigger position-static" th:each="rec : ${policyList}" th:if="${rec.actionType == 'NEW'}">
+                                                        <td class="policyName align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.policyName}">Entity</td>
+                                                        <td class="policyCode align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.policyCode}">Entity</td>
+                                                        <td class="policyType align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.policyType.policyTypeName}">Entity</td>
+                                                        <td class="policyDescription align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.policyDescription}">Entity</td>
+                                                        <td class="documentId align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.policyDocumentId}">Entity</td>
+                                                        <td class="company align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.company.companyName}">Entity</td>
+                                                        <td class="division align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.division.divisionName}">Entity</td>
+                                                        <td class="department align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.department.departmentName}">Entity</td>
+                                                        <td class="policyAuthor align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.policyAuthor}">Entity</td>
+                                                        <td class="dateCreated align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000" th:text="${#temporals.format(rec.createdAt, 'yyyy-MM-dd')}">Date created</td>
+                                                        <td class="expiryDate align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000" th:text="${#temporals.format(rec.expiryDate, 'yyyy-MM-dd')}">Date created</td>
+                                                        <td class="lastReview align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000" th:text="${rec.lastReview}">Last review</td>
+                                                        <td class="underReview align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000" th:text="${rec.underReview}">Under review</td>
+                                                        <td class="accessLevel align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000" th:text="${rec.accessLevel}">Access Level</td>
+                                                        <td class="align-middle white-space-nowrap align-middle pe-0 ps-4">
+                                                            <div class="font-sans-serif btn-reveal-trigger position-static">
+                                                                <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs--2" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs--2"></span></button>
+                                                                <div class="dropdown-menu dropdown-menu-end py-2">
+                                                                    <a th:if="${#request.isUserInRole('APPROVE_POLICY')}" class="dropdown-item" th:data-param="${rec.policyDocumentId}" onclick="approvePolicy(this.getAttribute('data-param'));">Approve</a>
+                                                                    <a th:if="${#request.isUserInRole('APPROVE_POLICY')}" class="dropdown-item" th:data-param="${rec.policyDocumentId}" onclick="declinePolicy(this.getAttribute('data-param'));">Decline</a>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="row align-items-center justify-content-end py-4 pe-0 fs--1">
+                                            <div class="col-auto d-flex">
+                                                <p class="mb-0 d-none d-sm-block me-3 fw-semi-bold text-900" data-list-info="data-list-info"></p>
+                                                <a class="fw-semi-bold" href="#!" data-list-view="*">View all
+                                                    <span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span>
+                                                </a>
+                                                <a class="fw-semi-bold d-none" href="#!" data-list-view="less">View Less
+                                                    <span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span>
+                                                </a>
+                                            </div>
+                                            <div class="col-auto d-flex">
+                                                <button class="page-link" data-list-pagination="prev">
+                                                    <span class="fas fa-chevron-left"></span>
+                                                </button>
+                                                <ul class="mb-0 pagination"></ul>
+                                                <button class="page-link pe-0" data-list-pagination="next">
+                                                    <span class="fas fa-chevron-right"></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="tab-update" role="tabpanel" aria-labelledby="update-tab">
+                                <div id="dealsTable" data-list='{"valueNames":["policyName","policyCode","policyType","policyDescription","documentId","company", "division","department","policyAuthor","dateCreated","expiryDate","lastReview","underReview","accessLevel"],"page":10,"pagination":true}'>
+                                    <div class="row g-3 justify-content-between mb-4">
+                                        <div class="col-auto">
+                                            <div class="d-md-flex justify-content-between">
+                                                <div>  </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <div class="d-flex">
+                                                <div class="search-box me-2">
+                                                    <form class="position-relative" data-bs-toggle="search" data-bs-display="static">
+                                                        <input class="form-control search-input search" type="search" placeholder="Search by name" aria-label="Search" />
+                                                        <span class="fas fa-search search-box-icon"></span>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="px-4 mx-lg-n6 px-lg-6">
+                                        <div class="table-responsive scrollbar mx-n1 px-1 border-top">
+                                            <table class="table table-sm fs--1 mb-0 leads-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="author">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-primary-300" data-feather="file-text"></span>
+                                                                </div>
+                                                                <span>Policy Name</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="author">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-warning-300" data-feather="code"></span>
+                                                                </div>
+                                                                <span>Policy Code</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="author">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-primary-300" data-feather="type"></span>
+                                                                </div>
+                                                                <span>Policy Type</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="author">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-warning-300" data-feather="figma"></span>
+                                                                </div>
+                                                                <span>Policy Description</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="author">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-primary-300" data-feather="sidebar"></span>
+                                                                </div>
+                                                                <span>Document ID</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="company">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-primary-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-warning-300" data-feather="aperture"></span>
+                                                                </div>
+                                                                <span>Company</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="division">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-primary-300" data-feather="box"></span>
+                                                                </div>
+                                                                <span>Division</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="department">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-primary-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-warning-300" data-feather="codesandbox"></span>
+                                                                </div>
+                                                                <span>Department</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="author">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-primary-300" data-feather="book-open"></span>
+                                                                </div>
+                                                                <span>Author</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle pe-5 ps-4" scope="col" data-sort="dateCreated">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-primary-100 rounded me-2">
+                                                                    <span class="text-warning-600 dark__text-warning-300" data-feather="calendar"></span>
+                                                                </div>
+                                                                <span>Date Created</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle pe-5 ps-4" scope="col" data-sort="dateCreated">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-primary-100 rounded me-2">
+                                                                    <span class="text-warning-600 dark__text-primary-300" data-feather="calendar"></span>
+                                                                </div>
+                                                                <span>Expiry Date</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle pe-5 ps-4" scope="col"  data-sort="lastReview">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
+                                                                    <span class="text-warning-600 dark__text-warning-300" data-feather="file"></span>
+                                                                </div>
+                                                                <span>Last Review</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle pe-5 ps-4" scope="col"  data-sort="underReview">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-primary-100 rounded me-2">
+                                                                    <span class="text-warning-600 dark__text-primary-300" data-feather="edit"></span>
+                                                                </div>
+                                                                <span>Under Review</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="author">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-warning-300" data-feather="hash"></span>
+                                                                </div>
+                                                                <span>Access Level</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle align-middle pe-0 ps-4" scope="col">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="list" id="deal-tables-body">
+                                                    <tr class="hover-actions-trigger btn-reveal-trigger position-static" th:each="rec : ${policyList}" th:if="${rec.actionType == 'EDIT'}">
+                                                        <td class="policyName align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end">
+                                                            <p th:if="${rec.policy.policyName != rec.policyName}"><del class="text-danger"><span th:text="${rec.policy.policyName}"></span></del></p>
+                                                            <p th:text="${rec.policyName}"></p>
+                                                        </td>
+                                                        <td class="policyCode align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end">
+                                                            <p><del th:if="${rec.policy.policyCode != rec.policyCode}" class="text-danger"><span th:text="${rec.policy.policyCode}"></span></del></p>
+                                                            <p th:text="${rec.policyCode}"></p>
+                                                        </td>
+                                                        <td class="policyType align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end">
+                                                            <p><del th:if="${rec.policy.policyType.policyTypeName != rec.policyType.policyTypeName}" class="text-danger"><span th:text="${rec.policy.policyType.policyTypeName}"></span></del></p>
+                                                            <p th:text="${rec.policyType.policyTypeName}"></p>
+                                                        </td>
+                                                        <td class="policyDescription align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end">
+                                                            <p><del th:if="${rec.policy.policyDescription != rec.policyDescription}" class="text-danger"><span th:text="${rec.policy.policyDescription}"></span></del></p>
+                                                            <p th:text="${rec.policyDescription}"></p>
+                                                        </td>
+                                                        <td class="documentId align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end">
+                                                            <p><del th:if="${rec.policy.policyDocumentId != rec.policyDocumentId}" class="text-danger"><span th:text="${rec.policy.policyDocumentId}"></span></del></p>
+                                                            <p th:text="${rec.policyDocumentId}"></p>
+                                                        </td>
+                                                        <td class="company align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end">
+                                                            <p><del th:if="${rec.policy.company.companyName != rec.company.companyName}" class="text-danger"><span th:text="${rec.policy.company.companyName}"></span></del></p>
+                                                            <p th:text="${rec.company.companyName}"></p>
+                                                        </td>
+                                                        <td class="division align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end">
+                                                            <p><del th:if="${rec.policy.division.divisionName != rec.division.divisionName}" class="text-danger"><span th:text="${rec.policy.division.divisionName}"></span></del></p>
+                                                            <p th:text="${rec.division.divisionName}"></p>
+                                                        </td>
+                                                        <td class="department align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end">
+                                                            <p><del th:if="${rec.policy.department.departmentName != rec.department.departmentName}" class="text-danger"><span th:text="${rec.policy.department.departmentName}"></span></del></p>
+                                                            <p th:text="${rec.department.departmentName}"></p>
+                                                        </td>
+                                                        <td class="policyAuthor align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end">
+                                                            <p><del th:if="${rec.policy.policyAuthor != rec.policyAuthor}" class="text-danger"><span th:text="${rec.policy.policyAuthor}"></span></del></p>
+                                                            <p th:text="${rec.policyAuthor}"></p>
+                                                        </td>
+                                                        <td class="dateCreated align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000">
+                                                            <p><del th:if="${rec.policy.createdAt != rec.createdAt}" class="text-danger"><span th:text="${#temporals.format(rec.policy.createdAt, 'yyyy-MM-dd')}"></span></del></p>
+                                                            <p th:text="${#temporals.format(rec.createdAt, 'yyyy-MM-dd')}"></p>
+                                                        </td>
+                                                        <td class="expiryDate align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000">
+                                                            <p><del th:if="${rec.policy.expiryDate != rec.expiryDate}" class="text-danger"><span th:text="${#temporals.format(rec.policy.expiryDate, 'yyyy-MM-dd')}"></span></del></p>
+                                                            <p th:text="${#temporals.format(rec.expiryDate, 'yyyy-MM-dd')}"></p>
+                                                        </td>
+                                                        <td class="lastReview align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000">
+                                                            <p><del th:if="${rec.policy.lastReview != rec.lastReview}" class="text-danger"><span th:text="${rec.policy.lastReview}"></span></del></p>
+                                                            <p th:text="${rec.lastReview}"></p>
+                                                        </td>
+                                                        <td class="underReview align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000">
+                                                            <p><del th:if="${rec.policy.underReview != rec.underReview}" class="text-danger"><span th:text="${rec.policy.underReview}"></span></del></p>
+                                                            <p th:text="${rec.underReview}"></p>
+                                                        </td>
+                                                        <td class="accessLevel align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000">
+                                                            <p><del th:if="${rec.policy.accessLevel != rec.accessLevel}" class="text-danger"><span th:text="${rec.policy.accessLevel}"></span></del></p>
+                                                            <p th:text="${rec.accessLevel}"></p>
+                                                        </td>
+                                                        <td class="align-middle white-space-nowrap align-middle pe-0 ps-4">
+                                                            <div class="font-sans-serif btn-reveal-trigger position-static">
+                                                                <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs--2" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs--2"></span></button>
+                                                                <div class="dropdown-menu dropdown-menu-end py-2">
+                                                                    <a th:if="${#request.isUserInRole('APPROVE_POLICY')}" class="dropdown-item" th:data-param="${rec.policyDocumentId}" onclick="approvePolicy(this.getAttribute('data-param'));">Approve</a>
+                                                                    <a th:if="${#request.isUserInRole('APPROVE_POLICY')}" class="dropdown-item" th:data-param="${rec.policyDocumentId}" onclick="declinePolicy(this.getAttribute('data-param'));">Decline</a>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="row align-items-center justify-content-end py-4 pe-0 fs--1">
+                                            <div class="col-auto d-flex">
+                                                <p class="mb-0 d-none d-sm-block me-3 fw-semi-bold text-900" data-list-info="data-list-info"></p>
+                                                <a class="fw-semi-bold" href="#!" data-list-view="*">View all
+                                                    <span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span>
+                                                </a>
+                                                <a class="fw-semi-bold d-none" href="#!" data-list-view="less">View Less
+                                                    <span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span>
+                                                </a>
+                                            </div>
+                                            <div class="col-auto d-flex">
+                                                <button class="page-link" data-list-pagination="prev">
+                                                    <span class="fas fa-chevron-left"></span>
+                                                </button>
+                                                <ul class="mb-0 pagination"></ul>
+                                                <button class="page-link pe-0" data-list-pagination="next">
+                                                    <span class="fas fa-chevron-right"></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="tab-delete" role="tabpanel" aria-labelledby="delete-tab">
+                                <div id="dealsTable" data-list='{"valueNames":["policyName","policyCode","policyType","policyDescription","documentId","company", "division","department","policyAuthor","dateCreated","expiryDate","lastReview","underReview","accessLevel"],"page":10,"pagination":true}'>
+                                    <div class="row g-3 justify-content-between mb-4">
+                                        <div class="col-auto">
+                                            <div class="d-md-flex justify-content-between">
+                                                <div>  </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <div class="d-flex">
+                                                <div class="search-box me-2">
+                                                    <form class="position-relative" data-bs-toggle="search" data-bs-display="static">
+                                                        <input class="form-control search-input search" type="search" placeholder="Search by name" aria-label="Search" />
+                                                        <span class="fas fa-search search-box-icon"></span>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="px-4 mx-lg-n6 px-lg-6">
+                                        <div class="table-responsive scrollbar mx-n1 px-1 border-top">
+                                            <table class="table table-sm fs--1 mb-0 leads-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="author">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-primary-300" data-feather="file-text"></span>
+                                                                </div>
+                                                                <span>Policy Name</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="author">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-warning-300" data-feather="code"></span>
+                                                                </div>
+                                                                <span>Policy Code</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="author">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-primary-300" data-feather="type"></span>
+                                                                </div>
+                                                                <span>Policy Type</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="author">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-warning-300" data-feather="figma"></span>
+                                                                </div>
+                                                                <span>Policy Description</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="author">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-primary-300" data-feather="sidebar"></span>
+                                                                </div>
+                                                                <span>Document ID</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="company">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-primary-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-warning-300" data-feather="aperture"></span>
+                                                                </div>
+                                                                <span>Company</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="division">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-primary-300" data-feather="box"></span>
+                                                                </div>
+                                                                <span>Division</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="department">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-primary-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-warning-300" data-feather="codesandbox"></span>
+                                                                </div>
+                                                                <span>Department</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="author">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-primary-300" data-feather="book-open"></span>
+                                                                </div>
+                                                                <span>Author</span>
+                                                            </div>
+                                                        </th>                                                
+                                                        <th class="sort align-middle pe-5 ps-4" scope="col" data-sort="dateCreated">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-primary-100 rounded me-2">
+                                                                    <span class="text-warning-600 dark__text-primary-300" data-feather="calendar"></span>
+                                                                </div>
+                                                                <span>Expiry Date</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle pe-5 ps-4" scope="col"  data-sort="lastReview">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
+                                                                    <span class="text-warning-600 dark__text-warning-300" data-feather="file"></span>
+                                                                </div>
+                                                                <span>Last Review</span>
+                                                            </div>
+                                                        </th>                                                        
+                                                        <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="author">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
+                                                                    <span class="text-primary-600 dark__text-warning-300" data-feather="hash"></span>
+                                                                </div>
+                                                                <span>Access Level</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle pe-5 ps-4" scope="col"  data-sort="underReview">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-primary-100 rounded me-2">
+                                                                    <span class="text-warning-600 dark__text-primary-300" data-feather="edit"></span>
+                                                                </div>
+                                                                <span>Deleted By</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle pe-5 ps-4" scope="col" data-sort="dateCreated">
+                                                            <div class="d-inline-flex flex-center">
+                                                                <div class="d-flex align-items-center px-1 py-1 bg-primary-100 rounded me-2">
+                                                                    <span class="text-warning-600 dark__text-warning-300" data-feather="calendar"></span>
+                                                                </div>
+                                                                <span>Date Created</span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle align-middle pe-0 ps-4" scope="col">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="list" id="deal-tables-body">
+                                                    <tr class="hover-actions-trigger btn-reveal-trigger position-static" th:each="rec : ${policyList}" th:if="${rec.actionType == 'DELETE'}">
+                                                        <td class="policyName align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.policyName}">Entity</td>
+                                                        <td class="policyCode align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.policyCode}">Entity</td>
+                                                        <td class="policyType align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.policyType.policyTypeName}">Entity</td>
+                                                        <td class="policyDescription align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.policyDescription}">Entity</td>
+                                                        <td class="documentId align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.policyDocumentId}">Entity</td>
+                                                        <td class="company align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.company.companyName}">Entity</td>
+                                                        <td class="division align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.division.divisionName}">Entity</td>
+                                                        <td class="department align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.department.departmentName}">Entity</td>
+                                                        <td class="policyAuthor align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.policyAuthor}">Entity</td>
+                                                        <td class="expiryDate align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000" th:text="${#temporals.format(rec.expiryDate, 'yyyy-MM-dd')}">Date created</td>
+                                                        <td class="lastReview align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000" th:text="${rec.lastReview}">Last review</td>
+                                                        <td class="accessLevel align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000" th:text="${rec.accessLevel}">Access Level</td>
+                                                        <td class="underReview align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000" th:text="${rec.createdBy}">Deleted By</td>
+                                                        <td class="dateCreated align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000" th:text="${#temporals.format(rec.createdAt, 'yyyy-MM-dd')}">Date Deleted</td>
+                                                        <td class="align-middle white-space-nowrap align-middle pe-0 ps-4">
+                                                            <div class="font-sans-serif btn-reveal-trigger position-static">
+                                                                <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs--2" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs--2"></span></button>
+                                                                <div class="dropdown-menu dropdown-menu-end py-2">
+                                                                    <a th:if="${#request.isUserInRole('APPROVE_POLICY')}" class="dropdown-item" th:data-param="${rec.policyDocumentId}" onclick="approvePolicy(this.getAttribute('data-param'));">Approve</a>
+                                                                    <a th:if="${#request.isUserInRole('APPROVE_POLICY')}" class="dropdown-item" th:data-param="${rec.policyDocumentId}" onclick="declinePolicy(this.getAttribute('data-param'));">Decline</a>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="row align-items-center justify-content-end py-4 pe-0 fs--1">
+                                            <div class="col-auto d-flex">
+                                                <p class="mb-0 d-none d-sm-block me-3 fw-semi-bold text-900" data-list-info="data-list-info"></p>
+                                                <a class="fw-semi-bold" href="#!" data-list-view="*">View all
+                                                    <span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span>
+                                                </a>
+                                                <a class="fw-semi-bold d-none" href="#!" data-list-view="less">View Less
+                                                    <span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span>
+                                                </a>
+                                            </div>
+                                            <div class="col-auto d-flex">
+                                                <button class="page-link" data-list-pagination="prev">
+                                                    <span class="fas fa-chevron-left"></span>
+                                                </button>
+                                                <ul class="mb-0 pagination"></ul>
+                                                <button class="page-link pe-0" data-list-pagination="next">
+                                                    <span class="fas fa-chevron-right"></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <th:block th:include="~{fragments/entityscFragments :: footer}"></th:block>
+                </div>
+            </div>
+            <div class="modal fade" id="policyApprovalModal" tabindex="-1" aria-labelledby="policyApprovalModal" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-top">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h6 class="modal-title text-primary">X-Policy</h6>
+                            <button class="btn p-1" type="button" data-bs-dismiss="modal" aria-label="Close">
+                                <span class="fas fa-times fs--1"></span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Policy will be approved. Proceed?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <a id="approvePolicy" class="btn btn-sm btn-primary btn-sm" type="button">Approve</a>
+                            <button class="btn btn-sm btn-outline-primary btn-sm" type="button" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <form id="policyDeclineForm" th:object="${xpolicyPayload}" th:action="@{/admin/policy/decline}" method="POST">
+                <div class="modal fade" id="policyDeclineModal" tabindex="-1" aria-labelledby="policyDeclineModal" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-top">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h6 class="modal-title text-primary">X-Policy</h6>
+                                <button class="btn p-1" type="button" data-bs-dismiss="modal" aria-label="Close">
+                                    <span class="fas fa-times fs--1"></span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Pending Policy record will be deleted if declined. Proceed?</p>
+                                <div class="row mb-1">
+                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="comment">Reason for Declining</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control form-control-sm" th:field="*{comment}" placeholder="Reason for declining" required="required" />
+                                        <input type="hidden" id="reference" name="reference" value="" required="required"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-sm btn-danger btn-sm" type="submit">Decline</button>
+                                <button class="btn btn-sm btn-outline-primary btn-sm" type="button" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>    
+            </form>
+        </main>
+        <th:block th:include="~{fragments/entityscFragments :: scriptfiles}"></th:block>
+    </body>
+</html>

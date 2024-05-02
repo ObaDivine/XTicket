@@ -1,0 +1,100 @@
+####### NGX - XTicket Config #########
+---
+server:
+    error:
+        include-message: never
+        include-binding-errors: always
+        include-exception: false
+        include-stacktrace: never
+    tomcat:
+        basedir: C:/XTicket/Log
+        accesslog:
+            enabled: true
+    temp:
+        dir: C:/XTicket/temp
+    connection-timeout: 120000
+
+logging:
+    file:
+        name: C:/Xticket/logs/xticket.log
+    level:
+        root: INFO
+upload:
+    base:
+        dir: C:/Xticket/bulk/upload
+    max:
+        record: 100
+jwt:
+    security:
+        key: j3H5Ld5nYmGWyULy6xwpOgfSH++NgKXnJMq20vpfd+8=t
+    access:
+        validity: 60000
+             
+spring:
+    cloud:
+        loadbalancer:
+            ribbon:
+                enabled: false
+    config:
+        activate:
+            profile: dev
+    datasource:
+        initialization-mode: ALWAYS
+        password: F3bru@ry02mth
+        username: ngxadmin@nxgroup01-mysqldbserver
+        driverClassName: com.mysql.jdbc.Driver  
+        url: jdbc:mysql://nxgroup01-mysqldbserver.mysql.database.azure.com:3306/xticket?useSSL=true
+    jpa:
+        hibernate:
+            ddl-auto: update
+            dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+        show-sql: true
+
+email:
+    host: 10.172.16.170
+    port: 25
+    protocol: smtp
+    trust: 10.172.16.170
+    login: postmaster@ngxgroup.com
+    from: X-Ticket
+    password: Password10$
+    
+xticket:
+    cron:
+        job: 0 0 11 * * ?
+    email:
+        notification: bokon@ngxgroup.com
+    expiry:
+        days: 3
+    download:
+        policy:
+            base:
+                dir: C:/NGX/XTicket
+    ngx:
+        email:
+            domain: ngxgroup.com
+        dc:
+            group: ngxgroup.com
+            regulation: regulation.ngxgroup.com
+            realestate: exchange.ngxgroup.com
+            limited: exchange.ngxgroup.com
+    qrcode:
+        height: 115
+        width: 115
+        image:
+            url: C:/Apps/Java/XTicket/target/xticket-1.0/WEB-INF/classes/images/qrcode
+    password:
+        default: Password!23
+        web: Password!23
+        mobile: Password!23
+        ussd: Password!23
+        reset:
+            time: 1
+        retry:
+            count: 3
+        change:
+            days: 30
+    encryption:
+        key:
+            mian: FLWSECK-f6be2996841f1da0dfb7e27b9a3bd5bf-X
+            web: yG4b7jm8NHkv8s0vfwaS

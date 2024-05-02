@@ -1,0 +1,44 @@
+######### X-Policy Web Messages ############
+---
+appMessages:
+    norecord: No record found matching your report criteria
+    delete:
+        roles: Role deleted successfully
+        temp:
+            policy: Policy record marked for deletion. Pending approval
+            user: User record marked for deletion. Pending approval 
+        user: App User deleted successfully
+        policy: Policy deleted successfully
+    policy:
+        pending: A pending record exist for this policy
+        exist: A policy exist with the {0} {1}
+        notexist: No Policy exist using the id {0}
+        file:
+            notsupplied: No file uploaded. Policy document required
+            notsupported: Only {0} file type is supported
+    roles:
+        exist: A role exist with the {0} {0}
+        notexist: No role(s) defined for {0}
+    connection:
+        failed: Failed to connect to the AD {0}
+    success:
+        roles: Role created or updated successfully
+        decline: Approval for the Policy {0} is declined. Record deleted
+        approve: The Policy {0} marked for {1} approved successfully
+        user: App User created or updated successfully
+        policy: Policy created or updated successfully
+        signin: Login successful
+    invalid:
+        totp: The OTP is invalid
+    login:
+        failed: Login failed. Invalid username and or password
+    user:
+        exist: A user record exist for {0}
+        invalid:
+            domain: The domain {0} is invalid and cannot be used
+        notexist: No record found matching {0}
+        disabled: Your profile is not enabled or locked
+        multiple:
+            attempt: Your account {0} is locked due to multiple failed attempt
+    
+        

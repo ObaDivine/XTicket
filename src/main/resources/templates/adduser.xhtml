@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head>
+        <title>X-Policy - Add User</title>
+        <th:block th:include="~{fragments/entityscFragments :: headerfiles}"></th:block>
+    </head>
+    <body onload="preloaderFunction()" style="margin: 0;">
+        <div id="loader"></div>
+        <main class="main animate-bottom" id="top" style="display:none;">
+            <div class="container-fluid px-0">
+                <th:block th:include="~{fragments/entityscFragments :: leftMenu}"></th:block>
+                <th:block th:include="~{fragments/entityscFragments :: topMenu}"></th:block>
+                <div class="content">
+                    <div class="row gy-3 mb-6 justify-content-between">
+                        <div class="col-md-9 col-auto">
+                            <h4 class="mb-2 text-1100 text-primary">Manage Users</h4>
+                            <h5 class="text-700 fw-semi-bold">Application User Listings &amp; Admin</h5>
+                        </div>
+                        <div class="col-md-3 col-auto">
+                            <h4 class="mb-2 text-1100 text-primary" th:text="'Welcome ' + ${principalName}">Welcome Brian
+                            </h4>
+                        </div>
+                    </div>
+                    <div class="row mb-3 gy-6">                        
+                        <div class="offset-lg-2 col-lg-6 col-sm-12 col-md-12">
+                            <form th:object="${xpolicyPayload}" th:action="@{/admin/users/add/}" method="POST" enctype="multipart/form-data">
+                                <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModal" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h6 class="modal-title text-primary">X-Policy</h6>
+                                                <button class="btn p-1" type="button" data-bs-dismiss="modal" aria-label="Close">
+                                                    <span class="fas fa-times fs--1"></span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Confirm you want to perform this action</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button class="btn btn-primary btn-sm" type="submit">Process</button>
+                                                <button class="btn btn-outline-primary btn-sm" type="button" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="policyName">Email</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control form-control-sm" th:field="*{email}" type="email"  placeholder="Email" required="required" />
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="policyName">Names</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control form-control-sm" th:field="*{fullName}" type="text" placeholder="Employee name" required="required"/>
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="company">Company</label>
+                                    <div class="col-sm-9">
+                                        <select class="form-select" data-choices="data-choices" th:field="*{updateCompany}"  th:onchange="|fetchUpdateDivision(0,0)|" required="required">
+                                            <option value="">--- Select Company ---</option>
+                                            <option th:each="fa : ${companyList}" th:value="${fa.id}" th:text="${fa.companyName}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="division">Division</label>
+                                    <div class="col-sm-9">
+                                        <select class="form-select" data-choices="data-choices" th:field="*{updateDivision}"  th:onchange="|fetchUpdateDepartment(0,0)|" required="required">
+                                            <option value="">---</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="department">Department</label>
+                                    <div class="col-sm-9">
+                                        <select class="form-select" data-choices="data-choices" th:field="*{updateDepartment}" required="required">
+                                            <option value="">---</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="underReview">Enabled</label>
+                                    <div class="col-sm-9">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" th:field="*{policyChampion}" type="checkbox" value="" />
+                                            <label class="form-check-label" for="enabled">Policy Champion</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" th:field="*{enabled}" type="checkbox" value="" />
+                                            <label class="form-check-label" for="enabled">Enabled</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" th:field="*{failedLogin}" type="checkbox" value="" />
+                                            <label class="form-check-label" for="locked" th:text="'Reset ' + ${failedLoginCount} + ' Failed Attempts'">Reset Failed Logon</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="accessLevel">Access Level</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control form-control-sm" th:field="*{accessLevel}" type="number" value="1" min="1"  max="3" step="1" style="min-width: 50px;" required="required" />
+                                        <input class="form-check-input" th:field="*{id}" type="hidden" value="" />
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="userType">User Type</label>
+                                    <div class="col-sm-9">
+                                        <select class="form-select" data-choices="data-choices" th:field="*{userType}" required="required">
+                                            <option value="">-- Select User Type --</option>
+                                            <option value="Admin">Admin</option>
+                                            <option value="User">User</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="userType">User Role</label>
+                                    <div class="col-sm-9">
+                                        <select class="form-select" data-choices="data-choices" th:field="*{roleName}" required="required">
+                                            <option value="">---</option>
+                                            <option th:each="fa : ${roleList}" th:value="${fa.id}" th:text="${fa.groupName}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row mb-1 mt-2">
+                                    <div class="offset-lg-3 col-sm-9">
+                                        <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#confirmModal">Process</button>
+                                        <a class="btn btn-secondary btn-sm" href="#!" th:href="@{/admin/users}">User List</a>
+                                    </div>
+                                </div> 
+                            </form>
+                        </div>
+                    </div>
+                    <th:block th:include="~{fragments/entityscFragments :: footer}"></th:block>
+                </div>
+            </div>
+            <div class="modal fade" id="userDeleteModal" tabindex="-1" aria-labelledby="userDeleteModal" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-top">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h6 class="modal-title text-primary">X-Policy</h6>
+                            <button class="btn p-1" type="button" data-bs-dismiss="modal" aria-label="Close">
+                                <span class="fas fa-times fs--1"></span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>App User will be deleted. Proceed?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <a id="deletePolicy" class="btn btn-sm btn-danger" type="button">Delete</a>
+                            <button class="btn btn-sm btn-outline-primary" type="button"
+                                    data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <th:block th:include="~{fragments/entityscFragments :: scriptfiles}"></th:block>
+    </body>
+</html>

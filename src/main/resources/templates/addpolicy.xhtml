@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head>
+        <title>X-Policy - Add Policies</title>
+        <th:block th:include="~{fragments/entityscFragments :: headerfiles}"></th:block>
+    </head>
+    <body onload="preloaderFunction()" style="margin: 0;">
+        <div id="loader"></div>
+        <main class="main animate-bottom" id="top" style="display:none;">
+            <div class="container-fluid px-0">
+                <th:block th:include="~{fragments/entityscFragments :: leftMenu}"></th:block>
+                <th:block th:include="~{fragments/entityscFragments :: topMenu}"></th:block>
+                <div class="content">
+                    <div class="row gy-3 mb-6 justify-content-between">
+                        <div class="col-md-9 col-auto">                           
+                            <h4 class="mb-2 text-1100 text-primary">Add Policy</h4>
+                            <h5 class="text-700 fw-semi-bold">Add Policies, Standard Operating Procedures &amp; Others</h5>                           
+                        </div>
+                        <div class="col-md-3 col-auto">
+                            <h4 class="mb-2 text-1100 text-primary" th:text="'Welcome ' + ${principalName}">Welcome Brian</h4>
+                        </div>
+                    </div>
+                    <div class="row mb-3 gy-6">
+                        <div class="offset-lg-2 col-lg-6 col-sm-12 col-md-12">
+                            <form th:object="${xpolicyPayload}" th:action="@{/admin/policy/add/}" method="POST" enctype="multipart/form-data">
+                                <div class="row mb-1">                               
+                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="department">Policy Type</label>
+                                    <div class="col-sm-9">
+                                        <select class="form-select" data-choices="data-choices" th:field="*{policyType}" required="required">
+                                            <option value="">-- Select Policy Type --</option>
+                                            <option value="CHT">Charter</option>
+                                            <option value="COM">Committees &amp; Association</option>
+                                            <option value="FRM">Form</option>
+                                            <option value="POL">Policy</option>
+                                            <option value="RPT">Reports</option>
+                                            <option value="SCH">Schedule</option>
+                                            <option value="SOP">Standard Operating Procedure</option>
+                                            <option value="TEM">Templates</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="policyName">Policy Name</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control form-control-sm" th:field="*{policyName}" type="text" placeholder="Policy name" required="required"/>
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="policyCode">Policy Code</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control form-control-sm" th:field="*{policyCode}" type="text" placeholder="Policy Code" required="required"/>
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="policyDescription">Description</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control form-control-sm" th:field="*{policyDescription}" type="text" placeholder="Policy description" required="required"/>
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="policyAuthor">Policy Author</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control form-control-sm" th:field="*{policyAuthor}" type="text" placeholder="Policy author" required="required"/>
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="company">Company</label>
+                                    <div class="col-sm-9">
+                                        <select class="form-select" data-choices="data-choices" th:field="*{updateCompany}" th:onchange="|fetchUpdateDivision(0,0)|" required="required" >
+                                            <option value="">--- Select Company ---</option>
+                                            <option th:each="fa : ${companyList}" th:value="${fa.id}" th:text="${fa.companyName}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="division">Division</label>
+                                    <div class="col-sm-9">
+                                        <select class="form-select" data-choices="data-choices" th:field="*{updateDivision}" th:onchange="|fetchUpdateDepartment(0,0)|" required="required">
+                                            <option value="">---</option>                                      
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="department">Department</label>
+                                    <div class="col-sm-9">
+                                        <select class="form-select" data-choices="data-choices" th:field="*{updateDepartment}" required="required">
+                                            <option value="">---</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="underReview">Under Review</label>
+                                    <div class="col-sm-9">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" th:field="*{underReview}" type="checkbox" value="" />
+                                            <label class="form-check-label" for="underReview">Under Review</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" th:field="*{mustRead}" type="checkbox" value="" />
+                                            <label class="form-check-label" for="mustRead">Must Read</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="expiryDate">Expiry Date</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control form-control-sm" th:field="*{expiryDate}" type="date" value="" style="min-width: 50px;" />
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="accessLevel">Access Level</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control form-control-sm" th:field="*{accessLevel}" type="number" value="1" min="1" max="3" step="1" style="min-width: 50px;" required="required"/>
+                                        <input class="form-check-input" th:field="*{id}" type="hidden" value="" />
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <label class="col-sm-3 col-form-label col-form-label-sm" for="division">Document</label>
+                                    <div class="col-sm-9">
+                                        <input class="form-control form-control-sm" th:field="*{fileUpload}" type="file" accept=".doc, .docx, .xls, .xlsx, .pdf" />
+                                    </div>
+                                </div>
+                                <div class="row mb-1 mt-2">
+                                    <div class="offset-lg-3 col-sm-9 input-group-sm">
+                                        <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#confirmModal" th:text="${id == 0 ? 'Add Policy': 'Update Policy'}">Add Policy</button>
+                                        <a th:if="${#request.isUserInRole('LIST_POLICY')}" class="btn btn-secondary btn-sm" href="#!" th:href="@{/admin/policy}">Policy List</a>
+                                        <a th:if="${#request.isUserInRole('LIST_POLICY')}" class="btn btn-secondary btn-sm" href="#!" th:href="@{/admin/policy/review}">Policy Review List</a>
+                                    </div>
+                                </div>
+                                <div class="modal fade" id="confirmModal" aria-labelledby="confirmModal" data-bs-backdrop="static" data-bs-keyboard="false">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h6 class="modal-title text-primary">X-Policy</h6>
+                                                <button class="btn p-1" type="button" data-bs-dismiss="modal" aria-label="Close">
+                                                    <span class="fas fa-times fs--1"></span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Confirm you want to add this policy</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button class="btn btn-primary btn-sm" type="submit">Process</button>
+                                                <button class="btn btn-outline-primary btn-sm" type="button" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div> 
+                            </form>
+                        </div>
+                    </div>
+                    <th:block th:include="~{fragments/entityscFragments :: footer}"></th:block>
+                </div>
+            </div>         
+        </main>
+        <th:block th:include="~{fragments/entityscFragments :: scriptfiles}"></th:block>
+        <script>
+            fetchUpdateDepartment(0, 0);
+            setTimeout(1000);
+            fetchUpdateDivision(0, 0);
+        </script>
+    </body>
+</html>

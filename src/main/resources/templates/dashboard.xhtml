@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head>
+        <title>X-Policy - Dashboard</title>
+        <th:block th:include="~{fragments/entityscFragments :: headerfiles}"></th:block>
+    </head>
+    <body onload="preloaderFunction()" style="margin: 0;">
+        <div id="loader"></div>
+        <main class="main animate-bottom" id="top" style="display:none;">
+            <div class="container-fluid px-0">
+                <th:block th:include="~{fragments/entityscFragments :: leftMenu}"></th:block>
+                <th:block th:include="~{fragments/entityscFragments :: topMenu}"></th:block>
+                <div class="content">
+                    <div class="row gy-3 mb-6 justify-content-between">
+                        <div class="col-md-9 col-auto">
+                            <h4 class="mb-2 text-1100 text-primary">Dashboard</h4>
+                            <h5 class="text-700 fw-semi-bold">Policies &amp; Standard Operating Procedures</h5>
+                        </div>
+                        <div class="col-md-3 col-auto">
+                            <h4 class="mb-2 text-1100 text-primary" th:text="'Welcome ' + ${principalName}">Welcome Brian</h4>
+                        </div>
+                    </div>
+                    <div class="row mb-3 gy-6">
+                        <div class="col-12 col-xxl-2">
+                            <div class="row align-items-center g-3 g-xxl-0 h-100 align-content-between">
+                                <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 col-xxl-12">
+                                    <div class="d-flex align-items-center"><span class="fs-4 lh-1 uil uil-books text-primary-500"></span>
+                                        <div class="ms-2">
+                                            <div class="d-flex align-items-end">
+                                                <h2 class="mb-0 me-2" th:text="${policyStats}">32</h2>
+                                                <a href="" data-bs-toggle="modal" data-bs-target="#policyModal" aria-expanded="false" th:onclick="|setPolicy('POL')|">
+                                                    <span class="fs-1 fw-semi-bold text-900 text-primary">Policies</span>
+                                                </a>
+                                            </div>
+                                            <p class="text-800 fs--1 mb-0">Policies</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 col-xxl-12">
+                                    <div class="d-flex align-items-center"><span class="fs-4 lh-1 uil uil-users-alt text-success-500"></span>
+                                        <div class="ms-2">
+                                            <div class="d-flex align-items-end">
+                                                <h2 class="mb-0 me-2" th:text="${sopStats}">94</h2>
+                                                <a href="#" data-bs-toggle="modal" data-bs-target="#policyModal" th:onclick="|setPolicy('SOP')|">
+                                                    <span class="fs-1 fw-semi-bold text-900 text-primary">SOP</span>
+                                                </a>
+                                            </div>
+                                            <p class="text-800 fs--1 mb-0">Standard Operating Procedures</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 col-xxl-12">
+                                    <div class="d-flex align-items-center"><span class="fs-4 lh-1 uil uil-invoice text-warning-500"></span>
+                                        <div class="ms-2">
+                                            <div class="d-flex align-items-end">
+                                                <h2 class="mb-0 me-2" th:text="${charterStats}">23</h2>
+                                                <a href="" data-bs-toggle="modal" data-bs-target="#policyModal" th:onclick="|setPolicy('CHT')|">
+                                                    <span class="fs-1 fw-semi-bold text-900 text-primary">Charters</span>
+                                                </a>
+                                            </div>
+                                            <p class="text-800 fs--1 mb-0">Charters</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 col-xxl-12">
+                                    <div class="d-flex align-items-center"><span class="fs-4 lh-1 uil uil-refresh text-danger-500"></span>
+                                        <div class="ms-2">
+                                            <div class="d-flex align-items-end">
+                                                <h2 class="mb-0 me-2" th:text="${frameworkStats}">3</h2>
+                                                <a href="" data-bs-toggle="modal" data-bs-target="#policyModal" th:onclick="|setPolicy('FWK')|">
+                                                    <span class="fs-1 fw-semi-bold text-900 text-primary">Frameworks</span>
+                                                </a>
+                                            </div>
+                                            <p class="text-800 fs--1 mb-0">Frameworks</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-xl-7 col-xxl-5">
+                            <div class="mx-xxl-0">
+                                <h4 class="text-primary">Must Read: Polices, SOP &amp; Others</h4>
+                                <p class="text-700">You are required to read the following</p>
+                                <div class="row justify-content-between align-items-md-center hover-actions-trigger btn-reveal-trigger border-200 py-3 gx-0 border-top"  th:each="rec : ${mustReadPolicy}">
+                                    <div class="col-12 col-md-auto flex-1">
+                                        <div>
+                                            <div class="form-check mb-1 mb-md-0 d-flex align-items-center lh-1"  th:onclick="|fetchPolicyDetails([[${rec.id}]])|" data-todo-offcanvas-toogle="data-todo-offcanvas-toogle" data-todo-offcanvas-target="#offcanvasRight" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                                <a class="form-check-label mb-0 fs-0 me-2 line-clamp-1 flex-grow-1 flex-md-grow-0" th:href="@{'/policy/download/' + ${rec.policyDocumentId} + '.' + ${rec.policyDocumentExt}}" target="_blank"><span class="text-capitalize" th:text="${rec.policyName}"></span></a>
+                                                <div class="badge badge-phoenix fs--2 badge-phoenix-primary">
+                                                    <a type="button" href="" class="fs-0 fw-bold" th:onclick="|fetchPolicyDetails([[${rec.id}]])|" data-todo-offcanvas-toogle="data-todo-offcanvas-toogle" data-todo-offcanvas-target="#offcanvasRight" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                                        <p class="mb-0 text-1000 fw-semi-bold fs--1 me-2" >View Policy Details</p>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-auto">
+                                        <div class="d-flex ms-4 lh-1 align-items-center">
+                                            <button class="btn p-0 text-700 fs--2 me-2" th:text="${rec.fileSize}">
+                                                <span class="fas fa-paperclip me-1"></span>2
+                                            </button>
+                                            <p class="text-700 fs--2 mb-md-0 me-2 me-md-3 mb-0" th:text="${rec.lastReview}">12 Nov, 2021</p>                                            
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="offcanvas offcanvas-end content-offcanvas offcanvas-backdrop-transparent border-start border-300 shadow-none bg-100" tabindex="-1" data-todo-content-offcanvas="data-todo-content-offcanvas" id="offcanvasRight">
+                                    <div class="offcanvas-header">
+                                        <h5 id="offcanvasRightLabel" class="text-primary">NGX X-Policy Repository</h5>
+                                        <button class="btn-close text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                                    </div>
+                                    <div class="offcanvas-body p-0">
+                                        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xxl-4 g-3 mb-9">
+                                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                                <div class="card h-100 hover-actions-trigger">
+                                                    <div class="card-body">
+                                                        <div class="d-flex align-items-center">
+                                                            <h4 class="mb-2 line-clamp-1 lh-sm flex-1 me-5 text-secondary" id="policyDetailsName"></h4>
+                                                        </div>
+                                                        <div class="d-flex align-items-center mb-2"><span class="fa-solid fa-file-code me-2 text-500 fs--1 fw-extra-bold"></span>
+                                                            <p class="mb-0 fw-bold fs--1">Reference Code : <span class="fw-semi-bold text-500 ms-1 text-primary" id="policyDetailsCode"></span></p>
+                                                        </div>
+                                                        <div class="d-flex align-items-center mb-2"><span class="fa-solid fa-barcode me-2 text-500 fs--1 fw-extra-bold"></span>
+                                                            <p class="mb-0 fw-bold fs--1">Document Id : <span class="fw-semi-bold text-500 ms-1 text-primary" id="policyDetailsDocumentId"></span></p>
+                                                        </div>
+                                                        <div class="d-flex align-items-center mb-2"><span class="fa-solid fa-sticky-note me-2 text-500 fs--1 fw-extra-bold"></span>
+                                                            <p class="mb-0 fw-bold fs--1">Description : <span class="fw-semi-bold text-500 ms-1 text-primary" id="policyDetailsDescription"></span></p>
+                                                        </div>
+                                                        <div class="d-flex align-items-center mb-2"><span class="fa-solid fa-building me-2 text-500 fs--1 fw-extra-bold"></span>
+                                                            <p class="mb-0 fw-bold fs--1">Company : <span class="fw-semi-bold text-500 ms-1 text-primary" id="policyDetailsCompany"></span></p>
+                                                        </div>
+                                                        <div class="d-flex align-items-center mb-2"><span class="fa-solid fa-warehouse me-2 text-500 fs--1 fw-extra-bold"></span>
+                                                            <p class="mb-0 fw-bold fs--1">Division : <span class="fw-semi-bold text-500 ms-1 text-primary" id="policyDetailsDivision"></span></p>
+                                                        </div>
+                                                        <div class="d-flex align-items-center mb-2"><span class="fa-solid fa-university me-2 text-500 fs--1 fw-extra-bold"></span>
+                                                            <p class="mb-0 fw-bold fs--1">Department : <span class="fw-semi-bold text-500 ms-1 text-primary" id="policyDetailsDepartment"></span></p>
+                                                        </div>
+                                                        <div class="d-flex align-items-center mb-4"><span class="fa-solid fa-at me-2 text-500 fs--1 fw-extra-bold"></span>
+                                                            <p class="mb-0 fw-bold fs--1">Author : <span class="fw-semi-bold text-500 ms-1 text-primary" id="policyDetailsAuthor"></span></p>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between text-500 fw-semi-bold">
+                                                            <p class="mb-2"> Days since last review</p>
+                                                            <p class="mb-2 text-1100" id="daysSinceLastReview"></p>
+                                                        </div>
+                                                        <div class="progress bg-success-100">
+                                                            <div class="progress-bar rounded bg-success" role="progressbar" aria-label="Success example" style="width: 90%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                                                        </div>
+                                                        <div class="d-flex align-items-center mt-4">
+                                                            <p class="mb-0 fw-bold fs--1">Last Review :<span class="fw-semi-bold text-500 ms-1 text-primary" id="policyDetailsLastReview"></span></p>
+                                                        </div>
+                                                        <div class="d-flex align-items-center mt-2">
+                                                            <p class="mb-0 fw-bold fs--1">Expiry Date : <span class="fw-semi-bold text-500 ms-1 text-primary" id="policyDetailsExpiryDate"></span></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-xl-5 col-xxl-5">
+                            <div class="card border border-300 h-100 w-100 overflow-hidden">
+                                <div class="card-body px-5 position-relative">
+                                    <div class="badge badge-phoenix fs--2 badge-phoenix-warning mb-4">
+                                        <span class="fw-bold">Coming soon</span><span class="fa-solid fa-award ms-1"></span>
+                                    </div>
+                                    <h3 class="mb-5">Contact Us</h3>
+                                    <p class="text-700 fw-semi-bold">For any concern regarding any of <br class="d-none d-sm-block" />policies or standard operating procedures <br class="d-none d-sm-block" />Kindly contact. </p>
+                                    <p>compliance@ngxgroup.com</p>
+                                </div>
+                                <div class="card-footer border-0 py-0 px-5 z-index-1">
+                                    <p class="text-700 fw-semi-bold">Follow <a href="https://ngxgroup.com/">Nigerian Exchange Group </a>at <br class="d-none d-xxl-block" /> Terms &amp; Conditions for updates.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <th:block th:include="~{fragments/entityscFragments :: footer}"></th:block>
+                </div>
+            </div>
+            <th:block th:include="~{fragments/entityscFragments :: scriptfiles}"></th:block>   
+        </main>
+    </body>
+</html>

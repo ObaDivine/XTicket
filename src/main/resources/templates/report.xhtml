@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head>
+        <title>X-Policy - Report</title>
+        <th:block th:include="~{fragments/entityscFragments :: headerfiles}"></th:block>
+    </head>
+    <body onload="preloaderFunction()" style="margin: 0;">
+        <div id="loader"></div>
+        <main class="main animate-bottom" id="top" style="display:none;">
+            <div class="container-fluid px-0">
+                <th:block th:include="~{fragments/entityscFragments :: leftMenu}"></th:block>
+                <th:block th:include="~{fragments/entityscFragments :: topMenu}"></th:block>
+                <div class="content">
+                    <div class="row gy-3 mb-6 justify-content-between">
+                        <div class="col-md-9 col-auto">
+                            <h4 class="mb-2 text-1100 text-primary">Reports</h4>
+                            <h5 class="text-700 fw-semi-bold">Generate Reports</h5>
+                        </div>
+                        <div class="col-md-3 col-auto">
+                            <h4 class="mb-2 text-1100 text-primary" th:text="'Welcome ' + ${principalName}">Welcome Brian</h4>
+                        </div>
+                    </div>
+                    <div class="row mb-3 gy-6">
+                        <div class="col-12 col-xxl-2">
+                            <div class="row align-items-center g-3 g-xxl-0 h-100 align-content-between">
+                                <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 col-xxl-12">
+                                    <div class="d-flex align-items-center"><span class="fs-4 lh-1 uil uil-books text-primary-500"></span>
+                                        <div class="ms-2">
+                                            <div class="d-flex align-items-end">
+                                                <h2 class="mb-0 me-2" th:text="${policyStats}">32</h2>
+                                                <a href="" data-bs-toggle="modal" data-bs-target="#policyModal" aria-expanded="false" th:onclick="|setPolicy('POL')|">
+                                                    <span class="fs-1 fw-semi-bold text-900 text-primary">Policies</span>
+                                                </a>
+                                            </div>
+                                            <p class="text-800 fs--1 mb-0">Policies</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 col-xxl-12">
+                                    <div class="d-flex align-items-center"><span class="fs-4 lh-1 uil uil-users-alt text-success-500"></span>
+                                        <div class="ms-2">
+                                            <div class="d-flex align-items-end">
+                                                <h2 class="mb-0 me-2" th:text="${sopStats}">94</h2>
+                                                <a href="#" data-bs-toggle="modal" data-bs-target="#policyModal" th:onclick="|setPolicy('SOP')|">
+                                                    <span class="fs-1 fw-semi-bold text-900 text-primary">SOP</span>
+                                                </a>
+                                            </div>
+                                            <p class="text-800 fs--1 mb-0">Standard Operating Procedures</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 col-xxl-12">
+                                    <div class="d-flex align-items-center"><span class="fs-4 lh-1 uil uil-invoice text-warning-500"></span>
+                                        <div class="ms-2">
+                                            <div class="d-flex align-items-end">
+                                                <h2 class="mb-0 me-2" th:text="${charterStats}">23</h2>
+                                                <a href="" data-bs-toggle="modal" data-bs-target="#policyModal" th:onclick="|setPolicy('CHT')|">
+                                                    <span class="fs-1 fw-semi-bold text-900 text-primary">Charters</span>
+                                                </a>
+                                            </div>
+                                            <p class="text-800 fs--1 mb-0">Charters</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 col-xxl-12">
+                                    <div class="d-flex align-items-center"><span class="fs-4 lh-1 uil uil-analytics text-danger-500"></span>
+                                        <div class="ms-2">
+                                            <div class="d-flex align-items-end">
+                                                <h2 class="mb-0 me-2" th:text="${frameworkStats}">3</h2>
+                                                <a href="" data-bs-toggle="modal" data-bs-target="#policyModal" th:onclick="|setPolicy('FWK')|">
+                                                    <span class="fs-1 fw-semi-bold text-900 text-primary">Frameworks</span>
+                                                </a>
+                                            </div>
+                                            <p class="text-800 fs--1 mb-0">Frameworks</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row align-items-center g-3 g-xxl-0 h-100 align-content-between">
+                                <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 col-xxl-12">
+                                    <div class="d-flex align-items-center"><span class="fs-4 lh-1 uil uil-share-alt text-primary-500"></span>
+                                        <div class="ms-2">
+                                            <div class="d-flex align-items-end">
+                                                <h2 class="mb-0 me-2" th:text="${procedureStats}">32</h2>
+                                                <a href="" data-bs-toggle="modal" data-bs-target="#policyModal" aria-expanded="false" th:onclick="|setPolicy('PRO')|">
+                                                    <span class="fs-1 fw-semi-bold text-900 text-primary">Procedures</span>
+                                                </a>
+                                            </div>
+                                            <p class="text-800 fs--1 mb-0">Procedures</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 col-xxl-12">
+                                    <div class="d-flex align-items-center"><span class="fs-4 lh-1 uil uil-notes text-success-500"></span>
+                                        <div class="ms-2">
+                                            <div class="d-flex align-items-end">
+                                                <h2 class="mb-0 me-2" th:text="${formStats}">94</h2>
+                                                <a href="#" data-bs-toggle="modal" data-bs-target="#policyModal" th:onclick="|setPolicy('FRM')|">
+                                                    <span class="fs-1 fw-semi-bold text-900 text-primary">Forms</span>
+                                                </a>
+                                            </div>
+                                            <p class="text-800 fs--1 mb-0">Forms</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 col-xxl-12">
+                                    <div class="d-flex align-items-center"><span class="fs-4 lh-1 uil uil-comment-alt-share text-warning-500"></span>
+                                        <div class="ms-2">
+                                            <div class="d-flex align-items-end">
+                                                <h2 class="mb-0 me-2" th:text="${standardStats}">23</h2>
+                                                <a href="" data-bs-toggle="modal" data-bs-target="#policyModal" th:onclick="|setPolicy('STD')|">
+                                                    <span class="fs-1 fw-semi-bold text-900 text-primary">Standards</span>
+                                                </a>
+                                            </div>
+                                            <p class="text-800 fs--1 mb-0">Standards</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 col-xxl-12">
+                                    <div class="d-flex align-items-center"><span class="fs-4 lh-1 uil uil-process text-danger-500"></span>
+                                        <div class="ms-2">
+                                            <div class="d-flex align-items-end">
+                                                <h2 class="mb-0 me-2" th:text="${scheduleStats}">3</h2>
+                                                <a href="" data-bs-toggle="modal" data-bs-target="#policyModal" th:onclick="|setPolicy('SCH')|">
+                                                    <span class="fs-1 fw-semi-bold text-900 text-primary">Schedules</span>
+                                                </a>
+                                            </div>
+                                            <p class="text-800 fs--1 mb-0">Schedules</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="row mt-3 gy-6">
+                        <div class="col-12 col-xl-12 col-xxl-12">
+                            <ul class="nav nav-underline" id="myTab" role="tablist">
+                                <li class="nav-item"><a class="nav-link active" id="policy-entity-tab" data-bs-toggle="tab" href="#tab-policy-entity" role="tab" aria-controls="tab-policy-entity" aria-selected="true">Policy Report</a></li>
+                                <li class="nav-item"><a class="nav-link" id="policy-read-tab" data-bs-toggle="tab" href="#tab-policy-read" role="tab" aria-controls="tab-policy-read" aria-selected="false">Policy Read Report</a></li>
+                                <li class="nav-item"><a class="nav-link" id="policy-user" data-bs-toggle="tab" href="#tab-user" role="tab" aria-controls="tab-user" aria-selected="false">Application User Report</a></li>
+                                <li class="nav-item"><a class="nav-link" id="audit-log" data-bs-toggle="tab" href="#tab-audit" role="tab" aria-controls="tab-audit" aria-selected="false">Audit Log</a></li>
+                            </ul>
+                            <hr/>
+                            <div class="tab-content mt-3" id="myTabContent">
+                                <div class="tab-pane fade show active" id="tab-policy-entity" role="tabpanel" aria-labelledby="tab-policy-entity">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <form id="policyForm" th:action="@{/admin/report/}" method="POST" th:object="${xpolicyPayload}">
+                                                <div class="form-floating">
+                                                    <select class="form-select form-control-sm" data-choices="data-choices" th:field="*{policyCode}">
+                                                        <option value="">--- Select Policy Type ---</option>
+                                                        <option value="CHT">Charter</option>
+                                                        <option value="COM">Committees &amp; Association</option>
+                                                        <option value="FRM">Forms</option>
+                                                        <option value="POL">Policy</option>
+                                                        <option value="RPT">Reports</option>
+                                                        <option value="SCH">Schedules</option>
+                                                        <option value="SOP">Standard Operating Procedures</option> 
+                                                        <option value="TEM">Templates</option>
+                                                        <option value="EXPPOL">Expired Policies</option>
+                                                        <option value="POLWAPP">Policy Awaiting Approval</option> 
+                                                    </select>
+                                                    <label for="floatingSelectOwner" class="text-capitalize">Policy Type</label>
+                                                </div>
+                                                <div class="form-floating">
+                                                    <select class="form-select form-control-sm" data-choices="data-choices" th:field="*{company}" th:onchange="|fetchDivision()|">
+                                                        <option value="">--- Select Company ---</option>
+                                                        <option th:each="fa : ${companyList}" th:value="${fa.id}" th:text="${fa.companyName}"></option>
+                                                    </select>
+                                                    <label for="floatingSelectOwner" class="text-capitalize">Company</label>
+                                                </div>
+                                                <div class="form-floating">
+                                                    <select class="form-select form-control-sm" data-choices="data-choices" th:field="*{division}" th:onchange="|fetchDepartment()|">
+                                                        <option value="">---</option>                                      
+                                                    </select>
+                                                    <label for="floatingSelectOwner" class="text-capitalize">Division</label>
+                                                </div>
+                                                <div class="form-floating">
+                                                    <select class="form-select form-control-sm" data-choices="data-choices" th:field="*{department}">
+                                                        <option value="">---</option>
+                                                    </select>
+                                                    <label for="floatingSelectOwner" class="text-capitalize">Departments</label>
+                                                </div>                               
+                                                <button type="submit" class="btn btn-primary btn-sm mt-1">Fetch Record</button>
+                                                <input id="reportCategory" name="reportCategory" type="hidden" value="Policy" />
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="tab-policy-read" role="tabpanel" aria-labelledby="tab-policy-read">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <form id="policyForm" th:action="@{/admin/report/}" method="POST" th:object="${xpolicyPayload}">
+                                                <div class="form-floating">
+                                                    <select class="form-select form-control-sm" data-choices="data-choices" th:field="*{reportType}" required="required">
+                                                        <option value="">--- Select Policy ---</option>
+                                                        <option th:each="fa : ${policyList}" th:value="${fa.id}" th:text="${fa.policyName}"></option>
+                                                    </select>
+                                                    <label for="floatingSelectOwner" class="text-capitalize">Report</label>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary btn-sm mt-3">Fetch Record</button>
+                                                <input id="reportCategory" name="reportCategory" type="hidden" value="PolicyRead" />
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="tab-user" role="tabpanel" aria-labelledby="tab-user">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <form id="policyForm" th:action="@{/admin/report/}" method="POST" th:object="${xpolicyPayload}">
+                                                <div class="form-floating">
+                                                    <select class="form-select form-control-sm" data-choices="data-choices" th:field="*{reportType}">
+                                                        <option value="">--- Select Report ---</option>
+                                                        <option value="ActiveUser">Active Users</option>
+                                                        <option value="DisabledUser">Disabled Users</option> 
+                                                        <option value="PolicyChampions">Policy Champions</option>
+                                                    </select>
+                                                    <label for="floatingSelectOwner" class="text-capitalize">Report</label>
+                                                </div>
+                                                <div class="form-floating">
+                                                    <select class="form-select form-control-sm" data-choices="data-choices" th:field="*{updateCompany}" th:onchange="|fetchUpdateDivision(0,0)|">
+                                                        <option value="">--- Select Company ---</option>
+                                                        <option th:each="fa : ${companyList}" th:value="${fa.id}" th:text="${fa.companyName}"></option>
+                                                    </select>
+                                                    <label for="floatingSelectOwner" class="text-capitalize">Company</label>
+                                                </div>
+                                                <div class="form-floating">
+                                                    <select class="form-select form-control-sm" data-choices="data-choices" th:field="*{updateDivision}" th:onchange="|fetchUpdateDepartment(0,0)|">
+                                                        <option value="">---</option>                                      
+                                                    </select>
+                                                    <label for="floatingSelectOwner" class="text-capitalize">Division</label>
+                                                </div>
+                                                <div class="form-floating">
+                                                    <select class="form-select form-control-sm" data-choices="data-choices" th:field="*{updateDepartment}">
+                                                        <option value="">---</option>
+                                                    </select>
+                                                    <label for="floatingSelectOwner" class="text-capitalize">Departments</label>
+                                                </div> 
+                                                <button type="submit" class="btn btn-primary btn-sm mt-1">Fetch Record</button>
+                                                <input id="reportCategory" name="reportCategory" type="hidden" value="Users" />
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="tab-audit" role="tabpanel" aria-labelledby="tab-audit">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <form id="policyForm" th:action="@{/admin/report/}" method="POST" th:object="${xpolicyPayload}">
+                                                <div class="form-floating">
+                                                    <select class="form-select form-control-sm" data-choices="data-choices" th:field="*{reportType}">
+                                                        <option value="">--- Select Report ---</option>
+                                                        <option value="Login">Login</option> 
+                                                        <option value="Policy">Policy</option>
+                                                        <option value="Roles">Roles</option> 
+                                                        <option value="User">Users</option> 
+                                                    </select>
+                                                    <label for="floatingSelectOwner" class="text-capitalize">Report</label>
+                                                </div>
+                                                <div class="input-group">
+                                                    <div class="form-floating">
+                                                        <input class="form-control form-control-sm" th:field="*{startDate}" type="date" value="" required="required"/>
+                                                        <label for="floatingStartDate" class="text-capitalize">Start Date</label>
+                                                    </div>
+                                                    <div class="form-floating">
+                                                        <input class="form-control form-control-sm" th:field="*{endDate}" type="date" value="" required="required"/>
+                                                        <label for="floatingEndDate" class="text-capitalize">End Date</label>
+                                                    </div>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary btn-sm mt-3">Fetch Record</button>
+                                                <input id="reportCategory" name="reportCategory" type="hidden" value="UserActivity" />
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>                    
+                    </div>
+                    <th:block th:include="~{fragments/entityscFragments :: footer}"></th:block>
+                </div>
+            </div>
+        </main>
+        <th:block th:include="~{fragments/entityscFragments :: scriptfiles}"></th:block>       
+    </body>
+</html>
