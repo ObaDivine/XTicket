@@ -134,6 +134,7 @@ public class GenericServiceImpl implements GenericService {
     }
 
     @Async
+    @Override
     public CompletableFuture<String> sendEmail(XTicketPayload requestPayload, String principal) {
         LogPayload log = new LogPayload();
         log.setUsername(principal);

@@ -40,14 +40,19 @@ spring:
             profile: dev
     datasource:
         initialization-mode: ALWAYS
-        password: F3bru@ry02mth
-        username: ngxadmin@nxgroup01-mysqldbserver
-        driverClassName: com.mysql.jdbc.Driver  
-        url: jdbc:mysql://nxgroup01-mysqldbserver.mysql.database.azure.com:3306/xticket?useSSL=true
+        password: Anaconda1521@
+        username: entityscdbuser
+        driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+        url: jdbc:sqlserver://localhost;databaseName=ngx;encrypt=true;trustServerCertificate=true
+        #password: F3bru@ry02mth
+        #username: ngxadmin@nxgroup01-mysqldbserver
+        #driverClassName: com.mysql.jdbc.Driver  
+        #url: jdbc:mysql://nxgroup01-mysqldbserver.mysql.database.azure.com:3306/xticket?useSSL=true
     jpa:
         hibernate:
             ddl-auto: update
-            dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+            dialect: org.hibernate.dialect.SQLServer2012Dialect
+            #dialect: org.hibernate.dialect.MySQL5InnoDBDialect
         show-sql: true
 
 email:
@@ -60,41 +65,46 @@ email:
     password: Password10$
     
 xticket:
-    cron:
-        job: 0 0 11 * * ?
+  host: 'http://localhost:8080'
+  company:
+    name: Nigerian Exchange Group
+    address: 2 Custom Street, Marina, Lagos
+    email: info@ngxgroup.com
+    phone: 01-270388738
+    rc: 123454
+    logo: kalis
+  cron:
+    job: 0 0 11 * * ?
+  email:
+    notification: bokon@ngxgroup.com
+  expiry:
+    days: 3
+  download:
+    policy:
+      base:
+        dir: C:/NGX/XTicket
+  ngx:
     email:
-        notification: bokon@ngxgroup.com
-    expiry:
-        days: 3
-    download:
-        policy:
-            base:
-                dir: C:/NGX/XTicket
-    ngx:
-        email:
-            domain: ngxgroup.com
-        dc:
-            group: ngxgroup.com
-            regulation: regulation.ngxgroup.com
-            realestate: exchange.ngxgroup.com
-            limited: exchange.ngxgroup.com
-    qrcode:
-        height: 115
-        width: 115
-        image:
-            url: C:/Apps/Java/XTicket/target/xticket-1.0/WEB-INF/classes/images/qrcode
-    password:
-        default: Password!23
-        web: Password!23
-        mobile: Password!23
-        ussd: Password!23
-        reset:
-            time: 1
-        retry:
-            count: 3
-        change:
-            days: 30
-    encryption:
-        key:
-            mian: FLWSECK-f6be2996841f1da0dfb7e27b9a3bd5bf-X
-            web: yG4b7jm8NHkv8s0vfwaS
+      domain: ngxgroup.com
+    dc:
+      group: ngxgroup.com
+      regulation: regulation.ngxgroup.com
+      realestate: exchange.ngxgroup.com
+      limited: exchange.ngxgroup.com
+  qrcode:
+    height: 115
+    width: 115
+    image:
+      url: C:/Apps/Java/XTicket/target/xticket-1.0/WEB-INF/classes/images/qrcode
+  password:
+    default: Password!23
+    reset:
+      time: 1
+    retry:
+      count: 3
+    change:
+      days: 30
+  encryption:
+    key:
+      mian: FLWSECK-f6be2996841f1da0dfb7e27b9a3bd5bf-X
+      web: yG4b7jm8NHkv8s0vfwaS

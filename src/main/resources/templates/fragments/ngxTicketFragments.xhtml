@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
-        <title>X-Policy</title>
+        <title>X-Ticket</title>
     </head>
     <body>
         <div th:fragment="headerfiles">
@@ -37,33 +37,31 @@
                 document.addEventListener("DOMContentLoaded", () => {
                     var message = [[${alertMessage}]];
                     var messageType = [[${alertMessageType}]];
-                    var companyId = /*[[${companyId}]]*/ '';
-                    var divisionId = /*[[${divisionId}]]*/ '';
-                    var departmentId = /*[[${departmentId}]]*/ '';
-                    var referer = [[${refererPage}]];
-
-                    if (referer === 'Policy Update' || referer === 'User Update') {
-                        fetchUpdateDivision(companyId, divisionId);
-                        fetchUpdateDepartment(divisionId, departmentId);
-                    }
-                    ;
-
                     if (message === "" || message === null || message === "null")
                         return;
-
-                    Swal.fire({
-                        title: 'X-Policy',
-                        text: message,
-                        icon: messageType,
-                        position: 'top',
-                        timer: 3000,
-                        timerProgressBar: true,
-                        height: '200px',
-                        width: '500px',
-                        showConfimButton: false,
-                        padding: '5px'
-                    });
+                    else {
+                        showAlert(message, messageType);
+                    }
                 });
+
+                function showAlert(message, messageType) {
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-right',
+                        showConfirmButton: false,
+                        timerProgressBar: true,
+                        showCancelButton: false,
+                        timer: 8000,
+                        customClass: {
+                            popup: 'colored-toast'
+                        }
+                    });
+
+                    Toast.fire({
+                        icon: messageType,
+                        title: message
+                    });
+                }
 
                 var phoenixIsRTL = window.config.config.phoenixIsRTL;
                 if (phoenixIsRTL) {
@@ -104,128 +102,212 @@
         </div>
 
         <div th:fragment="topMenu">
-            <nav class="navbar navbar-top navbar-expand" id="navbarDefault">
-                <div class="collapse navbar-collapse justify-content-between">
-                    <div class="navbar-logo">
-                        <button class="btn navbar-toggler navbar-toggler-humburger-icon hover-bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#navbarVerticalCollapse" aria-controls="navbarVerticalCollapse" aria-expanded="false" aria-label="Toggle Navigation">
-                            <span class="navbar-toggle-icon"><span class="toggle-line"></span></span>
-                        </button>
-                        <a class="navbar-brand me-1 me-sm-3" th:href="@{/}">
-                            <div class="d-flex align-items-center">
-                                <div class="d-flex align-items-center"><img th:src="@{/images/logo_nobg.png}" alt="Entity" width="96" height="32" />
-                                    <p class="logo-text ms-2 d-none d-sm-block text-primary">Nigerian Exchange Group</p>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="search-box navbar-top-search-box d-none d-lg-block" data-list='{"valueNames":["title"]}' style="width:25rem;">
-                        <div class="row gy-3 mb-1 justify-content-between">
-                            <div class="col-sm-6 col-md-6 col-lg-10 logo-text ms-2 d-none d-sm-block text-primary">Policy Repository
+            <nav class="navbar navbar-top navbar-expand-lg" id="navbarTop">
+                <div class="navbar-logo">
+                    <button class="btn navbar-toggler navbar-toggler-humburger-icon hover-bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#navbarVerticalCollapse" aria-controls="navbarVerticalCollapse" aria-expanded="false" aria-label="Toggle Navigation">
+                        <span class="navbar-toggle-icon"><span class="toggle-line"></span></span>
+                    </button>
+                    <a class="navbar-brand me-1 me-sm-3" th:href="@{/}">
+                        <div class="d-flex align-items-center">
+                            <div class="d-flex align-items-center"><img th:src="@{/images/logo_nobg.png}" alt="Entity" width="96" height="32" />
+                                <p class="logo-text ms-2 d-none d-sm-block text-primary">Ticketing System</p>
                             </div>
                         </div>
-                    </div>
-                    <ul class="navbar-nav navbar-nav-icons flex-row">
-                        <li class="nav-item">
-                            <div class="theme-control-toggle fa-icon-wait px-2">
-                                <input class="form-check-input ms-0 theme-control-toggle-input" type="checkbox" data-theme-control="phoenixTheme" value="dark" id="themeControlToggle" />
-                                <label class="mb-0 theme-control-toggle-label theme-control-toggle-light" for="themeControlToggle" data-bs-toggle="tooltip" data-bs-placement="left" title="Switch theme">
-                                    <span class="icon" data-feather="moon"></span>
-                                </label>
-                                <label class="mb-0 theme-control-toggle-label theme-control-toggle-dark" for="themeControlToggle" data-bs-toggle="tooltip" data-bs-placement="left" title="Switch theme">
-                                    <span class="icon" data-feather="sun"></span>
-                                </label>
-                            </div>
+                    </a>
+                </div>
+                <div class="collapse navbar-collapse navbar-top-collapse order-1 order-lg-0 justify-content-center" id="navbarTopCollapse">
+                    <ul class="navbar-nav navbar-nav-top" data-dropdown-on-hovar="data-dropdown-on-hovar">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle lh-1 text-primary" href="#!" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
+                                <span class="uil fs-0 me-2 uil-home"></span>Home
+                            </a>
+                            <ul class="dropdown-menu navbar-dropdown-caret">
+                                <li>
+                                    <a class="dropdown-item" href="../index.html">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 fas fa-tachometer" data-feather="dashboard-outlined"></span>Dashboard
+                                        </div>
+                                    </a>
+                                </li>                               
+                            </ul>
                         </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-bs-auto-close="outside">
-                                <span data-feather="bell" style="height:20px;width:20px;"></span>
+                            <a class="nav-link dropdown-toggle lh-1  text-primary" href="#!" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
+                                <span class="uil fs-0 me-2 uil-cube"></span>Ticket
                             </a>
-                            <div class="dropdown-menu dropdown-menu-end notification-dropdown-menu py-0 shadow border border-300 navbar-dropdown-caret" id="navbarDropdownNotfication" aria-labelledby="navbarDropdownNotfication">
-                                <div class="card position-relative border-0">
-                                    <div class="card-header p-2">
-                                        <div class="d-flex justify-content-between">
-                                            <h5 class="text-black mb-0">Notifications</h5>
+                            <ul class="dropdown-menu navbar-dropdown-caret">
+                                <li>
+                                    <a class="dropdown-item" href="../index.html">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="shopping-cart"></span>New Ticket
                                         </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="../dashboard/project-management.html">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>My Tickets
+                                        </div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle lh-1  text-primary" href="#!" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
+                                <span class="uil fs-0 me-2 uil-files-landscapes-alt"></span>Report
+                            </a>
+                            <ul class="dropdown-menu navbar-dropdown-caret">
+                                <li>
+                                    <a class="dropdown-item" href="../index.html">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="pie-chart"></span>New Ticket
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="../dashboard/project-management.html">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>My Tickets
+                                        </div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle lh-1  text-primary" href="#!" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
+                                <span class="uil fs-0 me-2 uil-puzzle-piece"></span>Knowledge Base
+                            </a>
+                            <ul class="dropdown-menu navbar-dropdown-caret">
+                                <li>
+                                    <a class="dropdown-item" href="../index.html">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="shopping-cart"></span>Documentation
+                                        </div>
+                                    </a>
+                                </li>                           
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle lh-1  text-primary" href="#!" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
+                                <span class="uil fs-0 me-2 uil-document-layout-right"></span>System
+                            </a>
+                            <ul class="dropdown-menu navbar-dropdown-caret">
+                                <li>
+                                    <a class="dropdown-item" href="../index.html">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="shopping-cart"></span>User
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="../dashboard/project-management.html">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Settings
+                                        </div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>                        
+                    </ul>
+                </div>
+                <ul class="navbar-nav navbar-nav-icons flex-row">
+                    <li class="nav-item">
+                        <div class="theme-control-toggle fa-icon-wait px-2">
+                            <input class="form-check-input ms-0 theme-control-toggle-input" type="checkbox" data-theme-control="phoenixTheme" value="dark" id="themeControlToggle" />
+                            <label class="mb-0 theme-control-toggle-label theme-control-toggle-light" for="themeControlToggle" data-bs-toggle="tooltip" data-bs-placement="left" title="Switch theme">
+                                <span class="icon" data-feather="moon"></span>
+                            </label>
+                            <label class="mb-0 theme-control-toggle-label theme-control-toggle-dark" for="themeControlToggle" data-bs-toggle="tooltip" data-bs-placement="left" title="Switch theme">
+                                <span class="icon" data-feather="sun"></span>
+                            </label>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-bs-auto-close="outside">
+                            <span data-feather="bell" style="height:20px;width:20px;"></span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end notification-dropdown-menu py-0 shadow border border-300 navbar-dropdown-caret" id="navbarDropdownNotfication" aria-labelledby="navbarDropdownNotfication">
+                            <div class="card position-relative border-0">
+                                <div class="card-header p-2">
+                                    <div class="d-flex justify-content-between">
+                                        <h5 class="text-black mb-0">Notifications</h5>
                                     </div>
-                                    <div class="card-body p-0">
-                                        <div class="scrollbar-overlay" style="height: 27rem;">
-                                            <div class="border-300">
-                                                <div class="p-3 border-300 notification-card position-relative read border-bottom">
-                                                    <div class="d-flex align-items-center justify-content-between position-relative">
-                                                        <div class="d-flex" th:each="rec : ${notification}">
-                                                            <div class="avatar avatar-m status-online me-3">
-                                                                <img class="rounded-circle" src="../assets/img/team/40x40/30.webp" alt="" />
-                                                            </div>
-                                                            <div class="me-3 flex-1">
-                                                                <h4 class="fs--1 text-black" th:rec="${rec.sentBy}"></h4>
-                                                                <p class="fs--1 text-1000 mb-2 mb-sm-3 fw-normal"><span class='me-1 fs--2' th:text="${rec.message}">
-                                                                    </span>Mentioned you in a comment.<span class="ms-2 text-400 fw-bold fs--2">10m</span>
-                                                                </p>
-                                                                <p class="text-800 fs--1 mb-0" th:text="${rec.createdAt}">
-                                                                    <span class="me-1 fas fa-clock"></span>
-                                                                    <span class="fw-bold" th:text="${rec.createdTime}">10:41 AM </span>August 7,2021
-                                                                </p>
-                                                            </div>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="scrollbar-overlay" style="height: 27rem;">
+                                        <div class="border-300">
+                                            <div class="p-3 border-300 notification-card position-relative read border-bottom">
+                                                <div class="d-flex align-items-center justify-content-between position-relative">
+                                                    <div class="d-flex" th:each="rec : ${notification}">
+                                                        <div class="avatar avatar-m status-online me-3">
+                                                            <img class="rounded-circle" src="../assets/img/team/40x40/30.webp" alt="" />
+                                                        </div>
+                                                        <div class="me-3 flex-1">
+                                                            <h4 class="fs--1 text-black" th:rec="${rec.sentBy}"></h4>
+                                                            <p class="fs--1 text-1000 mb-2 mb-sm-3 fw-normal"><span class='me-1 fs--2' th:text="${rec.message}">
+                                                                </span>Mentioned you in a comment.<span class="ms-2 text-400 fw-bold fs--2">10m</span>
+                                                            </p>
+                                                            <p class="text-800 fs--1 mb-0" th:text="${rec.createdAt}">
+                                                                <span class="me-1 fas fa-clock"></span>
+                                                                <span class="fw-bold" th:text="${rec.createdTime}">10:41 AM </span>August 7,2021
+                                                            </p>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="card-footer p-0 border-top border-0">
-                                        <div class="my-2 text-center fw-bold fs--2 text-600"><a class="fw-bolder" href="#">Notification history</a></div>
-                                    </div>
+                                </div>
+                                <div class="card-footer p-0 border-top border-0">
+                                    <div class="my-2 text-center fw-bold fs--2 text-600"><a class="fw-bolder" href="#">Notification history</a></div>
                                 </div>
                             </div>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link lh-1 pe-0" id="navbarDropdownUser" href="#!" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
-                                <div class="avatar avatar-l ">
-                                    <img class="rounded-circle " th:src="@{'/images/avatar.png'}" alt="" />
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link lh-1 pe-0" id="navbarDropdownUser" href="#!" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
+                            <div class="avatar avatar-l ">
+                                <img class="rounded-circle " th:src="@{'/images/avatar.png'}" alt="" />
+                            </div>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end navbar-dropdown-caret py-0 dropdown-profile shadow border border-300" aria-labelledby="navbarDropdownUser">
+                            <div class="card position-relative border-0">
+                                <div class="card-body p-0">
+                                    <div class="text-center pt-4 pb-3">
+                                        <div class="avatar avatar-xl ">
+                                            <img class="rounded-circle" th:src="@{'/images/avatar.png'}" alt="" />
+                                        </div>
+                                        <h6 class="mt-2 text-black" th:text="${xticketPayload.lastName+ ', ' + xticketPayload.otherName}">name</h6>
+                                    </div>
                                 </div>
+                                <div class="overflow-auto scrollbar" style="height: 10rem;">
+                                    <ul class="nav d-flex flex-column mb-2 pb-1">
+                                        <li class="nav-item"><a class="nav-link px-3" href="#!" th:href="@{/profile}"> <span class="me-2 text-900 fa fa-user"></span><span>Profile</span></a></li>
+                                        <li class="nav-item"><a class="nav-link px-3" href="#!" th:href="@{/dashboard}"><span class="me-2 text-900 fa fa-tachometer"></span>Dashboard</a></li>
+                                        <li th:if="${!xticketPayload.internal}" class="nav-item"><a class="nav-link px-3" href="#!" th:href="@{/change-password}"> <span class="me-2 text-900 fa fa-key"></span>Change Password</a></li>
+                                        <li class="nav-item"><a class="nav-link px-3" href="#!"> <span class="me-2 text-900 fa fa-question-circle"></span>Help Center</a></li>
+                                    </ul>
+                                </div>
+                                <div class="card-footer p-0 border-top">
+                                    <div class="px-3">
+                                        <a class="btn btn-entitysc-secondary d-flex flex-center w-100" href="#!" data-bs-target="#confirmLogout" data-bs-toggle="modal">
+                                            <span class="me-2 fa fa-sign-out"></span>Sign out
+                                        </a>
+                                    </div>
+                                    <div class="my-2 text-center fw-bold fs--2 text-600">
+                                        <a class="text-600 me-1" href="#!" th:href="@{/privacy}">Privacy policy</a>&bull;
+                                        <a class="text-600 mx-1" href="#!" th:href="@{/terms}">Terms</a>&bull;
+                                        <a class="text-600 ms-1" href="#!" th:href="@{/cookies}">Cookies</a></div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <div class="theme-control-toggle fa-icon-wait px-2">
+                            <a class="btn btn-danger btn-sm d-flex flex-center w-100" href="#!" data-bs-target="#confirmLogout" data-bs-toggle="modal">
+                                <span class="me-2 fa fa-sign-out"></span>Sign out
                             </a>
-                            <div class="dropdown-menu dropdown-menu-end navbar-dropdown-caret py-0 dropdown-profile shadow border border-300" aria-labelledby="navbarDropdownUser">
-                                <div class="card position-relative border-0">
-                                    <div class="card-body p-0">
-                                        <div class="text-center pt-4 pb-3">
-                                            <div class="avatar avatar-xl ">
-                                                <img class="rounded-circle" th:src="@{'/images/avatar.png'}" alt="" />
-                                            </div>
-                                            <h6 class="mt-2 text-black" th:text="${principalName}">name</h6>
-                                        </div>
-                                    </div>
-                                    <div class="overflow-auto scrollbar" style="height: 10rem;">
-                                        <ul class="nav d-flex flex-column mb-2 pb-1">
-                                            <li class="nav-item"><a class="nav-link px-3" href="#!"> <span class="me-2 text-900 fa fa-user"></span><span>Profile</span></a></li>
-                                            <li class="nav-item"><a class="nav-link px-3" href="#!" th:href="@{/dashboard}"><span class="me-2 text-900 fa fa-tachometer"></span>Dashboard</a></li>
-                                            <li class="nav-item"><a class="nav-link px-3" href="#!"> <span class="me-2 text-900 fa fa-question-circle"></span>Help Center</a></li>
-                                            <li class="nav-item"><a class="nav-link px-3" href="#!"> <span class="me-2 text-900 fa fa-globe"></span>Language</a></li>
-                                        </ul>
-                                    </div>
-                                    <div class="card-footer p-0 border-top">
-                                        <div class="px-3">
-                                            <a class="btn btn-entitysc-secondary d-flex flex-center w-100" href="#!" data-bs-target="#confirmLogout" data-bs-toggle="modal">
-                                                <span class="me-2 fa fa-sign-out"></span>Sign out
-                                            </a>
-                                        </div>
-                                        <div class="my-2 text-center fw-bold fs--2 text-600">
-                                            <a class="text-600 me-1" href="#!" th:href="@{/privacy}">Privacy policy</a>&bull;
-                                            <a class="text-600 mx-1" href="#!" th:href="@{/terms}">Terms</a>&bull;
-                                            <a class="text-600 ms-1" href="#!" th:href="@{/cookies}">Cookies</a></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="nav-item">
-                            <div class="theme-control-toggle fa-icon-wait px-2">
-                                <a class="btn btn-danger btn-sm d-flex flex-center w-100" href="#!" data-bs-target="#confirmLogout" data-bs-toggle="modal">
-                                    <span class="me-2 fa fa-sign-out"></span>Sign out
-                                </a>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
+                        </div>
+                    </li>
+                </ul>
             </nav>
+            <script>
+                var navbarVertical = document.querySelector('.navbar-vertical');
+                navbarVertical.remove();
+                navbarTop.removeAttribute('style');
+            </script>
         </div>
 
         <div th:fragment="leftMenu">
@@ -390,14 +472,14 @@
             <footer class="footer position-absolute">
                 <div class="row g-0 justify-content-between align-items-center h-100">
                     <div class="col-12 col-sm-auto text-center">
-                        <p class="mb-0 mt-2 mt-sm-0 text-900 text-secondary">X-Policy Repository
+                        <p class="mb-0 mt-2 mt-sm-0 text-900 text-secondary">X-Ticket System
                             <span class="d-none d-sm-inline-block"></span>
                             <span class="d-none d-sm-inline-block mx-1">|</span>
-                            <br class="d-sm-none" />2023 &copy;<a class="mx-1" href="https://ngxgroup.com">Nigerian Exchange Group</a>
+                            <br class="d-sm-none" /><span th:text="${#dates.year(#dates.createNow())}"></span> &copy;<a class="mx-1" href="https://ngxgroup.com">Nigerian Exchange Group</a>
                         </p>
                     </div>
                     <div class="col-12 col-sm-auto text-center">
-                        <p class="mb-0 text-600">v1.9.0</p>
+                        <p class="mb-0 text-600">v1.0</p>
                     </div>
                 </div>
             </footer>
@@ -420,64 +502,23 @@
             <script th:src="@{/js/dhtmlxgantt.js}"></script>
             <script th:src="@{/js/sweetalert2.min.js}"></script>
             <script th:src="@{/js/xpolicy.js}"></script>
-            <form id="logoutForm" th:action="@{/account/logout}" method="POST">
+            <form id="logoutForm" th:action="@{/logout}" method="POST">
                 <div class="modal fade" id="confirmLogout" tabindex="-1" role="dialog" aria-labelledby="confirmLogout" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h6 class="modal-title text-primary">X-Policy</h6>
-                                <button class="btn p-1" type="button" data-bs-dismiss="modal" aria-label="Close">
-                                    <span class="fas fa-times fs--1"></span>
-                                </button>
+                                <h6 class="modal-title text-primary">Nigerian Exchange Group - <span class="text-secondary">X-Ticket</span></h6>
                             </div>
                             <div class="modal-body">
                                 <p>Confirm you want to logout</p>
-                            </div>
-                            <div class="modal-footer">
                                 <button type="submit" class="btn btn-danger btn-sm">Logout</button>
-                                <button type="button" class="btn btn-outline-primary btn-sm" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
                             </div>
                         </div>
                     </div>
                 </div>
             </form>
-            <form id="policyForm" th:action="@{/policy/}" method="POST" th:object="${xpolicyPayload}">
-                <div class="modal fade" id="policyModal" tabindex="-1" role="dialog" aria-labelledby="policyModal" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h6 class="modal-title text-primary">X-Policy</h6>
-                                <button type="button" class="btn btn-link btn-close-falcon p-0" data-bs-dismiss="modal" aria-hidden="true">&times;</button>                                
-                            </div>
-                            <div class="modal-body">
-                                <div class="form-floating">
-                                    <select class="form-select" data-choices="data-choices" th:field="*{company}" th:onchange="|fetchDivision()|">
-                                        <option value="">--- Select Company ---</option>
-                                        <option th:each="fa : ${companyList}" th:value="${fa.id}" th:text="${fa.companyName}"></option>
-                                    </select>
-                                    <label for="floatingSelectOwner">Company</label>
-                                </div>
-                                <div class="form-floating">
-                                    <select class="form-select" data-choices="data-choices" th:field="*{division}" th:onchange="|fetchDepartment()|">
-                                        <option value="">---</option>                                      
-                                    </select>
-                                    <label for="floatingSelectOwner">Division</label>
-                                </div>
-                                <div class="form-floating">
-                                    <select class="form-select" data-choices="data-choices" th:field="*{department}">
-                                        <option value="">---</option>
-                                    </select>
-                                    <label for="floatingSelectOwner">Departments</label>
-                                </div>                               
-                                <br/>
-                                <input type="hidden" id="policyType" name ="policyType" value=""/>
-                                <button type="submit" class="btn btn-entitysc-primary btn-sm">Fetch Record</button>
-                                <button type="button" class="btn btn-entitysc-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </form>
+
             <script>
                     var options = {valueNames: ['name', 'description', 'date_created']};
                     var recordList = new List('productGroup', options);

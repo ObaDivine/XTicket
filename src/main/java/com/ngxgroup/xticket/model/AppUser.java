@@ -33,8 +33,16 @@ public class AppUser implements Serializable {
     @Basic(optional = false)
     @Column(name = "id")
     private Long id;
+    @Column(name = "last_name")
+    private String lastName;
+    @Column(name = "other_name")
+    private String otherName;
     @Column(name = "email")
     private String email;
+    @Column(name = "mobile_number")
+    private String mobileNumber;
+    @Column(name = "gender")
+    private String gender;
     @Column(name = "created_by")
     private String createdBy;
     @Column(name = "created_at")
@@ -43,12 +51,12 @@ public class AppUser implements Serializable {
     private String updatedBy;
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+    @Column(name = "password")
+    private String password;
     @Column(name = "locked")
     private boolean isLocked = false;
-    @Column(name = "expired")
-    private boolean isExpired = false;
-    @Column(name = "enabled")
-    private boolean isEnabled = true;
+    @Column(name = "activated")
+    private boolean isActivated = false;
     @Column(name = "reset_time")
     private LocalDateTime resetTime;
     @Column(name = "last_login")
@@ -57,22 +65,12 @@ public class AppUser implements Serializable {
     private RoleGroups role;
     @Column(name = "login_fail_count")
     private int loginFailCount = 0;
-    @Column(name = "two_factor_secretkey")
-    private String twoFactorSecretKey;
-    @ManyToOne
-    private Company company;
-    @ManyToOne
-    private Division division;
-    @ManyToOne
-    private Department department;
-    @Column(name = "access_level")
-    private int accessLevel = 1;
-    @Column(name = "name")
-    private String name;
-    @Column(name = "user_type")
-    private String userType = "USER";
-    @Column(name = "user_id")
-    private String userId;
-    @Column(name = "policy_champion")
-    private boolean policyChampion = false;
+    @Column(name = "internal")
+    private boolean internal = false;
+    @Column(name = "technician")
+    private boolean technician = false;
+    @Column(name = "password_change_date")
+    private LocalDate passwordChangeDate;
+    @Column(name = "activation_id")
+    private String activationId;
 }

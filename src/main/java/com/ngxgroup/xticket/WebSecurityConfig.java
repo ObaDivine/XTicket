@@ -26,7 +26,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionFixation().newSession();
 
         http.authorizeRequests()
-                .antMatchers("/", "/account/**", "/division/**", "/department/**", "/qrcode/**", "/tfa/**").permitAll()
+                .antMatchers("/", "/signin/**", "/signup/**", "/forgot-password/**", "/logout/**").permitAll()
                 .antMatchers("/css/**", "/images/**", "/js/**", "/font/**").permitAll()
                 .anyRequest().authenticated()
                 .and()

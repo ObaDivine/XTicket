@@ -2,9 +2,6 @@ package com.ngxgroup.xticket.payload;
 
 import com.ngxgroup.xticket.model.AppUser;
 import com.ngxgroup.xticket.model.AuditLog;
-import com.ngxgroup.xticket.model.Policy;
-import com.ngxgroup.xticket.model.PolicyRead;
-import java.time.LocalDate;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,11 +22,17 @@ public class XTicketPayload {
     private String email;
     private String responseCode;
     private String responseMessage;
+    private String username;
     private String password;
+    private String newPassword;
     private String confirmPassword;
-    private String fullName;
+    private String lastName;
+    private String otherName;
     private String mobileNumber;
-    
+    private String gender;
+    private boolean internal;
+    private String termsService;
+
     //To be filtered
     private String qrCodeImage;
     private String policyType;
@@ -68,7 +71,6 @@ public class XTicketPayload {
     private String endDate;
     private String reportCategory;
     private String reportPage;
-    private List<Policy> policies;
     private List<AuditLog> userActivity;
     private List<AppUser> appUsers;
     private String groupName;
