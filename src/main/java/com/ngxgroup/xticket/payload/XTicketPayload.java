@@ -2,8 +2,8 @@ package com.ngxgroup.xticket.payload;
 
 import com.ngxgroup.xticket.model.AppUser;
 import com.ngxgroup.xticket.model.AuditLog;
-import com.ngxgroup.xticket.model.Policy;
-import com.ngxgroup.xticket.model.PolicyRead;
+import com.ngxgroup.xticket.model.TicketGroup;
+import com.ngxgroup.xticket.model.TicketReopened;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -68,7 +68,7 @@ public class XTicketPayload {
     private String endDate;
     private String reportCategory;
     private String reportPage;
-    private List<Policy> policies;
+    private List<TicketGroup> policies;
     private List<AuditLog> userActivity;
     private List<AppUser> appUsers;
     private String groupName;

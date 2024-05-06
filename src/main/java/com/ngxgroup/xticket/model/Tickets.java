@@ -23,8 +23,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "unit")
-public class Unit implements Serializable {
+@Table(name = "tickets")
+public class Tickets implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -33,12 +33,24 @@ public class Unit implements Serializable {
     private Long id;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-    @Column(name = "unit_code")
-    private String unitCode;
-    @Column(name = "unit_name")
-    private String unitName;
-    @Column(name = "team_lead")
-    private String teamLead;
     @ManyToOne
-    private TicketUpload department;
+    private AppUser createdBy;
+    @Column(name = "closed_at")
+    private LocalDateTime closedAt;
+    @ManyToOne
+    private AppUser closedBy;
+    @Column(name = "ticket_id")
+    private String ticketId;
+    @Column(name = "ticket_open")
+    private boolean ticketOpen;
+    @Column(name = "ticket_reopened")
+    private boolean ticketReopened;
+    @Column(name = "internal")
+    private boolean internal;
+    @ManyToOne
+    private TicketGroup ticketGroup;
+    @ManyToOne
+    private TicketType ticketType;
+    @Column(name = "escalated")
+    private boolean escalated;
 }

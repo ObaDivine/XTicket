@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,15 +16,15 @@ import lombok.Setter;
 
 /**
  *
- * @author briano
+ * @author bokon
  */
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "company")
-public class Company implements Serializable {
+@Table(name = "ticket_escalation")
+public class TicketEscalations implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -32,14 +33,8 @@ public class Company implements Serializable {
     private Long id;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-    @Column(name = "company_code")
-    private String companyCode;
-    @Column(name = "company_name")
-    private String companyName;
-    @Column(name = "company_head")
-    private String companyHead;
-    @Column(name = "domain_controller")
-    private String domainController;
-    @Column(name = "domain_controller_ip")
-    private String domainControllerIp;
+    @ManyToOne
+    private Tickets ticket;
+    @Column(name = "sla_expires_at")
+    private LocalDateTime slaExpiresAt;
 }

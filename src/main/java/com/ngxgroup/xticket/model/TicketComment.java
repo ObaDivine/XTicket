@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,8 +23,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "policy_type")
-public class PolicyType implements Serializable {
+@Table(name = "ticket_comment")
+public class TicketComment implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -32,9 +33,12 @@ public class PolicyType implements Serializable {
     private Long id;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-    @Column(name = "policy_type_code")
-    private String policyTypeCode;
-    @Column(name = "policy_type_name")
-    private String policyTypeName;
-
+    @ManyToOne
+    private Tickets ticket;
+    @ManyToOne
+    private AppUser commentFrom;
+    @ManyToOne
+    private AppUser commentTo;
+    @Column(name = "comment", length = 10000)
+    private String comment;
 }

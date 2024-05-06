@@ -1,6 +1,7 @@
 package com.ngxgroup.xticket.model;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -23,22 +24,24 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "unit")
-public class Unit implements Serializable {
+@Table(name = "ticket-reopened")
+public class TicketReopened implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-    @Column(name = "unit_code")
-    private String unitCode;
-    @Column(name = "unit_name")
-    private String unitName;
-    @Column(name = "team_lead")
-    private String teamLead;
+    @Column(name = "reopened_at")
+    private LocalDateTime reopenedAt;
     @ManyToOne
-    private TicketUpload department;
+    private AppUser reopenedBy;
+    @ManyToOne
+    private Tickets ticket;
+    @Column(name = "reason_for_reopening")
+    private String reasonForReopening;
+    @Column(name = "closed_at")
+    private LocalDateTime closedAt;
+    @ManyToOne
+    private AppUser closedBy;
 }

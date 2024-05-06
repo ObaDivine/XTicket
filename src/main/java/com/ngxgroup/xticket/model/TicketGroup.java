@@ -1,7 +1,6 @@
 package com.ngxgroup.xticket.model;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -24,8 +23,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "policy_read")
-public class PolicyRead implements Serializable {
+@Table(name = "ticket_group")
+public class TicketGroup implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -35,7 +34,11 @@ public class PolicyRead implements Serializable {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     @ManyToOne
-    private AppUser appUser;
-    @ManyToOne
-    private Policy policy;
+    private AppUser createdBy;
+    @Column(name = "ticket_group_code")
+    private String ticketGroupCode;
+    @Column(name = "ticket_group_name")
+    private String ticketGroupName;
+    @Column(name = "status")
+    private String status;
 }

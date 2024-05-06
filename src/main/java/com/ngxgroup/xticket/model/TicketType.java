@@ -16,15 +16,15 @@ import lombok.Setter;
 
 /**
  *
- * @author bokon
+ * @author briano
  */
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "policy_review")
-public class PolicyReview implements Serializable {
+@Table(name = "ticket_type")
+public class TicketType implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -34,13 +34,21 @@ public class PolicyReview implements Serializable {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     @ManyToOne
-    private AppUser appUser;
+    private AppUser createdBy;
     @ManyToOne
-    private Policy policy;
-    @Column(name = "reviewed_by")
-    private String reviewedBy;
-    @Column(name = "reviewed_at")
-    private String reviewedAt;
-    @Column(name = "review_comment", length = 1000)
-    private String reviewComment;
+    private TicketGroup ticketGroup;
+    @Column(name = "internal")
+    private boolean internal;
+    @Column(name = "ticket_type_code")
+    private String ticketTypeCode;
+    @Column(name = "ticket_type_name")
+    private String ticketTypeName;
+    @Column(name = "sla_limit")
+    private LocalDateTime slaLimit;
+    @Column(name = "first_escalation")
+    private String firstEscalation;
+    @Column(name = "second_escalation")
+    private String secondEscalation;
+    @Column(name = "status")
+    private String status;
 }

@@ -60,11 +60,11 @@ public class AppUser implements Serializable {
     @Column(name = "two_factor_secretkey")
     private String twoFactorSecretKey;
     @ManyToOne
-    private Company company;
+    private Tickets company;
     @ManyToOne
-    private Division division;
+    private TicketComment division;
     @ManyToOne
-    private Department department;
+    private TicketUpload department;
     @Column(name = "access_level")
     private int accessLevel = 1;
     @Column(name = "name")

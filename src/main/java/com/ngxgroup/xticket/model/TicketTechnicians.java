@@ -23,8 +23,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "department")
-public class Department implements Serializable {
+@Table(name = "ticket_technicians")
+public class TicketTechnicians implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -33,12 +33,12 @@ public class Department implements Serializable {
     private Long id;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-    @Column(name = "department_code")
-    private String departmentCode;
-    @Column(name = "department_name")
-    private String departmentName;
-    @Column(name = "department_head")
-    private String departmentHead;
     @ManyToOne
-    private Division division;
+    private AppUser createdBy;
+    @ManyToOne
+    private AppUser technician;
+    @ManyToOne
+    private TicketType ticketType;
+    @Column(name = "status")
+    private String status;
 }

@@ -3,16 +3,16 @@ package com.ngxgroup.xticket.repository;
 import com.ngxgroup.xticket.model.AppRoles;
 import com.ngxgroup.xticket.model.AppUser;
 import com.ngxgroup.xticket.model.AuditLog;
-import com.ngxgroup.xticket.model.Company;
-import com.ngxgroup.xticket.model.Department;
-import com.ngxgroup.xticket.model.Division;
+import com.ngxgroup.xticket.model.Tickets;
+import com.ngxgroup.xticket.model.TicketUpload;
+import com.ngxgroup.xticket.model.TicketComment;
 import com.ngxgroup.xticket.model.GroupRoles;
 import com.ngxgroup.xticket.model.Notification;
-import com.ngxgroup.xticket.model.Policy;
-import com.ngxgroup.xticket.model.PolicyRead;
-import com.ngxgroup.xticket.model.PolicyReview;
-import com.ngxgroup.xticket.model.PolicyTemp;
-import com.ngxgroup.xticket.model.PolicyType;
+import com.ngxgroup.xticket.model.TicketGroup;
+import com.ngxgroup.xticket.model.TicketReopened;
+import com.ngxgroup.xticket.model.TicketEscalations;
+import com.ngxgroup.xticket.model.TicketTechnicians;
+import com.ngxgroup.xticket.model.TicketType;
 import com.ngxgroup.xticket.model.RoleGroups;
 import java.util.List;
 
@@ -22,41 +22,41 @@ import java.util.List;
  */
 public interface XTicketRepository {
 
-    List<Company> getCompanies();
+    List<Tickets> getCompanies();
 
-    Company createCompany(Company company);
+    Tickets createCompany(Tickets company);
 
-    Company updateCompany(Company company);
+    Tickets updateCompany(Tickets company);
 
-    Company deleteCompany(Company company);
+    Tickets deleteCompany(Tickets company);
 
-    Company getCompanyUsingCode(String companyCode);
+    Tickets getCompanyUsingCode(String companyCode);
 
-    Company getCompanyUsingId(long id);
+    Tickets getCompanyUsingId(long id);
 
-    List<Division> getDivisionUsingCompany(Company company);
+    List<TicketComment> getDivisionUsingCompany(Tickets company);
 
-    Division createDivision(Division division);
+    TicketComment createDivision(TicketComment division);
 
-    Division updateDivision(Division division);
+    TicketComment updateDivision(TicketComment division);
 
-    Division deleteDivision(Division division);
+    TicketComment deleteDivision(TicketComment division);
 
-    Division getDivisionUsingId(long id);
+    TicketComment getDivisionUsingId(long id);
 
-    Division getDivisionUsingCode(String divisionCode);
+    TicketComment getDivisionUsingCode(String divisionCode);
 
-    List<Department> getDepartmentUsingDivision(Division division);
+    List<TicketUpload> getDepartmentUsingDivision(TicketComment division);
 
-    Department createDepartment(Department department);
+    TicketUpload createDepartment(TicketUpload department);
 
-    Department updateDepartment(Department department);
+    TicketUpload updateDepartment(TicketUpload department);
 
-    Department deleteDepartment(Department department);
+    TicketUpload deleteDepartment(TicketUpload department);
 
-    Department getDepartmentUsingId(long id);
+    TicketUpload getDepartmentUsingId(long id);
 
-    Department getDepartmentUsingCode(String departmentCode);
+    TicketUpload getDepartmentUsingCode(String departmentCode);
 
     AppUser getAppUserUsingUsername(String username);
 
@@ -78,67 +78,67 @@ public interface XTicketRepository {
 
     AppUser getAppUserUsingUserId(String id);
 
-    List<PolicyType> getPolicyTypes();
+    List<TicketType> getPolicyTypes();
 
-    PolicyType getPolicyTypeUsingCode(String policyTypeCode);
+    TicketType getPolicyTypeUsingCode(String policyTypeCode);
 
-    PolicyType getPolicyTypeUsingId(long id);
+    TicketType getPolicyTypeUsingId(long id);
 
-    PolicyType createPolicyType(PolicyType policyType);
+    TicketType createPolicyType(TicketType policyType);
 
-    List<Policy> getPoliciesUsingType(PolicyType policyType);
+    List<TicketGroup> getPoliciesUsingType(TicketType policyType);
 
-    List<Policy> getPolicyUsingDepartmentAndType(Department department, PolicyType policyType);
+    List<TicketGroup> getPolicyUsingDepartmentAndType(TicketUpload department, TicketType policyType);
 
-    List<Policy> getPolicies(Company company, PolicyType policyType, int accessLevel);
+    List<TicketGroup> getPolicies(Tickets company, TicketType policyType, int accessLevel);
 
-    List<Policy> getPolicies(Division division, PolicyType policyType, int accessLevel);
+    List<TicketGroup> getPolicies(TicketComment division, TicketType policyType, int accessLevel);
 
-    List<Policy> getPolicies(Department department, PolicyType policyType, int accessLevel);
+    List<TicketGroup> getPolicies(TicketUpload department, TicketType policyType, int accessLevel);
 
-    List<Policy> getPolicies(Company company, Division division, PolicyType policyType, int accessLevel);
+    List<TicketGroup> getPolicies(Tickets company, TicketComment division, TicketType policyType, int accessLevel);
 
-    List<Policy> getPolicies(Company company, Department department, PolicyType policyType, int accessLevel);
+    List<TicketGroup> getPolicies(Tickets company, TicketUpload department, TicketType policyType, int accessLevel);
 
-    List<Policy> getPolicies(Company company, Division division, Department department, PolicyType policyType, int accessLevel);
+    List<TicketGroup> getPolicies(Tickets company, TicketComment division, TicketUpload department, TicketType policyType, int accessLevel);
 
-    List<Policy> getPolicies(Division division, Department department, PolicyType policyType, int accessLevel);
+    List<TicketGroup> getPolicies(TicketComment division, TicketUpload department, TicketType policyType, int accessLevel);
 
-    List<Policy> getPolicies(PolicyType policyType);
+    List<TicketGroup> getPolicies(TicketType policyType);
 
-    List<Policy> getPolicies(PolicyType policyType, int accessLevel);
+    List<TicketGroup> getPolicies(TicketType policyType, int accessLevel);
 
-    List<Policy> getPolicies();
+    List<TicketGroup> getPolicies();
 
-    List<Policy> getPolicyExpiringToday(int daysBeforeExpiry);
+    List<TicketGroup> getPolicyExpiringToday(int daysBeforeExpiry);
 
-    Policy getPolicyUsingId(long id);
+    TicketGroup getPolicyUsingId(long id);
 
-    Policy getPolicyUsingName(String policyName);
+    TicketGroup getPolicyUsingName(String policyName);
 
-    Policy getPolicyUsingCode(String policyCode);
+    TicketGroup getPolicyUsingCode(String policyCode);
 
-    Policy getPolicyUsingDocumentId(String documentId);
+    TicketGroup getPolicyUsingDocumentId(String documentId);
 
-    Policy createPolicy(Policy policy);
+    TicketGroup createPolicy(TicketGroup policy);
 
-    Policy updatePolicy(Policy policy);
+    TicketGroup updatePolicy(TicketGroup policy);
 
-    Policy deletePolicy(Policy policy);
+    TicketGroup deletePolicy(TicketGroup policy);
 
-    PolicyRead createPolicyRead(PolicyRead policyRead);
+    TicketReopened createPolicyRead(TicketReopened policyRead);
 
-    PolicyRead updatePolicyRead(PolicyRead policyRead);
+    TicketReopened updatePolicyRead(TicketReopened policyRead);
 
-    PolicyRead deletePolicyRead(PolicyRead policyRead);
+    TicketReopened deletePolicyRead(TicketReopened policyRead);
 
-    PolicyRead getPolicyReadUsingUserAndPolicy(AppUser appUser, Policy policy);
+    TicketReopened getPolicyReadUsingUserAndPolicy(AppUser appUser, TicketGroup policy);
 
-    List<PolicyRead> getPolicyReadUsingPolicy(Policy policy);
+    List<TicketReopened> getPolicyReadUsingPolicy(TicketGroup policy);
 
-    List<Policy> getMustReadPolicy();
+    List<TicketGroup> getMustReadPolicy();
 
-    List<PolicyTemp> getPendingPolicies();
+    List<TicketTechnicians> getPendingPolicies();
 
     List<Notification> getNotifications(String principal);
 
@@ -166,29 +166,29 @@ public interface XTicketRepository {
 
     GroupRoles deteleGroupRoles(GroupRoles groupRoles);
 
-    PolicyReview createPolicyReview(PolicyReview policyReview);
+    TicketEscalations createPolicyReview(TicketEscalations policyReview);
 
-    List<PolicyReview> getAllPolicyReview();
+    List<TicketEscalations> getAllPolicyReview();
 
-    List<PolicyReview> getPolicyReview(String startDate, String endDate);
+    List<TicketEscalations> getPolicyReview(String startDate, String endDate);
 
-    List<PolicyReview> getPolicyReviewUsingPolicy(Policy policy);
+    List<TicketEscalations> getPolicyReviewUsingPolicy(TicketGroup policy);
 
-    PolicyReview deletePolicyReview(PolicyReview policyReview);
+    TicketEscalations deletePolicyReview(TicketEscalations policyReview);
 
-    List<Policy> getExpiredPolicies();
+    List<TicketGroup> getExpiredPolicies();
 
-    PolicyTemp createPolicyTemp(PolicyTemp policyTemp);
+    TicketTechnicians createPolicyTemp(TicketTechnicians policyTemp);
 
-    PolicyTemp deletePolicyTemp(PolicyTemp policyTemp);
+    TicketTechnicians deletePolicyTemp(TicketTechnicians policyTemp);
 
-    PolicyTemp getPolicyTempUsingId(long id);
+    TicketTechnicians getPolicyTempUsingId(long id);
 
-    PolicyTemp getPolicyTempUsingPolicy(Policy policy);
+    TicketTechnicians getPolicyTempUsingPolicy(TicketGroup policy);
 
-    PolicyTemp getPolicyTempUsingDocumentId(String documentId);
+    TicketTechnicians getPolicyTempUsingDocumentId(String documentId);
 
-    List<PolicyTemp> getPendingPoliciesUpload();
+    List<TicketTechnicians> getPendingPoliciesUpload();
 
     List<AppUser> getAppUsersForTFAFix();
 
