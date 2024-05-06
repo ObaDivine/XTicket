@@ -1,6 +1,9 @@
 package com.ngxgroup.xticket.service;
 
+import com.ngxgroup.xticket.model.TicketGroup;
+import com.ngxgroup.xticket.model.TicketType;
 import com.ngxgroup.xticket.payload.XTicketPayload;
+import java.util.List;
 
 /**
  *
@@ -17,7 +20,21 @@ public interface XTicketService {
     XTicketPayload processFetchProfile(String principal);
 
     XTicketPayload processChangePassword(XTicketPayload requestPayload);
-    
+
     XTicketPayload processForgotPassword(XTicketPayload requestPayload);
+
+    /**
+     * Ticket Group
+     *
+     * @return
+     */
+    List<TicketGroup> processFetchTicketGroup();
+
+    /**
+     * Ticket Type
+     *
+     * @return
+     */
+    List<TicketType> processFetchTicketType();
 
 }

@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
-        <title>X-Policy - Report</title>
+        <title>X-Ticket - Type</title>
         <th:block th:include="~{fragments/ngxTicketFragments :: headerfiles}"></th:block>
     </head>
     <body onload="preloaderFunction()" style="margin: 0;">
@@ -14,15 +14,15 @@
                 <div class="content">
                     <div class="row gy-3 mb-6 justify-content-between">
                         <div class="col-md-9 col-auto">                           
-                            <h4 class="mb-2 text-1100 text-primary">Policy Report</h4>
-                            <h5 class="text-700 fw-semi-bold">Policies, Standard Operating Procedures &amp; Others Reports</h5>                           
+                            <h4 class="mb-2 text-1100 text-primary">Policy Read Report</h4>
+                            <h5 class="text-700 fw-semi-bold">Policies, Standard Operating Procedures Read Report</h5>                           
                         </div>
                         <div class="col-md-3 col-auto">
                             <h4 class="mb-2 text-1100 text-primary" th:text="'Welcome ' + ${principalName}">Welcome Brian</h4>
                         </div>
                     </div>
                     <div class="row mb-3 gy-6">
-                        <div id="dealsTable" data-list='{"valueNames":["policyName","policyCode","policyType","policyDescription","documentId","company", "division","department","policyAuthor","dateCreated",expiryDate,"lastReview","underReview","accessLevel"],"page":10,"pagination":true}'>
+                        <div id="dealsTable" data-list='{"valueNames":["policy_name","policy_code","policy_type","description","document_id","company", "division","department","author","date_created",expiry_date,"last_review","under_review","access_level"],"page":10,"pagination":true}'>
                             <div class="row g-3 justify-content-between mb-4">
                                 <div class="col-auto">
                                     <div class="d-md-flex justify-content-between">
@@ -53,39 +53,7 @@
                                                         </div>
                                                         <span>Policy Name</span>
                                                     </div>
-                                                </th>
-                                                <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="author">
-                                                    <div class="d-inline-flex flex-center">
-                                                        <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
-                                                            <span class="text-primary-600 dark__text-warning-300" data-feather="code"></span>
-                                                        </div>
-                                                        <span>Policy Code</span>
-                                                    </div>
-                                                </th>
-                                                <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="author">
-                                                    <div class="d-inline-flex flex-center">
-                                                        <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
-                                                            <span class="text-primary-600 dark__text-primary-300" data-feather="type"></span>
-                                                        </div>
-                                                        <span>Policy Type</span>
-                                                    </div>
-                                                </th>
-                                                <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="author">
-                                                    <div class="d-inline-flex flex-center">
-                                                        <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
-                                                            <span class="text-primary-600 dark__text-warning-300" data-feather="figma"></span>
-                                                        </div>
-                                                        <span>Policy Description</span>
-                                                    </div>
-                                                </th>
-                                                <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="author">
-                                                    <div class="d-inline-flex flex-center">
-                                                        <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
-                                                            <span class="text-primary-600 dark__text-primary-300" data-feather="sidebar"></span>
-                                                        </div>
-                                                        <span>Document ID</span>
-                                                    </div>
-                                                </th>
+                                                </th>                                                
                                                 <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="company">
                                                     <div class="d-inline-flex flex-center">
                                                         <div class="d-flex align-items-center px-1 py-1 bg-primary-100 rounded me-2">
@@ -115,7 +83,15 @@
                                                         <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
                                                             <span class="text-primary-600 dark__text-primary-300" data-feather="book-open"></span>
                                                         </div>
-                                                        <span>Author</span>
+                                                        <span>Read By</span>
+                                                    </div>
+                                                </th>
+                                                <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="author">
+                                                    <div class="d-inline-flex flex-center">
+                                                        <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
+                                                            <span class="text-primary-600 dark__text-primary-300" data-feather="book-open"></span>
+                                                        </div>
+                                                        <span>Read By Email</span>
                                                     </div>
                                                 </th>
                                                 <th class="sort align-middle pe-5 ps-4" scope="col" data-sort="dateCreated">
@@ -123,59 +99,20 @@
                                                         <div class="d-flex align-items-center px-1 py-1 bg-primary-100 rounded me-2">
                                                             <span class="text-warning-600 dark__text-warning-300" data-feather="calendar"></span>
                                                         </div>
-                                                        <span>Date Created</span>
-                                                    </div>
-                                                </th>
-                                                <th class="sort align-middle pe-5 ps-4" scope="col" data-sort="dateCreated">
-                                                    <div class="d-inline-flex flex-center">
-                                                        <div class="d-flex align-items-center px-1 py-1 bg-primary-100 rounded me-2">
-                                                            <span class="text-warning-600 dark__text-primary-300" data-feather="calendar"></span>
-                                                        </div>
-                                                        <span>Expiry Date</span>
-                                                    </div>
-                                                </th>
-                                                <th class="sort align-middle pe-5 ps-4" scope="col"  data-sort="lastReview">
-                                                    <div class="d-inline-flex flex-center">
-                                                        <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
-                                                            <span class="text-warning-600 dark__text-warning-300" data-feather="file"></span>
-                                                        </div>
-                                                        <span>Last Review</span>
-                                                    </div>
-                                                </th>
-                                                <th class="sort align-middle pe-5 ps-4" scope="col"  data-sort="underReview">
-                                                    <div class="d-inline-flex flex-center">
-                                                        <div class="d-flex align-items-center px-1 py-1 bg-primary-100 rounded me-2">
-                                                            <span class="text-warning-600 dark__text-primary-300" data-feather="edit"></span>
-                                                        </div>
-                                                        <span>Under Review</span>
-                                                    </div>
-                                                </th>
-                                                <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="author">
-                                                    <div class="d-inline-flex flex-center">
-                                                        <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
-                                                            <span class="text-primary-600 dark__text-warning-300" data-feather="hash"></span>
-                                                        </div>
-                                                        <span>Access Level</span>
+                                                        <span>Date Read</span>
                                                     </div>
                                                 </th>
                                             </tr>
                                         </thead>
                                         <tbody class="list" id="deal-tables-body">
                                             <tr class="hover-actions-trigger btn-reveal-trigger position-static" th:each="rec : ${policyList}">
-                                                <td class="policyName align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.policyName}">Entity</td>
-                                                <td class="policyCode align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.policyCode}">Entity</td>
-                                                <td class="policyType align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.policyType.policyTypeName}">Entity</td>
-                                                <td class="policyDescription align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.policyDescription}">Entity</td>
-                                                <td class="documentId align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.policyDocumentId}">Entity</td>
-                                                <td class="company align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.company.companyName}">Entity</td>
-                                                <td class="division align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.division.divisionName}">Entity</td>
-                                                <td class="department align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.department.departmentName}">Entity</td>
-                                                <td class="policyAuthor align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.policyAuthor}">Entity</td>
-                                                <td class="dateCreated align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000" th:text="${#temporals.format(rec.createdAt, 'yyyy-MM-dd')}">Date created</td>
-                                                <td class="expiryDate align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000" th:text="${#temporals.format(rec.expiryDate, 'yyyy-MM-dd')}">Date created</td>
-                                                <td class="lastReview align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000" th:text="${rec.lastReview}">Last review</td>
-                                                <td class="underReview align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000" th:text="${rec.underReview}">Under review</td>
-                                                <td class="access_level align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000" th:text="${rec.accessLevel}">Access Level</td>
+                                                <td class="policy_name align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.policy.policyName}">Entity</td>
+                                                <td class="company align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.policy.company.companyName}">Entity</td>
+                                                <td class="division align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.policy.division.divisionName}">Entity</td>
+                                                <td class="department align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.policy.department.departmentName}">Entity</td>
+                                                <td class="policy_author align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.appUser.name}">Entity</td>
+                                                <td class="policy_author align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.appUser.email}">Entity</td>
+                                                <td class="date_created align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000" th:text="${#temporals.format(rec.createdAt, 'yyyy-MM-dd')}">Date created</td>
                                             </tr>
                                         </tbody>
                                     </table>

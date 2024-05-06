@@ -123,7 +123,7 @@
                             </a>
                             <ul class="dropdown-menu navbar-dropdown-caret">
                                 <li>
-                                    <a class="dropdown-item" href="../index.html">
+                                    <a class="dropdown-item" href="" th:href="@{/dashboard}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 fas fa-tachometer" data-feather="dashboard-outlined"></span>Dashboard
                                         </div>
                                     </a>
@@ -136,14 +136,20 @@
                             </a>
                             <ul class="dropdown-menu navbar-dropdown-caret">
                                 <li>
-                                    <a class="dropdown-item" href="../index.html">
+                                    <a class="dropdown-item" href="" th:href="@{/ticket/new}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="shopping-cart"></span>New Ticket
                                         </div>
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="../dashboard/project-management.html">
+                                    <a class="dropdown-item" href="" th:href="@{/ticket/my}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>My Tickets
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="" th:href="@{/ticket/open}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Open Tickets
                                         </div>
                                     </a>
                                 </li>
@@ -155,14 +161,20 @@
                             </a>
                             <ul class="dropdown-menu navbar-dropdown-caret">
                                 <li>
-                                    <a class="dropdown-item" href="../index.html">
+                                    <a class="dropdown-item" href="" th:href="@{/report/ticket/open}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="pie-chart"></span>New Ticket
                                         </div>
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="../dashboard/project-management.html">
+                                    <a class="dropdown-item" href="" th:href="@{/report/ticket/closed}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>My Tickets
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="" th:href="@{/report/ticket/category}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Tickets By Catagory
                                         </div>
                                     </a>
                                 </li>
@@ -174,7 +186,7 @@
                             </a>
                             <ul class="dropdown-menu navbar-dropdown-caret">
                                 <li>
-                                    <a class="dropdown-item" href="../index.html">
+                                    <a class="dropdown-item" href="" th:href="@{/knowledge-base}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="shopping-cart"></span>Documentation
                                         </div>
                                     </a>
@@ -187,14 +199,32 @@
                             </a>
                             <ul class="dropdown-menu navbar-dropdown-caret">
                                 <li>
-                                    <a class="dropdown-item" href="../index.html">
+                                    <a class="dropdown-item" href="" th:href="@{/setup/user}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="shopping-cart"></span>User
                                         </div>
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="../dashboard/project-management.html">
+                                    <a class="dropdown-item" href="" th:href="@{/setup/roles}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Settings
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="" th:href="@{/setup/ticket/group}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Ticket Group
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="" th:href="@{/setup/ticket/type}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Ticket Type
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="" th:href="@{/setup/ticket/technicians}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Ticket Technician
                                         </div>
                                     </a>
                                 </li>

@@ -4,6 +4,8 @@ import com.ngxgroup.xticket.payload.XTicketPayload;
 import com.google.gson.Gson;
 import com.ngxgroup.xticket.constant.ResponseCodes;
 import com.ngxgroup.xticket.model.AppUser;
+import com.ngxgroup.xticket.model.TicketGroup;
+import com.ngxgroup.xticket.model.TicketType;
 import com.ngxgroup.xticket.payload.LogPayload;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,6 +23,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import com.ngxgroup.xticket.repository.XTicketRepository;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -479,6 +482,16 @@ public class XTicketServiceImpl implements XTicketService {
             logger.log(Level.INFO, gson.toJson(log));
             return ex.getMessage();
         }
+    }
+
+    @Override
+    public List<TicketGroup> processFetchTicketGroup() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public List<TicketType> processFetchTicketType() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
 }

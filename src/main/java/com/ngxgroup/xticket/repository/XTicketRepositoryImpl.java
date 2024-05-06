@@ -6,6 +6,14 @@ import com.ngxgroup.xticket.model.AuditLog;
 import com.ngxgroup.xticket.model.GroupRoles;
 import com.ngxgroup.xticket.model.Notification;
 import com.ngxgroup.xticket.model.RoleGroups;
+import com.ngxgroup.xticket.model.TicketComment;
+import com.ngxgroup.xticket.model.TicketEscalations;
+import com.ngxgroup.xticket.model.TicketGroup;
+import com.ngxgroup.xticket.model.TicketReopened;
+import com.ngxgroup.xticket.model.TicketTechnicians;
+import com.ngxgroup.xticket.model.TicketType;
+import com.ngxgroup.xticket.model.TicketUpload;
+import com.ngxgroup.xticket.model.Tickets;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -282,5 +290,394 @@ public class XTicketRepositoryImpl implements XTicketRepository {
         em.remove(em.contains(roleGroup) ? roleGroup : em.merge(roleGroup));
         em.flush();
         return roleGroup;
+    }
+
+    @Override
+    public Tickets createTicket(Tickets ticket) {
+        em.persist(ticket);
+        em.flush();
+        return ticket;
+    }
+
+    @Override
+    public Tickets updateTicket(Tickets ticket) {
+        em.merge(ticket);
+        em.flush();
+        return ticket;
+    }
+
+    @Override
+    public Tickets deleteTicket(Tickets ticket) {
+        em.remove(em.contains(ticket) ? ticket : em.merge(ticket));
+        em.flush();
+        return ticket;
+    }
+
+    @Override
+    public Tickets getTicketUsingId(long id) {
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.id = :id", Tickets.class)
+                .setParameter("id", id);
+        List<Tickets> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record.get(0);
+    }
+
+    @Override
+    public List<Tickets> getTickets() {
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p", Tickets.class);
+        List<Tickets> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public List<Tickets> getOpenTickets() {
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketOpen = true", Tickets.class);
+        List<Tickets> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public List<TicketReopened> getTicketReopened() {
+        TypedQuery<TicketReopened> query = em.createQuery("SELECT p FROM TicketReopened p", TicketReopened.class);
+        List<TicketReopened> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public List<TicketReopened> getTicketReopenedUsingTicket(Tickets ticket) {
+        TypedQuery<TicketReopened> query = em.createQuery("SELECT p FROM TicketReopened p WHERE p.ticket = :ticket", TicketReopened.class)
+                .setParameter("ticket", ticket);
+        List<TicketReopened> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public TicketReopened createTicketReopen(TicketReopened ticketReopened) {
+        em.persist(ticketReopened);
+        em.flush();
+        return ticketReopened;
+    }
+
+    @Override
+    public TicketReopened updateTicketReopen(TicketReopened ticketReopened) {
+        em.merge(ticketReopened);
+        em.flush();
+        return ticketReopened;
+    }
+
+    @Override
+    public TicketReopened deleteTicketReopen(TicketReopened ticketReopened) {
+        em.remove(em.contains(ticketReopened) ? ticketReopened : em.merge(ticketReopened));
+        em.flush();
+        return ticketReopened;
+    }
+
+    @Override
+    public List<TicketGroup> getTicketGroup() {
+        TypedQuery<TicketGroup> query = em.createQuery("SELECT p FROM TicketGroup p", TicketGroup.class);
+        List<TicketGroup> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public TicketGroup getTicketGroupUsingId(long id) {
+        TypedQuery<TicketGroup> query = em.createQuery("SELECT p FROM TicketGroup p WHERE p.id = :id", TicketGroup.class)
+                .setParameter("id", id);
+        List<TicketGroup> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record.get(0);
+    }
+
+    @Override
+    public TicketGroup getTicketGroupUsingCode(String ticketGroupCode) {
+        TypedQuery<TicketGroup> query = em.createQuery("SELECT p FROM TicketGroup p WHERE p.ticketGroupCode = :ticketGroupCode", TicketGroup.class)
+                .setParameter("ticketGroupCode", ticketGroupCode);
+        List<TicketGroup> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record.get(0);
+    }
+
+    @Override
+    public TicketGroup getTicketGroupUsingName(String ticketGroupName) {
+        TypedQuery<TicketGroup> query = em.createQuery("SELECT p FROM TicketGroup p WHERE p.ticketGroupName = :ticketGroupName", TicketGroup.class)
+                .setParameter("ticketGroupName", ticketGroupName);
+        List<TicketGroup> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record.get(0);
+    }
+
+    @Override
+    public TicketGroup createTicketGroup(TicketGroup ticketGroup) {
+        em.persist(ticketGroup);
+        em.flush();
+        return ticketGroup;
+    }
+
+    @Override
+    public TicketGroup updateTicketGroup(TicketGroup ticketGroup) {
+        em.merge(ticketGroup);
+        em.flush();
+        return ticketGroup;
+    }
+
+    @Override
+    public TicketGroup deleteTicketGroup(TicketGroup ticketGroup) {
+        em.remove(em.contains(ticketGroup) ? ticketGroup : em.merge(ticketGroup));
+        em.flush();
+        return ticketGroup;
+    }
+
+    @Override
+    public List<TicketType> getTicketType() {
+        TypedQuery<TicketType> query = em.createQuery("SELECT p FROM TicketType p", TicketType.class);
+        List<TicketType> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public TicketType getTicketTypeUsingId(long id) {
+        TypedQuery<TicketType> query = em.createQuery("SELECT p FROM TicketType p WHERE p.id = :id", TicketType.class)
+                .setParameter("id", id);
+        List<TicketType> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record.get(0);
+    }
+
+    @Override
+    public TicketType getTicketTypeUsingCode(String ticketTypeCode) {
+        TypedQuery<TicketType> query = em.createQuery("SELECT p FROM TicketType p WHERE p.ticketTypeCode = :ticketTypeCode", TicketType.class)
+                .setParameter("ticketTypeCode", ticketTypeCode);
+        List<TicketType> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record.get(0);
+    }
+
+    @Override
+    public TicketType getTicketTypeUsingName(String ticketTypeName) {
+        TypedQuery<TicketType> query = em.createQuery("SELECT p FROM TicketType p WHERE p.ticketTypeName = :ticketTypeName", TicketType.class)
+                .setParameter("ticketTypeName", ticketTypeName);
+        List<TicketType> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record.get(0);
+    }
+
+    @Override
+    public TicketType createTicketGroup(TicketType ticketType) {
+        em.persist(ticketType);
+        em.flush();
+        return ticketType;
+    }
+
+    @Override
+    public TicketType updateTicketGroup(TicketType ticketType) {
+        em.merge(ticketType);
+        em.flush();
+        return ticketType;
+    }
+
+    @Override
+    public TicketType deleteTicketGroup(TicketType ticketType) {
+        em.remove(em.contains(ticketType) ? ticketType : ticketType);
+        em.flush();
+        return ticketType;
+    }
+
+    @Override
+    public List<TicketType> getTicketTypeUsingGroup(TicketGroup ticketGroup) {
+        TypedQuery<TicketType> query = em.createQuery("SELECT p FROM TicketType p WHERE p.ticketGroup = :ticketGroup", TicketType.class)
+                .setParameter("ticketGroup", ticketGroup);
+        List<TicketType> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public List<TicketTechnicians> getTicketTechnicians() {
+        TypedQuery<TicketTechnicians> query = em.createQuery("SELECT p FROM TicketTechnicians p", TicketTechnicians.class);
+        List<TicketTechnicians> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public TicketTechnicians createTicketTechnician(TicketTechnicians ticketTechnician) {
+        em.persist(ticketTechnician);
+        em.flush();
+        return ticketTechnician;
+    }
+
+    @Override
+    public TicketTechnicians updateTicketTechnician(TicketTechnicians ticketTechnician) {
+        em.merge(ticketTechnician);
+        em.flush();
+        return ticketTechnician;
+    }
+
+    @Override
+    public TicketTechnicians deleteTicketTechnician(TicketTechnicians ticketTechnician) {
+        em.remove(em.contains(ticketTechnician) ? ticketTechnician : ticketTechnician);
+        em.flush();
+        return ticketTechnician;
+    }
+
+    @Override
+    public List<TicketEscalations> getTicketEscalation() {
+        TypedQuery<TicketEscalations> query = em.createQuery("SELECT p FROM TicketEscalations p", TicketEscalations.class);
+        List<TicketEscalations> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public List<TicketEscalations> getTicketEscalationUsingTicket(Tickets ticket) {
+        TypedQuery<TicketEscalations> query = em.createQuery("SELECT p FROM TicketEscalations p WHERE p.ticket = :ticket", TicketEscalations.class)
+                .setParameter("ticket", ticket);
+        List<TicketEscalations> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public TicketEscalations createTicketEscalation(TicketEscalations ticketEscalations) {
+        em.persist(ticketEscalations);
+        em.flush();
+        return ticketEscalations;
+    }
+
+    @Override
+    public TicketEscalations updateTicketEscalation(TicketEscalations ticketEscalations) {
+        em.merge(ticketEscalations);
+        em.flush();
+        return ticketEscalations;
+    }
+
+    @Override
+    public TicketEscalations deleteTicketEscalation(TicketEscalations ticketEscalations) {
+        em.persist(em.contains(ticketEscalations) ? ticketEscalations : em.merge(ticketEscalations));
+        em.flush();
+        return ticketEscalations;
+    }
+
+    @Override
+    public List<TicketComment> getTicketComment() {
+        TypedQuery<TicketComment> query = em.createQuery("SELECT p FROM TicketComment p", TicketComment.class);
+        List<TicketComment> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public List<TicketComment> getTicketCommentUsingTicket(Tickets ticket) {
+        TypedQuery<TicketComment> query = em.createQuery("SELECT p FROM TicketComment p WHERE p.ticket = :ticket", TicketComment.class)
+                .setParameter("ticket", ticket);
+        List<TicketComment> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public TicketComment createTicketEscalation(TicketComment ticketComment) {
+        em.persist(ticketComment);
+        em.flush();
+        return ticketComment;
+    }
+
+    @Override
+    public TicketComment updateTicketEscalation(TicketComment ticketComment) {
+        em.merge(ticketComment);
+        em.flush();
+        return ticketComment;
+    }
+
+    @Override
+    public TicketComment deleteTicketEscalation(TicketComment ticketComment) {
+        em.remove(em.contains(ticketComment) ? ticketComment : ticketComment);
+        em.flush();
+        return ticketComment;
+    }
+
+    @Override
+    public List<TicketUpload> getTicketUpload() {
+        TypedQuery<TicketUpload> query = em.createQuery("SELECT p FROM TicketUpload p", TicketUpload.class);
+        List<TicketUpload> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public List<TicketUpload> getTicketUploadUsingTicket(Tickets ticket) {
+        TypedQuery<TicketUpload> query = em.createQuery("SELECT p FROM TicketUpload p WHERE p.ticket = :ticket", TicketUpload.class);
+        List<TicketUpload> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public TicketUpload createTicketEscalation(TicketUpload ticketUpload) {
+        em.persist(ticketUpload);
+        em.flush();
+        return ticketUpload;
+    }
+
+    @Override
+    public TicketUpload updateTicketEscalation(TicketUpload ticketUpload) {
+        em.merge(ticketUpload);
+        em.flush();
+        return ticketUpload;
+    }
+
+    @Override
+    public TicketUpload deleteTicketEscalation(TicketUpload ticketUpload) {
+        em.remove(em.contains(ticketUpload) ? ticketUpload : ticketUpload);
+        em.flush();
+        return ticketUpload;
     }
 }

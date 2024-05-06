@@ -40,19 +40,19 @@ spring:
             profile: dev
     datasource:
         initialization-mode: ALWAYS
-        password: Anaconda1521@
-        username: entityscdbuser
-        driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-        url: jdbc:sqlserver://localhost;databaseName=ngx;encrypt=true;trustServerCertificate=true
-        #password: F3bru@ry02mth
-        #username: ngxadmin@nxgroup01-mysqldbserver
-        #driverClassName: com.mysql.jdbc.Driver  
-        #url: jdbc:mysql://nxgroup01-mysqldbserver.mysql.database.azure.com:3306/xticket?useSSL=true
+#        password: Anaconda1521@
+#        username: entityscdbuser
+#        driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+#        url: jdbc:sqlserver://localhost;databaseName=ngx;encrypt=true;trustServerCertificate=true
+        password: F3bru@ry02mth
+        username: ngxadmin@nxgroup01-mysqldbserver
+        driverClassName: com.mysql.jdbc.Driver  
+        url: jdbc:mysql://nxgroup01-mysqldbserver.mysql.database.azure.com:3306/xticket?useSSL=true
     jpa:
         hibernate:
             ddl-auto: update
-            dialect: org.hibernate.dialect.SQLServer2012Dialect
-            #dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+#            dialect: org.hibernate.dialect.SQLServer2012Dialect
+            dialect: org.hibernate.dialect.MySQL5InnoDBDialect
         show-sql: true
 
 email:

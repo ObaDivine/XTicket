@@ -6,6 +6,14 @@ import com.ngxgroup.xticket.model.AuditLog;
 import com.ngxgroup.xticket.model.GroupRoles;
 import com.ngxgroup.xticket.model.Notification;
 import com.ngxgroup.xticket.model.RoleGroups;
+import com.ngxgroup.xticket.model.TicketComment;
+import com.ngxgroup.xticket.model.TicketEscalations;
+import com.ngxgroup.xticket.model.TicketGroup;
+import com.ngxgroup.xticket.model.TicketReopened;
+import com.ngxgroup.xticket.model.TicketTechnicians;
+import com.ngxgroup.xticket.model.TicketType;
+import com.ngxgroup.xticket.model.TicketUpload;
+import com.ngxgroup.xticket.model.Tickets;
 import java.util.List;
 
 /**
@@ -69,5 +77,136 @@ public interface XTicketRepository {
     List<AuditLog> getAuditLogUsingDate(String startDate, String enddate);
 
     AuditLog createAuditLog(AuditLog auditLog);
+
+    /**
+     * Tickets
+     *
+     * @param ticket
+     * @return
+     */
+    Tickets createTicket(Tickets ticket);
+
+    Tickets updateTicket(Tickets ticket);
+
+    Tickets deleteTicket(Tickets ticket);
+
+    Tickets getTicketUsingId(long id);
+
+    List<Tickets> getTickets();
+
+    List<Tickets> getOpenTickets();
+
+    /**
+     * Ticket Reopened
+     *
+     * @return *
+     */
+    List<TicketReopened> getTicketReopened();
+
+    List<TicketReopened> getTicketReopenedUsingTicket(Tickets ticket);
+
+    TicketReopened createTicketReopen(TicketReopened ticketReopened);
+
+    TicketReopened updateTicketReopen(TicketReopened ticketReopened);
+
+    TicketReopened deleteTicketReopen(TicketReopened ticketReopened);
+
+    /**
+     * Ticket Group
+     *
+     * @return *
+     */
+    List<TicketGroup> getTicketGroup();
+
+    TicketGroup getTicketGroupUsingId(long id);
+
+    TicketGroup getTicketGroupUsingCode(String ticketGroupCode);
+
+    TicketGroup getTicketGroupUsingName(String ticketGroupName);
+
+    TicketGroup createTicketGroup(TicketGroup ticketGroup);
+
+    TicketGroup updateTicketGroup(TicketGroup ticketGroup);
+
+    TicketGroup deleteTicketGroup(TicketGroup ticketGroup);
+
+    /**
+     * Ticket Type
+     *
+     * @return *
+     */
+    List<TicketType> getTicketType();
+
+    TicketType getTicketTypeUsingId(long id);
+
+    TicketType getTicketTypeUsingCode(String ticketTypeCode);
+
+    TicketType getTicketTypeUsingName(String ticketTypeName);
+
+    TicketType createTicketGroup(TicketType ticketType);
+
+    TicketType updateTicketGroup(TicketType ticketType);
+
+    TicketType deleteTicketGroup(TicketType ticketType);
+
+    List<TicketType> getTicketTypeUsingGroup(TicketGroup ticketGroup);
+
+    /**
+     * Ticket Technician
+     *
+     * @return *
+     */
+    List<TicketTechnicians> getTicketTechnicians();
+
+    TicketTechnicians createTicketTechnician(TicketTechnicians ticketTechnician);
+
+    TicketTechnicians updateTicketTechnician(TicketTechnicians ticketTechnician);
+
+    TicketTechnicians deleteTicketTechnician(TicketTechnicians ticketTechnician);
+
+    /**
+     * Ticket Escalation
+     *
+     * @return *
+     */
+    List<TicketEscalations> getTicketEscalation();
+
+    List<TicketEscalations> getTicketEscalationUsingTicket(Tickets ticket);
+
+    TicketEscalations createTicketEscalation(TicketEscalations ticketEscalations);
+
+    TicketEscalations updateTicketEscalation(TicketEscalations ticketEscalations);
+
+    TicketEscalations deleteTicketEscalation(TicketEscalations ticketEscalations);
+    
+     /**
+     * Ticket Comments
+     *
+     * @return *
+     */
+    List<TicketComment> getTicketComment();
+
+    List<TicketComment> getTicketCommentUsingTicket(Tickets ticket);
+
+    TicketComment createTicketEscalation(TicketComment ticketComment);
+
+    TicketComment updateTicketEscalation(TicketComment ticketComment);
+
+    TicketComment deleteTicketEscalation(TicketComment ticketComment);
+
+         /**
+     * Ticket Upload
+     *
+     * @return *
+     */
+    List<TicketUpload> getTicketUpload();
+
+    List<TicketUpload> getTicketUploadUsingTicket(Tickets ticket);
+
+    TicketUpload createTicketEscalation(TicketUpload ticketUpload);
+
+    TicketUpload updateTicketEscalation(TicketUpload ticketUpload);
+
+    TicketUpload deleteTicketEscalation(TicketUpload ticketUpload);
 
 }

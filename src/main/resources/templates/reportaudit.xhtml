@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
-        <title>X-Policy - Policies Review</title>
+        <title>X-Ticket - Report Audit</title>
         <th:block th:include="~{fragments/ngxTicketFragments :: headerfiles}"></th:block>
     </head>
     <body onload="preloaderFunction()" style="margin: 0;">
@@ -14,15 +14,15 @@
                 <div class="content">
                     <div class="row gy-3 mb-6 justify-content-between">
                         <div class="col-md-9 col-auto">                           
-                            <h4 class="mb-2 text-1100 text-primary">Manage Policy Review</h4>
-                            <h5 class="text-700 fw-semi-bold">Policies, Standard Operating Procedures &amp; Others Review</h5>                           
+                            <h4 class="mb-2 text-1100 text-primary">User Activity Report</h4>
+                            <h5 class="text-700 fw-semi-bold">Generate User Activity Report</h5>                           
                         </div>
                         <div class="col-md-3 col-auto">
                             <h4 class="mb-2 text-1100 text-primary" th:text="'Welcome ' + ${principalName}">Welcome Brian</h4>
                         </div>
                     </div>
                     <div class="row mb-3 gy-6">
-                        <div id="dealsTable" data-list='{"valueNames":["description","name","reviewBy", "reviewAt","comment"],"page":10,"pagination":true}'>
+                        <div id="dealsTable" data-list='{"valueNames":["actionBy","auditAction","auditCategory", "auditClass","oldValue","newValue","dateCreated"],"page":10,"pagination":true}'>
                             <div class="row g-3 justify-content-between mb-4">
                                 <div class="col-auto">
                                     <div class="d-md-flex justify-content-between">
@@ -38,10 +38,10 @@
 
                                             </form>
                                         </div>
-                                        <button class="btn px-3 btn-phoenix-secondary" type="button" data-bs-toggle="modal" data-bs-target="#policyModal" aria-expanded="false" th:onclick="|setPolicy('POL')|" data-boundary="window" aria-haspopup="true" data-bs-reference="parent">
-                                            <span class="fa-solid fa-filter text-primary" data-fa-transform="down-3"></span>
+                                        <a class="btn btn-primary" href="#!" th:href="@{/admin/report}">Back</a> &nbsp;
+                                        <button type="button" class="btn btn-primary" onclick="tableToCSV()">
+                                            Download CSV
                                         </button>
-                                        <a th:if="${#request.isUserInRole('ADD_POLICY')}" class="btn btn-primary" href="#!" th:href="@{/admin/policy/review/add}">Add Review</a>
                                     </div>
                                 </div>
                             </div>
@@ -50,48 +50,59 @@
                                     <table class="table table-sm fs--1 mb-0 leads-table">
                                         <thead>
                                             <tr>
-                                                <th class="sort white-space-nowrap align-middle text-capitalize" scope="col" data-sort="policy" style="width:30%;">Policy Name</th>             
-                                                <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="company" style="width:10%;">
+                                                <th class="sort white-space-nowrap align-middle text-capitalize" scope="col" data-sort="actionBy" style="width:auto;">Action By</th>
+                                                <th class="sort white-space-nowrap align-middle text-capitalize" scope="col" data-sort="auditAction" style="width:auto;">Action</th>
+                                                <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="auditCategory" style="width:auto;">
                                                     <div class="d-inline-flex flex-center">
                                                         <div class="d-flex align-items-center px-1 py-1 bg-primary-100 rounded me-2">
                                                             <span class="text-primary-600 dark__text-primary-300" data-feather="aperture"></span>
                                                         </div>
-                                                        <span>Created By</span>
+                                                        <span>Category</span>
                                                     </div>
                                                 </th>
-                                                <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="division" style="width:10%;">
+                                                <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="auditClass" style="width:auto;">
                                                     <div class="d-inline-flex flex-center">
                                                         <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
                                                             <span class="text-primary-600 dark__text-warning-300" data-feather="box"></span>
                                                         </div>
-                                                        <span>Reviewed By</span>
+                                                        <span>Class</span>
                                                     </div>
                                                 </th>
-                                                <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="department" style="width:10%;">
+                                                <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="oldValue" style="width:auto;">
                                                     <div class="d-inline-flex flex-center">
                                                         <div class="d-flex align-items-center px-1 py-1 bg-primary-100 rounded me-2">
                                                             <span class="text-primary-600 c" data-feather="codesandbox"></span>
                                                         </div>
-                                                        <span>Review Date</span>
+                                                        <span>Old Value</span>
                                                     </div>
                                                 </th>
-                                                <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="author" style="width:10%;">
+                                                <th class="sort align-middle ps-4 pe-5 text-capitalize border-end" scope="col" data-sort="newValue" style="width:auto;">
                                                     <div class="d-inline-flex flex-center">
                                                         <div class="d-flex align-items-center px-1 py-1 bg-warning-100 rounded me-2">
                                                             <span class="text-primary-600 dark__text-warning-300" data-feather="book-open"></span>
                                                         </div>
-                                                        <span>Comment</span>
+                                                        <span>New Value</span>
                                                     </div>
-                                                </th>                                           
+                                                </th>
+                                                <th class="sort align-middle pe-5 ps-4" scope="col" data-sort="dateCreated" style="width:auto;">
+                                                    <div class="d-inline-flex flex-center">
+                                                        <div class="d-flex align-items-center px-1 py-1 bg-primary-100 rounded me-2">
+                                                            <span class="text-warning-600 dark__text-warning-300" data-feather="calendar"></span>
+                                                        </div>
+                                                        <span>Date Created</span>
+                                                    </div>
+                                                </th>                                             
                                             </tr>
                                         </thead>
                                         <tbody class="list" id="deal-tables-body">
-                                            <tr class="hover-actions-trigger btn-reveal-trigger position-static" th:each="rec : ${policyList}">
-                                                <td class="description align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.policy.policyDescription}">Entity</td>
-                                                <td class="name align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.appUser.name}">Entity</td>
-                                                <td class="reviewBy align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.reviewedBy}">Entity</td>
-                                                <td class="reviewAt align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.reviewedAt}">Entity</td>
-                                                <td class="comment align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.reviewComment}">Entity</td>
+                                            <tr class="hover-actions-trigger btn-reveal-trigger position-static" th:each="rec : ${activityList}">
+                                                <td class="actionBy align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.username}">Entity</td>
+                                                <td class="auditAction align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.auditAction}">Entity</td>
+                                                <td class="auditCategory align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.auditCategory}">Entity</td>
+                                                <td class="auditClass align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.auditClass}">Entity</td>
+                                                <td class="oldValue align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.oldValue}">Entity</td>
+                                                <td class="newValue align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end" th:text="${rec.newValue}">Entity</td>
+                                                <td class="dateCreated align-middle white-space-nowrap text-600 ps-4 border-end fw-semi-bold text-1000" th:text="${#temporals.format(rec.createdAt, 'yyyy-MM-dd')}">Date created</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -121,7 +132,7 @@
                     </div>
                     <th:block th:include="~{fragments/ngxTicketFragments :: footer}"></th:block>
                 </div>
-            </div>
+            </div>               
         </main>
         <th:block th:include="~{fragments/ngxTicketFragments :: scriptfiles}"></th:block>
     </body>
