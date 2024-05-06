@@ -3,19 +3,9 @@ package com.ngxgroup.xticket.repository;
 import com.ngxgroup.xticket.model.AppRoles;
 import com.ngxgroup.xticket.model.AppUser;
 import com.ngxgroup.xticket.model.AuditLog;
-import com.ngxgroup.xticket.model.Tickets;
-import com.ngxgroup.xticket.model.TicketUpload;
-import com.ngxgroup.xticket.model.TicketComment;
 import com.ngxgroup.xticket.model.GroupRoles;
 import com.ngxgroup.xticket.model.Notification;
-import com.ngxgroup.xticket.model.TicketGroup;
-import com.ngxgroup.xticket.model.TicketReopened;
-import com.ngxgroup.xticket.model.TicketEscalations;
-import com.ngxgroup.xticket.model.TicketTechnicians;
-import com.ngxgroup.xticket.model.TicketType;
 import com.ngxgroup.xticket.model.RoleGroups;
-import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -35,170 +25,31 @@ public class XTicketRepositoryImpl implements XTicketRepository {
     EntityManager em;
 
     @Override
-    public List<Tickets> getCompanies() {
-        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Company p", Tickets.class);
-        List<Tickets> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record;
-    }
-
-    @Override
-    public Tickets createCompany(Tickets company) {
-        em.persist(company);
-        em.flush();
-        return company;
-    }
-
-    @Override
-    public Tickets updateCompany(Tickets company) {
-        em.merge(company);
-        em.flush();
-        return company;
-    }
-
-    @Override
-    public Tickets deleteCompany(Tickets company) {
-        em.remove(em.contains(company) ? company : em.merge(company));
-        em.flush();
-        return company;
-    }
-
-    @Override
-    public Tickets getCompanyUsingCode(String companyCode) {
-        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Company p WHERE p.companyCode = :companyCode", Tickets.class)
-                .setParameter("companyCode", companyCode);
-        List<Tickets> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record.get(0);
-    }
-
-    @Override
-    public Tickets getCompanyUsingId(long id) {
-        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Company p WHERE p.id = :id", Tickets.class)
-                .setParameter("id", id);
-        List<Tickets> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record.get(0);
-    }
-
-    @Override
-    public List<TicketComment> getDivisionUsingCompany(Tickets company) {
-        TypedQuery<TicketComment> query = em.createQuery("SELECT p FROM Division p WHERE p.company = :company", TicketComment.class)
-                .setParameter("company", company);
-        List<TicketComment> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record;
-    }
-
-    @Override
-    public TicketComment createDivision(TicketComment division) {
-        em.persist(division);
-        em.flush();
-        return division;
-    }
-
-    @Override
-    public TicketComment updateDivision(TicketComment division) {
-        em.merge(division);
-        em.flush();
-        return division;
-    }
-
-    @Override
-    public TicketComment deleteDivision(TicketComment division) {
-        em.remove(em.contains(division) ? division : em.merge(division));
-        em.flush();
-        return division;
-    }
-
-    @Override
-    public TicketComment getDivisionUsingId(long id) {
-        TypedQuery<TicketComment> query = em.createQuery("SELECT p FROM Division p WHERE p.id = :id", TicketComment.class)
-                .setParameter("id", id);
-        List<TicketComment> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record.get(0);
-    }
-
-    @Override
-    public TicketComment getDivisionUsingCode(String divisionCode) {
-        TypedQuery<TicketComment> query = em.createQuery("SELECT p FROM Division p WHERE p.divisionCode = :divisionCode", TicketComment.class)
-                .setParameter("divisionCode", divisionCode);
-        List<TicketComment> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record.get(0);
-    }
-
-    @Override
-    public List<TicketUpload> getDepartmentUsingDivision(TicketComment division) {
-        TypedQuery<TicketUpload> query = em.createQuery("SELECT p FROM Department p WHERE p.division = :division", TicketUpload.class)
-                .setParameter("division", division);
-        List<TicketUpload> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record;
-    }
-
-    @Override
-    public TicketUpload createDepartment(TicketUpload department) {
-        em.persist(department);
-        em.flush();
-        return department;
-    }
-
-    @Override
-    public TicketUpload updateDepartment(TicketUpload department) {
-        em.merge(department);
-        em.flush();
-        return department;
-    }
-
-    @Override
-    public TicketUpload deleteDepartment(TicketUpload department) {
-        em.remove(em.contains(department) ? department : em.merge(department));
-        em.flush();
-        return department;
-    }
-
-    @Override
-    public TicketUpload getDepartmentUsingId(long id) {
-        TypedQuery<TicketUpload> query = em.createQuery("SELECT p FROM Department p WHERE p.id = :id", TicketUpload.class)
-                .setParameter("id", id);
-        List<TicketUpload> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record.get(0);
-    }
-
-    @Override
-    public TicketUpload getDepartmentUsingCode(String departmentCode) {
-        TypedQuery<TicketUpload> query = em.createQuery("SELECT p FROM Department p WHERE p.departmentCode = :departmentCode", TicketUpload.class)
-                .setParameter("departmentCode", departmentCode);
-        List<TicketUpload> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record.get(0);
-    }
-
-    @Override
-    public AppUser getAppUserUsingUsername(String email) {
+    public AppUser getAppUserUsingEmail(String email) {
         TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.email = :email", AppUser.class)
                 .setParameter("email", email);
+        List<AppUser> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record.get(0);
+    }
+
+    @Override
+    public AppUser getAppUserUsingMobileNumber(String mobileNumber) {
+        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.mobileNumber = :mobileNumber", AppUser.class)
+                .setParameter("mobileNumber", mobileNumber);
+        List<AppUser> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record.get(0);
+    }
+
+    @Override
+    public AppUser getAppUserUsingActivationId(String activationId) {
+        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.activationId = :activationId", AppUser.class)
+                .setParameter("activationId", activationId);
         List<AppUser> record = query.getResultList();
         if (record.isEmpty()) {
             return null;
@@ -211,273 +62,6 @@ public class XTicketRepositoryImpl implements XTicketRepository {
         em.merge(appUser);
         em.flush();
         return appUser;
-    }
-
-    @Override
-    public List<TicketType> getPolicyTypes() {
-        TypedQuery<TicketType> query = em.createQuery("SELECT p FROM PolicyType p", TicketType.class);
-        List<TicketType> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record;
-    }
-
-    @Override
-    public TicketType getPolicyTypeUsingCode(String policyTypeCode) {
-        TypedQuery<TicketType> query = em.createQuery("SELECT p FROM PolicyType p WHERE p.policyTypeCode = :policyTypeCode", TicketType.class)
-                .setParameter("policyTypeCode", policyTypeCode);
-        List<TicketType> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record.get(0);
-    }
-
-    @Override
-    public TicketType getPolicyTypeUsingId(long id) {
-        TypedQuery<TicketType> query = em.createQuery("SELECT p FROM PolicyType p WHERE p.id = :id", TicketType.class)
-                .setParameter("id", id);
-        List<TicketType> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record.get(0);
-    }
-
-    @Override
-    public TicketType createPolicyType(TicketType policyType) {
-        em.persist(policyType);
-        em.flush();
-        return policyType;
-    }
-
-    @Override
-    public List<TicketGroup> getPoliciesUsingType(TicketType policyType) {
-        TypedQuery<TicketGroup> query = em.createQuery("SELECT p FROM Policy p WHERE p.policyType = :policyType", TicketGroup.class)
-                .setParameter("policyType", policyType);
-        List<TicketGroup> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record;
-    }
-
-    @Override
-    public List<TicketGroup> getPolicyUsingDepartmentAndType(TicketUpload department, TicketType policyType) {
-        TypedQuery<TicketGroup> query = em.createQuery("SELECT p FROM Policy p WHERE p.department = :department AND p.policyType = :policyType", TicketGroup.class)
-                .setParameter("department", department)
-                .setParameter("policyType", policyType);
-        List<TicketGroup> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record;
-    }
-
-    @Override
-    public List<TicketGroup> getPolicies(Tickets company, TicketType policyType, int accessLevel) {
-        TypedQuery<TicketGroup> query = em.createQuery("SELECT p FROM Policy p WHERE p.company = :company AND p.policyType = :policyType AND p.accessLevel <= :accessLevel", TicketGroup.class)
-                .setParameter("company", company)
-                .setParameter("policyType", policyType)
-                .setParameter("accessLevel", accessLevel);
-        List<TicketGroup> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record;
-    }
-
-    @Override
-    public List<TicketGroup> getPolicies(TicketComment division, TicketType policyType, int accessLevel) {
-        TypedQuery<TicketGroup> query = em.createQuery("SELECT p FROM Policy p WHERE p.division = :division AND p.policyType = :policyType AND p.accessLevel <= :accessLevel", TicketGroup.class)
-                .setParameter("division", division)
-                .setParameter("policyType", policyType)
-                .setParameter("accessLevel", accessLevel);
-        List<TicketGroup> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record;
-    }
-
-    @Override
-    public List<TicketGroup> getPolicies(TicketUpload department, TicketType policyType, int accessLevel) {
-        TypedQuery<TicketGroup> query = em.createQuery("SELECT p FROM Policy p WHERE p.department = :department AND p.policyType = :policyType AND p.accessLevel <= :accessLevel", TicketGroup.class)
-                .setParameter("department", department)
-                .setParameter("policyType", policyType)
-                .setParameter("accessLevel", accessLevel);
-        List<TicketGroup> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record;
-    }
-
-    @Override
-    public List<TicketGroup> getPolicies(Tickets company, TicketComment division, TicketType policyType, int accessLevel) {
-        TypedQuery<TicketGroup> query = em.createQuery("SELECT p FROM Policy p WHERE p.company = :company AND p.division = :division AND p.policyType = :policyType AND p.accessLevel <= :accessLevel", TicketGroup.class)
-                .setParameter("company", company)
-                .setParameter("division", division)
-                .setParameter("policyType", policyType)
-                .setParameter("accessLevel", accessLevel);
-        List<TicketGroup> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record;
-    }
-
-    @Override
-    public List<TicketGroup> getPolicies(Tickets company, TicketUpload department, TicketType policyType, int accessLevel) {
-        TypedQuery<TicketGroup> query = em.createQuery("SELECT p FROM Policy p WHERE p.company = :company AND p.department = :department AND p.policyType = :policyType AND p.accessLevel <= :accessLevel", TicketGroup.class)
-                .setParameter("company", company)
-                .setParameter("department", department)
-                .setParameter("policyType", policyType)
-                .setParameter("accessLevel", accessLevel);
-        List<TicketGroup> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record;
-    }
-
-    @Override
-    public List<TicketGroup> getPolicies(Tickets company, TicketComment division, TicketUpload department, TicketType policyType, int accessLevel) {
-        TypedQuery<TicketGroup> query = em.createQuery("SELECT p FROM Policy p WHERE p.company = :company AND p.division = :division AND p.department = :department AND p.policyType = :policyType AND p.accessLevel <= :accessLevel", TicketGroup.class)
-                .setParameter("company", company)
-                .setParameter("division", division)
-                .setParameter("department", department)
-                .setParameter("policyType", policyType)
-                .setParameter("accessLevel", accessLevel);
-        List<TicketGroup> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record;
-    }
-
-    @Override
-    public List<TicketGroup> getPolicies(TicketComment division, TicketUpload department, TicketType policyType, int accessLevel) {
-        TypedQuery<TicketGroup> query = em.createQuery("SELECT p FROM Policy p WHERE p.division = :division AND p.department = :department AND p.policyType = :policyType AND p.accessLevel <= :accessLevel", TicketGroup.class)
-                .setParameter("division", division)
-                .setParameter("department", department)
-                .setParameter("policyType", policyType)
-                .setParameter("accessLevel", accessLevel);
-        List<TicketGroup> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record;
-    }
-
-    @Override
-    public List<TicketGroup> getPolicies(TicketType policyType) {
-        TypedQuery<TicketGroup> query = em.createQuery("SELECT p FROM Policy p WHERE p.policyType = :policyType", TicketGroup.class)
-                .setParameter("policyType", policyType);
-        List<TicketGroup> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record;
-    }
-
-    @Override
-    public List<TicketGroup> getPolicies(TicketType policyType, int accessLevel) {
-        TypedQuery<TicketGroup> query = em.createQuery("SELECT p FROM Policy p WHERE p.policyType = :policyType AND p.accessLevel <= :accessLevel", TicketGroup.class)
-                .setParameter("policyType", policyType)
-                .setParameter("accessLevel", accessLevel);
-        List<TicketGroup> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record;
-    }
-
-    @Override
-    public List<TicketTechnicians> getPendingPolicies() {
-        TypedQuery<TicketTechnicians> query = em.createQuery("SELECT p FROM PolicyTemp p", TicketTechnicians.class);
-        List<TicketTechnicians> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record;
-    }
-
-    @Override
-    public TicketGroup getPolicyUsingId(long id) {
-        TypedQuery<TicketGroup> query = em.createQuery("SELECT p FROM Policy p WHERE p.id = :id", TicketGroup.class)
-                .setParameter("id", id);
-        List<TicketGroup> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record.get(0);
-    }
-
-    @Override
-    public TicketGroup getPolicyUsingName(String policyName) {
-        TypedQuery<TicketGroup> query = em.createQuery("SELECT p FROM Policy p WHERE p.policyName = :policyName", TicketGroup.class)
-                .setParameter("policyName", policyName);
-        List<TicketGroup> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record.get(0);
-    }
-
-    @Override
-    public TicketGroup getPolicyUsingCode(String policyCode) {
-        TypedQuery<TicketGroup> query = em.createQuery("SELECT p FROM Policy p WHERE p.policyCode = :policyCode", TicketGroup.class)
-                .setParameter("policyCode", policyCode);
-        List<TicketGroup> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record.get(0);
-    }
-
-    @Override
-    public TicketReopened createPolicyRead(TicketReopened policyRead) {
-        em.persist(policyRead);
-        em.flush();
-        return policyRead;
-    }
-
-    @Override
-    public TicketReopened updatePolicyRead(TicketReopened policyRead) {
-        em.merge(policyRead);
-        em.flush();
-        return policyRead;
-    }
-
-    @Override
-    public TicketReopened deletePolicyRead(TicketReopened policyRead) {
-        em.remove(em.contains(policyRead) ? policyRead : em.merge(policyRead));
-        em.flush();
-        return policyRead;
-    }
-
-    @Override
-    public TicketReopened getPolicyReadUsingUserAndPolicy(AppUser appUser, TicketGroup policy) {
-        TypedQuery<TicketReopened> query = em.createQuery("SELECT p FROM PolicyRead p WHERE p.appUser = :appUser AND p.policy = :policy", TicketReopened.class)
-                .setParameter("appUser", appUser)
-                .setParameter("policy", policy);
-        List<TicketReopened> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record.get(0);
-    }
-
-    @Override
-    public List<TicketGroup> getMustReadPolicy() {
-        TypedQuery<TicketGroup> query = em.createQuery("SELECT p FROM Policy p WHERE p.mustRead = true", TicketGroup.class);
-        List<TicketGroup> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record;
     }
 
     @Override
@@ -591,37 +175,6 @@ public class XTicketRepositoryImpl implements XTicketRepository {
     }
 
     @Override
-    public List<TicketGroup> getPolicies() {
-        TypedQuery<TicketGroup> query = em.createQuery("SELECT p FROM Policy p", TicketGroup.class);
-        List<TicketGroup> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record;
-    }
-
-    @Override
-    public TicketGroup createPolicy(TicketGroup policy) {
-        em.persist(policy);
-        em.flush();
-        return policy;
-    }
-
-    @Override
-    public TicketGroup updatePolicy(TicketGroup policy) {
-        em.merge(policy);
-        em.flush();
-        return policy;
-    }
-
-    @Override
-    public TicketGroup deletePolicy(TicketGroup policy) {
-        em.remove(em.contains(policy) ? policy : em.merge(policy));
-        em.flush();
-        return policy;
-    }
-
-    @Override
     public AppUser getAppUserUsingId(long id) {
         TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.id = :id", AppUser.class)
                 .setParameter("id", id);
@@ -657,17 +210,6 @@ public class XTicketRepositoryImpl implements XTicketRepository {
     }
 
     @Override
-    public TicketGroup getPolicyUsingDocumentId(String documentId) {
-        TypedQuery<TicketGroup> query = em.createQuery("SELECT p FROM Policy p WHERE p.policyDocumentId = :documentId", TicketGroup.class)
-                .setParameter("documentId", documentId);
-        List<TicketGroup> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record.get(0);
-    }
-
-    @Override
     public AppUser getAppUserUsingUserId(String userId) {
         TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.userId = :userId", AppUser.class)
                 .setParameter("userId", userId);
@@ -679,145 +221,9 @@ public class XTicketRepositoryImpl implements XTicketRepository {
     }
 
     @Override
-    public TicketEscalations createPolicyReview(TicketEscalations policyReview) {
-        em.persist(policyReview);
-        em.flush();
-        return policyReview;
-    }
-
-    @Override
-    public TicketEscalations deletePolicyReview(TicketEscalations policyReview) {
-        em.remove(em.contains(policyReview) ? policyReview : em.merge(policyReview));
-        em.flush();
-        return policyReview;
-    }
-
-    @Override
-    public List<TicketEscalations> getAllPolicyReview() {
-        TypedQuery<TicketEscalations> query = em.createQuery("SELECT p FROM PolicyReview p", TicketEscalations.class);
-        List<TicketEscalations> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record;
-    }
-
-    @Override
-    public List<TicketEscalations> getPolicyReview(String startDate, String endDate) {
-        TypedQuery<TicketEscalations> query = em.createQuery("SELECT p FROM PolicyReview p WHERE p.createdAt >= :startDate AND p.createdAt <= :endDate", TicketEscalations.class)
-                .setParameter("startDate", Date.parse(startDate))
-                .setParameter("endDate", Date.parse(endDate));
-        List<TicketEscalations> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record;
-    }
-
-    @Override
-    public List<TicketEscalations> getPolicyReviewUsingPolicy(TicketGroup policy) {
-        TypedQuery<TicketEscalations> query = em.createQuery("SELECT p FROM PolicyReview p WHERE p.policy = :policy", TicketEscalations.class)
-                .setParameter("policy", policy);
-        List<TicketEscalations> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record;
-    }
-
-    @Override
-    public List<TicketGroup> getPolicyExpiringToday(int daysBeforeExpiry) {
-        TypedQuery<TicketGroup> query = em.createQuery("SELECT p FROM Policy p WHERE p.expiryDate <= :today AND p.expired = false", TicketGroup.class)
-                .setParameter("today", LocalDate.now().plusDays(daysBeforeExpiry));
-        List<TicketGroup> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record;
-    }
-
-    @Override
-    public List<TicketGroup> getExpiredPolicies() {
-        TypedQuery<TicketGroup> query = em.createQuery("SELECT p FROM Policy p WHERE p.expired = true", TicketGroup.class);
-        List<TicketGroup> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record;
-    }
-
-    @Override
-    public List<TicketReopened> getPolicyReadUsingPolicy(TicketGroup policy) {
-        TypedQuery<TicketReopened> query = em.createQuery("SELECT p FROM PolicyRead p WHERE p.policy = :policy", TicketReopened.class)
-                .setParameter("policy", policy);
-        List<TicketReopened> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record;
-    }
-
-    @Override
-    public TicketTechnicians createPolicyTemp(TicketTechnicians policyTemp) {
-        em.persist(em.contains(policyTemp) ? policyTemp : em.merge(policyTemp));
-        em.flush();
-        return policyTemp;
-    }
-
-    @Override
-    public TicketTechnicians deletePolicyTemp(TicketTechnicians policyTemp) {
-        em.remove(em.contains(policyTemp) ? policyTemp : em.merge(policyTemp));
-        em.flush();
-        return policyTemp;
-    }
-
-    @Override
-    public TicketTechnicians getPolicyTempUsingId(long id) {
-        TypedQuery<TicketTechnicians> query = em.createQuery("SELECT p FROM PolicyTemp p WHERE p.id = :id", TicketTechnicians.class)
-                .setParameter("id", id);
-        List<TicketTechnicians> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record.get(0);
-    }
-
-    @Override
-    public TicketTechnicians getPolicyTempUsingPolicy(TicketGroup policy) {
-        TypedQuery<TicketTechnicians> query = em.createQuery("SELECT p FROM PolicyTemp p WHERE p.policy = :policy", TicketTechnicians.class)
-                .setParameter("policy", policy);
-        List<TicketTechnicians> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record.get(0);
-    }
-
-    @Override
-    public TicketTechnicians getPolicyTempUsingDocumentId(String documentId) {
-        TypedQuery<TicketTechnicians> query = em.createQuery("SELECT p FROM PolicyTemp p WHERE p.policyDocumentId = :documentId", TicketTechnicians.class)
-                .setParameter("documentId", documentId);
-        List<TicketTechnicians> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record.get(0);
-    }
-
-    @Override
     public List<AppUser> getAppUsersForTFAFix() {
         TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.twoFactorSecretKey = 'NA'", AppUser.class);
         List<AppUser> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record;
-    }
-
-    @Override
-    public List<TicketTechnicians> getPendingPoliciesUpload() {
-        TypedQuery<TicketTechnicians> query = em.createQuery("SELECT p FROM PolicyTemp p WHERE p.actionType = 'NEW'", TicketTechnicians.class);
-        List<TicketTechnicians> record = query.getResultList();
         if (record.isEmpty()) {
             return null;
         }

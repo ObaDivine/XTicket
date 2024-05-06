@@ -12,8 +12,12 @@ public interface XTicketService {
 
     XTicketPayload processSignup(XTicketPayload requestPayload);
 
-    String processSignUpActivation(String id);
+    XTicketPayload processSignUpActivation(String id);
 
-    String processDashboard(String username);
+    XTicketPayload processFetchProfile(String principal);
+
+    XTicketPayload processChangePassword(XTicketPayload requestPayload);
+    
+    XTicketPayload processForgotPassword(XTicketPayload requestPayload);
 
 }

@@ -3,14 +3,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
         <title>X-Policy - Review Policies</title>
-        <th:block th:include="~{fragments/entityscFragments :: headerfiles}"></th:block>
+        <th:block th:include="~{fragments/ngxTicketFragments :: headerfiles}"></th:block>
     </head>
     <body onload="preloaderFunction()" style="margin: 0;">
         <div id="loader"></div>
         <main class="main animate-bottom" id="top" style="display:none;">
             <div class="container-fluid px-0">
-                <th:block th:include="~{fragments/entityscFragments :: leftMenu}"></th:block>
-                <th:block th:include="~{fragments/entityscFragments :: topMenu}"></th:block>
+                <th:block th:include="~{fragments/ngxTicketFragments :: leftMenu}"></th:block>
+                <th:block th:include="~{fragments/ngxTicketFragments :: topMenu}"></th:block>
                 <div class="content">
                     <div class="row gy-3 mb-6 justify-content-between">
                         <div class="col-md-9 col-auto">                           
@@ -80,10 +80,10 @@
                             </form>
                         </div>
                     </div>
-                    <th:block th:include="~{fragments/entityscFragments :: footer}"></th:block>
+                    <th:block th:include="~{fragments/ngxTicketFragments :: footer}"></th:block>
                 </div>
             </div>         
         </main>
-        <th:block th:include="~{fragments/entityscFragments :: scriptfiles}"></th:block>
+        <th:block th:include="~{fragments/ngxTicketFragments :: scriptfiles}"></th:block>
     </body>
 </html>
