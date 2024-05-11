@@ -1,17 +1,24 @@
 ######### X-Ticket Web Messages ############
 ---
 appMessages:
+  ticket:
+    record: A total of {0} records retrieved
+    exist: A {0} exist with the {1} {2}
+    notexist: No {0} exist with the {1} {2}
+    inuse: The {0} {1} is in use
   password:
     expire: Your password has expired. Kindly change password
     invalid: The current password is incorrect
   reset:
     on: Reset time has not elapsed
-  norecord: No record found matching your report criteria
+  norecord: No record found matching the parameter {0}
   delete:
     roles: Role deleted successfully
   roles:
-    exist: A role exist with the {0} {0}
+    exist: A role exist with the {0} {1}
     notexist: No role(s) defined for {0}
+    inuse: The role {0} is in use
+    deleted: The role {0} deleted successfully
   connection:
     failed: Failed to connect to the AD {0}
   success:
@@ -20,12 +27,13 @@ appMessages:
     decline: Approval for the Policy {0} is declined. Record deleted
     approve: The Policy {0} marked for {1} approved successfully
     user: App User created or updated successfully
-    policy: Policy created or updated successfully
     signin: Login successful
     password: Password change successful
     forgotpassword: Kindly check the email {0} for password reset instruction
+    ticket: A {0} {1} successfully
   invalid:
     totp: The OTP is invalid
+    newvalue: No new value was provided or the value is invalid
   login:
     failed: Login failed. Invalid username and or password
   user:

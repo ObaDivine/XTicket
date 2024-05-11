@@ -60,15 +60,17 @@ public class AppUser implements Serializable {
     @Column(name = "reset_time")
     private LocalDateTime resetTime;
     @Column(name = "last_login")
-    private LocalDate lastLogin;
+    private LocalDateTime lastLogin;
     @ManyToOne
     private RoleGroups role;
     @Column(name = "login_fail_count")
     private int loginFailCount = 0;
     @Column(name = "internal")
     private boolean internal = false;
-    @Column(name = "technician")
-    private boolean technician = false;
+    @Column(name = "agent")
+    private boolean agent = false;
+    @Column(name = "online")
+    private boolean online = false;
     @Column(name = "password_change_date")
     private LocalDate passwordChangeDate;
     @Column(name = "activation_id")

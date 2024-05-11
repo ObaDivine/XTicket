@@ -199,13 +199,19 @@
                             </a>
                             <ul class="dropdown-menu navbar-dropdown-caret">
                                 <li>
-                                    <a class="dropdown-item" href="" th:href="@{/setup/user}">
-                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="shopping-cart"></span>User
+                                    <a class="dropdown-item" href="" th:href="@{/user/}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="shopping-cart"></span>System User
                                         </div>
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="" th:href="@{/setup/roles}">
+                                    <a class="dropdown-item" href="" th:href="@{/user/roles}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="shopping-cart"></span>Roles &AMP; Permissions
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="" th:href="@{/user/settings}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Settings
                                         </div>
                                     </a>
@@ -223,8 +229,8 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="" th:href="@{/setup/ticket/technicians}">
-                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Ticket Technician
+                                    <a class="dropdown-item" href="" th:href="@{/setup/ticket/agent}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Ticket Agent
                                         </div>
                                     </a>
                                 </li>
@@ -299,14 +305,14 @@
                                         <div class="avatar avatar-xl ">
                                             <img class="rounded-circle" th:src="@{'/images/avatar.png'}" alt="" />
                                         </div>
-                                        <h6 class="mt-2 text-black" th:text="${xticketPayload.lastName+ ', ' + xticketPayload.otherName}">name</h6>
+                                        <h6 class="mt-2 text-black" th:text="${profilePayload.lastName+ ', ' + profilePayload.otherName}">name</h6>
                                     </div>
                                 </div>
                                 <div class="overflow-auto scrollbar" style="height: 10rem;">
                                     <ul class="nav d-flex flex-column mb-2 pb-1">
                                         <li class="nav-item"><a class="nav-link px-3" href="#!" th:href="@{/profile}"> <span class="me-2 text-900 fa fa-user"></span><span>Profile</span></a></li>
                                         <li class="nav-item"><a class="nav-link px-3" href="#!" th:href="@{/dashboard}"><span class="me-2 text-900 fa fa-tachometer"></span>Dashboard</a></li>
-                                        <li th:if="${!xticketPayload.internal}" class="nav-item"><a class="nav-link px-3" href="#!" th:href="@{/change-password}"> <span class="me-2 text-900 fa fa-key"></span>Change Password</a></li>
+                                        <li th:if="${!profilePayload.internal}" class="nav-item"><a class="nav-link px-3" href="#!" th:href="@{/change-password}"> <span class="me-2 text-900 fa fa-key"></span>Change Password</a></li>
                                         <li class="nav-item"><a class="nav-link px-3" href="#!"> <span class="me-2 text-900 fa fa-question-circle"></span>Help Center</a></li>
                                     </ul>
                                 </div>
@@ -338,164 +344,6 @@
                 navbarVertical.remove();
                 navbarTop.removeAttribute('style');
             </script>
-        </div>
-
-        <div th:fragment="leftMenu">
-            <nav class="navbar navbar-vertical navbar-expand-lg">
-                <script>
-                    var navbarStyle = window.config.config.phoenixNavbarStyle;
-                    if (navbarStyle && navbarStyle !== 'transparent') {
-                        document.querySelector('body').classList.add(`navbar-${navbarStyle}`);
-                    }
-                </script>
-                <div class="collapse navbar-collapse" id="navbarVerticalCollapse">
-                    <div class="navbar-vertical-content">
-                        <ul class="navbar-nav flex-column" id="navbarVerticalNav">
-                            <li class="nav-item">
-                                <!-- parent pages-->
-                                <div class="nav-item-wrapper">
-                                    <a class="nav-link dropdown-indicator label-1" href="#home" role="button" data-bs-toggle="collapse" aria-expanded="true" aria-controls="home">
-                                        <div class="d-flex align-items-center">
-                                            <div class="dropdown-indicator-icon">
-                                                <span class="fas fa-caret-right"></span>
-                                            </div>
-                                            <span class="nav-link-icon"><span class="fa fa-tachometer text-primary"></span></span>
-                                            <span class="nav-link-text">Home</span>
-                                        </div>
-                                    </a>
-                                    <div class="parent-wrapper label-1">
-                                        <ul class="nav collapse parent show" data-bs-parent="#navbarVerticalCollapse" id="home">
-                                            <li class="collapsed-nav-item-title d-none">Home</li>
-                                            <li class="nav-item">
-                                                <a class="nav-link" th:href="@{/dashboard}" data-bs-toggle="" aria-expanded="false">
-                                                    <div class="d-flex align-items-center">
-                                                        <span class="nav-link-text">Dashboard</span>
-                                                    </div>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="nav-item">
-                                <p class="navbar-vertical-label text-primary">Policies & SOP</p>
-                                <hr class="navbar-vertical-line" />
-                                <div class="nav-item-wrapper" th:if="${#request.isUserInRole('POLICY')}">
-                                    <a class="nav-link label-1" href="" role="button" data-bs-toggle="modal" data-bs-target="#policyModal" aria-expanded="false" th:onclick="|setPolicy('POL')|">
-                                        <div class="d-flex align-items-center">
-                                            <span class="nav-link-icon"><span class="fa fa-th-list fs-0 ms-1 me-1 text-primary"></span></span>
-                                            <span class="nav-link-text-wrapper"><span class="nav-link-text">Policies</span></span>
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="nav-item-wrapper" th:if="${#request.isUserInRole('SOP')}">
-                                    <a class="nav-link label-1" href="" role="button" data-bs-toggle="modal" data-bs-target="#policyModal" aria-expanded="false" th:onclick="|setPolicy('SOP')|">
-                                        <div class="d-flex align-items-center">
-                                            <span class="nav-link-icon"><span class="fa fa-tags text-primary"></span></span>
-                                            <span class="nav-link-text-wrapper"><span class="nav-link-text">Standard Operating Procedure</span></span>
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="nav-item-wrapper" th:if="${#request.isUserInRole('CHARTER')}">
-                                    <a class="nav-link label-1" href="" role="button" data-bs-toggle="modal" data-bs-target="#policyModal" aria-expanded="false" th:onclick="|setPolicy('CHT')|">
-                                        <div class="d-flex align-items-center">
-                                            <span class="nav-link-icon"><span class="fa fa-stream text-primary"></span></span>
-                                            <span class="nav-link-text-wrapper"><span class="nav-link-text">Charters</span></span>
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="nav-item-wrapper" th:if="${#request.isUserInRole('COMMITTEES AND ASSOCIATION')}">
-                                    <a class="nav-link label-1" href="" role="button" data-bs-toggle="modal" data-bs-target="#policyModal" aria-expanded="false" th:onclick="|setPolicy('COM')|">
-                                        <div class="d-flex align-items-center">
-                                            <span class="nav-link-icon"><span class="fa fa-procedures text-primary"></span></span>
-                                            <span class="nav-link-text-wrapper"><span class="nav-link-text">Committees &amp; Association</span></span>
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="nav-item-wrapper" th:if="${#request.isUserInRole('FORM')}">
-                                    <a class="nav-link label-1" href="" role="button" data-bs-toggle="modal" data-bs-target="#policyModal" aria-expanded="false" th:onclick="|setPolicy('FRM')|">
-                                        <div class="d-flex align-items-center">
-                                            <span class="nav-link-icon"><span class="fa fa-tags text-primary"></span></span>
-                                            <span class="nav-link-text-wrapper"><span class="nav-link-text">Form</span></span>
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="nav-item-wrapper" th:if="${#request.isUserInRole('SCEDULE')}">
-                                    <a class="nav-link label-1" href="" role="button" data-bs-toggle="modal" data-bs-target="#policyModal" aria-expanded="false" th:onclick="|setPolicy('SCH')|">
-                                        <div class="d-flex align-items-center">
-                                            <span class="nav-link-icon"><span class="fa fa-calendar text-primary"></span></span>
-                                            <span class="nav-link-text-wrapper"><span class="nav-link-text">Schedule</span></span>
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="nav-item-wrapper" th:if="${#request.isUserInRole('TEMPLATES')}">
-                                    <a class="nav-link label-1" href="" role="button" data-bs-toggle="modal" data-bs-target="#policyModal" aria-expanded="false" th:onclick="|setPolicy('TEM')|">
-                                        <div class="d-flex align-items-center">
-                                            <span class="nav-link-icon"><span class="fa fa-th text-primary"></span></span>
-                                            <span class="nav-link-text-wrapper"><span class="nav-link-text">Templates</span></span>
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="nav-item-wrapper">
-                                    <a class="nav-link label-1" href="" role="button" data-bs-toggle="modal" data-bs-target="#policyModal" aria-expanded="false" th:onclick="|setPolicy('RPT')|">
-                                        <div class="d-flex align-items-center">
-                                            <span class="nav-link-icon"><span class="fa fa-chart-bar text-primary"></span></span>
-                                            <span class="nav-link-text-wrapper"><span class="nav-link-text">Report</span></span>
-                                        </div>
-                                    </a>
-                                </div>
-                            </li>
-                            <li class="nav-item">
-                                <p class="navbar-vertical-label text-primary">Setup</p>
-                                <hr class="navbar-vertical-line" />
-                                <div class="nav-item-wrapper" th:if="${#request.isUserInRole('LIST_POLICY')}">
-                                    <a class="nav-link label-1" th:href="@{/admin/policy}" role="button" data-bs-toggle="" aria-expanded="false">
-                                        <div class="d-flex align-items-center">
-                                            <span class="nav-link-icon"><span class="fa fa-th-list fs-0 ms-1 me-1 text-primary"></span></span>
-                                            <span class="nav-link-text-wrapper"><span class="nav-link-text">Manage Policies</span></span>
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="nav-item-wrapper" th:if="${#request.isUserInRole('APPROVE_POLICY')}">
-                                    <a class="nav-link label-1" th:href="@{/admin/policy/pending}" role="button" data-bs-toggle="" aria-expanded="false">
-                                        <div class="d-flex align-items-center">
-                                            <span class="nav-link-icon"><span class="fa fa-stream fs-0 ms-1 me-1 text-primary"></span></span>
-                                            <span class="nav-link-text-wrapper"><span class="nav-link-text">Pending Policies</span></span>
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="nav-item-wrapper" th:if="${#request.isUserInRole('MANAGE_USER')}">
-                                    <a class="nav-link label-1" th:href="@{/admin/users}" role="button" data-bs-toggle="" aria-expanded="false">
-                                        <div class="d-flex align-items-center">
-                                            <span class="nav-link-icon"><span class="fa fa-users text-primary"></span></span>
-                                            <span class="nav-link-text-wrapper"><span class="nav-link-text">Manage Users</span></span>
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="nav-item-wrapper" th:if="${#request.isUserInRole('MANAGE_ROLES')}">
-                                    <a class="nav-link label-1" th:href="@{/admin/roles}" role="button" data-bs-toggle="" aria-expanded="false">
-                                        <div class="d-flex align-items-center">
-                                            <span class="nav-link-icon"><span class="fa fa-chart-bar text-primary"></span></span>
-                                            <span class="nav-link-text-wrapper"><span class="nav-link-text">Manage Roles</span></span>
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="nav-item-wrapper" th:if="${#request.isUserInRole('GENERATE_REPORT')}">
-                                    <a class="nav-link label-1" th:href="@{/admin/report}" role="button" data-bs-toggle="" aria-expanded="false">
-                                        <div class="d-flex align-items-center">
-                                            <span class="nav-link-icon"><span class="fa fa-chart-bar text-primary"></span></span>
-                                            <span class="nav-link-text-wrapper"><span class="nav-link-text">Generate Reports</span></span>
-                                        </div>
-                                    </a>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="navbar-vertical-footer">
-                    <button class="btn navbar-vertical-toggle border-0 fw-semi-bold w-100 white-space-nowrap d-flex align-items-center"><span class="uil uil-left-arrow-to-left fs-0"></span><span class="uil uil-arrow-from-right fs-0"></span><span class="navbar-vertical-footer-text ms-2">Collapsed View</span></button>
-                </div>
-            </nav>
         </div>
 
         <div th:fragment="footer">
@@ -531,7 +379,7 @@
             <script th:src="@{/js/crm-dashboard.js}"></script>
             <script th:src="@{/js/dhtmlxgantt.js}"></script>
             <script th:src="@{/js/sweetalert2.min.js}"></script>
-            <script th:src="@{/js/xpolicy.js}"></script>
+            <script th:src="@{/js/xticket.js}"></script>
             <form id="logoutForm" th:action="@{/logout}" method="POST">
                 <div class="modal fade" id="confirmLogout" tabindex="-1" role="dialog" aria-labelledby="confirmLogout" aria-hidden="true">
                     <div class="modal-dialog">

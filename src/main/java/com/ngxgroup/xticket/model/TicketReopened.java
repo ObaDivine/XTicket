@@ -24,7 +24,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "ticket-reopened")
+@Table(name = "ticket_reopened")
 public class TicketReopened implements Serializable {
 
     private static final long serialVersionUID = 1L;

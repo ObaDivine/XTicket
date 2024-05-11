@@ -86,7 +86,7 @@ public class HomeController {
     @GetMapping("/signup")
     public String signup(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("signupPayload", new XTicketPayload());
-        model.addAttribute("xticketPayload", new XTicketPayload());
+        model.addAttribute("profilePayload", new XTicketPayload());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -120,6 +120,7 @@ public class HomeController {
     public String logoutPage(HttpServletRequest request, HttpServletResponse response, Principal principal, Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {
+            xticketService.processUserOnline(principal.getName(), false);
             new SecurityContextLogoutHandler().logout(request, response, auth);
         }
         alertMessage = "Your session is terminated and you are logged out";
@@ -129,7 +130,7 @@ public class HomeController {
     @GetMapping("/dashboard")
     public String dashboard(HttpServletRequest httpRequest, HttpServletResponse httpResponse, HttpSession httpSession, Principal principal, Model model) {
         XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
-        model.addAttribute("xticketPayload", profileDetails);
+        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("myTicketStat", 30);
         model.addAttribute("openTicketStat", 30);
         model.addAttribute("incidentTicketStat", 30);
@@ -144,7 +145,7 @@ public class HomeController {
     @GetMapping("/change-password")
     public String changePassword(Principal principal, Model model) {
         XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
-        model.addAttribute("xticketPayload", profileDetails);
+        model.addAttribute("profilePayload", profileDetails);
         XTicketPayload passwordChangePayload = new XTicketPayload();
         passwordChangePayload.setEmail(principal.getName());
         model.addAttribute("passwordPayload", passwordChangePayload);
@@ -174,7 +175,7 @@ public class HomeController {
             return "redirect:/";
         }
         XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
-        model.addAttribute("xticketPayload", profileDetails);
+        model.addAttribute("profilePayload", profileDetails);
         requestPayload.setEmail(principal.getName());
         model.addAttribute("passwordPayload", requestPayload);
         model.addAttribute("alertMessage", response.getResponseMessage());
@@ -193,7 +194,7 @@ public class HomeController {
 
     @GetMapping("/terms")
     public String terms(HttpServletRequest request, HttpServletResponse response, Principal principal, Model model) {
-        model.addAttribute("xticketPayload", new XTicketPayload());
+        model.addAttribute("profilePayload", new XTicketPayload());
         model.addAttribute("alertMessage", alertMessage);
         resetAlertMessage();
         return "terms";
@@ -201,7 +202,7 @@ public class HomeController {
 
     @GetMapping("/privacy")
     public String privacy(HttpServletRequest request, HttpServletResponse response, Principal principal, Model model) {
-        model.addAttribute("xticketPayload", new XTicketPayload());
+        model.addAttribute("profilePayload", new XTicketPayload());
         model.addAttribute("alertMessage", alertMessage);
         resetAlertMessage();
         return "privacy";

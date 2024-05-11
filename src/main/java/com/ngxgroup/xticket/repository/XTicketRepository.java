@@ -10,7 +10,7 @@ import com.ngxgroup.xticket.model.TicketComment;
 import com.ngxgroup.xticket.model.TicketEscalations;
 import com.ngxgroup.xticket.model.TicketGroup;
 import com.ngxgroup.xticket.model.TicketReopened;
-import com.ngxgroup.xticket.model.TicketTechnicians;
+import com.ngxgroup.xticket.model.TicketAgent;
 import com.ngxgroup.xticket.model.TicketType;
 import com.ngxgroup.xticket.model.TicketUpload;
 import com.ngxgroup.xticket.model.Tickets;
@@ -40,9 +40,13 @@ public interface XTicketRepository {
 
     List<AppUser> getDisabledUsers();
 
-    List<AppUser> getPolicyChampions();
+    List<AppUser> getInternalAppUsers();
 
     List<AppUser> getUsers();
+
+    List<AppUser> getAgentAppUsers();
+
+    List<AppUser> getAppUserUsingRoleGroup(RoleGroups roleGroup);
 
     AppUser getAppUserUsingUserId(String id);
 
@@ -96,6 +100,10 @@ public interface XTicketRepository {
 
     List<Tickets> getOpenTickets();
 
+    Tickets getTicketUsingTicketGroup(TicketGroup ticketGroup);
+
+    Tickets getTicketUsingTicketType(TicketType ticketType);
+
     /**
      * Ticket Reopened
      *
@@ -143,26 +151,32 @@ public interface XTicketRepository {
 
     TicketType getTicketTypeUsingName(String ticketTypeName);
 
-    TicketType createTicketGroup(TicketType ticketType);
+    TicketType createTicketType(TicketType ticketType);
 
-    TicketType updateTicketGroup(TicketType ticketType);
+    TicketType updateTicketType(TicketType ticketType);
 
-    TicketType deleteTicketGroup(TicketType ticketType);
+    TicketType deleteTicketType(TicketType ticketType);
 
-    List<TicketType> getTicketTypeUsingGroup(TicketGroup ticketGroup);
+    List<TicketType> getTicketTypeUsingTicketGroup(TicketGroup ticketGroup);
+
+    List<TicketType> getTicketTypeUsingTicketGroup(TicketGroup ticketGroup, boolean userType);
 
     /**
-     * Ticket Technician
+     * Ticket Agent
      *
      * @return *
      */
-    List<TicketTechnicians> getTicketTechnicians();
+    List<TicketAgent> getTicketAgent();
 
-    TicketTechnicians createTicketTechnician(TicketTechnicians ticketTechnician);
+    List<TicketAgent> getTicketAgent(AppUser ticketAgent);
+    
+    List<TicketAgent> getTicketAgentUsingTicketType(TicketType ticketType);
 
-    TicketTechnicians updateTicketTechnician(TicketTechnicians ticketTechnician);
+    TicketAgent createTicketAgent(TicketAgent ticketAgent);
 
-    TicketTechnicians deleteTicketTechnician(TicketTechnicians ticketTechnician);
+    TicketAgent updateTicketAgent(TicketAgent ticketAgent);
+
+    TicketAgent deleteTicketAgent(TicketAgent ticketAgent);
 
     /**
      * Ticket Escalation
@@ -178,8 +192,8 @@ public interface XTicketRepository {
     TicketEscalations updateTicketEscalation(TicketEscalations ticketEscalations);
 
     TicketEscalations deleteTicketEscalation(TicketEscalations ticketEscalations);
-    
-     /**
+
+    /**
      * Ticket Comments
      *
      * @return *
@@ -194,7 +208,7 @@ public interface XTicketRepository {
 
     TicketComment deleteTicketEscalation(TicketComment ticketComment);
 
-         /**
+    /**
      * Ticket Upload
      *
      * @return *

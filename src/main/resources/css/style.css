@@ -151,3 +151,12 @@ text-secondary{
 .colored-toast .swal2-title {
     color: #018b48;
 }
+
+.asterisk {
+    float: right;
+    margin-left: -25px;
+    margin-top: -25px;
+    position: relative;
+    padding-right: 5px;
+    z-index: 2;
+}

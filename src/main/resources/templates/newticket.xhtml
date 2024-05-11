@@ -1,11 +1,119 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
-        <title>TODO supply a title</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>X-Ticket - Ticket</title>
+        <th:block th:include="~{fragments/ngxTicketFragments :: headerfiles}"></th:block>
     </head>
-    <body>
-        <div>TODO write content</div>
+    <body onload="preloaderFunction()" style="margin: 0;">
+        <div id="loader"></div>
+        <main class="main animate-bottom" id="top" style="display:none;" th:object="${profilePayload}">
+            <div class="container-fluid px-0">
+                <th:block th:include="~{fragments/ngxTicketFragments :: topMenu}"></th:block>
+                <div class="content">
+                    <div class="row gy-3 mb-1 justify-content-between">
+                        <div class="col-md-4 col-auto">
+                            <h5 class="text-1100 text-primary">New Ticket</h5>
+                        </div>
+                        <div class="col-md-5 col-auto">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item"><a href="#" th:href="@{/}">Home</a></li>
+                                    <li class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
+                                    <li class="breadcrumb-item active">New Ticket</li>
+                                </ol>
+                            </nav>
+                        </div>
+                        <div class="col-md-3 col-auto">
+                            <h5 class="text-1100 text-primary" th:text="'Welcome ' + ${profilePayload.lastName + ', ' + profilePayload.otherName}">Welcome Brian</h5>
+                        </div>
+                        <hr/>
+                    </div>
+                    <div class="row mb-3 justify-content-between">
+                        <div class="offset-lg-3 col-lg-6 col-md-12 col-sm-12">
+                            <h5 class="mb-2 text-secondary">Create New Ticket</h5>
+                            <form th:object="${ticketPayload}" th:action="@{/ticket/new/create}" method="POST" enctype="multipart/form-data">
+                                <div class="form-icon-container">
+                                    <select class="form-select form-control-sm form-icon-input" aria-label="ticketGroupCode" th:field="*{ticketGroupCode}" required="required" th:onchange="|fetchTicketType()|">
+                                        <option value="">---Select Ticket Group---</option>
+                                        <option th:each="fa : ${ticketGroupList}" th:value="${fa.ticketGroupCode}" th:text="${fa.ticketGroupName}"></option>
+                                    </select>
+                                    <span class="text-primary asterisk">*</span>
+                                    <span class="fas fa-layer-group text-900 fs--1 form-icon text-primary"></span>
+                                </div>
+                                <div class="form-icon-container">
+                                    <select class="form-select form-control-sm form-icon-input" aria-label="ticketTypeCode" th:field="*{ticketTypeCode}" required="required">
+                                        <option value="">---Select Ticket Type---</option>
+                                    </select>
+                                    <span class="text-primary asterisk">*</span>
+                                    <span class="fas fa-ticket-alt text-900 fs--1 form-icon text-primary"></span>
+                                </div>
+                                <div class="form-icon-container">
+                                    <input type="text" class="form-control form-control-sm form-icon-input" th:field="*{subject}" placeholder="Enter subject" required="required"/>
+                                    <span class="text-primary asterisk">*</span>
+                                    <span class="fas fa-tag text-900 fs--1 form-icon text-primary"></span>
+                                </div>
+                                <div class="form-icon-container">
+                                    <textarea class="form-control form-control-sm form-icon-input" th:field="*{message}" placeholder="Your message" required="required" rows="5"></textarea>
+                                    <span class="text-primary asterisk">*</span>
+                                    <span class="fas fa-comments text-900 fs--1 form-icon text-primary"></span>
+                                </div>
+                                <div class="form-icon-container">
+                                    <input type="file" class="form-control form-control-sm form-icon-input" th:field="*{uploadedFiles}" multiple="multiple"/>
+                                    <span class="fas fa-paperclip text-900 fs--1 form-icon text-primary"></span>                            
+                                </div>
+                                <button class="btn btn-primary btn-sm w-40 mb-3 mt-2" type="button" data-bs-target="#confirmModal" data-bs-toggle="modal">Submit</button>
+                                <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModal" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h6 class="modal-title text-primary">Nigerian Exchange Group - <span class="text-secondary">X-Ticket</span></h6>
+                                            </div>
+                                            <div class="modal-body">
+                                                <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+                                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>		
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="offset-lg-3 col-lg-6 col-sm-12 col-md-12">
+                            <div class="border-top border-dashed border-300 py-4">
+                                <div class="d-flex flex-between-center">
+                                    <a href="!#">
+                                        <div class="d-flex align-items-center"><img th:src="@{/images/icons/18.png}" src="" alt="" height="46" width="46" />
+                                            <div class="ms-3">
+                                                <h4 class="mb-0" th:text="${myTicketStat}">57</h4>
+                                                <p class="text-800 fs--1 mb-0">My Tickets</p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <a href="!#">
+                                        <div class="d-flex align-items-center"><img th:src="@{/images/icons/19.png}" src="" alt="" height="46" width="46" />
+                                            <div class="ms-3">
+                                                <h4 class="mb-0" th:text="${myTicketStat}">57</h4>
+                                                <p class="text-800 fs--1 mb-0">Open Tickets</p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <a href="!#" th:href="@{/knowledge-base}">
+                                        <div class="d-flex align-items-center"><img th:src="@{/images/icons/23.png}" src="" alt="" height="46" width="46" />
+                                            <div class="ms-3">                                              
+                                                <p class="text-800 fs--1 mb-0">Knowledge Base</p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <th:block th:include="~{fragments/ngxTicketFragments :: footer}"></th:block>
+                </div>
+            </div>
+            <th:block th:include="~{fragments/ngxTicketFragments :: scriptfiles}"></th:block>   
+        </main>
     </body>
 </html>

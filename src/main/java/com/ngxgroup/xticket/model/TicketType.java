@@ -43,12 +43,17 @@ public class TicketType implements Serializable {
     private String ticketTypeCode;
     @Column(name = "ticket_type_name")
     private String ticketTypeName;
-    @Column(name = "sla_limit")
-    private LocalDateTime slaLimit;
-    @Column(name = "first_escalation")
-    private String firstEscalation;
-    @Column(name = "second_escalation")
-    private String secondEscalation;
+    @Column(name = "sla_mins")
+    private int slaMins;
+    @Column(name = "escalation_emails", length = 5000)
+    private String escalationEmails;
+    @Column(name = "email_escalation_index")
+    private int emailEscalationIndex;
     @Column(name = "status")
     private String status;
+    @Column(name = "require_change_request_form")
+    private boolean requireChangeRequestForm;
+    @Column(name = "require_service_request_form")
+    private boolean requireServiceRequestForm;
+
 }

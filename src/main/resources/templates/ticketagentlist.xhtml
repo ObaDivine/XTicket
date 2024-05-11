@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head>
+        <title>X-Ticket - Ticket Agent</title>
+        <th:block th:include="~{fragments/ngxTicketFragments :: headerfiles}"></th:block>
+    </head>
+    <body onload="preloaderFunction()" style="margin: 0;">
+        <div id="loader"></div>
+        <main class="main animate-bottom" id="top" style="display:none;" th:object="${profilePayload}">
+            <div class="container-fluid px-0">
+                <th:block th:include="~{fragments/ngxTicketFragments :: topMenu}"></th:block>
+                <div class="content">
+                    <div class="row gy-3 mb-3 justify-content-between">
+                        <div class="col-md-4 col-auto">
+                            <h5 class="text-1100 text-primary">Setup Ticket Agent</h5>
+                        </div>
+                        <div class="col-md-5 col-auto">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item"><a href="#" th:href="@{/}">Home</a></li>
+                                    <li class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
+                                    <li class="breadcrumb-item"><a href="#" th:href="@{/setup/ticket/agent}">Ticket Agent</a></li>
+                                    <li class="breadcrumb-item active">Ticket Agent Listing</li>
+                                </ol>
+                            </nav>
+                        </div>
+                        <div class="col-md-3 col-auto">
+                            <h5 class="text-1100 text-primary" th:text="'Welcome ' + ${profilePayload.lastName + ', ' + profilePayload.otherName}">Welcome Brian</h5>
+                        </div>
+                        <hr/>
+                    </div>
+                    <div class="row mb-6 justify-content-between">
+                        <div class="offset-lg-1 col-lg-10 col-md-12 col-sm-12">
+                            <h5 class="mb-2 text-secondary">Listing of Ticket Agents</h5>
+                            <div class="table-responsive ms-n1 ps-1 scrollbar">
+                                <table class="table table-responsive table-sm table-striped fs--1 mb-0 border-top border-200">
+                                    <thead>
+                                        <tr>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">Date</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="name">Agent Name</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="email">Agent Email</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="mobile">Agent Mobile Number</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="lastLogin">Last Login</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="createdBy">Created By</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="list" id="deal-tables-body" th:if="${dataList != null}">
+                                        <tr th:each="rec : ${dataList}" class="position-static">
+                                            <td th:text="${rec.createdAt}" class="date align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.lastName + ', ' + rec.otherName}" class="name align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.email}" class="email align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.mobileNumber}" class="mobile align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.lastLogin}" class="lastLogin align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.createdBy}" class="createdBy align-middle white-space-nowrap start ps-3"></td>
+                                            <td class="align-middle white-space-nowrap start ps-3 btn-reveal-trigger">
+                                                <a class="text-success" href="#!" th:href="@{'/user/edit?seid=' + ${rec.id}}">Update</a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="row align-items-center justify-content-between py-2 pe-0 fs--1">
+                                <div class="col-auto d-flex">
+                                    <p class="mb-0 d-none d-sm-block me-3 fw-semi-bold text-900" data-list-info="data-list-info"></p>
+                                    <a class="fw-semi-bold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                                    <a class="fw-semi-bold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                                </div>
+                                <div class="col-auto d-flex">
+                                    <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                                    <ul class="mb-0 pagination"></ul>
+                                    <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>                  
+                    <th:block th:include="~{fragments/ngxTicketFragments :: footer}"></th:block>
+                </div>
+            </div>
+            <th:block th:include="~{fragments/ngxTicketFragments :: scriptfiles}"></th:block>   
+        </main>
+    </body>
+</html>

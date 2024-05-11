@@ -3,9 +3,14 @@ package com.ngxgroup.xticket.service;
 import com.ngxgroup.xticket.payload.XTicketPayload;
 import com.google.gson.Gson;
 import com.ngxgroup.xticket.constant.ResponseCodes;
+import com.ngxgroup.xticket.model.AppRoles;
 import com.ngxgroup.xticket.model.AppUser;
+import com.ngxgroup.xticket.model.GroupRoles;
+import com.ngxgroup.xticket.model.RoleGroups;
+import com.ngxgroup.xticket.model.TicketAgent;
 import com.ngxgroup.xticket.model.TicketGroup;
 import com.ngxgroup.xticket.model.TicketType;
+import com.ngxgroup.xticket.model.Tickets;
 import com.ngxgroup.xticket.payload.LogPayload;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -22,11 +27,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import com.ngxgroup.xticket.repository.XTicketRepository;
+import java.io.File;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import javax.servlet.ServletContext;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -35,6 +48,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @Service
 public class XTicketServiceImpl implements XTicketService {
 
+    @Autowired
+    ServletContext servletContext;
     @Autowired
     MessageSource messageSource;
     @Autowired
@@ -51,11 +66,9 @@ public class XTicketServiceImpl implements XTicketService {
     private int passwordChangeDays;
     @Value("${xticket.password.reset.time}")
     private String passwordResetTime;
-    @Value("${xticket.ngx.email.domain}")
-    private String emailDomain;
     @Value("${xticket.email.notification}")
     private String emailNotification;
-    @Value("${xticket.ngx.email.domain}")
+    @Value("${xticket.default.email.domain}")
     private String ngxEmailDomain;
     @Value("${xticket.company.name}")
     private String companyName;
@@ -72,6 +85,7 @@ public class XTicketServiceImpl implements XTicketService {
     @Value("${xticket.host}")
     private String host;
     static final Logger logger = Logger.getLogger(XTicketServiceImpl.class.getName());
+    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
     public XTicketPayload processSignin(XTicketPayload requestPayload) {
@@ -185,6 +199,8 @@ public class XTicketServiceImpl implements XTicketService {
 
             //Clear failed login
             appUser.setLoginFailCount(0);
+            appUser.setLastLogin(LocalDateTime.now());
+            appUser.setOnline(true);
             xticketRepository.updateAppUser(appUser);
 
             String message = messageSource.getMessage("appMessages.success.signin", new Object[0], Locale.ENGLISH);
@@ -225,6 +241,9 @@ public class XTicketServiceImpl implements XTicketService {
                 return response;
             }
 
+            //Fetch the default role group for initial setup
+            RoleGroups roleGroup = xticketRepository.getRoleGroupUsingGroupName("DEFAULT");
+
             //Create new Record
             AppUser newUser = new AppUser();
             String activationId = UUID.randomUUID().toString().replaceAll("-", "");
@@ -244,8 +263,8 @@ public class XTicketServiceImpl implements XTicketService {
             newUser.setPassword(passwordEncoder.encode(requestPayload.getPassword()));
             newUser.setPasswordChangeDate(LocalDate.now().plusDays(passwordChangeDays));
             newUser.setResetTime(LocalDateTime.now().minusMinutes(1));
-            newUser.setRole(null);
-            newUser.setTechnician(false);
+            newUser.setRole(roleGroup == null ? null : roleGroup);
+            newUser.setAgent(false);
             newUser.setUpdatedAt(LocalDateTime.now());
             newUser.setUpdatedBy(requestPayload.getEmail());
             xticketRepository.createAppUser(newUser);
@@ -485,13 +504,1098 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
-    public List<TicketGroup> processFetchTicketGroup() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public List<AppUser> processFetchAppUsers() {
+        return xticketRepository.getUsers();
     }
 
     @Override
-    public List<TicketType> processFetchTicketType() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public List<AppUser> processFetchInternalAppUsers() {
+        return xticketRepository.getInternalAppUsers();
     }
 
+    @Override
+    public void processUserOnline(String principal, boolean userOnline) {
+        //Check if the user is valid. Update the online status
+        AppUser appUser = xticketRepository.getAppUserUsingEmail(principal);
+        if (appUser != null) {
+            appUser.setOnline(userOnline);
+            xticketRepository.updateAppUser(appUser);
+        }
+    }
+
+    @Override
+    public XTicketPayload processUpdateAppUser(XTicketPayload requestPayload, String principal) {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            //Check if the user is valid
+            AppUser appUser = xticketRepository.getAppUserUsingEmail(principal);
+            if (appUser == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.user.notexist", new Object[]{principal}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if the selected user for update is valid
+            AppUser selectedUser = xticketRepository.getAppUserUsingEmail(requestPayload.getEmail());
+            if (selectedUser == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.user.notexist", new Object[]{principal}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if new value is provided for certain update times
+            if (requestPayload.getAction().equalsIgnoreCase("Email") || requestPayload.getAction().equalsIgnoreCase("Mobile")) {
+                if (requestPayload.getNewValue().equalsIgnoreCase("")) {
+                    response.setResponseCode(ResponseCodes.INPUT_MISSING.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.invalid.newvalue", new Object[0], Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
+                //Check if valid email is provided
+                if (requestPayload.getAction().equalsIgnoreCase("Email")) {
+                    if (!requestPayload.getNewValue().matches("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$")) {
+                        response.setResponseCode(ResponseCodes.INVALID_TYPE.getResponseCode());
+                        response.setResponseMessage(messageSource.getMessage("appMessages.invalid.newvalue", new Object[0], Locale.ENGLISH));
+                        response.setData(null);
+                        return response;
+                    }
+                }
+
+                //Check if valid email is provided
+                if (requestPayload.getAction().equalsIgnoreCase("Mobile")) {
+                    if (!requestPayload.getNewValue().matches("[0-9]{11}")) {
+                        response.setResponseCode(ResponseCodes.INVALID_TYPE.getResponseCode());
+                        response.setResponseMessage(messageSource.getMessage("appMessages.invalid.newvalue", new Object[0], Locale.ENGLISH));
+                        response.setData(null);
+                        return response;
+                    }
+                }
+            }
+
+            //Check if the request is to update the user role
+            RoleGroups roleGroup = null;
+            if (requestPayload.getAction().equalsIgnoreCase("Role")) {
+                roleGroup = xticketRepository.getRoleGroupUsingId(Long.parseLong(requestPayload.getRolesToUpdate()));
+                if (roleGroup == null) {
+                    response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.roles.notexist", new Object[]{" Id " + requestPayload.getRolesToUpdate()}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+            }
+
+            switch (requestPayload.getAction()) {
+                case "Activate": {
+                    selectedUser.setActivated(true);
+                    xticketRepository.updateAppUser(selectedUser);
+                    break;
+                }
+                case "AgentAdd": {
+                    selectedUser.setAgent(true);
+                    xticketRepository.updateAppUser(selectedUser);
+                    break;
+                }
+                case "Role": {
+                    selectedUser.setRole(roleGroup);
+                    xticketRepository.updateAppUser(selectedUser);
+                    break;
+                }
+                case "Deactivate": {
+                    selectedUser.setActivated(false);
+                    xticketRepository.updateAppUser(selectedUser);
+                    break;
+                }
+                case "Lock": {
+                    selectedUser.setLocked(true);
+                    xticketRepository.updateAppUser(selectedUser);
+                    break;
+                }
+                case "Unlock": {
+                    selectedUser.setLocked(false);
+                    xticketRepository.updateAppUser(selectedUser);
+                    break;
+                }
+                case "AgentRemove": {
+                    selectedUser.setAgent(false);
+                    xticketRepository.updateAppUser(selectedUser);
+                    break;
+                }
+                case "FailedLogin": {
+                    selectedUser.setLoginFailCount(0);
+                    xticketRepository.updateAppUser(selectedUser);
+                    break;
+                }
+                case "LogoutTime": {
+                    selectedUser.setResetTime(LocalDateTime.now().minusMinutes(1));
+                    xticketRepository.updateAppUser(selectedUser);
+                    break;
+                }
+                case "Email": {
+                    selectedUser.setEmail(requestPayload.getNewValue());
+                    xticketRepository.updateAppUser(selectedUser);
+                    break;
+                }
+                case "Mobile": {
+                    selectedUser.setMobileNumber(requestPayload.getNewValue());
+                    xticketRepository.updateAppUser(selectedUser);
+                    break;
+                }
+                case "PasswordChange": {
+                    selectedUser.setPasswordChangeDate(LocalDate.now().plusDays(passwordChangeDays));
+                    xticketRepository.updateAppUser(selectedUser);
+                    break;
+                }
+            }
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.success.user", new Object[0], Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    /**
+     * Roles *
+     */
+    @Override
+    public List<RoleGroups> processFetchRoleGroup() {
+        return xticketRepository.getRoleGroupList();
+    }
+
+    @Override
+    public XTicketPayload processFetchRoleGroup(String id) {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            //Fetch the role group
+            RoleGroups roleGroup = xticketRepository.getRoleGroupUsingId(Long.valueOf(id));
+            if (roleGroup == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{id}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            response.setGroupName(roleGroup.getGroupName());
+            response.setId(roleGroup.getId().intValue());
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public List<AppRoles> processFetchAppRoles() {
+        return xticketRepository.getAppRoles();
+    }
+
+    @Override
+    public XTicketPayload processCreateRoleGroup(XTicketPayload requestPayload, String principal) {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            AppUser appUser = xticketRepository.getAppUserUsingEmail(principal);
+            if (appUser == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.user.notexist", new Object[]{principal}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if the request is to create new role group or update
+            if (requestPayload.getId() == 0) {
+                //Check if the group role exist already
+                RoleGroups roleGroup = xticketRepository.getRoleGroupUsingGroupName(requestPayload.getGroupName());
+                if (roleGroup != null) {
+                    response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.roles.exist", new Object[]{"Group Name", requestPayload.getGroupName()}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
+                //Create the role group
+                RoleGroups newRoleGroup = new RoleGroups();
+                newRoleGroup.setCreatedAt(LocalDateTime.now());
+                newRoleGroup.setGroupName(requestPayload.getGroupName());
+                xticketRepository.createRoleGroup(newRoleGroup);
+
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.success.roles", new Object[0], Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //This is an update request
+            RoleGroups oldRoleGroup = xticketRepository.getRoleGroupUsingId(Long.valueOf(requestPayload.getId()));
+            if (oldRoleGroup == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{requestPayload.getId()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if the group role exist already
+            RoleGroups roleGroup = xticketRepository.getRoleGroupUsingGroupName(requestPayload.getGroupName());
+            if (roleGroup != null && !Objects.equals(roleGroup.getId(), oldRoleGroup.getId())) {
+                response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.roles.exist", new Object[]{"Group Name", requestPayload.getGroupName()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            oldRoleGroup.setGroupName(requestPayload.getGroupName());
+            xticketRepository.updateRoleGroup(oldRoleGroup);
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.success.roles", new Object[]{1}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload processDeleteRoleGroup(String id, String principal) {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            //Check the username of the requester
+            AppUser appUser = xticketRepository.getAppUserUsingEmail(principal);
+            if (appUser == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.user.notexist", new Object[]{principal}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if the group role exist
+            RoleGroups oldRoleGroup = xticketRepository.getRoleGroupUsingId(Long.valueOf(id));
+            if (oldRoleGroup == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{id}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if the role group is in use
+            List<AppUser> appUserWithRole = xticketRepository.getAppUserUsingRoleGroup(oldRoleGroup);
+            if (appUserWithRole != null) {
+                response.setResponseCode(ResponseCodes.IN_USE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.roles.inuse", new Object[]{oldRoleGroup.getGroupName()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //The role group is free to be deleted
+            xticketRepository.deleteRoleGroups(oldRoleGroup);
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.roles.deleted", new Object[]{oldRoleGroup.getGroupName()}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload processFetchGroupRoles(String groupName) {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            RoleGroups roleGroup = xticketRepository.getRoleGroupUsingGroupName(groupName);
+            if (roleGroup == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{groupName}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            List<XTicketPayload> data = new ArrayList<>();
+            List<String> userRoles = new ArrayList<>();
+            List<String> userNoRoles = new ArrayList<>();
+
+            //Fecth the Group details
+            List<GroupRoles> groupRoles = xticketRepository.getGroupRolesUsingRoleGroup(roleGroup);
+            if (groupRoles != null) {
+                for (GroupRoles r : groupRoles) {
+                    userRoles.add(r.getAppRole().getRoleName());
+                }
+            }
+            //Get all the app roles 
+            List<AppRoles> allRoles = xticketRepository.getAppRoles();
+            if (allRoles != null) {
+                for (AppRoles r : allRoles) {
+                    if (!userRoles.contains(r.getRoleName())) {
+                        userNoRoles.add(r.getRoleName());
+                    }
+                }
+            }
+
+            for (String r : userRoles) {
+                XTicketPayload newRole = new XTicketPayload();
+                newRole.setRoleName(r);
+                newRole.setRoleExist("true");
+                data.add(newRole);
+            }
+
+            for (String r : userNoRoles) {
+                XTicketPayload newRole = new XTicketPayload();
+                newRole.setRoleName(r);
+                newRole.setRoleExist("false");
+                data.add(newRole);
+            }
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.success.roles", new Object[]{data.size()}, Locale.ENGLISH));
+            response.setData(data);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload processUpdateGroupRoles(XTicketPayload requestPayload) {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            //Check if the group role exist already
+            RoleGroups roleGroup = xticketRepository.getRoleGroupUsingGroupName(requestPayload.getGroupName());
+            if (roleGroup == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{requestPayload.getRoleName()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            String[] roles = requestPayload.getRolesToUpdate().split(",");
+            if (roles.length > 0) {
+                List<GroupRoles> currentRoles = xticketRepository.getGroupRolesUsingRoleGroup(roleGroup);
+                if (currentRoles != null) {
+                    for (GroupRoles rol : currentRoles) {
+                        xticketRepository.deteleGroupRoles(rol);
+                    }
+                }
+                for (String rol : roles) {
+                    GroupRoles newRole = new GroupRoles();
+                    newRole.setCreatedAt(LocalDateTime.now());
+                    newRole.setRoleGroup(roleGroup);
+                    AppRoles appRole = xticketRepository.getRoleUsingRoleName(rol);
+                    newRole.setAppRole(appRole);
+                    xticketRepository.createGroupRoles(newRole);
+                }
+            }
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.success.roles", new Object[]{1000}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    /**
+     * Ticket Group *
+     */
+    @Override
+    public XTicketPayload processFetchTicketGroup() {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            List<XTicketPayload> data = new ArrayList<>();
+            List<TicketGroup> ticketGroup = xticketRepository.getTicketGroup();
+            if (ticketGroup != null) {
+                for (TicketGroup t : ticketGroup) {
+                    XTicketPayload payload = new XTicketPayload();
+                    BeanUtils.copyProperties(t, payload);
+                    payload.setCreatedAt(t.getCreatedAt().toLocalDate().toString());
+                    payload.setCreatedBy(t.getCreatedBy().getLastName() + " " + t.getCreatedBy().getOtherName());
+                    payload.setId(t.getId().intValue());
+                    data.add(payload);
+                }
+            }
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{data.size()}, Locale.ENGLISH));
+            response.setData(data);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload processFetchTicketGroup(String id) {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            TicketGroup ticketGroup = xticketRepository.getTicketGroupUsingId(Long.parseLong(id));
+            if (ticketGroup == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{id}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            BeanUtils.copyProperties(ticketGroup, response);
+            response.setCreatedAt(ticketGroup.getCreatedAt().toLocalDate().toString());
+            response.setId(ticketGroup.getId().intValue());
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload processCreateTicketGroup(XTicketPayload requestPayload, String principal) {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            //Check if the request is for update or create new
+            if (requestPayload.getId() == 0) {
+                //Check if the user is valid
+                AppUser appUser = xticketRepository.getAppUserUsingEmail(principal);
+                if (appUser == null) {
+                    response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.user.notexist", new Object[]{principal}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
+                //Check if the ticket group exist using code
+                TicketGroup groupByCode = xticketRepository.getTicketGroupUsingCode(requestPayload.getTicketGroupCode());
+                if (groupByCode != null) {
+                    response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Ticket Group", "Code", requestPayload.getTicketGroupCode()}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
+                //Check the ticket group using the name
+                TicketGroup groupByName = xticketRepository.getTicketGroupUsingName(requestPayload.getTicketGroupName());
+                if (groupByName != null) {
+                    response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Ticket Group", "Name", requestPayload.getTicketGroupName()}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
+                TicketGroup newTicketGroup = new TicketGroup();
+                newTicketGroup.setCreatedAt(LocalDateTime.now());
+                newTicketGroup.setCreatedBy(appUser);
+                newTicketGroup.setStatus(requestPayload.getStatus());
+                newTicketGroup.setTicketGroupCode(requestPayload.getTicketGroupCode());
+                newTicketGroup.setTicketGroupName(requestPayload.getTicketGroupName());
+                xticketRepository.createTicketGroup(newTicketGroup);
+
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{"Ticket Group", "Created"}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //This is an update request
+            TicketGroup ticketGroup = xticketRepository.getTicketGroupUsingId(Long.valueOf(requestPayload.getId()));
+            if (ticketGroup == null) {
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Ticket Group", "Id", requestPayload.getId()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if the ticket group exist using code
+            TicketGroup groupByCode = xticketRepository.getTicketGroupUsingCode(requestPayload.getTicketGroupCode());
+            if (groupByCode != null && !Objects.equals(ticketGroup.getId(), groupByCode.getId())) {
+                response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Ticket Group", "Code", requestPayload.getTicketGroupCode()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check the ticket group using the name
+            TicketGroup groupByName = xticketRepository.getTicketGroupUsingName(requestPayload.getTicketGroupName());
+            if (groupByName != null && !Objects.equals(ticketGroup.getId(), groupByName.getId())) {
+                response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Ticket Group", "Name", requestPayload.getTicketGroupName()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            ticketGroup.setStatus(requestPayload.getStatus());
+            ticketGroup.setTicketGroupCode(requestPayload.getTicketGroupCode());
+            ticketGroup.setTicketGroupName(requestPayload.getTicketGroupName());
+            xticketRepository.updateTicketGroup(ticketGroup);
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{"Ticket Group", "Updated"}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload processDeleteTicketGroup(String id, String principal) {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            //Check if the ticket group by Id is valid
+            TicketGroup ticketGroup = xticketRepository.getTicketGroupUsingId(Long.valueOf(id));
+            if (ticketGroup == null) {
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Ticket Group", "Id", id}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if the ticket group is in use
+            Tickets ticket = xticketRepository.getTicketUsingTicketGroup(ticketGroup);
+            if (ticket != null) {
+                response.setResponseCode(ResponseCodes.IN_USE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.inuse", new Object[]{"Ticket Group", ticketGroup.getTicketGroupName()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if the ticket group is in use
+            List<TicketType> ticketByType = xticketRepository.getTicketTypeUsingTicketGroup(ticketGroup);
+            if (ticketByType != null) {
+                response.setResponseCode(ResponseCodes.IN_USE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.inuse", new Object[]{"Ticket Group", ticketGroup.getTicketGroupName()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            xticketRepository.deleteTicketGroup(ticketGroup);
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.success.notexist", new Object[]{"Ticket Group" + ticketGroup.getTicketGroupName(), "Deleted"}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    /**
+     * Ticket Type *
+     */
+    @Override
+    public XTicketPayload processFetchTicketType() {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            List<XTicketPayload> data = new ArrayList<>();
+            List<TicketType> ticketType = xticketRepository.getTicketType();
+            if (ticketType != null) {
+                for (TicketType t : ticketType) {
+                    XTicketPayload payload = new XTicketPayload();
+                    BeanUtils.copyProperties(t, payload);
+                    payload.setCreatedAt(t.getCreatedAt().toLocalDate().toString());
+                    payload.setCreatedBy(t.getCreatedBy().getLastName() + " " + t.getCreatedBy().getOtherName());
+                    payload.setId(t.getId().intValue());
+                    payload.setTicketGroupName(t.getTicketGroup().getTicketGroupName());
+                    response.setTicketGroupCode(t.getTicketGroup().getTicketGroupCode());
+                    data.add(payload);
+                }
+            }
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{data.size()}, Locale.ENGLISH));
+            response.setData(data);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload processFetchTicketType(String id) {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            TicketType ticketType = xticketRepository.getTicketTypeUsingId(Long.parseLong(id));
+            if (ticketType == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{id}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            BeanUtils.copyProperties(ticketType, response);
+            response.setCreatedAt(ticketType.getCreatedAt().toLocalDate().toString());
+            response.setId(ticketType.getId().intValue());
+            response.setTicketGroupName(ticketType.getTicketGroup().getTicketGroupName());
+            response.setTicketGroupCode(ticketType.getTicketGroup().getTicketGroupCode());
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload processCreateTicketType(XTicketPayload requestPayload, String principal) {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            //Check if the user is valid
+            AppUser appUser = xticketRepository.getAppUserUsingEmail(principal);
+            if (appUser == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.user.notexist", new Object[]{principal}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if the request is for new or update
+            if (requestPayload.getId() == 0) {
+                //Check if the ticket type exist using code
+                TicketType typeByCode = xticketRepository.getTicketTypeUsingCode(requestPayload.getTicketTypeCode());
+                if (typeByCode != null) {
+                    response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Ticket Type", "Code", requestPayload.getTicketTypeCode()}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
+                //Check if ticket exist using name
+                TicketType typeByName = xticketRepository.getTicketTypeUsingName(requestPayload.getTicketTypeName());
+                if (typeByName != null) {
+                    response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Ticket Type", "Name", requestPayload.getTicketTypeName()}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
+                //Check if the ticket group is valid
+                TicketGroup ticketGroup = xticketRepository.getTicketGroupUsingCode(requestPayload.getTicketGroupCode());
+                if (ticketGroup == null) {
+                    response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Ticket Group", "Code", requestPayload.getTicketGroupCode()}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
+                TicketType newTicketType = new TicketType();
+                newTicketType.setCreatedAt(LocalDateTime.now());
+                newTicketType.setCreatedBy(appUser);
+                newTicketType.setTicketTypeCode(requestPayload.getTicketTypeCode());
+                newTicketType.setTicketTypeName(requestPayload.getTicketTypeName());
+                newTicketType.setEscalationEmails(requestPayload.getEscalationEmails());
+                newTicketType.setInternal(requestPayload.isInternal());
+                newTicketType.setEmailEscalationIndex(0);
+                newTicketType.setSlaMins(requestPayload.getSlaMins());
+                newTicketType.setStatus(requestPayload.getStatus());
+                newTicketType.setTicketGroup(ticketGroup);
+                newTicketType.setRequireChangeRequestForm(requestPayload.isRequireChangeRequestForm());
+                newTicketType.setRequireServiceRequestForm(requestPayload.isRequireServiceRequestForm());
+                xticketRepository.createTicketType(newTicketType);
+
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{"Ticket Type", "Created"}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //This is an update request
+            TicketType ticketType = xticketRepository.getTicketTypeUsingId(Long.valueOf(requestPayload.getId()));
+            if (ticketType == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Ticket Type", "Id", requestPayload.getId()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if the ticket type exist using code
+            TicketType typeByCode = xticketRepository.getTicketTypeUsingCode(requestPayload.getTicketTypeCode());
+            if (typeByCode != null && !Objects.equals(ticketType.getId(), typeByCode.getId())) {
+                response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Ticket Type", "Code", requestPayload.getTicketTypeCode()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if ticket exist using name
+            TicketType typeByName = xticketRepository.getTicketTypeUsingName(requestPayload.getTicketTypeName());
+            if (typeByName != null && !Objects.equals(ticketType.getId(), typeByName.getId())) {
+                response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Ticket Type", "Name", requestPayload.getTicketTypeName()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if the ticket group is valid
+            TicketGroup ticketGroup = xticketRepository.getTicketGroupUsingCode(requestPayload.getTicketGroupCode());
+            if (ticketGroup == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Ticket Group", "Code", requestPayload.getTicketGroupCode()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            ticketType.setCreatedAt(LocalDateTime.now());
+            ticketType.setCreatedBy(appUser);
+            ticketType.setStatus(requestPayload.getStatus());
+            ticketType.setTicketTypeCode(requestPayload.getTicketTypeCode());
+            ticketType.setTicketTypeName(requestPayload.getTicketTypeName());
+            ticketType.setEscalationEmails(requestPayload.getEscalationEmails());
+            ticketType.setInternal(requestPayload.isInternal());
+            ticketType.setEmailEscalationIndex(0);
+            ticketType.setSlaMins(requestPayload.getSlaMins());
+            ticketType.setStatus(requestPayload.getStatus());
+            ticketType.setTicketGroup(ticketGroup);
+            ticketType.setRequireChangeRequestForm(requestPayload.isRequireChangeRequestForm());
+            ticketType.setRequireServiceRequestForm(requestPayload.isRequireServiceRequestForm());
+            xticketRepository.updateTicketType(ticketType);
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{"Ticket Type", "Updated"}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload processDeleteTicketType(String id, String principal) {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            //Check if the ticket type by Id is valid
+            TicketType ticketType = xticketRepository.getTicketTypeUsingId(Long.valueOf(id));
+            if (ticketType == null) {
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Ticket Type", "Id", id}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if the ticket type is in use
+            Tickets ticket = xticketRepository.getTicketUsingTicketType(ticketType);
+            if (ticket != null) {
+                response.setResponseCode(ResponseCodes.IN_USE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.inuse", new Object[]{"Ticket Type", ticketType.getTicketTypeName()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            xticketRepository.deleteTicketType(ticketType);
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.success.notexist", new Object[]{"Ticket Type" + ticketType.getTicketTypeName(), "Deleted"}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public List<TicketType> processFetchTicketTypeUsingGroup(String ticketGroupCode, String principal) {
+        boolean userType = false;
+        AppUser appUser = xticketRepository.getAppUserUsingEmail(principal);
+        if (appUser != null) {
+            userType = appUser.isInternal();
+        }
+
+        TicketGroup ticketGroup = xticketRepository.getTicketGroupUsingCode(ticketGroupCode);
+        if (ticketGroup == null) {
+            return new ArrayList<>();
+        } else {
+            List<TicketType> ticketTypes = xticketRepository.getTicketTypeUsingTicketGroup(ticketGroup, userType);
+            if (ticketTypes == null) {
+                return new ArrayList<>();
+            }
+            return ticketTypes;
+        }
+    }
+
+    /**
+     * Ticket Agent *
+     */
+    @Override
+    public XTicketPayload processFetchTicketAgent() {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            List<XTicketPayload> data = new ArrayList<>();
+            List<AppUser> ticketAgent = xticketRepository.getAgentAppUsers();
+            if (ticketAgent != null) {
+                for (AppUser t : ticketAgent) {
+                    XTicketPayload payload = new XTicketPayload();
+                    BeanUtils.copyProperties(t, payload);
+                    payload.setCreatedAt(t.getCreatedAt().toLocalDate().toString());
+                    payload.setCreatedBy(t.getLastName() + " " + t.getOtherName());
+                    payload.setLastLogin(t.getLastLogin().format(dtf));
+                    payload.setId(t.getId().intValue());
+                    data.add(payload);
+                }
+            }
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{data.size()}, Locale.ENGLISH));
+            response.setData(data);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload processCreateTicketAgent(XTicketPayload requestPayload, String principal) {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            //Check if the user is valid. This is the person creating the record
+            AppUser appUser = xticketRepository.getAppUserUsingEmail(principal);
+            if (appUser == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.user.notexist", new Object[]{principal}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if the user is valid. This is the user to be made an agent
+            AppUser userAgent = xticketRepository.getAppUserUsingEmail(requestPayload.getEmail());
+            if (userAgent == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.user.notexist", new Object[]{requestPayload.getEmail()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            String[] roles = requestPayload.getRolesToUpdate().split(",");
+            if (roles.length > 0) {
+                List<TicketAgent> currentRoles = xticketRepository.getTicketAgent(userAgent);
+                if (currentRoles != null) {
+                    for (TicketAgent rol : currentRoles) {
+                        xticketRepository.deleteTicketAgent(rol);
+                    }
+                }
+                for (String rol : roles) {
+                    TicketAgent newTicket = new TicketAgent();
+                    newTicket.setCreatedAt(LocalDateTime.now());
+                    newTicket.setAgent(userAgent);
+                    newTicket.setCreatedBy(appUser);
+                    TicketType ticketType = xticketRepository.getTicketTypeUsingName(rol);
+                    newTicket.setTicketType(ticketType);
+                    xticketRepository.createTicketAgent(newTicket);
+                }
+            }
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload processFetchAgentTicketTypes(String principal) {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            //Check if the user is valid
+            AppUser appUser = xticketRepository.getAppUserUsingEmail(principal);
+            if (appUser == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.user.notexist", new Object[]{principal}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            List<XTicketPayload> data = new ArrayList<>();
+            List<String> userRoles = new ArrayList<>();
+            List<String> userNoRoles = new ArrayList<>();
+
+            //Fecth the Group details
+            List<TicketAgent> userTicketTypes = xticketRepository.getTicketAgent(appUser);
+            if (userTicketTypes != null) {
+                for (TicketAgent r : userTicketTypes) {
+                    userRoles.add(r.getTicketType().getTicketTypeName());
+                }
+            }
+
+            //Get all the app roles 
+            List<TicketType> allTicketType = xticketRepository.getTicketType();
+            if (allTicketType != null) {
+                for (TicketType r : allTicketType) {
+                    if (!userRoles.contains(r.getTicketTypeName())) {
+                        userNoRoles.add(r.getTicketTypeName());
+                    }
+                }
+            }
+
+            for (String r : userRoles) {
+                XTicketPayload newRole = new XTicketPayload();
+                newRole.setTicketTypeName(r);
+                newRole.setRoleExist("true");
+                data.add(newRole);
+            }
+
+            for (String r : userNoRoles) {
+                XTicketPayload newRole = new XTicketPayload();
+                newRole.setTicketTypeName(r);
+                newRole.setRoleExist("false");
+                data.add(newRole);
+            }
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{data.size()}, Locale.ENGLISH));
+            response.setData(data);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload processCreateTicket(XTicketPayload requestPayload, String principal) {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            //Check if the user is valid. This is the person creating the record
+            AppUser appUser = xticketRepository.getAppUserUsingEmail(principal);
+            if (appUser == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.user.notexist", new Object[]{principal}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check the ticket group
+            TicketGroup ticketGroup = xticketRepository.getTicketGroupUsingCode(requestPayload.getTicketGroupCode());
+            if (ticketGroup == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{requestPayload.getTicketGroupCode()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            TicketType ticketType = xticketRepository.getTicketTypeUsingCode(requestPayload.getTicketTypeCode());
+            if (ticketType == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{requestPayload.getTicketTypeCode()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            String ticketId = UUID.randomUUID().toString();
+            Tickets newTicket = new Tickets();
+            newTicket.setClosedAt(null);
+            newTicket.setClosedBy(null);
+            newTicket.setCreatedAt(LocalDateTime.now());
+            newTicket.setCreatedBy(appUser);
+            newTicket.setEscalated(false);
+            newTicket.setInternal(ticketType.isInternal());
+            newTicket.setTicketGroup(ticketGroup);
+            newTicket.setTicketId(ticketId);
+            newTicket.setTicketOpen(true);
+            newTicket.setTicketReopened(false);
+            newTicket.setTicketType(ticketType);
+            xticketRepository.createTicket(newTicket);
+
+            if (!requestPayload.getUploadedFiles().isEmpty()) {
+                String newFileName = ticketId.replace("-", "");
+                int fileIndex = 1;
+                for (MultipartFile f : requestPayload.getUploadedFiles()) {
+                    String fileExt = FilenameUtils.getExtension(f.getOriginalFilename());
+                    //Copy the file to destination
+                    String path = servletContext.getRealPath("/") + "WEB-INF/classes/document" + "/" + newFileName + fileIndex + "." + fileExt;
+                    File newFile = new File(path);
+                    FileCopyUtils.copy(f.getBytes(), newFile);
+                    fileIndex++;
+                }
+            }
+
+            //Get the ticket agents
+            List<TicketAgent> ticketAgents = xticketRepository.getTicketAgentUsingTicketType(ticketType);
+            if (ticketAgents != null) {
+                for (TicketAgent t : ticketAgents) {
+                    //Send notification to ticket agents
+                    XTicketPayload mailPayload = new XTicketPayload();
+                    mailPayload.setRecipientEmail(t.getAgent().getEmail());
+                    mailPayload.setSubject("Ticket Request Notification");
+                    String message = "<h4>Dear " + t.getAgent().getLastName() + "</h4>\n"
+                            + "<p>A ticket has been opened as follows;</p>\n"
+                            + "<p>Date Created: " + LocalDate.now().toString() + "</p>\n"
+                            + "<p>Initiated By: " + t.getAgent().getLastName() + ", " + t.getAgent().getOtherName() + "</p>\n"
+                            + "<p>Ticket ID: " + ticketId + "</p>\n"
+                            + "<p>Ticket Group: " + ticketType.getTicketGroup().getTicketGroupName() + "</p>\n"
+                            + "<p>Ticket Type: " + ticketType.getTicketTypeName() + "</p>\n"
+                            + "<p>SLA Expiry: " + dtf.format(LocalDateTime.now().plusMinutes(ticketType.getSlaMins())) + "</p>\n"
+                            + "<p>To view the ticket details or take action <a href=\"" + host + "/xticket" + "\">click here</a></p>"
+                            + "<p>For support and enquiries, email: " + companyEmail + ".</p>\n"
+                            + "<p>Best wishes,</p>"
+                            + "<p>" + companyName + "</p>";
+                    mailPayload.setEmailBody(message);
+                    genericService.sendEmail(mailPayload, principal);
+                }
+            }
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{ticketType.getTicketTypeName() + " Ticket", "Created"}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
 }

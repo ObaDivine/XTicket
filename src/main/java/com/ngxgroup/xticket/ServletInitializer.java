@@ -1,6 +1,7 @@
 package com.ngxgroup.xticket;
 
 import com.ngxgroup.xticket.model.AppRoles;
+import com.ngxgroup.xticket.model.AppUser;
 import com.ngxgroup.xticket.model.GroupRoles;
 import com.ngxgroup.xticket.model.RoleGroups;
 import java.time.LocalDateTime;
@@ -13,12 +14,25 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import com.ngxgroup.xticket.repository.XTicketRepository;
+import java.time.LocalDate;
+import java.util.UUID;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Component;
 
-//@Component
+@Component
 public class ServletInitializer extends SpringBootServletInitializer implements ApplicationRunner {
 
     @Autowired
-    XTicketRepository xpolicyRepository;
+    XTicketRepository xticketRepository;
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+    @Value("${xticket.default.email.domain}")
+    private String emailDomain;
+    @Value("${xticket.password.default}")
+    private String defaultPassword;
+    @Value("${xticket.company.phone}")
+    private String companyPhone;
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
@@ -27,342 +41,321 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-               
 
         //Add App Roles
         Map<String, String> appRoles = new HashMap<>();
-        appRoles.put("LIST_POLICY", "List Policies");
-        appRoles.put("UPDATE_POLICY", "Update Policies");
-        appRoles.put("DELETE_POLICY", "Delete Policies");
-        appRoles.put("ADD_POLICY", "Add Policies");
-        appRoles.put("APPROVE_POLICY", "Approve Policies");
-        appRoles.put("REVIEW_POLICY", "Approve Policies");
+        appRoles.put("DASHBOARD", "Application Dashboard");
+        appRoles.put("UPDATE_ROLES", "Update Roles");
+        appRoles.put("DELETE_ROLES", "Delete Roles");
+        appRoles.put("ADD_ROLES", "Add Roles");
+        appRoles.put("LIST_USER", "List System Users");
         appRoles.put("MANAGE_USER", "Manage Application Users");
-        appRoles.put("MANAGE_ROLES", "Manage Application Roles");
-        appRoles.put("GENERATE_REPORT", "Generate Report");
-        appRoles.put("POLICY", "View Policies accross entities");
-        appRoles.put("SOP", "View Standard Operating Procedures accross entities");
-        appRoles.put("CHARTER", "View Charters accross entities");
-        appRoles.put("FORMS", "View Forms accross entities");
-        appRoles.put("TEMPLATES", "View Templates accross entities");
-        appRoles.put("COMMITTEES AND ASSOCIATION", "View Committees and Association accross entities");
-        appRoles.put("SCHEDULE", "View Schedules accross entities");
+        appRoles.put("ADD_TICKET_GROUP", "Add Ticket Group");
+        appRoles.put("DELETE_TICKET_GROUP", "Delete Ticket Group");
+        appRoles.put("UPDATE_TICKET_GROUP", "Update Ticket Group");
+        appRoles.put("LIST_TICKET_GROUP", "List Ticket Type");
+        appRoles.put("ADD_TICKET_TYPE", "Add Ticket Type");
+        appRoles.put("DELETE_TICKET_TYPE", "Delete Ticket Type");
+        appRoles.put("UPDATE_TICKET_TYPE", "Update Ticket Type");
+        appRoles.put("LIST_TICKET_TYPE", "List Ticket Type");
+        appRoles.put("ADD_TICKET_AGENT", "Add Ticket Agent");
+        appRoles.put("DELETE_TICKET_AGENT", "Delete Ticket Agent");
+        appRoles.put("UPDATE_TICKET_AGENT", "Update Ticket Agent");
+        appRoles.put("LIST_TICKET_AGENT", "List Ticket Agent");
+        appRoles.put("KNOWLEDGE_BASE", "View Knowledge Base Documentation");
+        appRoles.put("RAISE_TICKET", "Raise Tickets");
         appRoles.put("REPORT", "View Reports accross entities");
+        appRoles.put("TICKET_AGENT", "Set user as a ticket agent");
 
         for (Map.Entry<String, String> role : appRoles.entrySet()) {
             //Check if the role exist already
-            AppRoles appRole = xpolicyRepository.getRoleUsingRoleName(role.getKey());
+            AppRoles appRole = xticketRepository.getRoleUsingRoleName(role.getKey());
             if (appRole == null) {
                 AppRoles newRole = new AppRoles();
                 newRole.setRoleName(role.getKey());
                 newRole.setRoleDesc(role.getValue());
-                xpolicyRepository.createAppRole(newRole);
+                xticketRepository.createAppRole(newRole);
             }
         }
 
-        //Create the Admin Role Group
-        RoleGroups adminRole = xpolicyRepository.getRoleGroupUsingGroupName("ADMIN");
-        RoleGroups adminGroup = null;
-        if (adminRole == null) {
+        //Create the System Admin role group
+        RoleGroups saGroup = xticketRepository.getRoleGroupUsingGroupName("SA");
+        if (saGroup == null) {
             RoleGroups newGroup = new RoleGroups();
             newGroup.setCreatedAt(LocalDateTime.now());
-            newGroup.setGroupName("ADMIN");
-            adminGroup = xpolicyRepository.createRoleGroup(newGroup);
-        }
-
-        RoleGroups userRole = xpolicyRepository.getRoleGroupUsingGroupName("USER");
-        RoleGroups userGroup = null;
-        if (userRole == null) {
-            RoleGroups newGroup = new RoleGroups();
-            newGroup.setCreatedAt(LocalDateTime.now());
-            newGroup.setGroupName("USER");
-            userGroup = xpolicyRepository.createRoleGroup(newGroup);
-        }
-
-        RoleGroups policyUploadRole = xpolicyRepository.getRoleGroupUsingGroupName("POLICY UPLOAD");
-        RoleGroups policyUploadGroup = null;
-        if (policyUploadRole == null) {
-            RoleGroups newGroup = new RoleGroups();
-            newGroup.setCreatedAt(LocalDateTime.now());
-            newGroup.setGroupName("POLICY UPLOAD");
-            policyUploadGroup = xpolicyRepository.createRoleGroup(newGroup);
+            newGroup.setGroupName("SA");
+            saGroup = xticketRepository.createRoleGroup(newGroup);
         }
 
         //Check the group roles
-        List<GroupRoles> adminGroupRoles = xpolicyRepository.getGroupRolesUsingRoleGroup(adminGroup);
-        if (adminGroupRoles == null) {
-            AppRoles appRole = xpolicyRepository.getRoleUsingRoleName("MANAGE_POLICY");
-            if (appRole != null) {
+        List<GroupRoles> saGroupRoles = xticketRepository.getGroupRolesUsingRoleGroup(saGroup);
+        if (saGroupRoles == null) {
+            AppRoles dashboard = xticketRepository.getRoleUsingRoleName("DASHBOARD");
+            if (dashboard != null) {
                 GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRole);
+                newGroupRole.setAppRole(dashboard);
                 newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(adminGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
-            }
-            AppRoles appRoleUser = xpolicyRepository.getRoleUsingRoleName("MANAGE_USER");
-            if (appRoleUser != null) {
-                GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleUser);
-                newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(adminGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
             }
 
-            AppRoles appRoleReport = xpolicyRepository.getRoleUsingRoleName("GENERATE_REPORT");
-            if (appRoleReport != null) {
+            AppRoles knowledge = xticketRepository.getRoleUsingRoleName("KNOWLEDGE_BASE");
+            if (knowledge != null) {
                 GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleReport);
+                newGroupRole.setAppRole(knowledge);
                 newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(adminGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
-            }
-            AppRoles appRolePolicy = xpolicyRepository.getRoleUsingRoleName("POLICY");
-            if (appRolePolicy != null) {
-                GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRolePolicy);
-                newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(adminGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
             }
 
-            AppRoles appRoleSOP = xpolicyRepository.getRoleUsingRoleName("SOP");
-            if (appRoleSOP != null) {
+            AppRoles ticket = xticketRepository.getRoleUsingRoleName("RAISE_TICKET");
+            if (ticket != null) {
                 GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleSOP);
+                newGroupRole.setAppRole(ticket);
                 newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(adminGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
             }
 
-            AppRoles appRoleStandard = xpolicyRepository.getRoleUsingRoleName("COMMITTEES AND ASSOCIATION");
-            if (appRoleStandard != null) {
+            AppRoles addRole = xticketRepository.getRoleUsingRoleName("ADD_ROLES");
+            if (addRole != null) {
                 GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleStandard);
+                newGroupRole.setAppRole(addRole);
                 newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(adminGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
             }
 
-            AppRoles appRoleFramework = xpolicyRepository.getRoleUsingRoleName("TEMPLATES");
-            if (appRoleFramework != null) {
+            AppRoles updateRole = xticketRepository.getRoleUsingRoleName("UPDATE_ROLES");
+            if (updateRole != null) {
                 GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleFramework);
+                newGroupRole.setAppRole(updateRole);
                 newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(adminGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
             }
 
-            AppRoles appRoleSchedule = xpolicyRepository.getRoleUsingRoleName("SCHEDULE");
-            if (appRoleSchedule != null) {
+            AppRoles deleteRole = xticketRepository.getRoleUsingRoleName("DELETE_ROLES");
+            if (deleteRole != null) {
                 GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleSchedule);
+                newGroupRole.setAppRole(deleteRole);
                 newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(adminGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
             }
 
-            AppRoles appRoleCharter = xpolicyRepository.getRoleUsingRoleName("CHARTER");
-            if (appRoleCharter != null) {
+            AppRoles listUser = xticketRepository.getRoleUsingRoleName("LIST_USER");
+            if (listUser != null) {
                 GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleCharter);
+                newGroupRole.setAppRole(listUser);
                 newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(adminGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
             }
-            AppRoles appRoleForm = xpolicyRepository.getRoleUsingRoleName("FORM");
-            if (appRoleForm != null) {
+
+            AppRoles manageUser = xticketRepository.getRoleUsingRoleName("MANAGE_USER");
+            if (manageUser != null) {
                 GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleForm);
+                newGroupRole.setAppRole(manageUser);
                 newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(adminGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
             }
-            AppRoles appRoleListPolicyList = xpolicyRepository.getRoleUsingRoleName("LIST_POLICY");
-            if (appRoleListPolicyList != null) {
+
+            AppRoles addTicketGroup = xticketRepository.getRoleUsingRoleName("ADD_TICKET_GROUP");
+            if (addTicketGroup != null) {
                 GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleListPolicyList);
+                newGroupRole.setAppRole(addTicketGroup);
                 newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(adminGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
             }
-            AppRoles appRoleListPolicyApprove = xpolicyRepository.getRoleUsingRoleName("APPROVE_POLICY");
-            if (appRoleListPolicyApprove != null) {
+
+            AppRoles updateTicketGroup = xticketRepository.getRoleUsingRoleName("UPDATE_TICKET_GROUP");
+            if (updateTicketGroup != null) {
                 GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleListPolicyApprove);
+                newGroupRole.setAppRole(updateTicketGroup);
                 newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(adminGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
             }
-            AppRoles appRoleListPolicyDelete = xpolicyRepository.getRoleUsingRoleName("DELETE_POLICY");
-            if (appRoleListPolicyDelete != null) {
+
+            AppRoles deleteTicketGroup = xticketRepository.getRoleUsingRoleName("DELETE_TICKET_GROUP");
+            if (deleteTicketGroup != null) {
                 GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleListPolicyDelete);
+                newGroupRole.setAppRole(deleteTicketGroup);
                 newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(adminGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles listTicketGroup = xticketRepository.getRoleUsingRoleName("LIST_TICKET_GROUP");
+            if (listTicketGroup != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(listTicketGroup);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles addTicketType = xticketRepository.getRoleUsingRoleName("ADD_TICKET_TYPE");
+            if (addTicketType != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(addTicketType);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles updateTicketType = xticketRepository.getRoleUsingRoleName("UPDATE_TICKET_TYPE");
+            if (updateTicketType != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(updateTicketType);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles deleteTicketType = xticketRepository.getRoleUsingRoleName("DELETE_TICKET_TYPE");
+            if (deleteTicketType != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(deleteTicketType);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles listTicketType = xticketRepository.getRoleUsingRoleName("LIST_TICKET_TYPE");
+            if (listTicketType != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(listTicketType);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles addTicketAgent = xticketRepository.getRoleUsingRoleName("ADD_TICKET_AGENT");
+            if (addTicketAgent != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(addTicketAgent);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles updateTicketAgent = xticketRepository.getRoleUsingRoleName("UPDATE_TICKET_AGENT");
+            if (updateTicketAgent != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(updateTicketAgent);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles deleteTicketAgent = xticketRepository.getRoleUsingRoleName("DELETE_TICKET_AGENT");
+            if (deleteTicketAgent != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(deleteTicketAgent);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles listTicketAgent = xticketRepository.getRoleUsingRoleName("LIST_TICKET_AGENT");
+            if (listTicketAgent != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(listTicketAgent);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles report = xticketRepository.getRoleUsingRoleName("REPORT");
+            if (report != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(report);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles ticketAgent = xticketRepository.getRoleUsingRoleName("TICKET_AGENT");
+            if (ticketAgent != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(ticketAgent);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
             }
         }
 
-        List<GroupRoles> userGroupRoles = xpolicyRepository.getGroupRolesUsingRoleGroup(userGroup);
-        if (userGroupRoles == null) {
-            AppRoles appRolePolicy = xpolicyRepository.getRoleUsingRoleName("POLICY");
-            if (appRolePolicy != null) {
+        //Create the default role group
+        RoleGroups defaultGroup = xticketRepository.getRoleGroupUsingGroupName("DEFAULT");
+        if (defaultGroup == null) {
+            RoleGroups newGroup = new RoleGroups();
+            newGroup.setCreatedAt(LocalDateTime.now());
+            newGroup.setGroupName("DEFAULT");
+            defaultGroup = xticketRepository.createRoleGroup(newGroup);
+        }
+
+        //Check the group roles
+        List<GroupRoles> defaultGroupRoles = xticketRepository.getGroupRolesUsingRoleGroup(defaultGroup);
+        if (defaultGroupRoles == null) {
+            AppRoles dashboard = xticketRepository.getRoleUsingRoleName("DASHBOARD");
+            if (dashboard != null) {
                 GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRolePolicy);
+                newGroupRole.setAppRole(dashboard);
                 newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(userGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
+                newGroupRole.setRoleGroup(defaultGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
             }
 
-            AppRoles appRoleSOP = xpolicyRepository.getRoleUsingRoleName("SOP");
-            if (appRoleSOP != null) {
+            AppRoles knowledge = xticketRepository.getRoleUsingRoleName("KNOWLEDGE_BASE");
+            if (knowledge != null) {
                 GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleSOP);
+                newGroupRole.setAppRole(knowledge);
                 newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(userGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
+                newGroupRole.setRoleGroup(defaultGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
             }
 
-            AppRoles appRoleStandard = xpolicyRepository.getRoleUsingRoleName("COMMITTEES AND ASSOCIATION");
-            if (appRoleStandard != null) {
+            AppRoles ticket = xticketRepository.getRoleUsingRoleName("RAISE_TICKET");
+            if (ticket != null) {
                 GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleStandard);
+                newGroupRole.setAppRole(ticket);
                 newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(userGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
-            }
-
-            AppRoles appRoleFramework = xpolicyRepository.getRoleUsingRoleName("TEMPLATES");
-            if (appRoleFramework != null) {
-                GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleFramework);
-                newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(userGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
-            }
-
-            AppRoles appRoleSchedule = xpolicyRepository.getRoleUsingRoleName("SCHEDULE");
-            if (appRoleSchedule != null) {
-                GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleSchedule);
-                newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(userGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
-            }
-
-            AppRoles appRoleCharter = xpolicyRepository.getRoleUsingRoleName("CHARTER");
-            if (appRoleCharter != null) {
-                GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleCharter);
-                newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(userGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
-            }
-            AppRoles appRoleForm = xpolicyRepository.getRoleUsingRoleName("FORM");
-            if (appRoleForm != null) {
-                GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleForm);
-                newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(userGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
+                newGroupRole.setRoleGroup(defaultGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
             }
         }
 
-        List<GroupRoles> policyUploadGroupRoles = xpolicyRepository.getGroupRolesUsingRoleGroup(policyUploadGroup);
-        if (policyUploadGroupRoles == null) {
-            AppRoles appRolePolicy = xpolicyRepository.getRoleUsingRoleName("POLICY");
-            if (appRolePolicy != null) {
-                GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRolePolicy);
-                newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(policyUploadGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
-            }
+        //Add System Admin User
+        AppUser sa = xticketRepository.getAppUserUsingEmail("sa@" + emailDomain);
+        if (sa == null) {
+            AppUser newSA = new AppUser();
+            newSA.setActivated(true);
+            newSA.setActivationId(UUID.randomUUID().toString().replace("-", ""));
+            newSA.setAgent(false);
+            newSA.setCreatedAt(LocalDateTime.now());
+            newSA.setCreatedBy(null);
+            newSA.setEmail("sa@" + emailDomain);
+            newSA.setGender("Male");
+            newSA.setInternal(true);
+            newSA.setLastLogin(LocalDateTime.now());
+            newSA.setLastName("System");
+            newSA.setLocked(false);
+            newSA.setLoginFailCount(0);
+            newSA.setMobileNumber(companyPhone);
+            newSA.setOnline(false);
+            newSA.setOtherName("Admin");
+            newSA.setPassword(passwordEncoder.encode(defaultPassword));
+            newSA.setPasswordChangeDate(LocalDate.now().plusYears(50));
+            newSA.setResetTime(LocalDateTime.now());
+            newSA.setRole(saGroup);
+            newSA.setUpdatedAt(LocalDateTime.now());
+            newSA.setUpdatedBy(null);
 
-            AppRoles appRoleSOP = xpolicyRepository.getRoleUsingRoleName("SOP");
-            if (appRoleSOP != null) {
-                GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleSOP);
-                newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(policyUploadGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
-            }
-
-            AppRoles appRoleStandard = xpolicyRepository.getRoleUsingRoleName("COMMITTEES AND ASSOCIATION");
-            if (appRoleStandard != null) {
-                GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleStandard);
-                newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(policyUploadGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
-            }
-
-            AppRoles appRoleFramework = xpolicyRepository.getRoleUsingRoleName("TEMPLATES");
-            if (appRoleFramework != null) {
-                GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleFramework);
-                newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(policyUploadGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
-            }
-
-            AppRoles appRoleSchedule = xpolicyRepository.getRoleUsingRoleName("SCHEDULE");
-            if (appRoleSchedule != null) {
-                GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleSchedule);
-                newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(policyUploadGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
-            }
-
-            AppRoles appRoleCharter = xpolicyRepository.getRoleUsingRoleName("CHARTER");
-            if (appRoleCharter != null) {
-                GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleCharter);
-                newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(policyUploadGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
-            }
-            AppRoles appRoleForm = xpolicyRepository.getRoleUsingRoleName("FORM");
-            if (appRoleForm != null) {
-                GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleForm);
-                newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(policyUploadGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
-            }
-            AppRoles appRoleListPolicyList = xpolicyRepository.getRoleUsingRoleName("LIST_POLICY");
-            if (appRoleListPolicyList != null) {
-                GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleListPolicyList);
-                newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(policyUploadGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
-            }
-            AppRoles appRoleListPolicyAdd = xpolicyRepository.getRoleUsingRoleName("ADD_POLICY");
-            if (appRoleListPolicyAdd != null) {
-                GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleListPolicyAdd);
-                newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(policyUploadGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
-            }
-            AppRoles appRoleListPolicyDelete = xpolicyRepository.getRoleUsingRoleName("DELETE_POLICY");
-            if (appRoleListPolicyDelete != null) {
-                GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleListPolicyDelete);
-                newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(policyUploadGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
-            }
-            AppRoles appRoleListPolicyUpdate = xpolicyRepository.getRoleUsingRoleName("UPDATE_POLICY");
-            if (appRoleListPolicyUpdate != null) {
-                GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(appRoleListPolicyUpdate);
-                newGroupRole.setCreatedAt(LocalDateTime.now());
-                newGroupRole.setRoleGroup(policyUploadGroup);
-                xpolicyRepository.createGroupRoles(newGroupRole);
-            }
+            xticketRepository.createAppUser(newSA);
         }
 
     }

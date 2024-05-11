@@ -10,7 +10,7 @@ import com.ngxgroup.xticket.model.TicketComment;
 import com.ngxgroup.xticket.model.TicketEscalations;
 import com.ngxgroup.xticket.model.TicketGroup;
 import com.ngxgroup.xticket.model.TicketReopened;
-import com.ngxgroup.xticket.model.TicketTechnicians;
+import com.ngxgroup.xticket.model.TicketAgent;
 import com.ngxgroup.xticket.model.TicketType;
 import com.ngxgroup.xticket.model.TicketUpload;
 import com.ngxgroup.xticket.model.Tickets;
@@ -63,6 +63,27 @@ public class XTicketRepositoryImpl implements XTicketRepository {
             return null;
         }
         return record.get(0);
+    }
+
+    @Override
+    public List<AppUser> getAgentAppUsers() {
+        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.agent = true", AppUser.class);
+        List<AppUser> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public List<AppUser> getAppUserUsingRoleGroup(RoleGroups roleGroup) {
+        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.role = :roleGroup", AppUser.class)
+                .setParameter("roleGroup", roleGroup);
+        List<AppUser> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
     }
 
     @Override
@@ -259,8 +280,8 @@ public class XTicketRepositoryImpl implements XTicketRepository {
     }
 
     @Override
-    public List<AppUser> getPolicyChampions() {
-        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.policyChampion = true", AppUser.class);
+    public List<AppUser> getInternalAppUsers() {
+        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.internal = true", AppUser.class);
         List<AppUser> record = query.getResultList();
         if (record.isEmpty()) {
             return null;
@@ -332,6 +353,28 @@ public class XTicketRepositoryImpl implements XTicketRepository {
             return null;
         }
         return record;
+    }
+
+    @Override
+    public Tickets getTicketUsingTicketGroup(TicketGroup ticketGroup) {
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketGroup = :ticketGroup", Tickets.class)
+                .setParameter("ticketGroup", ticketGroup);
+        List<Tickets> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record.get(0);
+    }
+
+    @Override
+    public Tickets getTicketUsingTicketType(TicketType ticketType) {
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketType = :ticketType", Tickets.class)
+                .setParameter("ticketType", ticketType);
+        List<Tickets> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record.get(0);
     }
 
     @Override
@@ -494,28 +537,28 @@ public class XTicketRepositoryImpl implements XTicketRepository {
     }
 
     @Override
-    public TicketType createTicketGroup(TicketType ticketType) {
+    public TicketType createTicketType(TicketType ticketType) {
         em.persist(ticketType);
         em.flush();
         return ticketType;
     }
 
     @Override
-    public TicketType updateTicketGroup(TicketType ticketType) {
+    public TicketType updateTicketType(TicketType ticketType) {
         em.merge(ticketType);
         em.flush();
         return ticketType;
     }
 
     @Override
-    public TicketType deleteTicketGroup(TicketType ticketType) {
+    public TicketType deleteTicketType(TicketType ticketType) {
         em.remove(em.contains(ticketType) ? ticketType : ticketType);
         em.flush();
         return ticketType;
     }
 
     @Override
-    public List<TicketType> getTicketTypeUsingGroup(TicketGroup ticketGroup) {
+    public List<TicketType> getTicketTypeUsingTicketGroup(TicketGroup ticketGroup) {
         TypedQuery<TicketType> query = em.createQuery("SELECT p FROM TicketType p WHERE p.ticketGroup = :ticketGroup", TicketType.class)
                 .setParameter("ticketGroup", ticketGroup);
         List<TicketType> record = query.getResultList();
@@ -526,9 +569,11 @@ public class XTicketRepositoryImpl implements XTicketRepository {
     }
 
     @Override
-    public List<TicketTechnicians> getTicketTechnicians() {
-        TypedQuery<TicketTechnicians> query = em.createQuery("SELECT p FROM TicketTechnicians p", TicketTechnicians.class);
-        List<TicketTechnicians> record = query.getResultList();
+    public List<TicketType> getTicketTypeUsingTicketGroup(TicketGroup ticketGroup, boolean userType) {
+        TypedQuery<TicketType> query = em.createQuery("SELECT p FROM TicketType p WHERE p.ticketGroup = :ticketGroup AND p.internal = :userType", TicketType.class)
+                .setParameter("ticketGroup", ticketGroup)
+                .setParameter("userType", userType);
+        List<TicketType> record = query.getResultList();
         if (record.isEmpty()) {
             return null;
         }
@@ -536,24 +581,56 @@ public class XTicketRepositoryImpl implements XTicketRepository {
     }
 
     @Override
-    public TicketTechnicians createTicketTechnician(TicketTechnicians ticketTechnician) {
-        em.persist(ticketTechnician);
-        em.flush();
-        return ticketTechnician;
+    public List<TicketAgent> getTicketAgent() {
+        TypedQuery<TicketAgent> query = em.createQuery("SELECT p FROM TicketAgent p", TicketAgent.class);
+        List<TicketAgent> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
     }
 
     @Override
-    public TicketTechnicians updateTicketTechnician(TicketTechnicians ticketTechnician) {
-        em.merge(ticketTechnician);
-        em.flush();
-        return ticketTechnician;
+    public List<TicketAgent> getTicketAgent(AppUser ticketAgent) {
+        TypedQuery<TicketAgent> query = em.createQuery("SELECT p FROM TicketAgent p WHERE p.agent = :ticketAgent", TicketAgent.class)
+                .setParameter("ticketAgent", ticketAgent);
+        List<TicketAgent> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
     }
 
     @Override
-    public TicketTechnicians deleteTicketTechnician(TicketTechnicians ticketTechnician) {
-        em.remove(em.contains(ticketTechnician) ? ticketTechnician : ticketTechnician);
+    public List<TicketAgent> getTicketAgentUsingTicketType(TicketType ticketType) {
+        TypedQuery<TicketAgent> query = em.createQuery("SELECT p FROM TicketAgent p WHERE p.ticketType = :ticketType", TicketAgent.class)
+                .setParameter("ticketType", ticketType);
+        List<TicketAgent> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public TicketAgent createTicketAgent(TicketAgent ticketAgent) {
+        em.persist(ticketAgent);
         em.flush();
-        return ticketTechnician;
+        return ticketAgent;
+    }
+
+    @Override
+    public TicketAgent updateTicketAgent(TicketAgent ticketAgent) {
+        em.merge(ticketAgent);
+        em.flush();
+        return ticketAgent;
+    }
+
+    @Override
+    public TicketAgent deleteTicketAgent(TicketAgent ticketAgent) {
+        em.remove(em.contains(ticketAgent) ? ticketAgent : ticketAgent);
+        em.flush();
+        return ticketAgent;
     }
 
     @Override
@@ -680,4 +757,5 @@ public class XTicketRepositoryImpl implements XTicketRepository {
         em.flush();
         return ticketUpload;
     }
+
 }
