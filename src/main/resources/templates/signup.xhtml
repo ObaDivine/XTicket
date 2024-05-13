@@ -51,7 +51,8 @@
                                                         <span class="fas fa-mobile text-900 fs--1 form-icon text-primary"></span>
                                                     </div>
                                                     <div class="form-icon-container">
-                                                        <input class="form-control form-icon-input" th:field="*{email}" type="email" placeholder="Email" required="required" />
+                                                        <input type="hidden"  th:field="*{companyEmailDomain}"/>
+                                                        <input class="form-control form-icon-input" th:field="*{email}" type="email" placeholder="Email" required="required" th:onfocusout="|emailValidation()|"/>
                                                         <span class="fas fa-at text-900 fs--1 form-icon text-primary"></span>
                                                     </div>
                                                     <div class="form-icon-container">
@@ -63,7 +64,7 @@
                                                     </div>
                                                     <p class="h6 mt-2 mb-2 text-300">Password should contain capital & small letters, numbers and special character</p>
                                                     <div class="form-icon-container">
-                                                        <input class="form-control form-icon-input" th:field="*{password}" type="password" placeholder="Password" required="required" />
+                                                        <input class="form-control form-icon-input" th:field="*{password}" type="password" placeholder="Password" required="required" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=]).{8,}$" title="Password donot meet required complexity"/>
                                                         <span class="fas fa-key text-900 fs--1 form-icon text-primary"></span>
                                                     </div>
                                                     <div class="form-icon-container">

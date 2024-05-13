@@ -94,8 +94,24 @@ function fetchTicketType() {
             alert(xhr);
         }
     });
-};
+}
+;
 
+function emailValidation() {
+    let userEmail = document.getElementById("email").value;
+    let companyEmailDomain = document.getElementById("companyEmailDomain").value;
+    if (userEmail.toString().includes(companyEmailDomain)) {
+        $("#password").prop('disabled', true);
+        $("#confirmPassword").prop('disabled', true);
+        alert('Hurray! E dey');
+    } else {
+        $("#password").prop('disabled', false);
+        $("#confirmPassword").prop('disabled', false);
+        alert('Hurray! E no dey');
+    }
+    ;
+}
+;
 
 
 

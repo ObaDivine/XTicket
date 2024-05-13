@@ -34,6 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.servlet.ServletContext;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.BeanUtils;
@@ -69,7 +71,9 @@ public class XTicketServiceImpl implements XTicketService {
     @Value("${xticket.email.notification}")
     private String emailNotification;
     @Value("${xticket.default.email.domain}")
-    private String ngxEmailDomain;
+    private String companyEmailDomain;
+    @Value("${xticket.adauth.domain}")
+    private String adAuthDomain;
     @Value("${xticket.company.name}")
     private String companyName;
     @Value("${xticket.company.address}")
@@ -86,6 +90,8 @@ public class XTicketServiceImpl implements XTicketService {
     private String host;
     static final Logger logger = Logger.getLogger(XTicketServiceImpl.class.getName());
     DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    @Value("${xticket.password.pattern}")
+    private String passwordPattern;
 
     @Override
     public XTicketPayload processSignin(XTicketPayload requestPayload) {
@@ -135,8 +141,19 @@ public class XTicketServiceImpl implements XTicketService {
                 return response;
             }
 
-            //Check if the user is internal or external
-            if (appUser.getEmail().contains(ngxEmailDomain)) {
+            //Check if the user is internal or external. Fetch all the domain for AD authentication
+            boolean useADAuth = false;
+            String[] adDomains = adAuthDomain.split(",");
+            if (adDomains != null) {
+                for (String s : adDomains) {
+                    if(appUser.getEmail().contains(s)){
+                    useADAuth = true;
+                    }
+                }
+            }
+
+            //Uset AD Authentication
+            if (useADAuth) {
                 Hashtable<Object, Object> env = new Hashtable<>();
                 env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
                 env.put(Context.PROVIDER_URL, "ldap://" + "ngxgroup.com" + ":389");
@@ -227,7 +244,7 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             //Check if the user is registered with the mobile number
-            AppUser appUserByMobile = xticketRepository.getAppUserUsingMobileNumber(requestPayload.getEmail());
+            AppUser appUserByMobile = xticketRepository.getAppUserUsingMobileNumber(requestPayload.getMobileNumber());
             if (appUserByMobile != null) {
                 response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
                 response.setResponseMessage(messageSource.getMessage("appMessages.user.exist", new Object[]{requestPayload.getEmail()}, Locale.ENGLISH));
@@ -238,6 +255,15 @@ public class XTicketServiceImpl implements XTicketService {
             if (!requestPayload.getPassword().equalsIgnoreCase(requestPayload.getConfirmPassword())) {
                 response.setResponseCode(ResponseCodes.PASSWORD_PIN_MISMATCH.getResponseCode());
                 response.setResponseMessage(messageSource.getMessage("appMessages.user.password.mismatch", new Object[0], Locale.ENGLISH));
+                return response;
+            }
+
+            //Check the password complexity. This is for external users
+            Pattern pattern = Pattern.compile(passwordPattern, Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(requestPayload.getPassword());
+            if (!matcher.matches()) {
+                response.setResponseCode(ResponseCodes.PASSWORD_PIN_MISMATCH.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.user.password.complexity", new Object[0], Locale.ENGLISH));
                 return response;
             }
 
@@ -253,7 +279,7 @@ public class XTicketServiceImpl implements XTicketService {
             newUser.setEmail(requestPayload.getEmail());
             newUser.setActivated(false);
             newUser.setGender(requestPayload.getGender());
-            newUser.setInternal(requestPayload.getEmail().contains(ngxEmailDomain));
+            newUser.setInternal(requestPayload.getEmail().contains(companyEmailDomain));
             newUser.setLastLogin(null);
             newUser.setLastName(requestPayload.getLastName());
             newUser.setLocked(true);
@@ -283,7 +309,7 @@ public class XTicketServiceImpl implements XTicketService {
                     + "<p>" + companyName + "</p>";
 
             emailPayload.setEmailBody(message);
-            genericService.sendEmail(requestPayload, requestPayload.getEmail());
+            genericService.sendEmail(emailPayload, requestPayload.getEmail());
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
             response.setResponseMessage(messageSource.getMessage("appMessages.success.user", new Object[0], Locale.ENGLISH));
             return response;

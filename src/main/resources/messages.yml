@@ -7,6 +7,7 @@ appMessages:
     notexist: No {0} exist with the {1} {2}
     inuse: The {0} {1} is in use
   password:
+    complexity: The password did not match the required complexity  
     expire: Your password has expired. Kindly change password
     invalid: The current password is incorrect
   reset:
@@ -26,7 +27,7 @@ appMessages:
     roles: Role created or updated successfully
     decline: Approval for the Policy {0} is declined. Record deleted
     approve: The Policy {0} marked for {1} approved successfully
-    user: App User created or updated successfully
+    user: App User created or updated successfully. Check your email for activation
     signin: Login successful
     password: Password change successful
     forgotpassword: Kindly check the email {0} for password reset instruction
