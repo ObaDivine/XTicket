@@ -42,15 +42,25 @@ public class Tickets implements Serializable {
     @Column(name = "ticket_id")
     private String ticketId;
     @Column(name = "ticket_open")
-    private boolean ticketOpen;
+    private boolean ticketOpen = true;
+    @Column(name = "ticket_locked")
+    private boolean ticketLocked = false;
     @Column(name = "ticket_reopened")
-    private boolean ticketReopened;
+    private boolean ticketReopened = false;
     @Column(name = "internal")
-    private boolean internal;
+    private boolean internal = true;
     @ManyToOne
     private TicketGroup ticketGroup;
     @ManyToOne
     private TicketType ticketType;
     @Column(name = "escalated")
-    private boolean escalated;
+    private boolean escalated = false;
+    @Column(name = "ticket_source")
+    private String ticketSource;
+    @Column(name = "priority")
+    private String priority;
+    @Column(name = "sla")
+    private String sla;
+    @Column(name = "sla_expiry")
+    private LocalDateTime slaExpiry;
 }

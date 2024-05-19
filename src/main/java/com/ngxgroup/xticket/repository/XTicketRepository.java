@@ -11,6 +11,7 @@ import com.ngxgroup.xticket.model.TicketEscalations;
 import com.ngxgroup.xticket.model.TicketGroup;
 import com.ngxgroup.xticket.model.TicketReopened;
 import com.ngxgroup.xticket.model.TicketAgent;
+import com.ngxgroup.xticket.model.TicketSla;
 import com.ngxgroup.xticket.model.TicketType;
 import com.ngxgroup.xticket.model.TicketUpload;
 import com.ngxgroup.xticket.model.Tickets;
@@ -161,6 +162,25 @@ public interface XTicketRepository {
 
     List<TicketType> getTicketTypeUsingTicketGroup(TicketGroup ticketGroup, boolean userType);
 
+    List<TicketType> getTicketTypeUsingTicketSla(TicketSla ticketSla);
+
+    /**
+     * Ticket SLA
+     *
+     * @return *
+     */
+    List<TicketSla> getTicketSla();
+
+    TicketSla getTicketSlaUsingId(long id);
+
+    TicketSla getTicketSlaUsingName(String ticketSlaName);
+
+    TicketSla createTicketSla(TicketSla ticketSla);
+
+    TicketSla updateTicketSla(TicketSla ticketSla);
+
+    TicketSla deleteTicketSla(TicketSla ticketSla);
+
     /**
      * Ticket Agent
      *
@@ -169,7 +189,7 @@ public interface XTicketRepository {
     List<TicketAgent> getTicketAgent();
 
     List<TicketAgent> getTicketAgent(AppUser ticketAgent);
-    
+
     List<TicketAgent> getTicketAgentUsingTicketType(TicketType ticketType);
 
     TicketAgent createTicketAgent(TicketAgent ticketAgent);

@@ -62,6 +62,10 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
         appRoles.put("DELETE_TICKET_AGENT", "Delete Ticket Agent");
         appRoles.put("UPDATE_TICKET_AGENT", "Update Ticket Agent");
         appRoles.put("LIST_TICKET_AGENT", "List Ticket Agent");
+        appRoles.put("ADD_TICKET_SLA", "Add Ticket SLA");
+        appRoles.put("DELETE_TICKET_SLA", "Delete Ticket SLA");
+        appRoles.put("UPDATE_TICKET_SLA", "Update Ticket SLA");
+        appRoles.put("LIST_TICKET_SLA", "List Ticket SLA");
         appRoles.put("KNOWLEDGE_BASE", "View Knowledge Base Documentation");
         appRoles.put("RAISE_TICKET", "Raise Tickets");
         appRoles.put("REPORT", "View Reports accross entities");

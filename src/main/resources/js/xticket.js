@@ -98,16 +98,23 @@ function fetchTicketType() {
 ;
 
 function emailValidation() {
-    let userEmail = document.getElementById("email").value;
-    let companyEmailDomain = document.getElementById("companyEmailDomain").value;
-    if (userEmail.toString().includes(companyEmailDomain)) {
-        $("#password").prop('disabled', true);
-        $("#confirmPassword").prop('disabled', true);
-        alert('Hurray! E dey');
+    let userEmail = $("#email").val();
+    let adDomains = $("#adAuthDomains").val().split(',');
+    let adAuth = false;
+    for (let i = 0; i < adDomains.length; i++) {
+        if (userEmail.toString().includes(adDomains[i])) {
+            adAuth = true;
+        }
+    }
+
+    if (adAuth) {
+        $('#password').prop('disabled', true);
+        $('#confirmPassword').prop('disabled', true);
+        $('#password').val('');
+        $('#confirmPassword').val('');
     } else {
-        $("#password").prop('disabled', false);
-        $("#confirmPassword").prop('disabled', false);
-        alert('Hurray! E no dey');
+        $('#password').prop('disabled', false);
+        $('#confirmPassword').prop('disabled', false);
     }
     ;
 }

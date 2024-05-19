@@ -11,6 +11,7 @@ import com.ngxgroup.xticket.model.TicketEscalations;
 import com.ngxgroup.xticket.model.TicketGroup;
 import com.ngxgroup.xticket.model.TicketReopened;
 import com.ngxgroup.xticket.model.TicketAgent;
+import com.ngxgroup.xticket.model.TicketSla;
 import com.ngxgroup.xticket.model.TicketType;
 import com.ngxgroup.xticket.model.TicketUpload;
 import com.ngxgroup.xticket.model.Tickets;
@@ -578,6 +579,70 @@ public class XTicketRepositoryImpl implements XTicketRepository {
             return null;
         }
         return record;
+    }
+
+    @Override
+    public List<TicketType> getTicketTypeUsingTicketSla(TicketSla ticketSla) {
+        TypedQuery<TicketType> query = em.createQuery("SELECT p FROM TicketType p WHERE p.sla = :ticketSla", TicketType.class)
+                .setParameter("ticketSla", ticketSla);
+        List<TicketType> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public List<TicketSla> getTicketSla() {
+        TypedQuery<TicketSla> query = em.createQuery("SELECT p FROM TicketSla p", TicketSla.class);
+        List<TicketSla> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public TicketSla getTicketSlaUsingId(long id) {
+        TypedQuery<TicketSla> query = em.createQuery("SELECT p FROM TicketSla p WHERE p.id = :id", TicketSla.class)
+                .setParameter("id", id);
+        List<TicketSla> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record.get(0);
+    }
+
+    @Override
+    public TicketSla getTicketSlaUsingName(String ticketSlaName) {
+        TypedQuery<TicketSla> query = em.createQuery("SELECT p FROM TicketSla p WHERE p.ticketSlaName = :ticketSlaName", TicketSla.class)
+                .setParameter("ticketSlaName", ticketSlaName);
+        List<TicketSla> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record.get(0);
+    }
+
+    @Override
+    public TicketSla createTicketSla(TicketSla ticketSla) {
+        em.persist(ticketSla);
+        em.flush();
+        return ticketSla;
+    }
+
+    @Override
+    public TicketSla updateTicketSla(TicketSla ticketSla) {
+        em.merge(ticketSla);
+        em.flush();
+        return ticketSla;
+    }
+
+    @Override
+    public TicketSla deleteTicketSla(TicketSla ticketSla) {
+        em.remove(em.contains(ticketSla) ? ticketSla : em.merge(ticketSla));
+        em.flush();
+        return ticketSla;
     }
 
     @Override

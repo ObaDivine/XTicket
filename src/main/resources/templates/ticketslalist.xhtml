@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
-        <title>X-Ticket - Ticket Group</title>
+        <title>X-Ticket - Ticket SLA</title>
         <th:block th:include="~{fragments/xTicketFragments :: headerfiles}"></th:block>
     </head>
     <body onload="preloaderFunction()" style="margin: 0;">
@@ -13,7 +13,7 @@
                 <div class="content">
                     <div class="row gy-3 mb-3 justify-content-between">
                         <div class="col-md-4 col-auto">
-                            <h5 class="text-1100 text-primary">Setup Ticket Group</h5>
+                            <h5 class="text-1100 text-primary">Setup Ticket SLA</h5>
                         </div>
                         <div class="col-md-5 col-auto">
                             <nav aria-label="breadcrumb">
@@ -21,7 +21,7 @@
                                     <li class="breadcrumb-item"><a href="#" th:href="@{/}">Home</a></li>
                                     <li class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
                                     <li class="breadcrumb-item"><a href="#" th:href="@{/setup/ticket/group}">Ticket Group</a></li>
-                                    <li class="breadcrumb-item active">Ticket Group Listing</li>
+                                    <li class="breadcrumb-item active">Ticket SLA Listing</li>
                                 </ol>
                             </nav>
                         </div>
@@ -32,28 +32,26 @@
                     </div>
                     <div class="row mb-6 justify-content-between">
                         <div class="offset-lg-1 col-lg-10 col-md-12 col-sm-12">
-                            <h5 class="mb-2 text-secondary">Listing of Ticket Groups</h5>
+                            <h5 class="mb-2 text-secondary">Listing of Ticket SLA</h5>
                             <div class="table-responsive ms-n1 ps-1 scrollbar">
                                 <table class="table table-responsive table-sm table-striped fs--1 mb-0 border-top border-200">
                                     <thead>
                                         <tr>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">Date</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="code">Ticket Group Code</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="name">Ticket Group Name</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="code">Priority Level</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="name">SLA</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="name">Created By</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="status">Status</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody class="list" id="deal-tables-body" th:if="${dataList != null}">
                                         <tr th:each="rec : ${dataList}" class="position-static">
                                             <td th:text="${rec.createdAt}" class="date align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.ticketGroupCode}" class="code align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.ticketGroupName}" class="name align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.ticketSlaName}" class="code align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.ticketSla} + ' ' + ${rec.ticketSlaPeriod} " class="name align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.createdBy}" class="createdBy align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.status}" class="status align-middle white-space-nowrap start ps-3"></td>
                                             <td class="align-middle white-space-nowrap start ps-3 btn-reveal-trigger">
-                                                <a class="text-success" href="#!" th:href="@{'/setup/ticket/group/edit?seid=' + ${rec.id}}"><span class="fas fa-edit"></span></a>
+                                                <a class="text-success" href="#!" th:href="@{'/setup/ticket/sla/edit?seid=' + ${rec.id}}"><span class="fas fa-edit"></span></a>
                                                 <a class="text-danger" th:data-bs-target="'#a' + ${rec.id}" data-bs-toggle="modal"><span class="fas fa-trash"></span></a>
                                                 <div class="modal fade" th:id="'a' + ${rec.id}" tabindex="-1" role="dialog" aria-labelledby="${rec.id}" aria-hidden="true">
                                                     <div class="modal-dialog">
@@ -62,7 +60,7 @@
                                                                 <h6 class="modal-title text-primary">Nigerian Exchange Group - <span class="text-secondary">X-Ticket</span></h6>
                                                             </div>
                                                             <div class="modal-body">
-                                                                <a class="btn btn-sm btn-danger" href="#!" th:href="@{'/setup/ticket/group/delete?seid=' + ${rec.id}}">Delete</a>
+                                                                <a class="btn btn-sm btn-danger" href="#!" th:href="@{'/setup/ticket/sla/delete?seid=' + ${rec.id}}">Delete</a>
                                                                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
                                                             </div>
                                                         </div>

@@ -2,7 +2,6 @@ package com.ngxgroup.xticket.service;
 
 import com.ngxgroup.xticket.model.AppRoles;
 import com.ngxgroup.xticket.model.AppUser;
-import com.ngxgroup.xticket.model.GroupRoles;
 import com.ngxgroup.xticket.model.RoleGroups;
 import com.ngxgroup.xticket.model.TicketType;
 import com.ngxgroup.xticket.payload.XTicketPayload;
@@ -81,8 +80,21 @@ public interface XTicketService {
     XTicketPayload processDeleteTicketType(String id, String principal);
 
     XTicketPayload processFetchAgentTicketTypes(String principal);
-    
+
     List<TicketType> processFetchTicketTypeUsingGroup(String ticketGroupCode, String principal);
+
+    /**
+     * Ticket SLA
+     *
+     * @return
+     */
+    XTicketPayload processFetchTicketSla();
+
+    XTicketPayload processFetchTicketSla(String id);
+
+    XTicketPayload processCreateTicketSla(XTicketPayload requestPayload, String principal);
+
+    XTicketPayload processDeleteTicketSla(String id, String principal);
 
     /**
      * Ticket Agent

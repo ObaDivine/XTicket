@@ -54,7 +54,7 @@ public class TicketController {
             return "redirect:/ticket/new";
         }
         model.addAttribute("ticketPayload", requestPayload);
-        model.addAttribute("ticketGroupList", xticketService.processFetchTicketGroup());
+        model.addAttribute("ticketGroupList", xticketService.processFetchTicketGroup().getData());
         model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
@@ -71,7 +71,7 @@ public class TicketController {
     @GetMapping("/reopen")
     public String reopenTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
-        model.addAttribute("ticketGroup", xticketService.processFetchTicketGroup());
+        model.addAttribute("ticketGroup", xticketService.processFetchTicketGroup().getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -81,7 +81,7 @@ public class TicketController {
     @GetMapping("/my")
     public String myTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
-        model.addAttribute("ticketGroup", xticketService.processFetchTicketGroup());
+        model.addAttribute("ticketGroup", xticketService.processFetchTicketGroup().getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -91,7 +91,7 @@ public class TicketController {
     @GetMapping("/open")
     public String openTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
-        model.addAttribute("ticketGroup", xticketService.processFetchTicketGroup());
+        model.addAttribute("ticketGroup", xticketService.processFetchTicketGroup().getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();

@@ -1,13 +1,10 @@
 package com.ngxgroup.xticket.payload;
 
-import com.ngxgroup.xticket.model.AppUser;
-import com.ngxgroup.xticket.model.AuditLog;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -20,8 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 public class XTicketPayload {
 
-    @Value("${xticket.default.email.domain}")
-    private String companyEmailDomain;
+    private String adAuthDomains;
+    ;
     private String email;
     private String responseCode;
     private String responseMessage;
@@ -41,6 +38,9 @@ public class XTicketPayload {
     private String ticketGroupName;
     private String ticketTypeCode;
     private String ticketTypeName;
+    private String ticketSlaName;
+    private int ticketSla;
+    private char ticketSlaPeriod;
     private String status;
     private String createdAt;
     private String createdBy;

@@ -3,7 +3,6 @@ package com.ngxgroup.xticket.controller;
 import com.ngxgroup.xticket.constant.ResponseCodes;
 import com.ngxgroup.xticket.model.GroupRoles;
 import com.ngxgroup.xticket.payload.XTicketPayload;
-import com.ngxgroup.xticket.payload.XTicketPayload;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +24,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import com.ngxgroup.xticket.service.XTicketService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
@@ -38,6 +38,8 @@ public class HomeController {
     XTicketService xticketService;
     @Autowired
     MessageSource messageSource;
+    @Value("${xticket.adauth.domains}")
+    private String adAuthDomains;
     private static final Logger LOGGER = Logger.getLogger(HomeController.class.getName());
     private String alertMessage = "";
     private String alertMessageType = "";
@@ -85,7 +87,9 @@ public class HomeController {
 
     @GetMapping("/signup")
     public String signup(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
-        model.addAttribute("signupPayload", new XTicketPayload());
+        XTicketPayload requestPayload = new XTicketPayload();
+        requestPayload.setAdAuthDomains(adAuthDomains);
+        model.addAttribute("signupPayload", requestPayload);
         model.addAttribute("profilePayload", new XTicketPayload());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
