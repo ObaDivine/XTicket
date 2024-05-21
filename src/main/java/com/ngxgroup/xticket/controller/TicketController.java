@@ -89,13 +89,13 @@ public class TicketController {
     }
 
     @GetMapping("/open")
-    public String openTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
+    public String myOpenTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroup", xticketService.processFetchTicketGroup().getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
-        return "openticket";
+        return "myopenticket";
     }
 
     private void resetAlertMessage() {
