@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head>
+        <title>X-Ticket - Ticket Details</title>
+        <th:block th:include="~{fragments/xTicketFragments :: headerfiles}"></th:block>
+    </head>
+    <body onload="preloaderFunction()" style="margin: 0;">
+        <div id="loader"></div>
+        <main class="main animate-bottom" id="top" style="display:none;" th:object="${profilePayload}">
+            <div class="container-fluid px-0">
+                <th:block th:include="~{fragments/xTicketFragments :: topMenu}"></th:block>
+                <div class="content">
+                    <div class="row gy-3 mb-3 justify-content-between">
+                        <div class="col-md-4 col-auto">
+                            <h5 class="text-1100 text-primary">Ticket Details</h5>
+                        </div>
+                        <div class="col-md-5 col-auto">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item"><a href="#" th:href="@{/}">Home</a></li>
+                                    <li class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
+                                    <li class="breadcrumb-item"><a href="#" th:href="@{/ticket/open}">Open Ticket</a></li>
+                                    <li class="breadcrumb-item active">Ticket Details</li>
+                                </ol>
+                            </nav>
+                        </div>
+                        <div class="col-md-3 col-auto">
+                            <h5 class="text-1100 text-primary" th:text="'Welcome ' + ${profilePayload.lastName + ', ' + profilePayload.otherName}">Welcome Brian</h5>
+                        </div>
+                        <hr/>
+                    </div>
+
+                    <div class="row g-3 mb-6">
+                        <div class="col-lg-12 col-sm-12 col-md-12">
+                            <div class="row">
+                                <div class="col-lg-3 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Ticket ID: </span>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.ticketId}"></span>
+                                </div>
+                                <div class="col-lg-3 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Ticket Group: </span>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.ticketGroupName}"></span>
+                                </div>
+                                <div class="col-lg-3 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Ticket Type: </span>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.ticketTypeName}"></span>
+                                </div>
+                                <div class="col-lg-3 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Ticket Source: </span>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.source}"></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-3 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Subject: </span>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.subject}"></span>
+                                </div>
+                                <div class="col-lg-3 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Message: </span>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.message}"></span>
+                                </div>
+                                <div class="col-lg-3 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Internal: </span>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.internal}"></span>
+                                </div>
+                                <div class="col-lg-3 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">File Index: </span>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.fileIndex}"></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-3 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Created At: </span>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.createdAt}"></span>
+                                </div>
+                                <div class="col-lg-3 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Create By: </span>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.createdBy}"></span>
+                                </div>
+                                <div class="col-lg-3 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Closed At: </span>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.closedAt}"></span>
+                                </div>
+                                <div class="col-lg-3 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Closed By: </span>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.closedBy}"></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-3 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Priority: </span>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.priority}"></span>
+                                </div>
+                                <div class="col-lg-3 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">SLA Expiry: </span>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.slaExpiry}"></span>
+                                </div>
+                                <div class="col-lg-3 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Open: </span>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.ticketOpen}"></span>
+                                </div>
+                                <div class="col-lg-3 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Escalated: </span>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.escalated}"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="scrollbar">
+                                <ul class="nav nav-underline flex-nowrap mb-3 pb-1" id="myTab" role="tablist">
+                                    <li class="nav-item me-3">
+                                        <a class="nav-link text-nowrap active" id="reopen-tab" data-bs-toggle="tab" href="#tab-reopen" role="tab" aria-controls="tab-reopen" aria-selected="true">
+                                            <span class="fas fa-folder-open me-2"></span>Reopened Tickets<span class="text-700 fw-normal"> (35)</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item me-3">
+                                        <a class="nav-link text-nowrap" id="reassign-tab" data-bs-toggle="tab" href="#tab-reassign" role="tab" aria-controls="tab-reassign" aria-selected="true">
+                                            <span class="fas fa-share me-2"></span>Reassigned Tickets<span class="text-700 fw-normal"> (24)</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item me-3">
+                                        <a class="nav-link text-nowrap" id="comment-tab" data-bs-toggle="tab" href="#tab-comment" role="tab" aria-controls="tab-comment" aria-selected="true">
+                                            <span class="fas fa-comments me-2"></span>Ticket Comments
+                                        </a>
+                                    </li>
+                                    <li class="nav-item me-3">
+                                        <a class="nav-link text-nowrap" id="escalation-tab" data-bs-toggle="tab" href="#tab-escalation" role="tab" aria-controls="tab-escalation" aria-selected="true">
+                                            <span class="fas fa-share-alt-square me-2"></span>Ticket Escalations
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="tab-content" id="profileTabContent">
+                                <div class="tab-pane fade show active" id="tab-reopen" role="tabpanel" aria-labelledby="reopen-tab">
+                                    <div class="border-top border-bottom border-200" id="profileOrdersTable" data-list='{"valueNames":["order","status","delivery","date","total"],"page":6,"pagination":true}'>
+                                        <div class="table-responsive ms-n1 ps-1 scrollbar">
+                                            <table class="table table-responsive table-sm table-striped fs--1 mb-0 border-200">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketId">Reopened At</th>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketGroup">Reopened By</th>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="subject">Closed At</th>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="priority">Priority</th>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="subject">SLA Expiry</th>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketType">Ticket Agent</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="list" id="deal-tables-body" th:if="${reopenedTicketList != null}">
+                                                    <tr th:each="rec : ${reopenedTicketList}" class="position-static">
+                                                        <td th:text="${rec.reopenedAt}" class="date align-middle white-space-nowrap start ps-3"></td>
+                                                        <td th:text="${rec.reopenedBy}" class="ticketId align-middle white-space-nowrap start ps-3"></td>
+                                                        <td th:text="${rec.closedAt}" class="ticketType align-middle white-space-nowrap start ps-3"></td>
+                                                        <td th:text="${rec.priority}" class="priority align-middle white-space-nowrap start ps-3"></td>
+                                                        <td th:text="${rec.slaExpiry}" class="ticketType align-middle white-space-nowrap start ps-3"></td>
+                                                        <td th:text="${rec.ticketAgent}" class="ticketGroup align-middle white-space-nowrap start ps-3"></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="row align-items-center justify-content-between py-2 pe-0 fs--1">
+                                            <div class="col-auto d-flex">
+                                                <p class="mb-0 d-none d-sm-block me-3 fw-semi-bold text-900" data-list-info="data-list-info"></p>
+                                                <a class="fw-semi-bold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                                                <a class="fw-semi-bold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                                            </div>
+                                            <div class="col-auto d-flex">
+                                                <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                                                <ul class="mb-0 pagination"></ul>
+                                                <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>  
+                                <div class="tab-pane fade" id="tab-reassign" role="tabpanel" aria-labelledby="reassign-tab">
+                                    <div class="border-top border-bottom border-200" id="profileOrdersTable" data-list='{"valueNames":["order","status","delivery","date","total"],"page":6,"pagination":true}'>
+                                        <div class="table-responsive scrollbar">
+                                            <table class="table table-responsive table-sm table-striped fs--1 mb-0 border-200">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="reassignedAt">Reassigned At</th>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="reassignedBy">Reassigned By</th>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="reassignedTo">Reassigned To</th>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="initialSla">Initial SLA</th>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="newSla">New SLA</th>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="message">Message</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="list" id="deal-tables-body" th:if="${reassignedTicketList != null}">
+                                                    <tr th:each="rec : ${reassignedTicketList}" class="position-static">
+                                                        <td th:text="${rec.reassignedAt}" class="reassignedAt align-middle white-space-nowrap start ps-3"></td>
+                                                        <td th:text="${rec.reassignedBy}" class="reassignedBy align-middle white-space-nowrap start ps-3"></td>
+                                                        <td th:text="${rec.reassignedTo}" class="reassignedTo align-middle white-space-nowrap start ps-3"></td>
+                                                        <td th:text="${rec.initialSla}" class="initialSla align-middle white-space-nowrap start ps-3"></td>
+                                                        <td th:text="${rec.newSla}" class="newSla align-middle white-space-nowrap start ps-3"></td>
+                                                        <td th:text="${rec.message}" class="message align-middle white-space-nowrap start ps-3"></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="row align-items-center justify-content-between py-2 pe-0 fs--1">
+                                            <div class="col-auto d-flex">
+                                                <p class="mb-0 d-none d-sm-block me-3 fw-semi-bold text-900" data-list-info="data-list-info"></p>
+                                                <a class="fw-semi-bold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                                                <a class="fw-semi-bold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                                            </div>
+                                            <div class="col-auto d-flex">
+                                                <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                                                <ul class="mb-0 pagination"></ul>
+                                                <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="tab-comment" role="tabpanel" aria-labelledby="comment-tab">
+                                    <div class="border-top border-bottom border-200" id="profileOrdersTable" data-list='{"valueNames":["order","status","delivery","date","total"],"page":6,"pagination":true}'>
+                                        <div class="table-responsive scrollbar">
+                                            <table class="table table-responsive table-sm table-striped fs--1 mb-0 border-200">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">Created At</th>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="messageFrom">Message From</th>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="message">Message</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="list" id="deal-tables-body" th:if="${commentTicketList != null}">
+                                                    <tr th:each="rec : ${commentTicketList}" class="position-static">
+                                                        <td th:text="${rec.createdAt}" class="date align-middle white-space-nowrap start ps-3"></td>
+                                                        <td th:text="${rec.messageFrom}" class="messageFrom align-middle white-space-nowrap start ps-3"></td>
+                                                        <td th:text="${rec.message}" class="message align-middle white-space-nowrap start ps-3"></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="row align-items-center justify-content-between py-2 pe-0 fs--1">
+                                            <div class="col-auto d-flex">
+                                                <p class="mb-0 d-none d-sm-block me-3 fw-semi-bold text-900" data-list-info="data-list-info"></p>
+                                                <a class="fw-semi-bold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                                                <a class="fw-semi-bold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                                            </div>
+                                            <div class="col-auto d-flex">
+                                                <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                                                <ul class="mb-0 pagination"></ul>
+                                                <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="tab-escalation" role="tabpanel" aria-labelledby="escalation-tab">
+                                    <div class="border-top border-bottom border-200" id="profileOrdersTable" data-list='{"valueNames":["order","status","delivery","date","total"],"page":6,"pagination":true}'>
+                                        <div class="table-responsive scrollbar">
+                                            <table class="table table-responsive table-sm table-striped fs--1 mb-0 border-200">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketId">SLA Expiry</th>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketGroup">Escalated To</th>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="subject">Closed At</th>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="priority">Priority</th>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="subject">SLA Expiry</th>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketType">Ticket Agent</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="list" id="deal-tables-body" th:if="${escalatedTicketList != null}">
+                                                    <tr th:each="rec : ${escalatedTicketList}" class="position-static">
+                                                        <td th:text="${rec.slaExpiry}" class="date align-middle white-space-nowrap start ps-3"></td>
+                                                        <td th:text="${rec.escalationEmails}" class="ticketId align-middle white-space-nowrap start ps-3"></td>
+                                                        <td th:text="${rec.closedAt}" class="ticketType align-middle white-space-nowrap start ps-3"></td>
+                                                        <td th:text="${rec.priority}" class="priority align-middle white-space-nowrap start ps-3"></td>
+                                                        <td th:text="${rec.slaExpiry}" class="ticketType align-middle white-space-nowrap start ps-3"></td>
+                                                        <td th:text="${rec.ticketAgent}" class="ticketGroup align-middle white-space-nowrap start ps-3"></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="row align-items-center justify-content-between py-2 pe-0 fs--1">
+                                            <div class="col-auto d-flex">
+                                                <p class="mb-0 d-none d-sm-block me-3 fw-semi-bold text-900" data-list-info="data-list-info"></p>
+                                                <a class="fw-semi-bold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                                                <a class="fw-semi-bold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                                            </div>
+                                            <div class="col-auto d-flex">
+                                                <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                                                <ul class="mb-0 pagination"></ul>
+                                                <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <th:block th:include="~{fragments/xTicketFragments :: footer}"></th:block>
+                </div>
+            </div>
+            <th:block th:include="~{fragments/xTicketFragments :: scriptfiles}"></th:block>   
+        </main>
+    </body>
+</html>

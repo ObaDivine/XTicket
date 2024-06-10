@@ -123,7 +123,11 @@
                             </a>
                             <ul class="dropdown-menu navbar-dropdown-caret">
                                 <li>
-                                    <a class="dropdown-item" href="" th:href="@{/dashboard}">
+                                    <a th:if="!${profilePayload.isAgent}" class="dropdown-item" href="" th:href="@{/dashboard}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 fas fa-tachometer" data-feather="dashboard-outlined"></span>Dashboard
+                                        </div>
+                                    </a>
+                                    <a th:if="${profilePayload.isAgent}" class="dropdown-item" href="" th:href="@{/agent/dashboard}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 fas fa-tachometer" data-feather="dashboard-outlined"></span>Dashboard
                                         </div>
                                     </a>
@@ -142,8 +146,8 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="" th:href="@{/ticket/my}">
-                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>My Tickets
+                                    <a class="dropdown-item" href="" th:href="@{/ticket/closed}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Closed Tickets
                                         </div>
                                     </a>
                                 </li>
@@ -162,19 +166,49 @@
                             <ul class="dropdown-menu navbar-dropdown-caret">
                                 <li>
                                     <a class="dropdown-item" href="" th:href="@{/report/ticket/open}">
-                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="pie-chart"></span>New Ticket
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="pie-chart"></span>Open Tickets
                                         </div>
                                     </a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="" th:href="@{/report/ticket/closed}">
-                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>My Tickets
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Closed Tickets
                                         </div>
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="" th:href="@{/report/ticket/category}">
-                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Tickets By Category
+                                    <a class="dropdown-item" href="" th:href="@{/report/ticket/reopened}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Reopened Tickets
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="" th:href="@{/report/ticket/reassigned}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Reassigned Tickets
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="" th:href="@{/report/ticket/by-agents}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Tickets By Agent
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="" th:href="@{/report/ticket/sla}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Tickets With Violated SLA
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="" th:href="@{/report/ticket/agents}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Ticket Agents
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="" th:href="@{/report/app-user}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Application Users
                                         </div>
                                     </a>
                                 </li>
@@ -255,6 +289,11 @@
                                 <span class="icon" data-feather="sun"></span>
                             </label>
                         </div>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#searchBoxModal">
+                            <span class="fas fa-search text-primary" style="height:19px;width:19px;margin-bottom: 2px;"></span>
+                        </a>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-bs-auto-close="outside">
@@ -347,9 +386,25 @@
             </nav>
             <script>
                 var navbarVertical = document.querySelector('.navbar-vertical');
-                navbarVertical.remove();
                 navbarTop.removeAttribute('style');
             </script>
+            <div class="modal fade" id="searchBoxModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="true" data-phoenix-modal="data-phoenix-modal" style="--phoenix-backdrop-opacity: 1;">
+                <div class="modal-dialog">
+                    <div class="modal-content mt-15 rounded-pill">
+                        <div class="modal-body p-0">
+                            <div class="search-box navbar-top-search-box" data-list='{"valueNames":["title"]}' style="width: auto;">
+                                <form class="position-relative" th:object="${profilePayload}" th:action="@{/ticket/search}" method="POST">
+                                    <input th:field="*{ticketId}" class="form-control search-input fuzzy-search rounded-pill form-control-lg" type="text" placeholder="Enter Ticket ID....." aria-label="Search" />
+                                    <span class="fas fa-search search-box-icon"></span>
+                                </form>
+                                <div class="btn-close position-absolute end-0 top-50 translate-middle cursor-pointer shadow-none" data-bs-dismiss="search">
+                                    <button class="btn btn-link btn-close-falcon p-0" aria-label="Close"></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div th:fragment="footer">
@@ -381,11 +436,12 @@
             <script th:src="@{/js/list.min.js}"></script>
             <script th:src="@{/js/feather.min.js}"></script>
             <script th:src="@{/js/dayjs.min.js}"></script>
-            <script th:src="@{/js/phoenix.js}"></script>
-            <script th:src="@{/js/crm-dashboard.js}"></script>
+            <!--            <script th:src="@{/js/phoenix.js}"></script>-->
+            <script th:src="@{/js/echarts.min.js}"></script>
             <script th:src="@{/js/dhtmlxgantt.js}"></script>
             <script th:src="@{/js/sweetalert2.min.js}"></script>
             <script th:src="@{/js/xticket.js}"></script>
+            <!--            <script th:src="@{/js/dashboard.js}"></script>-->
             <form id="logoutForm" th:action="@{/logout}" method="POST">
                 <div class="modal fade" id="confirmLogout" tabindex="-1" role="dialog" aria-labelledby="confirmLogout" aria-hidden="true">
                     <div class="modal-dialog">
@@ -404,18 +460,18 @@
             </form>
 
             <script>
-                    var options = {valueNames: ['name', 'description', 'date_created']};
-                    var recordList = new List('productGroup', options);
-                    function preloaderFunction() {
-                        var myVar = setTimeout(showPage);
-                    }
-                    ;
+                var options = {valueNames: ['name', 'description', 'date_created']};
+                var recordList = new List('productGroup', options);
+                function preloaderFunction() {
+                    var myVar = setTimeout(showPage);
+                }
+                ;
 
-                    function showPage() {
-                        document.getElementById("loader").style.display = "none";
-                        document.getElementById("top").style.display = "block";
-                    }
-                    ;
+                function showPage() {
+                    document.getElementById("loader").style.display = "none";
+                    document.getElementById("top").style.display = "block";
+                }
+                ;
             </script>
         </div>
     </body>

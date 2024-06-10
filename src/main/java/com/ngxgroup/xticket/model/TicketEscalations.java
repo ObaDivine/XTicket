@@ -37,4 +37,7 @@ public class TicketEscalations implements Serializable {
     private Tickets ticket;
     @Column(name = "sla_expires_at")
     private LocalDateTime slaExpiresAt;
+    @Column(name = "escalated_to")
+    private String escalatedTo;
+
 }

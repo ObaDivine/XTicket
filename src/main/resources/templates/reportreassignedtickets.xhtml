@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
-        <title>X-Ticket - Closed Tickets</title>
+        <title>X-Ticket - Reassigned Tickets</title>
         <th:block th:include="~{fragments/xTicketFragments :: headerfiles}"></th:block>
     </head>
     <body onload="preloaderFunction()" style="margin: 0;">
@@ -13,14 +13,14 @@
                 <div class="content">
                     <div class="row gy-3 mb-3 justify-content-between">
                         <div class="col-md-4 col-auto">
-                            <h5 class="text-1100 text-primary">Closed Ticket Listing</h5>
+                            <h5 class="text-1100 text-primary">Reassigned Ticket Listing</h5>
                         </div>
                         <div class="col-md-5 col-auto">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb mb-0">
                                     <li class="breadcrumb-item"><a href="#" th:href="@{/}">Home</a></li>
                                     <li class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
-                                    <li class="breadcrumb-item active">Closed Ticket Listing</li>
+                                    <li class="breadcrumb-item active">Reassigned Ticket Listing</li>
                                 </ol>
                             </nav>
                         </div>
@@ -31,7 +31,7 @@
                     </div>
                     <div class="row g-3 mb-6">
                         <div class="offset-lg-3 col-lg-6 col-sm-12 col-md-12">
-                            <form th:object="${ticketPayload}" th:action="@{/report/ticket/closed/process}" method="POST">
+                            <form th:object="${ticketPayload}" th:action="@{/report/ticket/reassigned/process}" method="POST">
                                 <div class="input-group input-group-sm">
                                     <span class="input-group-text" id="startDate">Start Date</span>
                                     <input class="form-control" type="date" aria-label="StartDate" aria-describedby="startDate" th:field="*{startDate}" required="required" />
@@ -59,18 +59,10 @@
                                     </select>
                                     <span class="fas fa-ticket-alt text-900 fs--1 form-icon text-primary"></span>
                                 </div>
-                                <div class="form-icon-container">
-                                    <select class="form-select form-control-sm form-icon-input" aria-label="source" th:field="*{source}">
-                                        <option value="">---Select Ticket Source---</option>
-                                        <option value="Internal">Internal</option>
-                                        <option value="External">External</option>
-                                    </select>
-                                    <span class="fas fa-user text-900 fs--1 form-icon text-primary"></span>
-                                </div>
                                 <button class="btn btn-primary btn-sm w-40 mb-3 mt-2" type="submit">Submit</button>
                             </form>
                         </div>     
-                    </div>                   
+                    </div>
                     <div class="row g-3 mb-6" th:if="${dataList != null}">
                         <div class="col-lg-12 col-sm-12 col-md-12">
                             <div class="table-responsive ms-n1 ps-1 scrollbar">
@@ -79,30 +71,34 @@
                                         <tr>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">Request Date</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="requestBy">Request By</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="dateClosed">Date Closed</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="closedBy">Closed By</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="reassignedAt">Reassigned At</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="reassignedBy">Reassigned By</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="reassignedTo">Reassigned To</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="slaExpiry">Initial SLA</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="slaExpiry">New SLA</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketId">Ticket ID</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketGroup">Ticket Group</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketType">Ticket Type</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="priority">Priority</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="sla">SLA</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="slaViolated">SLA Violated</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="reopened">Reopened</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="message">Reason for Reassigning</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="internal">Internal</th>
                                         </tr>
                                     </thead>
                                     <tbody class="list" id="deal-tables-body" th:if="${dataList != null}">
                                         <tr th:each="rec : ${dataList}" class="position-static">
                                             <td th:text="${rec.createdAt}" class="date align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.createdBy}" class="requestBy align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.closedAt}" class="dateClosed align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.closedBy}" class="dateClosed align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.reassignedAt}" class="reassignedAt align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.reassignedBy}" class="reassignedBy align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.reassignedTo}" class="reassignedTo align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.initialSla}" class="initialSla align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.newSla}" class="newSla align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.ticketId}" class="ticketId align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.ticketGroupName}" class="ticketGroup align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.ticketTypeName}" class="ticketType align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.priority}" class="priority align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.initialSla}" class="sla align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.slaViolated}" class="slaViolated align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.reopened}" class="reopened align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.message}" class="message align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.internal}" class="internal align-middle white-space-nowrap start ps-3"></td>
                                         </tr>
                                     </tbody>
                                 </table>

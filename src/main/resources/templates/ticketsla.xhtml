@@ -31,7 +31,6 @@
                     </div>
                     <div class="row mb-3 justify-content-between">
                         <div class="offset-lg-4 col-lg-4 col-md-12 col-sm-12">
-                            <h5 class="mb-2 text-secondary">Create Ticket SLA</h5>
                             <form th:object="${ticketPayload}" th:action="@{/setup/ticket/sla/create}" method="POST">
                                 <input type="hidden" th:field="*{id}" />                                
                                 <div class="form-icon-container">

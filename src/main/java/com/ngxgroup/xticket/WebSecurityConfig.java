@@ -26,13 +26,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionFixation().newSession();
 
         http.authorizeRequests()
-                .antMatchers("/", "/signin/**", "/signup/**", "/forgot-password/**", "/logout/**").permitAll()
+                .antMatchers("/", "/signin/**", "/signup/**", "/forgot-password/**", "/logout").permitAll()
                 .antMatchers("/css/**", "/images/**", "/js/**", "/font/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin().loginPage("/")
                 .and()
-                .logout().logoutSuccessUrl("/logout")
+                .logout()
                 .deleteCookies("JSESSIONID")
                 .and()
                 .csrf().disable();

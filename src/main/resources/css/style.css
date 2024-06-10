@@ -7,23 +7,23 @@ htnl, body{
 }
 
 .text-primary{
-    color: #018b48 !important;
+    color: #00663F !important;
 }
 
 .form-icon{
-    color: #018b48 !important;
+    color: #00663F !important;
 }
 
 .btn-primary{
-    background-color: #018b48 !important;
+    background-color: #00663F !important;
 }
 
 text-secondary{
-    color: #7ded07 !important;
+    color: #76B82A !important;
 }
 
 .btn-secondary{
-    background-color: #7ded07 !important;
+    background-color: #76B82A !important;
 }
 
 
@@ -36,12 +36,12 @@ text-secondary{
     margin: 5px;
     height: 35px;
     width: 45px;
-    border: 1px solid #018b48 !important;
+    border: 1px solid #00663F !important;
     border-radius: 5px;
     text-align: center;
     font-family: arimo;
     font-size: 1.2rem;
-    color: #018b48 !important;
+    color: #00663F !important;
 }
 
 #qrcode-image{
@@ -74,8 +74,8 @@ text-secondary{
     margin: -76px 0 0 -76px;
     border: 16px solid #f3f3f3;
     border-radius: 50%;
-    border-top: 16px solid #018b48;
-    border-bottom: 16px solid #018b48;
+    border-top: 16px solid #00663F;
+    border-bottom: 16px solid #00663F;
     background-color: #00ff00;
     -webkit-animation: spin 2s linear infinite;
     animation: spin 2s linear infinite;
@@ -149,7 +149,7 @@ text-secondary{
 }
 
 .colored-toast .swal2-title {
-    color: #018b48;
+    color: #00663F;
 }
 
 .asterisk {
@@ -159,4 +159,14 @@ text-secondary{
     position: relative;
     padding-right: 5px;
     z-index: 2;
+}
+
+.pie-charts{
+    height: 200px !important;
+    width: 500px !important;
+}
+
+.bar-charts{
+    height: 200px !important;
+    width: 200px !important;
 }

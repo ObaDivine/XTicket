@@ -37,8 +37,6 @@ public class TicketComment implements Serializable {
     private Tickets ticket;
     @ManyToOne
     private AppUser commentFrom;
-    @ManyToOne
-    private AppUser commentTo;
     @Column(name = "comment", length = 10000)
     private String comment;
 }

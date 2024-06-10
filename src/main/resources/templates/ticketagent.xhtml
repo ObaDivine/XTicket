@@ -31,7 +31,6 @@
                     </div>            
                     <div class="row mb-3 justify-content-between">
                         <div class="offset-lg-3 col-lg-6 col-md-12 col-sm-12">
-                            <h5 class="mb-2 text-secondary">Create Ticket Agent</h5>
                             <form class="mb-3" th:object="${ticketPayload}" th:action="@{/setup/ticket/agent/permission}" method="POST">
                                 <div class="input-group input-group-sm mb-3">
                                     <span class="input-group-text">System User</span>

@@ -1,5 +1,6 @@
 package com.ngxgroup.xticket.controller;
 
+import com.google.gson.Gson;
 import com.ngxgroup.xticket.constant.ResponseCodes;
 import com.ngxgroup.xticket.model.GroupRoles;
 import com.ngxgroup.xticket.payload.XTicketPayload;
@@ -38,6 +39,8 @@ public class HomeController {
     XTicketService xticketService;
     @Autowired
     MessageSource messageSource;
+    @Autowired
+    Gson gson;
     @Value("${xticket.adauth.domains}")
     private String adAuthDomains;
     private static final Logger LOGGER = Logger.getLogger(HomeController.class.getName());
@@ -56,7 +59,7 @@ public class HomeController {
 
     @PostMapping("/signin")
     public String signin(@ModelAttribute("signinPayload") XTicketPayload requestPayload, HttpSession session, HttpServletRequest httpRequest, Model model) {
-        XTicketPayload response = xticketService.processSignin(requestPayload);
+        XTicketPayload response = xticketService.signin(requestPayload);
         if (response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
             List<SimpleGrantedAuthority> newAuthorities = new ArrayList<>();
             List<GroupRoles> roles = new ArrayList<>();//xpolicyService.getUserRoles(requestPayload.getEmail());
@@ -74,6 +77,11 @@ public class HomeController {
             }
             SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(requestPayload.getEmail(), requestPayload.getPassword(), newAuthorities));
             resetAlertMessage();
+
+            //Check if the user is an egent
+            if (response.isAgent()) {
+                return "redirect:/agent/dashboard";
+            }
             return "redirect:/dashboard";
         }
 
@@ -99,7 +107,7 @@ public class HomeController {
 
     @PostMapping("/signup/")
     public String signup(@ModelAttribute("signupPayload") XTicketPayload requestPayload, HttpSession session, HttpServletRequest httpRequest, Model model) {
-        XTicketPayload response = xticketService.processSignup(requestPayload);
+        XTicketPayload response = xticketService.signup(requestPayload);
         if (response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
             alertMessage = response.getResponseMessage();
             alertMessageType = "success";
@@ -114,7 +122,7 @@ public class HomeController {
 
     @GetMapping("/signup/activate")
     public String signupActivation(@RequestParam("id") String id, Model model, HttpServletRequest request, HttpSession httpSession) {
-        XTicketPayload response = xticketService.processSignUpActivation(id);
+        XTicketPayload response = xticketService.signUpActivation(id);
         alertMessage = response.getResponseMessage();
         alertMessageType = response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error";
         return "redirect:/";
@@ -124,7 +132,7 @@ public class HomeController {
     public String logoutPage(HttpServletRequest request, HttpServletResponse response, Principal principal, Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {
-            xticketService.processUserOnline(principal.getName(), false);
+            xticketService.userOnline(principal.getName(), false);
             new SecurityContextLogoutHandler().logout(request, response, auth);
         }
         alertMessage = "Your session is terminated and you are logged out";
@@ -133,22 +141,45 @@ public class HomeController {
 
     @GetMapping("/dashboard")
     public String dashboard(HttpServletRequest httpRequest, HttpServletResponse httpResponse, HttpSession httpSession, Principal principal, Model model) {
-        XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("profilePayload", profileDetails);
-        model.addAttribute("myTicketStat", 30);
-        model.addAttribute("openTicketStat", 30);
-        model.addAttribute("incidentTicketStat", 30);
-        model.addAttribute("serviceTicketStat", 30);
-        model.addAttribute("chageRequestTicketStat", 30);
+        List<XTicketPayload> closedTickets = xticketService.fetchClosedTicket(principal.getName()).getData();
+        List<XTicketPayload> openTickets = xticketService.fetchOpenTicket(principal.getName()).getData();
+        model.addAttribute("closedTicketStat", closedTickets == null ? 0 : closedTickets.size());
+        model.addAttribute("openTicketStat", openTickets == null ? 0 : openTickets.size());
+        List<XTicketPayload> ticketByGroup = xticketService.fetchTicketGroupStatisticsByUser(principal.getName()).getData();
+        List<XTicketPayload> ticketByStatus = xticketService.fetchTicketStatusStatisticsByUser(principal.getName()).getData();
+        model.addAttribute("ticketList", ticketByGroup);
+        model.addAttribute("ticketByGroupChartData", generateTicketByGroupChart(ticketByGroup));
+        model.addAttribute("ticketByStatusChartData", generateTicketByGroupChart(ticketByStatus));
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
         return "dashboard";
     }
 
+    @GetMapping("/agent/dashboard")
+    public String agentDashboard(HttpServletRequest httpRequest, HttpServletResponse httpResponse, HttpSession httpSession, Principal principal, Model model) {
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
+        model.addAttribute("profilePayload", profileDetails);
+        List<XTicketPayload> closedTickets = xticketService.fetchClosedTicket(principal.getName()).getData();
+        List<XTicketPayload> openTickets = xticketService.fetchOpenTicket().getData();
+        model.addAttribute("closedTicketStat", closedTickets == null ? 0 : closedTickets.size());
+        model.addAttribute("agentOpenTicketStat", openTickets == null ? 0 : openTickets.size());
+        List<XTicketPayload> ticketByGroup = xticketService.fetchTicketGroupStatisticsByUser(principal.getName()).getData();
+        List<XTicketPayload> ticketByStatus = xticketService.fetchTicketStatusStatisticsByUser(principal.getName()).getData();
+        model.addAttribute("ticketList", ticketByGroup);
+        model.addAttribute("ticketByGroupChartData", generateTicketByGroupChart(ticketByGroup));
+        model.addAttribute("ticketByStatusChartData", generateTicketByGroupChart(ticketByStatus));
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
+        resetAlertMessage();
+        return "agentdashboard";
+    }
+
     @GetMapping("/change-password")
     public String changePassword(Principal principal, Model model) {
-        XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("profilePayload", profileDetails);
         XTicketPayload passwordChangePayload = new XTicketPayload();
         passwordChangePayload.setEmail(principal.getName());
@@ -161,7 +192,7 @@ public class HomeController {
 
     @PostMapping("/change-password/")
     public String changePassword(@ModelAttribute("passwordPayload") XTicketPayload requestPayload, HttpSession session, Model model, Principal principal, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
-        XTicketPayload response = xticketService.processChangePassword(requestPayload);
+        XTicketPayload response = xticketService.changePassword(requestPayload);
         //Check for locked account due to multiple invalid attempts
         if (response.getResponseCode().equalsIgnoreCase(ResponseCodes.MULTIPLE_ATTEMPT.getResponseCode())) {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -178,7 +209,7 @@ public class HomeController {
             alertMessageType = "success";
             return "redirect:/";
         }
-        XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("profilePayload", profileDetails);
         requestPayload.setEmail(principal.getName());
         model.addAttribute("passwordPayload", requestPayload);
@@ -190,7 +221,7 @@ public class HomeController {
 
     @PostMapping("/forgot-password")
     public String forgotPassword(@ModelAttribute("passwordPayload") XTicketPayload requestPayload, HttpSession session, Model model) {
-        XTicketPayload response = xticketService.processForgotPassword(requestPayload);
+        XTicketPayload response = xticketService.forgotPassword(requestPayload);
         alertMessage = response.getResponseMessage();
         alertMessageType = response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error";
         return "redirect:/";
@@ -210,6 +241,19 @@ public class HomeController {
         model.addAttribute("alertMessage", alertMessage);
         resetAlertMessage();
         return "privacy";
+    }
+
+    private String generateTicketByGroupChart(List<XTicketPayload> ticketList) {
+        List<XTicketPayload> data = new ArrayList<>();
+        if (ticketList != null) {
+            for (XTicketPayload t : ticketList) {
+                XTicketPayload chart = new XTicketPayload();
+                chart.setValue(t.getValue());
+                chart.setName(t.getName());
+                data.add(chart);
+            }
+        }
+        return gson.toJson(data);
     }
 
     private void resetAlertMessage() {

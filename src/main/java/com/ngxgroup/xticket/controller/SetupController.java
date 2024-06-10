@@ -35,10 +35,10 @@ public class SetupController {
 
     @GetMapping("/ticket/group")
     public String ticketGroup(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
-        XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("ticketPayload", new XTicketPayload());
-        model.addAttribute("recordCount", xticketService.processFetchTicketGroup().getData().size());
-        model.addAttribute("ticketGroup", xticketService.processFetchTicketGroup());
+        model.addAttribute("recordCount", xticketService.fetchTicketGroup().getData().size());
+        model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
         model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
@@ -48,13 +48,13 @@ public class SetupController {
 
     @PostMapping("/ticket/group/create")
     public String ticketGroup(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession session, Principal principal, Model model) {
-        XTicketPayload response = xticketService.processCreateTicketGroup(requestPayload, principal.getName());
+        XTicketPayload response = xticketService.createTicketGroup(requestPayload, principal.getName());
         if (response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
             alertMessage = response.getResponseMessage();
             alertMessageType = "success";
             return "redirect:/setup/ticket/group";
         }
-        XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("alertMessage", response.getResponseMessage());
@@ -65,8 +65,8 @@ public class SetupController {
 
     @GetMapping("/ticket/group/edit")
     public String ticketGroup(@RequestParam("seid") String id, Model model, Principal principal) {
-        XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
-        XTicketPayload response = xticketService.processFetchTicketGroup(id);
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
+        XTicketPayload response = xticketService.fetchTicketGroup(id);
         if (!response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
             alertMessage = response.getResponseMessage();
             alertMessageType = "error";
@@ -74,7 +74,7 @@ public class SetupController {
         }
         model.addAttribute("ticketPayload", response);
         model.addAttribute("profilePayload", profileDetails);
-        model.addAttribute("recordCount", xticketService.processFetchTicketGroup().getData().size());
+        model.addAttribute("recordCount", xticketService.fetchTicketGroup().getData().size());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "success");
         resetAlertMessage();
@@ -83,8 +83,8 @@ public class SetupController {
 
     @GetMapping("/ticket/group/list")
     public String ticketGroupList(Model model, Principal principal) {
-        XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
-        XTicketPayload response = xticketService.processFetchTicketGroup();
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
+        XTicketPayload response = xticketService.fetchTicketGroup();
         model.addAttribute("dataList", response.getData());
         model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", messageSource.getMessage("appMessages.ticket.record", new Object[]{response.getData().size()}, Locale.ENGLISH));
@@ -95,7 +95,7 @@ public class SetupController {
 
     @GetMapping("/ticket/group/delete")
     public String deleteTicketGroup(@RequestParam("seid") String seid, Model model, Principal principal) {
-        XTicketPayload response = xticketService.processDeleteTicketGroup(seid, principal.getName());
+        XTicketPayload response = xticketService.deleteTicketGroup(seid, principal.getName());
         alertMessage = response.getResponseMessage();
         alertMessageType = "success";
         return "redirect:/setup/ticket/group/list";
@@ -103,11 +103,11 @@ public class SetupController {
 
     @GetMapping("/ticket/type")
     public String ticketType(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
-        XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("ticketPayload", new XTicketPayload());
-        model.addAttribute("ticketGroup", xticketService.processFetchTicketGroup().getData());
-        model.addAttribute("ticketSla", xticketService.processFetchTicketSla().getData());
-        model.addAttribute("recordCount", xticketService.processFetchTicketType().getData().size());
+        model.addAttribute("ticketGroup", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("ticketSla", xticketService.fetchTicketSla().getData());
+        model.addAttribute("recordCount", xticketService.fetchTicketType().getData().size());
         model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
@@ -117,17 +117,17 @@ public class SetupController {
 
     @PostMapping("/ticket/type/create")
     public String ticketType(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession session, Principal principal, Model model) {
-        XTicketPayload response = xticketService.processCreateTicketType(requestPayload, principal.getName());
+        XTicketPayload response = xticketService.createTicketType(requestPayload, principal.getName());
         if (response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
             alertMessage = response.getResponseMessage();
             alertMessageType = "success";
             return "redirect:/setup/ticket/type";
         }
-        XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("ticketPayload", requestPayload);
-        model.addAttribute("ticketGroup", xticketService.processFetchTicketGroup().getData());
-        model.addAttribute("ticketSla", xticketService.processFetchTicketSla().getData());
+        model.addAttribute("ticketGroup", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("ticketSla", xticketService.fetchTicketSla().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "error");
         resetAlertMessage();
@@ -136,8 +136,8 @@ public class SetupController {
 
     @GetMapping("/ticket/type/edit")
     public String ticketType(@RequestParam("seid") String id, Model model, Principal principal) {
-        XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
-        XTicketPayload response = xticketService.processFetchTicketType(id);
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
+        XTicketPayload response = xticketService.fetchTicketType(id);
         if (!response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
             alertMessage = response.getResponseMessage();
             alertMessageType = "error";
@@ -145,9 +145,9 @@ public class SetupController {
         }
         model.addAttribute("ticketPayload", response);
         model.addAttribute("profilePayload", profileDetails);
-        model.addAttribute("recordCount", xticketService.processFetchTicketType().getData().size());
-        model.addAttribute("ticketGroup", xticketService.processFetchTicketGroup().getData());
-        model.addAttribute("ticketSla", xticketService.processFetchTicketSla().getData());
+        model.addAttribute("recordCount", xticketService.fetchTicketType().getData().size());
+        model.addAttribute("ticketGroup", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("ticketSla", xticketService.fetchTicketSla().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "success");
         resetAlertMessage();
@@ -156,12 +156,12 @@ public class SetupController {
 
     @GetMapping("/ticket/type/list")
     public String ticketTypeList(Model model, Principal principal) {
-        XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
-        XTicketPayload response = xticketService.processFetchTicketType();
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
+        XTicketPayload response = xticketService.fetchTicketType();
         model.addAttribute("dataList", response.getData());
         model.addAttribute("profilePayload", profileDetails);
-        model.addAttribute("ticketGroup", xticketService.processFetchTicketGroup().getData());
-        model.addAttribute("ticketSla", xticketService.processFetchTicketSla().getData());
+        model.addAttribute("ticketGroup", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("ticketSla", xticketService.fetchTicketSla().getData());
         model.addAttribute("alertMessage", messageSource.getMessage("appMessages.ticket.record", new Object[]{response.getData().size()}, Locale.ENGLISH));
         model.addAttribute("alertMessageType", "success");
         resetAlertMessage();
@@ -170,7 +170,7 @@ public class SetupController {
 
     @GetMapping("/ticket/type/delete")
     public String deleteTicketType(@RequestParam("seid") String seid, Model model, Principal principal) {
-        XTicketPayload response = xticketService.processDeleteTicketType(seid, principal.getName());
+        XTicketPayload response = xticketService.deleteTicketType(seid, principal.getName());
         alertMessage = response.getResponseMessage();
         alertMessageType = "success";
         return "redirect:/setup/ticket/type/list";
@@ -178,9 +178,9 @@ public class SetupController {
 
     @GetMapping("/ticket/agent")
     public String ticketAgent(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
-        XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("ticketPayload", new XTicketPayload());
-        model.addAttribute("userList", xticketService.processFetchInternalAppUsers());
+        model.addAttribute("userList", xticketService.fetchInternalAppUsers());
         model.addAttribute("roleList", null);
         model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", alertMessage);
@@ -191,10 +191,10 @@ public class SetupController {
 
     @PostMapping("/ticket/agent/permission")
     public String ticketAgentPermission(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession session, Principal principal, Model model) {
-        XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("ticketPayload", requestPayload);
-        model.addAttribute("userList", xticketService.processFetchInternalAppUsers());
-        model.addAttribute("roleList", xticketService.processFetchAgentTicketTypes(requestPayload.getEmail()).getData());
+        model.addAttribute("userList", xticketService.fetchInternalAppUsers());
+        model.addAttribute("roleList", xticketService.fetchAgentTicketTypes(requestPayload.getEmail()).getData());
         model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
@@ -204,17 +204,17 @@ public class SetupController {
 
     @PostMapping("/ticket/agent/create")
     public String ticketAgent(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession session, Principal principal, Model model) {
-        XTicketPayload response = xticketService.processCreateTicketAgent(requestPayload, principal.getName());
+        XTicketPayload response = xticketService.createTicketAgent(requestPayload, principal.getName());
         if (response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
             alertMessage = response.getResponseMessage();
             alertMessageType = "success";
             return "redirect:/setup/ticket/agent";
         }
-        XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("ticketPayload", requestPayload);
-        model.addAttribute("userList", xticketService.processFetchInternalAppUsers());
-        model.addAttribute("roleList", xticketService.processFetchAgentTicketTypes(principal.getName()).getData());
+        model.addAttribute("userList", xticketService.fetchInternalAppUsers());
+        model.addAttribute("roleList", xticketService.fetchAgentTicketTypes(principal.getName()).getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "error");
         resetAlertMessage();
@@ -223,8 +223,8 @@ public class SetupController {
 
     @GetMapping("/ticket/agent/list")
     public String ticketAgentList(Model model, Principal principal) {
-        XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
-        XTicketPayload response = xticketService.processFetchTicketAgent();
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
+        XTicketPayload response = xticketService.fetchTicketAgent();
         model.addAttribute("dataList", response.getData());
         model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", messageSource.getMessage("appMessages.ticket.record", new Object[]{response.getData().size()}, Locale.ENGLISH));
@@ -235,10 +235,10 @@ public class SetupController {
 
     @GetMapping("/ticket/sla")
     public String ticketSla(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
-        XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("ticketPayload", new XTicketPayload());
-        model.addAttribute("recordCount", xticketService.processFetchTicketSla().getData().size());
-        model.addAttribute("ticketSla", xticketService.processFetchTicketSla());
+        model.addAttribute("recordCount", xticketService.fetchTicketSla().getData().size());
+        model.addAttribute("ticketSla", xticketService.fetchTicketSla());
         model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
@@ -248,13 +248,13 @@ public class SetupController {
 
     @PostMapping("/ticket/sla/create")
     public String ticketSla(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession session, Principal principal, Model model) {
-        XTicketPayload response = xticketService.processCreateTicketSla(requestPayload, principal.getName());
+        XTicketPayload response = xticketService.createTicketSla(requestPayload, principal.getName());
         if (response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
             alertMessage = response.getResponseMessage();
             alertMessageType = "success";
             return "redirect:/setup/ticket/sla";
         }
-        XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("alertMessage", response.getResponseMessage());
@@ -265,8 +265,8 @@ public class SetupController {
 
     @GetMapping("/ticket/sla/edit")
     public String ticketSla(@RequestParam("seid") String id, Model model, Principal principal) {
-        XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
-        XTicketPayload response = xticketService.processFetchTicketSla(id);
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
+        XTicketPayload response = xticketService.fetchTicketSla(id);
         if (!response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
             alertMessage = response.getResponseMessage();
             alertMessageType = "error";
@@ -274,7 +274,7 @@ public class SetupController {
         }
         model.addAttribute("ticketPayload", response);
         model.addAttribute("profilePayload", profileDetails);
-        model.addAttribute("recordCount", xticketService.processFetchTicketSla().getData().size());
+        model.addAttribute("recordCount", xticketService.fetchTicketSla().getData().size());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "success");
         resetAlertMessage();
@@ -283,8 +283,8 @@ public class SetupController {
 
     @GetMapping("/ticket/sla/list")
     public String ticketSlaList(Model model, Principal principal) {
-        XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
-        XTicketPayload response = xticketService.processFetchTicketSla();
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
+        XTicketPayload response = xticketService.fetchTicketSla();
         model.addAttribute("dataList", response.getData());
         model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", messageSource.getMessage("appMessages.ticket.record", new Object[]{response.getData().size()}, Locale.ENGLISH));
@@ -295,7 +295,7 @@ public class SetupController {
 
     @GetMapping("/ticket/sla/delete")
     public String deleteTicketSla(@RequestParam("seid") String seid, Model model, Principal principal) {
-        XTicketPayload response = xticketService.processDeleteTicketSla(seid, principal.getName());
+        XTicketPayload response = xticketService.deleteTicketSla(seid, principal.getName());
         alertMessage = response.getResponseMessage();
         alertMessageType = "success";
         return "redirect:/setup/ticket/sla/list";

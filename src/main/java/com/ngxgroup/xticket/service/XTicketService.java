@@ -3,6 +3,7 @@ package com.ngxgroup.xticket.service;
 import com.ngxgroup.xticket.model.AppRoles;
 import com.ngxgroup.xticket.model.AppUser;
 import com.ngxgroup.xticket.model.RoleGroups;
+import com.ngxgroup.xticket.model.TicketAgent;
 import com.ngxgroup.xticket.model.TicketType;
 import com.ngxgroup.xticket.payload.XTicketPayload;
 import java.util.List;
@@ -13,25 +14,27 @@ import java.util.List;
  */
 public interface XTicketService {
 
-    XTicketPayload processSignin(XTicketPayload requestPayload);
+    XTicketPayload signin(XTicketPayload requestPayload);
 
-    XTicketPayload processSignup(XTicketPayload requestPayload);
+    XTicketPayload signup(XTicketPayload requestPayload);
 
-    XTicketPayload processSignUpActivation(String id);
+    XTicketPayload signUpActivation(String id);
 
-    XTicketPayload processFetchProfile(String principal);
+    XTicketPayload fetchProfile(String principal);
 
-    XTicketPayload processChangePassword(XTicketPayload requestPayload);
+    XTicketPayload changePassword(XTicketPayload requestPayload);
 
-    XTicketPayload processForgotPassword(XTicketPayload requestPayload);
+    XTicketPayload forgotPassword(XTicketPayload requestPayload);
 
-    XTicketPayload processUpdateAppUser(XTicketPayload requestPayload, String principal);
+    XTicketPayload updateAppUser(XTicketPayload requestPayload, String principal);
 
-    List<AppUser> processFetchInternalAppUsers();
+    List<AppUser> fetchInternalAppUsers();
 
-    List<AppUser> processFetchAppUsers();
+    List<AppUser> fetchAppUsers();
 
-    void processUserOnline(String principal, boolean userOnline);
+    XTicketPayload fetchAllAppUsers();
+
+    void userOnline(String principal, boolean userOnline);
 
     /**
      * Roles
@@ -39,71 +42,83 @@ public interface XTicketService {
      *
      * @return
      */
-    List<RoleGroups> processFetchRoleGroup();
+    List<RoleGroups> fetchRoleGroup();
 
-    XTicketPayload processFetchRoleGroup(String id);
+    XTicketPayload fetchRoleGroup(String id);
 
-    List<AppRoles> processFetchAppRoles();
+    List<AppRoles> fetchAppRoles();
 
-    XTicketPayload processCreateRoleGroup(XTicketPayload requestPayload, String principal);
+    XTicketPayload createRoleGroup(XTicketPayload requestPayload, String principal);
 
-    XTicketPayload processDeleteRoleGroup(String id, String principal);
+    XTicketPayload deleteRoleGroup(String id, String principal);
 
-    XTicketPayload processFetchGroupRoles(String groupName);
+    XTicketPayload fetchGroupRoles(String groupName);
 
-    XTicketPayload processUpdateGroupRoles(XTicketPayload requestPayload);
+    XTicketPayload updateGroupRoles(XTicketPayload requestPayload);
 
     /**
      * Ticket Group
      *
      * @return
      */
-    XTicketPayload processFetchTicketGroup();
+    XTicketPayload fetchTicketGroup();
 
-    XTicketPayload processFetchTicketGroup(String id);
+    XTicketPayload fetchTicketGroup(String id);
 
-    XTicketPayload processCreateTicketGroup(XTicketPayload requestPayload, String principal);
+    XTicketPayload createTicketGroup(XTicketPayload requestPayload, String principal);
 
-    XTicketPayload processDeleteTicketGroup(String id, String principal);
+    XTicketPayload deleteTicketGroup(String id, String principal);
+
+    XTicketPayload fetchTicketGroupStatisticsByUser(String principal);
+
+    XTicketPayload fetchTicketStatusStatisticsByUser(String principal);
 
     /**
      * Ticket Type
      *
      * @return
      */
-    XTicketPayload processFetchTicketType();
+    XTicketPayload fetchTicketType();
 
-    XTicketPayload processFetchTicketType(String id);
+    XTicketPayload fetchTicketType(String id);
 
-    XTicketPayload processCreateTicketType(XTicketPayload requestPayload, String principal);
+    XTicketPayload createTicketType(XTicketPayload requestPayload, String principal);
 
-    XTicketPayload processDeleteTicketType(String id, String principal);
+    XTicketPayload deleteTicketType(String id, String principal);
 
-    XTicketPayload processFetchAgentTicketTypes(String principal);
+    XTicketPayload fetchAgentTicketTypes(String principal);
 
-    List<TicketType> processFetchTicketTypeUsingGroup(String ticketGroupCode, String principal);
+    List<TicketType> fetchTicketTypeUsingGroup(String ticketGroupCode, String principal);
+
+    List<TicketAgent> fetchTicketAgentUsingType(String ticketTypeCode, String principal);
 
     /**
      * Ticket SLA
      *
      * @return
      */
-    XTicketPayload processFetchTicketSla();
+    XTicketPayload fetchTicketSla();
 
-    XTicketPayload processFetchTicketSla(String id);
+    XTicketPayload fetchTicketByViolatedSla(XTicketPayload requestPayload);
 
-    XTicketPayload processCreateTicketSla(XTicketPayload requestPayload, String principal);
+    XTicketPayload fetchTicketSla(String id);
 
-    XTicketPayload processDeleteTicketSla(String id, String principal);
+    XTicketPayload createTicketSla(XTicketPayload requestPayload, String principal);
+
+    XTicketPayload deleteTicketSla(String id, String principal);
 
     /**
      * Ticket Agent
      *
      * @return
      */
-    XTicketPayload processFetchTicketAgent();
+    XTicketPayload fetchTicketAgent();
 
-    XTicketPayload processCreateTicketAgent(XTicketPayload requestPayload, String principal);
+    XTicketPayload fetchTicketAgent(XTicketPayload requestPayload);
+
+    XTicketPayload fetchTicketClosedByAgent(XTicketPayload requestPayload);
+
+    XTicketPayload createTicketAgent(XTicketPayload requestPayload, String principal);
 
     /**
      * Ticket **
@@ -112,5 +127,37 @@ public interface XTicketService {
      * @param principal
      * @return
      */
-    XTicketPayload processCreateTicket(XTicketPayload requestPayload, String principal);
+    XTicketPayload createTicket(XTicketPayload requestPayload, String principal);
+
+    XTicketPayload replyTicket(XTicketPayload requestPayload, String principal);
+
+    XTicketPayload fetchTicketUsingId(String id);
+
+    XTicketPayload fetchOpenTicket(String principal);
+
+    XTicketPayload fetchOpenTicket();
+
+    XTicketPayload fetchOpenTicket(XTicketPayload requestPayload);
+
+    XTicketPayload fetchOpenTicketForAgent(String principal);
+
+    XTicketPayload fetchClosedTicket(String principal);
+
+    XTicketPayload fetchClosedTicket(XTicketPayload requestPayload);
+
+    XTicketPayload fetchClosedTicket();
+
+    XTicketPayload fetchTicketByUser(String principal);
+
+    XTicketPayload closeTicket(String id, String ticketReopened, String ticketReopenedId, String principal);
+
+    XTicketPayload createReopenTicket(XTicketPayload requestPayload, String principal);
+
+    XTicketPayload fetchReopenedTicket(XTicketPayload requestPayload);
+
+    XTicketPayload createTicketReassignment(XTicketPayload requestPayload, String principal);
+
+    XTicketPayload fetchReassignedTicket(XTicketPayload requestPayload);
+
+    XTicketPayload fetchTicketFullDetails(String ticketId);
 }

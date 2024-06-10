@@ -31,7 +31,6 @@
                     </div>
                     <div class="row mb-3 justify-content-between">
                         <div class="offset-lg-3 col-lg-6 col-md-12 col-sm-12">
-                            <h5 class="mb-2 text-secondary">Create New Ticket</h5>
                             <form th:object="${ticketPayload}" th:action="@{/ticket/new/create}" method="POST" enctype="multipart/form-data">
                                 <div class="form-icon-container">
                                     <select class="form-select form-control-sm form-icon-input" aria-label="ticketGroupCode" th:field="*{ticketGroupCode}" required="required" th:onchange="|fetchTicketType()|">
@@ -91,7 +90,7 @@
                                             </div>
                                         </div>
                                     </a>
-                                    <a href="!#">
+                                    <a href="!#" th:href="@{/ticket/open}">
                                         <div class="d-flex align-items-center"><img th:src="@{/images/icons/19.png}" src="" alt="" height="46" width="46" />
                                             <div class="ms-3">
                                                 <h4 class="mb-0" th:text="${myTicketStat}">57</h4>

@@ -38,10 +38,18 @@ public class TicketReopened implements Serializable {
     private AppUser reopenedBy;
     @ManyToOne
     private Tickets ticket;
+    @ManyToOne
+    private TicketAgent ticketAgent;
     @Column(name = "reason_for_reopening")
     private String reasonForReopening;
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
     @ManyToOne
     private AppUser closedBy;
+    @Column(name = "priority")
+    private String priority;
+    @Column(name = "sla")
+    private String sla;
+    @Column(name = "sla_expiry")
+    private LocalDateTime slaExpiry;
 }

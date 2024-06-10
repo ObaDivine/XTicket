@@ -14,6 +14,7 @@
                     <div class="row gy-3 mb-6 justify-content-between">
                         <div class="col-md-9 col-auto">
                             <h5 class="mb-2 text-1100 text-primary">Dashboard</h5>
+                            <h5 class="text-700 fw-semi-bold">X-Ticket System</h5>
                         </div>
                         <div class="col-md-3 col-auto">
                             <h5 class="mb-2 text-1100 text-primary" th:text="'Welcome ' + ${profilePayload.lastName + ', ' + profilePayload.otherName}">Welcome Brian</h5>
@@ -21,10 +22,10 @@
                     </div>
                     <div class="row align-items-center g-6">
                         <div class="col-12 col-md-auto">
-                            <a href="!#" th:href="@{/ticket/open}">
+                            <a href="!#" th:href="@{/agent/ticket/open}">
                                 <div class="d-flex align-items-center"><img th:src="@{/images/icons/18.png}" src="" alt="" height="46" width="46" />
                                     <div class="ms-3">
-                                        <h4 class="mb-0" th:text="${openTicketStat}">57</h4>
+                                        <h4 class="mb-0" th:text="${agentOpenTicketStat}">57</h4>
                                         <p class="text-800 fs--1 mb-0">Open Tickets</p>
                                     </div>
                                 </div>

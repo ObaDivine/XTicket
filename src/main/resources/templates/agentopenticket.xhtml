@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
-        <title>X-Ticket - System User List</title>
+        <title>X-Ticket - Open Ticket</title>
         <th:block th:include="~{fragments/xTicketFragments :: headerfiles}"></th:block>
     </head>
     <body onload="preloaderFunction()" style="margin: 0;">
@@ -13,15 +13,14 @@
                 <div class="content">
                     <div class="row gy-3 mb-3 justify-content-between">
                         <div class="col-md-4 col-auto">
-                            <h5 class="text-1100 text-primary">System User List</h5>
+                            <h5 class="text-1100 text-primary">List Open Ticket</h5>
                         </div>
                         <div class="col-md-5 col-auto">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb mb-0">
                                     <li class="breadcrumb-item"><a href="#" th:href="@{/}">Home</a></li>
-                                    <li class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
-                                    <li class="breadcrumb-item"><a href="#" th:href="@{/user/}">System User Update</a></li>
-                                    <li class="breadcrumb-item active">System User Listing</li>
+                                    <li class="breadcrumb-item"><a href="#" th:href="@{/agent/dashboard}">Dashboard</a></li>
+                                    <li class="breadcrumb-item active">Open Ticket Listing</li>
                                 </ol>
                             </nav>
                         </div>
@@ -31,37 +30,36 @@
                         <hr/>
                     </div>
                     <div class="row mb-6 justify-content-between">
-                        <div class="offset-lg-1 col-lg-10 col-md-12 col-sm-12">
-                            <h5 class="mb-2 text-secondary">Listing of System Users</h5>
+                        <div class="col-lg-12 col-md-12 col-sm-12">
                             <div class="table-responsive ms-n1 ps-1 scrollbar">
                                 <table class="table table-responsive table-sm table-striped fs--1 mb-0 border-200">
                                     <thead>
                                         <tr>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">Date</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="name">Full Name</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="email">Email</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="mobile">Mobile Number</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="gender">Gender</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="internal">Internal User</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="agent">Agent</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="locked">Locked</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="createdBy">Created By</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketFrom">Ticket From</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketId">Ticket ID</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketGroup">Ticket Group</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketType">Ticket Type</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="priority">Priority</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="slaExpiry">SLA Expiry</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="subject">Subject</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody class="list" id="deal-tables-body" th:if="${dataList != null}">
                                         <tr th:each="rec : ${dataList}" class="position-static">
-                                            <td th:text="${#temporals.format(rec.createdAt, 'yyyy-mm-dd HH:mm:ss')}" class="date align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.lastName + ', ' + rec.otherName}" class="name align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.email}" class="email align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.mobileNumber}" class="mobile align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.gender}" class="gender align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.internal}" class="internal align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.agent}" class="agent align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.locked}" class="lastLogin align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.createdBy}" class="createdBy align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.createdAt}" class="date align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.createdBy}" class="ticketFrom align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.ticketId}" class="ticketId align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.ticketGroupName}" class="ticketGroup align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.ticketTypeName}" class="ticketType align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.priority}" class="priority align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.slaExpiry}" class="slaExipry align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.subject}" class="subject align-middle white-space-nowrap start ps-3"></td>
                                             <td class="align-middle white-space-nowrap start ps-3 btn-reveal-trigger">
-                                                <a class="text-success" href="#!" th:href="@{'/user/details?seid=' + ${rec.id}}"><span class="fas fa-eye"></span></a>
+                                                <a class="btn btn-sm btn-info" href="#!" th:href="@{'/agent/ticket/view?seid=' + ${rec.id}}">
+                                                    <span class="fas fa-eye"></span>
+                                                </a>
                                             </td>
                                         </tr>
                                     </tbody>

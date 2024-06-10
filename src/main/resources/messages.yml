@@ -6,6 +6,8 @@ appMessages:
     exist: A {0} exist with the {1} {2}
     notexist: No {0} exist with the {1} {2}
     inuse: The {0} {1} is in use
+    noagent: No agent available for ticket type {0}
+    sameagent: You cannot reassign to yourself
   password:
     complexity: The password did not match the required complexity  
     expire: Your password has expired. Kindly change password

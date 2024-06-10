@@ -97,6 +97,28 @@ function fetchTicketType() {
 }
 ;
 
+function fetchTicketAgent() {
+    let ticketType = document.getElementById("ticketTypeCode").value;
+    $.ajax({
+        url: "/xticket/ticket/agent/fetch/" + ticketType,
+        type: "GET",
+        dataType: "JSON",
+        success: function (data) {
+            var html = '<option value="">---Select Ticket Agent---</option>';
+            var len = data.length;
+            for (var i = 0; i < len; i++) {
+                html += '<option value="' + data[i].agent.email + '">' + data[i].agent.lastName + ', ' + data[i].agent.otherName + '</option>';
+            }
+            html += '</option>';
+            $("#email").html(html);
+        },
+        error: function (xhr, status) {
+            alert(xhr);
+        }
+    });
+}
+;
+
 function emailValidation() {
     let userEmail = $("#email").val();
     let adDomains = $("#adAuthDomains").val().split(',');
@@ -120,5 +142,8 @@ function emailValidation() {
 }
 ;
 
-
+function replaceString(text, charToReplace){
+    var newString = text.replace(charToReplace,'');
+    return newString;
+};
 

@@ -11,10 +11,12 @@ import com.ngxgroup.xticket.model.TicketEscalations;
 import com.ngxgroup.xticket.model.TicketGroup;
 import com.ngxgroup.xticket.model.TicketReopened;
 import com.ngxgroup.xticket.model.TicketAgent;
+import com.ngxgroup.xticket.model.TicketReassign;
 import com.ngxgroup.xticket.model.TicketSla;
 import com.ngxgroup.xticket.model.TicketType;
 import com.ngxgroup.xticket.model.TicketUpload;
 import com.ngxgroup.xticket.model.Tickets;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -101,9 +103,31 @@ public interface XTicketRepository {
 
     List<Tickets> getOpenTickets();
 
+    List<Tickets> getClosedTickets();
+
+    List<Tickets> getClosedTickets(LocalDate startDate, LocalDate endDate);
+
+    List<Tickets> getTicketClosedByAgent(AppUser appUser, LocalDate startDate, LocalDate endDate);
+
+    List<Tickets> getTicketClosedByAgent(AppUser appUser);
+
+    List<Tickets> getViolatedTickets(LocalDate startDate, LocalDate endDate);
+
+    List<Tickets> getOpenTicketsByUser(AppUser appUser);
+
+    List<Tickets> getTicketsByUser(AppUser appUser);
+
+    List<Tickets> getClosedTicketsByUser(AppUser appUser);
+
+    List<Tickets> getOpenTicketsByType(TicketType ticketType);
+
+    List<Tickets> getOpenAgentTickets(AppUser appUser);
+
     Tickets getTicketUsingTicketGroup(TicketGroup ticketGroup);
 
     Tickets getTicketUsingTicketType(TicketType ticketType);
+
+    Tickets getTicketUsingTicketId(String ticketId);
 
     /**
      * Ticket Reopened
@@ -114,11 +138,15 @@ public interface XTicketRepository {
 
     List<TicketReopened> getTicketReopenedUsingTicket(Tickets ticket);
 
+    List<TicketReopened> getDistinctTicketReopened(LocalDate startDate, LocalDate endDate);
+
     TicketReopened createTicketReopen(TicketReopened ticketReopened);
 
     TicketReopened updateTicketReopen(TicketReopened ticketReopened);
 
     TicketReopened deleteTicketReopen(TicketReopened ticketReopened);
+
+    TicketReopened getTicketReopenedUsingId(long id);
 
     /**
      * Ticket Group
@@ -164,6 +192,8 @@ public interface XTicketRepository {
 
     List<TicketType> getTicketTypeUsingTicketSla(TicketSla ticketSla);
 
+    int getTicketGroupByUser(AppUser appUser, TicketGroup ticketGroup);
+
     /**
      * Ticket SLA
      *
@@ -188,6 +218,8 @@ public interface XTicketRepository {
      */
     List<TicketAgent> getTicketAgent();
 
+    List<AppUser> getDistinctTicketAgent();
+
     List<TicketAgent> getTicketAgent(AppUser ticketAgent);
 
     List<TicketAgent> getTicketAgentUsingTicketType(TicketType ticketType);
@@ -197,6 +229,8 @@ public interface XTicketRepository {
     TicketAgent updateTicketAgent(TicketAgent ticketAgent);
 
     TicketAgent deleteTicketAgent(TicketAgent ticketAgent);
+
+    TicketAgent getTicketAgentUsingId(long id);
 
     /**
      * Ticket Escalation
@@ -243,4 +277,27 @@ public interface XTicketRepository {
 
     TicketUpload deleteTicketEscalation(TicketUpload ticketUpload);
 
+    /**
+     * Ticket Comment
+     *
+     * @param ticketComment
+     * @return *
+     */
+    TicketComment createTicketComment(TicketComment ticketComment);
+
+    /**
+     * Ticket Reassignment
+     *
+     * @param ticketReassign
+     * @return *
+     */
+    TicketReassign createTicketReassign(TicketReassign ticketReassign);
+
+    TicketReassign updateTicketReassign(TicketReassign ticketReassign);
+
+    TicketReassign deleteTicketReassign(TicketReassign ticketReassign);
+
+    List<TicketReassign> getTicketReassignedUsingTicket(Tickets ticket);
+
+    List<TicketReassign> getDistinctTicketReassigned(LocalDate startDate, LocalDate endDate);
 }

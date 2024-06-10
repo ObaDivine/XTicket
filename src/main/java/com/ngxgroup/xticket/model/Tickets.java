@@ -39,6 +39,8 @@ public class Tickets implements Serializable {
     private LocalDateTime closedAt;
     @ManyToOne
     private AppUser closedBy;
+    @ManyToOne
+    private TicketAgent ticketAgent;
     @Column(name = "ticket_id")
     private String ticketId;
     @Column(name = "ticket_open")
@@ -46,7 +48,13 @@ public class Tickets implements Serializable {
     @Column(name = "ticket_locked")
     private boolean ticketLocked = false;
     @Column(name = "ticket_reopened")
-    private boolean ticketReopened = false;
+    private boolean ticketReopen = false;
+    @ManyToOne
+    private TicketReopened ticketReopened;
+    @Column(name = "ticket_reassigned")
+    private boolean ticketReassign = false;
+    @ManyToOne
+    private TicketReassign ticketReassigned;
     @Column(name = "internal")
     private boolean internal = true;
     @ManyToOne
@@ -63,4 +71,18 @@ public class Tickets implements Serializable {
     private String sla;
     @Column(name = "sla_expiry")
     private LocalDateTime slaExpiry;
+    @Column(name = "sla_violated")
+    private boolean slaViolated = false;
+    @Column(name = "sla_violated_at")
+    private LocalDateTime slaViolatedAt;
+    @ManyToOne
+    private TicketAgent ticketAgentViolated;
+    @Column(name = "subject", length = 5000)
+    private String subject;
+    @Column(name = "message", length = 5000)
+    private String message;
+    @Column(name = "attached_file")
+    private boolean attachedFile = false;
+    @Column(name = "file_index")
+    private int fileIndex = 1;
 }

@@ -13,7 +13,7 @@
                 <div class="content">
                     <div class="row gy-3 mb-3 justify-content-between">
                         <div class="col-md-4 col-auto">
-                            <h5 class="text-1100 text-primary">Setup [Ticket Group]</h5>
+                            <h5 class="text-1100 text-primary">Setup Ticket Group</h5>
                         </div>
                         <div class="col-md-5 col-auto">
                             <nav aria-label="breadcrumb">
@@ -31,7 +31,6 @@
                     </div>
                     <div class="row mb-3 justify-content-between">
                         <div class="offset-lg-4 col-lg-4 col-md-12 col-sm-12">
-                            <h5 class="mb-2 text-secondary">Create Ticket Group</h5>
                             <form th:object="${ticketPayload}" th:action="@{/setup/ticket/group/create}" method="POST">
                                 <input type="hidden" th:field="*{id}" />
                                 <div class="form-icon-container">

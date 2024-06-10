@@ -37,10 +37,10 @@ public class UserController {
 
     @GetMapping("/")
     public String appUser(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
-        XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("userPayload", new XTicketPayload());
-        model.addAttribute("userList", xticketService.processFetchAppUsers());
-        model.addAttribute("roleList", xticketService.processFetchRoleGroup());
+        model.addAttribute("userList", xticketService.fetchAppUsers());
+        model.addAttribute("roleList", xticketService.fetchRoleGroup());
         model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
@@ -50,7 +50,7 @@ public class UserController {
 
     @PostMapping("/update")
     public String updateUser(@ModelAttribute("userPayload") XTicketPayload requestPayload, HttpSession session, Principal principal, Model model) {
-        XTicketPayload response = xticketService.processUpdateAppUser(requestPayload, principal.getName());
+        XTicketPayload response = xticketService.updateAppUser(requestPayload, principal.getName());
         alertMessage = response.getResponseMessage();
         alertMessageType = response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error";
         return "redirect:/user/";
@@ -58,9 +58,9 @@ public class UserController {
 
     @GetMapping("/list")
     public String appUserList(Model model, Principal principal) {
-        XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
-        List<AppUser> response = xticketService.processFetchAppUsers();
-        model.addAttribute("dataList", xticketService.processFetchAppUsers());
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
+        List<AppUser> response = xticketService.fetchAppUsers();
+        model.addAttribute("dataList", xticketService.fetchAppUsers());
         model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", messageSource.getMessage("appMessages.ticket.record", new Object[]{response.size()}, Locale.ENGLISH));
         model.addAttribute("alertMessageType", "success");
@@ -70,9 +70,9 @@ public class UserController {
 
     @GetMapping("/roles")
     public String userRoles(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
-        XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("rolePayload", new XTicketPayload());
-        model.addAttribute("roleList", xticketService.processFetchRoleGroup());
+        model.addAttribute("roleList", xticketService.fetchRoleGroup());
         model.addAttribute("groupRolesPayload", null);
         model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", alertMessage);
@@ -83,8 +83,8 @@ public class UserController {
 
     @PostMapping("/roles/group")
     public String createRoleGroup(@ModelAttribute("xticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
-        XTicketPayload response = xticketService.processCreateRoleGroup(requestPayload, principal.getName());
-        XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
+        XTicketPayload response = xticketService.createRoleGroup(requestPayload, principal.getName());
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         if (response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
             alertMessage = response.getResponseMessage();
             alertMessageType = "success";
@@ -92,7 +92,7 @@ public class UserController {
         }
         model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("rolePayload", requestPayload);
-        model.addAttribute("roleList", xticketService.processFetchRoleGroup());
+        model.addAttribute("roleList", xticketService.fetchRoleGroup());
         model.addAttribute("groupRolesPayload", response.getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
@@ -101,8 +101,8 @@ public class UserController {
 
     @GetMapping("/roles/edit")
     public String editRoleGroup(@RequestParam("seid") String seid, Model model, Principal principal, HttpServletRequest httpRequest) {
-        XTicketPayload response = xticketService.processFetchRoleGroup(seid);
-        XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
+        XTicketPayload response = xticketService.fetchRoleGroup(seid);
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         if (!response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
             alertMessage = response.getResponseMessage();
             alertMessageType = "success";
@@ -110,7 +110,7 @@ public class UserController {
         }
         model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("rolePayload", response);
-        model.addAttribute("roleList", xticketService.processFetchRoleGroup());
+        model.addAttribute("roleList", xticketService.fetchRoleGroup());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "success");
         resetAlertMessage();
@@ -119,7 +119,7 @@ public class UserController {
 
     @GetMapping("/roles/delete")
     public String deleteRole(@RequestParam("seid") String seid, Model model, Principal principal, HttpServletRequest httpRequest) {
-        XTicketPayload response = xticketService.processDeleteRoleGroup(seid, principal.getName());
+        XTicketPayload response = xticketService.deleteRoleGroup(seid, principal.getName());
         alertMessage = response.getResponseMessage();
         alertMessageType = "success";
         return "redirect:/user/roles";
@@ -127,10 +127,10 @@ public class UserController {
 
     @PostMapping("/roles/fetch")
     public String fetchGroupRoles(@ModelAttribute("rolePayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
-        XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("rolePayload", requestPayload);
-        model.addAttribute("roleList", xticketService.processFetchRoleGroup());
-        model.addAttribute("groupRolesPayload", xticketService.processFetchGroupRoles(requestPayload.getGroupName()).getData());
+        model.addAttribute("roleList", xticketService.fetchRoleGroup());
+        model.addAttribute("groupRolesPayload", xticketService.fetchGroupRoles(requestPayload.getGroupName()).getData());
         model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", "");
         model.addAttribute("alertMessageType", "");
@@ -139,10 +139,10 @@ public class UserController {
 
     @PostMapping("/roles/update")
     public String updateGroupRoles(@ModelAttribute("rolePayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
-        XTicketPayload response = xticketService.processUpdateGroupRoles(requestPayload);
-        XTicketPayload profileDetails = xticketService.processFetchProfile(principal.getName());
+        XTicketPayload response = xticketService.updateGroupRoles(requestPayload);
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("rolePayload", requestPayload);
-        model.addAttribute("roleList", xticketService.processFetchRoleGroup());
+        model.addAttribute("roleList", xticketService.fetchRoleGroup());
         model.addAttribute("groupRolesPayload", null);
         model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", response.getResponseMessage());

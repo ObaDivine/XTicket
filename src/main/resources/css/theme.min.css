@@ -6447,7 +6447,7 @@ textarea.form-control.is-invalid {
     -ms-flex: 1 1 auto;
     flex: 1 1 auto;
     padding: var(--entitysc-card-spacer-y) var(--entitysc-card-spacer-x);
-    color: var(--entitysc-card-color)
+    color: var(--entitysc-card-color);
 }
 
 .card-title {
@@ -6472,7 +6472,7 @@ textarea.form-control.is-invalid {
 }
 
 .card-header {
-    padding: 7px !important;
+    padding: 5px !important;
     margin-bottom: 0;
     color: var(--entitysc-card-cap-color);
     background-color: var(--entitysc-card-cap-bg);
@@ -6484,10 +6484,12 @@ textarea.form-control.is-invalid {
 }
 
 .card-footer {
-    padding: var(--entitysc-card-cap-padding-y) var(--entitysc-card-cap-padding-x);
+    padding: 5px !important;
     color: var(--entitysc-card-cap-color);
-    background-color: var(--entitysc-card-cap-bg);
-    border-top: var(--entitysc-card-border-width) solid var(--entitysc-card-border-color)
+    background-color: whitesmoke;
+    border-top: var(--entitysc-card-border-width) solid var(--entitysc-card-border-color);
+    max-height: auto !important;
+        
 }
 
 .card-footer:last-child {
