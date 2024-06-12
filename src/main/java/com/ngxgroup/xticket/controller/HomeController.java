@@ -2,16 +2,13 @@ package com.ngxgroup.xticket.controller;
 
 import com.google.gson.Gson;
 import com.ngxgroup.xticket.constant.ResponseCodes;
+import com.ngxgroup.xticket.model.AppUser;
 import com.ngxgroup.xticket.model.GroupRoles;
 import com.ngxgroup.xticket.payload.XTicketPayload;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.logging.Logger;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,7 +22,22 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import com.ngxgroup.xticket.service.XTicketService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import java.util.Locale;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
@@ -35,6 +47,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class HomeController {
 
+//    @Autowired
+//    AuthenticationManager authenticationManager;
     @Autowired
     XTicketService xticketService;
     @Autowired
@@ -46,6 +60,8 @@ public class HomeController {
     private static final Logger LOGGER = Logger.getLogger(HomeController.class.getName());
     private String alertMessage = "";
     private String alertMessageType = "";
+    private final SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
+    private final SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
 
     @GetMapping("/")
     public String signin(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
@@ -57,12 +73,12 @@ public class HomeController {
         return "signin";
     }
 
-    @PostMapping("/signin")
-    public String signin(@ModelAttribute("signinPayload") XTicketPayload requestPayload, HttpSession session, HttpServletRequest httpRequest, Model model) {
+    @PostMapping("/login")
+    public String signin(@ModelAttribute("signinPayload") XTicketPayload requestPayload, HttpSession session, HttpServletRequest httpRequest, HttpServletResponse httpResponse, Model model) {
         XTicketPayload response = xticketService.signin(requestPayload);
         if (response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
             List<SimpleGrantedAuthority> newAuthorities = new ArrayList<>();
-            List<GroupRoles> roles = new ArrayList<>();//xpolicyService.getUserRoles(requestPayload.getEmail());
+            List<GroupRoles> roles = xticketService.fetchUserRoles(requestPayload.getEmail());
             if (roles == null) {
                 model.addAttribute("loginPayload", requestPayload);
                 model.addAttribute("passwordPayload", new XTicketPayload());
@@ -75,9 +91,14 @@ public class HomeController {
             for (GroupRoles userRole : roles) {
                 newAuthorities.add(new SimpleGrantedAuthority("ROLE_" + userRole.getAppRole().getRoleName()));
             }
-            SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(requestPayload.getEmail(), requestPayload.getPassword(), newAuthorities));
-            resetAlertMessage();
 
+//            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(requestPayload.getEmail(), requestPayload.getPassword(), newAuthorities));
+//            SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(requestPayload.getEmail(), requestPayload.getPassword(), newAuthorities));
+            
+            SecurityContext context = securityContextHolderStrategy.createEmptyContext();
+            context.setAuthentication(new UsernamePasswordAuthenticationToken(requestPayload.getEmail(), requestPayload.getPassword(), newAuthorities));
+            securityContextHolderStrategy.setContext(context);
+            securityContextRepository.saveContext(context, httpRequest, httpResponse);
             //Check if the user is an egent
             if (response.isAgent()) {
                 return "redirect:/agent/dashboard";
@@ -254,6 +275,12 @@ public class HomeController {
             }
         }
         return gson.toJson(data);
+    }
+
+    private boolean isLogin() {
+        return SecurityContextHolder.getContext().getAuthentication() != null
+                && SecurityContextHolder.getContext().getAuthentication().isAuthenticated()
+                && !(SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken);
     }
 
     private void resetAlertMessage() {

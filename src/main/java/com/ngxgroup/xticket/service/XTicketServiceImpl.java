@@ -32,26 +32,23 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import com.ngxgroup.xticket.repository.XTicketRepository;
+import jakarta.servlet.ServletContext;
 import java.io.File;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javax.servlet.ServletContext;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -60,7 +57,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author briano
  */
 @Service
-public class XTicketServiceImpl implements XTicketService {
+public class XTicketServiceImpl implements  XTicketService {
 
     @Autowired
     ServletContext servletContext;
@@ -73,7 +70,7 @@ public class XTicketServiceImpl implements XTicketService {
     @Autowired
     Gson gson;
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
     @Value("${xticket.password.retry.count}")
     private String passwordRetryCount;
     @Value("${xticket.password.change.days}")
@@ -167,18 +164,8 @@ public class XTicketServiceImpl implements XTicketService {
 
             //Uset AD Authentication
             if (useADAuth) {
-                Hashtable<Object, Object> env = new Hashtable<>();
-                env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-                env.put(Context.PROVIDER_URL, "ldap://" + "ngxgroup.com" + ":389");
-                env.put(Context.SECURITY_AUTHENTICATION, "simple");
-                env.put(Context.REFERRAL, "follow");
-                env.put(Context.SECURITY_PRINCIPAL, requestPayload.getEmail());
-                env.put(Context.SECURITY_CREDENTIALS, requestPayload.getPassword());
-
-                // attempt to authenticate
-                DirContext ctx = new InitialDirContext(env);
-                ctx.close();
-                if (ctx.equals("")) {
+                String adResponse = authenticateADUser(requestPayload.getEmail(), requestPayload.getPassword(), requestPayload.getEmail().split("@")[1], "");
+                if (adResponse.equals("success")) {
                     //Check the fail count
                     if (appUser.getLoginFailCount() == Integer.parseInt(passwordRetryCount)) {
                         appUser.setLoginFailCount(appUser.getLoginFailCount() + 1);
@@ -242,6 +229,31 @@ public class XTicketServiceImpl implements XTicketService {
             response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
             response.setResponseMessage(ex.getMessage());
             return response;
+        }
+    }
+
+    public String authenticateADUser(String username, String password, String domainName, String serverName) throws NamingException {
+        LogPayload log = new LogPayload();
+        try {
+            Hashtable<Object, Object> env = new Hashtable<>();
+            env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+            env.put(Context.PROVIDER_URL, "ldap://" + domainName + ":389");
+            env.put(Context.SECURITY_AUTHENTICATION, "simple");
+            env.put(Context.REFERRAL, "follow");
+            env.put(Context.SECURITY_PRINCIPAL, username);
+            env.put(Context.SECURITY_CREDENTIALS, password);
+
+            // attempt to authenticate
+            DirContext ctx = new InitialDirContext(env);
+            ctx.close();
+            return "Success";
+        } catch (Exception ex) {
+            log.setMessage(ex.getMessage());
+            log.setSeverity("INFO");
+            log.setSource("Login");
+            log.setUsername(username);
+            logger.log(Level.INFO, gson.toJson(log));
+            return ex.getMessage();
         }
     }
 
@@ -515,31 +527,6 @@ public class XTicketServiceImpl implements XTicketService {
             response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
             response.setResponseMessage(ex.getMessage());
             return response;
-        }
-    }
-
-    public String authenticateADUser(String username, String password, String domainName, String serverName) throws NamingException {
-        LogPayload log = new LogPayload();
-        try {
-            Hashtable<Object, Object> env = new Hashtable<>();
-            env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-            env.put(Context.PROVIDER_URL, "ldap://" + domainName + ":389");
-            env.put(Context.SECURITY_AUTHENTICATION, "simple");
-            env.put(Context.REFERRAL, "follow");
-            env.put(Context.SECURITY_PRINCIPAL, username);
-            env.put(Context.SECURITY_CREDENTIALS, password);
-
-            // attempt to authenticate
-            DirContext ctx = new InitialDirContext(env);
-            ctx.close();
-            return "Success";
-        } catch (Exception ex) {
-            log.setMessage(ex.getMessage());
-            log.setSeverity("INFO");
-            log.setSource("Login");
-            log.setUsername(username);
-            logger.log(Level.INFO, gson.toJson(log));
-            return ex.getMessage();
         }
     }
 
@@ -955,6 +942,26 @@ public class XTicketServiceImpl implements XTicketService {
             response.setResponseMessage(ex.getMessage());
             response.setData(null);
             return response;
+        }
+    }
+
+    @Override
+    public List<GroupRoles> fetchUserRoles(String principal) {
+        try {
+            //Fetch the user
+            AppUser appUser = xticketRepository.getAppUserUsingEmail(principal);
+            if (appUser == null) {
+                return null;
+            }
+
+            //Fetch group roles belonging to the user group
+            List<GroupRoles> groupRoles = xticketRepository.getGroupRolesUsingRoleGroup(appUser.getRole());
+            if (groupRoles == null) {
+                return null;
+            }
+            return groupRoles;
+        } catch (Exception ex) {
+            return null;
         }
     }
 
