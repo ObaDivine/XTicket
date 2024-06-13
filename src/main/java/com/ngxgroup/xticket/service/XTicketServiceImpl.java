@@ -57,7 +57,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author briano
  */
 @Service
-public class XTicketServiceImpl implements  XTicketService {
+public class XTicketServiceImpl implements XTicketService {
 
     @Autowired
     ServletContext servletContext;
@@ -97,6 +97,8 @@ public class XTicketServiceImpl implements  XTicketService {
     private String companyLogo;
     @Value("${xticket.host}")
     private String host;
+    @Value("${xticket.default.password}")
+    private String defaultPassword;
     static final Logger logger = Logger.getLogger(XTicketServiceImpl.class.getName());
     DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     DateTimeFormatter shortDtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -277,6 +279,22 @@ public class XTicketServiceImpl implements  XTicketService {
                 return response;
             }
 
+            //Check if the user is internal and set the password. Fetch all the domain for AD authentication
+            boolean useADAuth = false;
+            String[] adDomains = adAuthDomain.split(",");
+            if (adDomains != null) {
+                for (String s : adDomains) {
+                    if (requestPayload.getEmail().contains(s)) {
+                        useADAuth = true;
+                    }
+                }
+            }
+
+            if (useADAuth) {
+                requestPayload.setPassword(defaultPassword);
+                requestPayload.setConfirmPassword(defaultPassword);
+            }
+
             //Check if the password and confirm password
             if (!requestPayload.getPassword().equalsIgnoreCase(requestPayload.getConfirmPassword())) {
                 response.setResponseCode(ResponseCodes.PASSWORD_PIN_MISMATCH.getResponseCode());
@@ -312,7 +330,7 @@ public class XTicketServiceImpl implements  XTicketService {
             newUser.setLoginFailCount(0);
             newUser.setMobileNumber(requestPayload.getMobileNumber());
             newUser.setOtherName(requestPayload.getOtherName());
-            newUser.setPassword(passwordEncoder.encode(requestPayload.getPassword()));
+            newUser.setPassword(passwordEncoder.encode(useADAuth ? defaultPassword : requestPayload.getPassword()));
             newUser.setPasswordChangeDate(LocalDate.now().plusDays(passwordChangeDays));
             newUser.setResetTime(LocalDateTime.now().minusMinutes(1));
             newUser.setRole(roleGroup == null ? null : roleGroup);
