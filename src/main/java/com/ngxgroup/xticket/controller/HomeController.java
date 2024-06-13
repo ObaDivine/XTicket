@@ -2,7 +2,6 @@ package com.ngxgroup.xticket.controller;
 
 import com.google.gson.Gson;
 import com.ngxgroup.xticket.constant.ResponseCodes;
-import com.ngxgroup.xticket.model.AppUser;
 import com.ngxgroup.xticket.model.GroupRoles;
 import com.ngxgroup.xticket.payload.XTicketPayload;
 import java.security.Principal;
@@ -27,17 +26,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.Locale;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
-import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
@@ -47,8 +40,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class HomeController {
 
-//    @Autowired
-//    AuthenticationManager authenticationManager;
     @Autowired
     XTicketService xticketService;
     @Autowired
@@ -92,9 +83,6 @@ public class HomeController {
                 newAuthorities.add(new SimpleGrantedAuthority("ROLE_" + userRole.getAppRole().getRoleName()));
             }
 
-//            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(requestPayload.getEmail(), requestPayload.getPassword(), newAuthorities));
-//            SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(requestPayload.getEmail(), requestPayload.getPassword(), newAuthorities));
-            
             SecurityContext context = securityContextHolderStrategy.createEmptyContext();
             context.setAuthentication(new UsernamePasswordAuthenticationToken(requestPayload.getEmail(), requestPayload.getPassword(), newAuthorities));
             securityContextHolderStrategy.setContext(context);
