@@ -2,6 +2,7 @@ package com.ngxgroup.xticket.service;
 
 import com.ngxgroup.xticket.model.AppRoles;
 import com.ngxgroup.xticket.model.AppUser;
+import com.ngxgroup.xticket.model.GroupRoles;
 import com.ngxgroup.xticket.model.RoleGroups;
 import com.ngxgroup.xticket.model.TicketAgent;
 import com.ngxgroup.xticket.model.TicketType;
@@ -47,6 +48,8 @@ public interface XTicketService {
     XTicketPayload fetchRoleGroup(String id);
 
     List<AppRoles> fetchAppRoles();
+
+    List<GroupRoles> fetchUserRoles(String principal);
 
     XTicketPayload createRoleGroup(XTicketPayload requestPayload, String principal);
 
