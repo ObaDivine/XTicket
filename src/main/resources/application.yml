@@ -86,6 +86,7 @@ xticket:
       base:
         dir: C:/NGX/XTicket
   default:
+    password: Password!23#
     email:
       domain: ngxgroup.com
     dc:
@@ -99,8 +100,8 @@ xticket:
     image:
       url: C:/Apps/Java/XTicket/target/xticket-1.0/WEB-INF/classes/images/qrcode
   password:
-    pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=]).{8,}$ ' 
-    default: Password!23
+    pattern: ^(?=.*\d)(?=.*[a-zA-Z])(?=.*[A-Z])(?=.*[-\#\$\.\%\&\*])(?=.*[a-zA-Z]).{8,16}$
+    default: Password23#
     reset:
       time: 1
     retry:

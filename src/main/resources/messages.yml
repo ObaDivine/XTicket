@@ -43,6 +43,7 @@ appMessages:
     activated: Your profile is activated already
     password:
       mismatch: Password and confirm password mismatch
+      complexity: Password does not meet required complexity
     exist: A user record exist for {0}
     invalid:
       domain: The domain {0} is invalid and cannot be used
