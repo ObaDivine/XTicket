@@ -167,7 +167,7 @@ public class XTicketServiceImpl implements XTicketService {
             //Uset AD Authentication
             if (useADAuth) {
                 String adResponse = authenticateADUser(requestPayload.getEmail(), requestPayload.getPassword(), requestPayload.getEmail().split("@")[1], "");
-                if (adResponse.equals("success")) {
+                if (!adResponse.equals("success")) {
                     //Check the fail count
                     if (appUser.getLoginFailCount() == Integer.parseInt(passwordRetryCount)) {
                         appUser.setLoginFailCount(appUser.getLoginFailCount() + 1);
@@ -184,36 +184,48 @@ public class XTicketServiceImpl implements XTicketService {
                     appUser.setLoginFailCount(appUser.getLoginFailCount() + 1);
                     xticketRepository.updateAppUser(appUser);
 
-                    String message = messageSource.getMessage("appMessages.login.failed", new Object[0], Locale.ENGLISH);
+                    String message = adResponse;
                     response.setResponseCode(ResponseCodes.FAILED_LOGIN.getResponseCode());
                     response.setResponseMessage(message);
                     return response;
                 }
-            } else {
-                //Check authentication
-                Boolean passwordMatch = passwordEncoder.matches(requestPayload.getPassword(), appUser.getPassword());
-                if (!passwordMatch) {
-                    //Check the fail count
-                    if (appUser.getLoginFailCount() == Integer.parseInt(passwordRetryCount)) {
-                        appUser.setLoginFailCount(appUser.getLoginFailCount() + 1);
-                        appUser.setResetTime(LocalDateTime.now().plusMinutes(Integer.parseInt(passwordResetTime)));
-                        xticketRepository.updateAppUser(appUser);
 
-                        String message = messageSource.getMessage("appMessages.user.multiple.attempt", new Object[]{requestPayload.getEmail().trim()}, Locale.ENGLISH);
-                        response.setResponseCode(ResponseCodes.MULTIPLE_ATTEMPT.getResponseCode());
-                        response.setResponseMessage(message);
-                        return response;
-                    }
+                //Clear failed login
+                appUser.setLoginFailCount(0);
+                appUser.setLastLogin(LocalDateTime.now());
+                appUser.setOnline(true);
+                xticketRepository.updateAppUser(appUser);
 
-                    //Login failed. Set fail count
+                String message = messageSource.getMessage("appMessages.success.signin", new Object[0], Locale.ENGLISH);
+                response.setResponseMessage(message);
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setAgent(appUser.isAgent());
+                return response;
+            }
+
+            //Check authentication
+            Boolean passwordMatch = passwordEncoder.matches(requestPayload.getPassword(), appUser.getPassword());
+            if (!passwordMatch) {
+                //Check the fail count
+                if (appUser.getLoginFailCount() == Integer.parseInt(passwordRetryCount)) {
                     appUser.setLoginFailCount(appUser.getLoginFailCount() + 1);
+                    appUser.setResetTime(LocalDateTime.now().plusMinutes(Integer.parseInt(passwordResetTime)));
                     xticketRepository.updateAppUser(appUser);
 
-                    String message = messageSource.getMessage("appMessages.login.failed", new Object[0], Locale.ENGLISH);
-                    response.setResponseCode(ResponseCodes.FAILED_LOGIN.getResponseCode());
+                    String message = messageSource.getMessage("appMessages.user.multiple.attempt", new Object[]{requestPayload.getEmail().trim()}, Locale.ENGLISH);
+                    response.setResponseCode(ResponseCodes.MULTIPLE_ATTEMPT.getResponseCode());
                     response.setResponseMessage(message);
                     return response;
                 }
+
+                //Login failed. Set fail count
+                appUser.setLoginFailCount(appUser.getLoginFailCount() + 1);
+                xticketRepository.updateAppUser(appUser);
+
+                String message = messageSource.getMessage("appMessages.login.failed", new Object[0], Locale.ENGLISH);
+                response.setResponseCode(ResponseCodes.FAILED_LOGIN.getResponseCode());
+                response.setResponseMessage(message);
+                return response;
             }
 
             //Clear failed login
