@@ -48,8 +48,9 @@
                                                         <h6 class="modal-title text-primary">Nigerian Exchange Group - <span class="text-secondary">X-Ticket</span></h6>
                                                     </div>
                                                     <div class="modal-body">
-                                                        <button type="submit" class="btn btn-primary btn-sm">Submit</button>
-                                                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                                                        <p>Confirm you want to create role</p>
+                                                        <button type="submit" class="btn btn-primary btn-sm">Create</button>
+                                                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -73,8 +74,8 @@
                                                                 class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs--2"  type="button" data-bs-toggle="dropdown" data-boundary="window"
                                                                 aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs--2"></span></button>
                                                             <div class="dropdown-menu dropdown-menu-end py-2">
-                                                                <a class="dropdown-item" href="#!" th:href="@{'/user/roles/edit?seid=' + ${rec.id}}">Update</a>
-                                                                <a class="dropdown-item" th:onclick="|deleteRole([[${rec.id}]])|">Delete</a>
+                                                                <a class="dropdown-item" href="#!" th:href="@{'/user/roles/edit?seid=' + ${rec.id}}" data-bs-toggle="tooltip" data-bs-placement="right" title="Update Ticket">Update</a>
+                                                                <a class="dropdown-item" th:onclick="|deleteRole([[${rec.id}]])|" data-bs-toggle="tooltip" data-bs-placement="right" title="Delete Ticket">Delete</a>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -126,8 +127,9 @@
                                                         <h6 class="modal-title text-primary">Nigerian Exchange Group - <span class="text-secondary">X-Ticket</span></h6>
                                                     </div>
                                                     <div class="modal-body">
-                                                        <button type="submit" class="btn btn-primary btn-sm">Submit</button>
-                                                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                                                        <p>Confirm role update</p>
+                                                        <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                                                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
                                                     </div>
                                                 </div>
                                             </div>

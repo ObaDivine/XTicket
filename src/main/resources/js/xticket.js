@@ -1,15 +1,11 @@
-var options = new List('dealsTable', {
-    valueNames: ['email', 'username', 'company', 'division', 'department', 'policyChampion', 'accessLevel', 'dateCreated', 'role',
-        'policy', 'policycode', 'company', 'lastReview', 'fileSize', 'underReview', 'actionBy', 'auditAction', 'auditCategory',
-        'auditClass', 'oldValue', 'newValue',
-        'policyName', 'policyType', 'policyDescription', 'documentId', 'policyAuthor', 'expiryDate', 'lastReview',
-        'description', 'name', 'reviewBy', 'reviewAt', 'comment'
+var options = new List('listTable', {
+    valueNames: ['date','requestBy','ticketId','ticketGroup','ticketType','ticketCount','priority','slaExpiry','sla','slaViolated','reopened','subject',
+        'dateClosed','closedBy','createdBy','name','email','mobile','gender','internal','agent','locked','role','lastLogin','timeElapsed','reassigned',
+        'reassignedAt','reassignedBy','reassignedTo','initialSla','newSla','escalation','escalated','status','group','code','requireCR','requireSR'
     ],
     page: 10,
     pagination: true
 });
-
-var policyList = new List('dealsTable', options);
 
 function deleteRole(id) {
     $('#deleteRole').attr("href", "/xticket/user/roles/delete?seid=" + id);

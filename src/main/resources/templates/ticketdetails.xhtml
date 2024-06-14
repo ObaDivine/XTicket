@@ -44,7 +44,7 @@
                                 <div class="tab-content" id="contactListTabContent">
                                     <div data-chat-thread-tab-content="data-chat-thread-tab-content">
                                         <ul class="nav chat-thread-tab flex-column list">
-                                            <li class="nav-item read" role="presentation" th:each="rec : ${ticketList}">
+                                            <li class="nav-item read mb-2" role="presentation" th:each="rec : ${ticketList}">
                                                 <a class="nav-link d-flex align-items-center justify-content-center p-2  active"  th:href="@{'/ticket/view?seid=' + ${rec.id}}" aria-selected="true">
                                                     <div class="avatar avatar-xl status-online position-relative me-2 me-sm-0 me-xl-2">
                                                         <img class="rounded-circle border border-2 border-white" th:src="@{/images/icons/avatar.png}" alt="" />
@@ -80,7 +80,7 @@
                                         </div>
                                         <div class="d-flex">
                                             <button class="btn btn-icon btn-primary me-1" data-bs-target="#confirmTicketCloseModal" data-bs-toggle="modal">
-                                                <span class="fas fa-window-close"></span>
+                                                <span class="fas fa-window-close" data-bs-toggle="tooltip" data-bs-placement="right" title="Close Ticket"></span>
                                             </button>
                                             <div class="modal fade" id="confirmTicketCloseModal" tabindex="-1" role="dialog" aria-labelledby="confirmModal" aria-hidden="true">
                                                 <div class="modal-dialog">
@@ -90,14 +90,16 @@
                                                         </div>
                                                         <div class="modal-body">
                                                             <p>Confirm you want to close this ticket</p>
-                                                            <a th:if="${ticketPayload.reopenedId != 0}" th:href="@{'/ticket/close?seid=' + ${ticketPayload.id} + '&tr=t&troid=' + ${ticketPayload.reopenedId}}" class="btn btn-primary btn-sm">Submit</a>
-                                                            <a th:if="${ticketPayload.reopenedId == 0}" th:href="@{'/ticket/close?seid=' + ${ticketPayload.id} + '&tr=f&troid=' + ${ticketPayload.reopenedId}}" class="btn btn-primary btn-sm">Submit</a>
+                                                            <a th:if="${ticketPayload.reopenedId != 0}" th:href="@{'/ticket/close?seid=' + ${ticketPayload.id} + '&tr=t&troid=' + ${ticketPayload.reopenedId}}" class="btn btn-primary btn-sm">Close</a>
+                                                            <a th:if="${ticketPayload.reopenedId == 0}" th:href="@{'/ticket/close?seid=' + ${ticketPayload.id} + '&tr=f&troid=' + ${ticketPayload.reopenedId}}" class="btn btn-primary btn-sm">Close</a>
                                                             <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <button class="btn btn-icon btn-entitysc-primary" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fa-solid fa-ellipsis-vertical"></span></button>
+                                            <button class="btn btn-icon btn-entitysc-primary" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent">
+                                                <span class="fa-solid fa-ellipsis-vertical" data-bs-toggle="tooltip" data-bs-placement="right" title="Create Ticket"></span>
+                                            </button>
                                             <ul class="dropdown-menu dropdown-menu-end p-0">
                                                 <li><a class="dropdown-item" href="#!" th:href="@{/ticket/new}">Create ticket</a></li>
                                                 <li><a class="dropdown-item" href="#!">View profile</a></li>
@@ -162,8 +164,9 @@
                                                                         <h6 class="modal-title text-primary">Nigerian Exchange Group - <span class="text-secondary">X-Ticket</span></h6>
                                                                     </div>
                                                                     <div class="modal-body">
-                                                                        <button type="submit" class="btn btn-primary btn-sm">Submit</button>
-                                                                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                                                                        <p>Confirm your reply</p>
+                                                                        <button type="submit" class="btn btn-primary btn-sm">Reply</button>
+                                                                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
                                                                     </div>
                                                                 </div>
                                                             </div>
