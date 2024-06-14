@@ -167,7 +167,7 @@ public class XTicketServiceImpl implements XTicketService {
             //Uset AD Authentication
             if (useADAuth) {
                 String adResponse = authenticateADUser(requestPayload.getEmail(), requestPayload.getPassword(), requestPayload.getEmail().split("@")[1], "");
-                if (!adResponse.equals("success")) {
+                if (!adResponse.equalsIgnoreCase("success")) {
                     //Check the fail count
                     if (appUser.getLoginFailCount() == Integer.parseInt(passwordRetryCount)) {
                         appUser.setLoginFailCount(appUser.getLoginFailCount() + 1);
@@ -184,7 +184,7 @@ public class XTicketServiceImpl implements XTicketService {
                     appUser.setLoginFailCount(appUser.getLoginFailCount() + 1);
                     xticketRepository.updateAppUser(appUser);
 
-                    String message = adResponse;
+                    String message = messageSource.getMessage("appMessages.login.failed", new Object[0], Locale.ENGLISH);
                     response.setResponseCode(ResponseCodes.FAILED_LOGIN.getResponseCode());
                     response.setResponseMessage(message);
                     return response;

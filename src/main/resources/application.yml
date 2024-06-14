@@ -43,7 +43,7 @@ spring:
         password: qwerty@1
         username: xcdev
         driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-        url: jdbc:sqlserver://nse-xbr-db-d1\\XBRDB;databaseName=XTicket;encrypt=true;trustServerCertificate=true
+        url: jdbc:sqlserver://nse-xbr-db-d1\XBRDB;databaseName=XTicket;encrypt=true;trustServerCertificate=true
 #        password: F3bru@ry02mth
 #        username: ngxadmin@nxgroup01-mysqldbserver
 #        driverClassName: com.mysql.jdbc.Driver  
