@@ -1816,6 +1816,8 @@ public class XTicketServiceImpl implements XTicketService {
             newTicket.setCreatedAt(LocalDateTime.now());
             newTicket.setCreatedBy(appUser);
             newTicket.setEscalated(false);
+            newTicket.setEscalatedAt(null);
+            newTicket.setEscalationIndex(0);
             newTicket.setFileIndex(1);
             newTicket.setInternal(ticketType.isInternal());
             newTicket.setMessage(requestPayload.getMessage());

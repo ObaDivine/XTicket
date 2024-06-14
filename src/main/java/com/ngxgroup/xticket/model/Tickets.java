@@ -63,6 +63,10 @@ public class Tickets implements Serializable {
     private TicketType ticketType;
     @Column(name = "escalated")
     private boolean escalated = false;
+    @Column(name = "escalated_at")
+    private LocalDateTime escalatedAt;
+    @Column(name = "escalation_index")
+    private int escalationIndex = 0;
     @Column(name = "ticket_source")
     private String ticketSource;
     @Column(name = "priority")

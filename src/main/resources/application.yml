@@ -76,8 +76,10 @@ xticket:
     rc: 123454
     logo: kalis
   cron:
-    job: 0 0 11 * * ?
+    job: '*/2 * * * * ?' #This cron job runs every 2 minutes
   email:
+    escalation:
+      interval: 20 #This is 5 minutes between escalation
     notification: bokon@ngxgroup.com
   expiry:
     days: 3
