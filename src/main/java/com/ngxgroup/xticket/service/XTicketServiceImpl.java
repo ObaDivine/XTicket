@@ -3958,6 +3958,15 @@ public class XTicketServiceImpl implements XTicketService {
                     return response;
                 }
 
+                //Check if the entity exist using code
+                Entities entityByCode = xticketRepository.getEntitiesUsingCode(requestPayload.getEntityCode());
+                if (entityByCode == null) {
+                    response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Entity", "Code", requestPayload.getEntityCode()}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
                 //Check if the service unit exist using code
                 ServiceUnit serviceUnitByCode = xticketRepository.getServiceUnitUsingCode(requestPayload.getServiceUnitCode());
                 if (serviceUnitByCode != null) {
@@ -3979,6 +3988,7 @@ public class XTicketServiceImpl implements XTicketService {
                 ServiceUnit newServiceUnit = new ServiceUnit();
                 newServiceUnit.setCreatedAt(LocalDateTime.now());
                 newServiceUnit.setCreatedBy(appUser);
+                newServiceUnit.setEntity(entityByCode);
                 newServiceUnit.setStatus(requestPayload.getStatus());
                 newServiceUnit.setServiceUnitCode(requestPayload.getServiceUnitCode());
                 newServiceUnit.setServiceUnitName(requestPayload.getServiceUnitName());
@@ -3995,6 +4005,15 @@ public class XTicketServiceImpl implements XTicketService {
             if (serviceUnit == null) {
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
                 response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Service Unit", "Id", requestPayload.getId()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if the entity exist using code
+            Entities entityByCode = xticketRepository.getEntitiesUsingCode(requestPayload.getEntityCode());
+            if (entityByCode == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Entity", "Code", requestPayload.getEntityCode()}, Locale.ENGLISH));
                 response.setData(null);
                 return response;
             }
@@ -4017,6 +4036,7 @@ public class XTicketServiceImpl implements XTicketService {
                 return response;
             }
 
+            serviceUnit.setEntity(entityByCode);
             serviceUnit.setStatus(requestPayload.getStatus());
             serviceUnit.setServiceUnitCode(requestPayload.getServiceUnitCode());
             serviceUnit.setServiceUnitName(requestPayload.getServiceUnitName());
@@ -4058,7 +4078,7 @@ public class XTicketServiceImpl implements XTicketService {
 
             xticketRepository.deleteServiceUnit(serviceUnit);
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
-            response.setResponseMessage(messageSource.getMessage("appMessages.success.notexist", new Object[]{"Service Unit" + serviceUnit.getServiceUnitName(), "Deleted"}, Locale.ENGLISH));
+            response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{"Service Unit" + serviceUnit.getServiceUnitName(), "Deleted"}, Locale.ENGLISH));
             response.setData(null);
             return response;
         } catch (Exception ex) {
@@ -4291,12 +4311,26 @@ public class XTicketServiceImpl implements XTicketService {
 
         //Check if the sla expiry falls within workday and hours
         if (slaExpiry.getDayOfWeek() != DayOfWeek.SATURDAY && slaExpiry.getDayOfWeek() != DayOfWeek.SUNDAY) {
-            //Check if day is public holiday
-            if (!isPublicHoliday(slaExpiry.toLocalDate())) {
-                return slaExpiry;
+            //Check the time ticket is raised
+            int kalis = slaExpiry.getHour();
+            if (slaExpiry.getHour() >= 8 && slaExpiry.getHour() <= 16) {
+                //Check if day is public holiday
+                if (!isPublicHoliday(slaExpiry.toLocalDate())) {
+                    return slaExpiry;
+                } else {
+                    //Get the next working day
+                    return nextWorkingDay(slaExpiry);
+                }
             } else {
-                //Get the next working day
-                return nextWorkingDay(slaExpiry);
+                //Outside official worktime. Move ticket to next day
+                LocalDateTime newSlaExpiry = slaExpiry.plusDays(1);
+                //Check if day is public holiday
+                if (!isPublicHoliday(newSlaExpiry.toLocalDate())) {
+                    return newSlaExpiry;
+                } else {
+                    //Get the next working day
+                    return nextWorkingDay(newSlaExpiry);
+                }
             }
         }
 

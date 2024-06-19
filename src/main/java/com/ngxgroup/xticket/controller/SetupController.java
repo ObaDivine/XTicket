@@ -87,8 +87,10 @@ public class SetupController {
         XTicketPayload response = xticketService.fetchTicketGroup();
         model.addAttribute("dataList", response.getData());
         model.addAttribute("profilePayload", profileDetails);
-        model.addAttribute("alertMessage", messageSource.getMessage("appMessages.ticket.record", new Object[]{response.getData().size()}, Locale.ENGLISH));
-        model.addAttribute("alertMessageType", "success");
+        alertMessage = response.getResponseMessage();
+        alertMessageType = response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error";
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
         return "ticketgrouplist";
     }
@@ -97,7 +99,7 @@ public class SetupController {
     public String deleteTicketGroup(@RequestParam("seid") String seid, Model model, Principal principal) {
         XTicketPayload response = xticketService.deleteTicketGroup(seid, principal.getName());
         alertMessage = response.getResponseMessage();
-        alertMessageType = "success";
+        alertMessageType = response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error";
         return "redirect:/setup/ticket/group/list";
     }
 
@@ -166,8 +168,8 @@ public class SetupController {
         model.addAttribute("serviceUnit", xticketService.fetchServiceUnit().getData());
         model.addAttribute("ticketGroup", xticketService.fetchTicketGroup().getData());
         model.addAttribute("ticketSla", xticketService.fetchTicketSla().getData());
-        model.addAttribute("alertMessage", messageSource.getMessage("appMessages.ticket.record", new Object[]{response.getData().size()}, Locale.ENGLISH));
-        model.addAttribute("alertMessageType", "success");
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
         return "tickettypelist";
     }
@@ -176,7 +178,7 @@ public class SetupController {
     public String deleteTicketType(@RequestParam("seid") String seid, Model model, Principal principal) {
         XTicketPayload response = xticketService.deleteTicketType(seid, principal.getName());
         alertMessage = response.getResponseMessage();
-        alertMessageType = "success";
+        alertMessageType = response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error";
         return "redirect:/setup/ticket/type/list";
     }
 
@@ -231,8 +233,8 @@ public class SetupController {
         XTicketPayload response = xticketService.fetchTicketAgent();
         model.addAttribute("dataList", response.getData());
         model.addAttribute("profilePayload", profileDetails);
-        model.addAttribute("alertMessage", messageSource.getMessage("appMessages.ticket.record", new Object[]{response.getData().size()}, Locale.ENGLISH));
-        model.addAttribute("alertMessageType", "success");
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
         return "ticketagentlist";
     }
@@ -291,8 +293,8 @@ public class SetupController {
         XTicketPayload response = xticketService.fetchTicketSla();
         model.addAttribute("dataList", response.getData());
         model.addAttribute("profilePayload", profileDetails);
-        model.addAttribute("alertMessage", messageSource.getMessage("appMessages.ticket.record", new Object[]{response.getData().size()}, Locale.ENGLISH));
-        model.addAttribute("alertMessageType", "success");
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
         return "ticketslalist";
     }
@@ -301,7 +303,7 @@ public class SetupController {
     public String deleteTicketSla(@RequestParam("seid") String seid, Model model, Principal principal) {
         XTicketPayload response = xticketService.deleteTicketSla(seid, principal.getName());
         alertMessage = response.getResponseMessage();
-        alertMessageType = "success";
+        alertMessageType = response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error";
         return "redirect:/setup/ticket/sla/list";
     }
 
@@ -361,8 +363,8 @@ public class SetupController {
         XTicketPayload response = xticketService.fetchServiceUnit();
         model.addAttribute("dataList", response.getData());
         model.addAttribute("profilePayload", profileDetails);
-        model.addAttribute("alertMessage", messageSource.getMessage("appMessages.ticket.record", new Object[]{response.getData().size()}, Locale.ENGLISH));
-        model.addAttribute("alertMessageType", "success");
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
         return "serviceunitlist";
     }
@@ -371,7 +373,7 @@ public class SetupController {
     public String deleteServiceUnit(@RequestParam("seid") String seid, Model model, Principal principal) {
         XTicketPayload response = xticketService.deleteServiceUnit(seid, principal.getName());
         alertMessage = response.getResponseMessage();
-        alertMessageType = "success";
+        alertMessageType = response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error";
         return "redirect:/setup/service-unit/list";
     }
 
@@ -428,8 +430,8 @@ public class SetupController {
         XTicketPayload response = xticketService.fetchTicketStatus();
         model.addAttribute("dataList", response.getData());
         model.addAttribute("profilePayload", profileDetails);
-        model.addAttribute("alertMessage", messageSource.getMessage("appMessages.ticket.record", new Object[]{response.getData().size()}, Locale.ENGLISH));
-        model.addAttribute("alertMessageType", "success");
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
         return "ticketstatuslist";
     }
@@ -438,7 +440,7 @@ public class SetupController {
     public String deleteTicketStatus(@RequestParam("seid") String seid, Model model, Principal principal) {
         XTicketPayload response = xticketService.deleteTicketStatus(seid, principal.getName());
         alertMessage = response.getResponseMessage();
-        alertMessageType = "success";
+        alertMessageType = response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error";
         return "redirect:/setup/ticket/status/list";
     }
 
@@ -495,8 +497,8 @@ public class SetupController {
         XTicketPayload response = xticketService.fetchEntity();
         model.addAttribute("dataList", response.getData());
         model.addAttribute("profilePayload", profileDetails);
-        model.addAttribute("alertMessage", messageSource.getMessage("appMessages.ticket.record", new Object[]{response.getData().size()}, Locale.ENGLISH));
-        model.addAttribute("alertMessageType", "success");
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
         return "entitylist";
     }
@@ -505,7 +507,7 @@ public class SetupController {
     public String deleteEntity(@RequestParam("seid") String seid, Model model, Principal principal) {
         XTicketPayload response = xticketService.deleteEntity(seid, principal.getName());
         alertMessage = response.getResponseMessage();
-        alertMessageType = "success";
+        alertMessageType = response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error";
         return "redirect:/setup/entity/list";
     }
 

@@ -444,7 +444,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<Tickets> getOpenTicketsForEscalation(TicketStatus ticketStatus) {
-        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketStatus != :ticketStatus", Tickets.class)
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketStatus = :ticketStatus", Tickets.class)
                 .setParameter("ticketStatus", ticketStatus);
         List<Tickets> record = query.getResultList();
         if (record.isEmpty()) {
