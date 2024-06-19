@@ -1,5 +1,6 @@
 package com.ngxgroup.xticket.service;
 
+import com.ngxgroup.xticket.model.TicketStatus;
 import com.ngxgroup.xticket.model.Tickets;
 import com.ngxgroup.xticket.payload.XTicketPayload;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +36,10 @@ public class CrobJob {
     DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Scheduled(cron = "${xticket.cron.job}")
-    public void setExpiryPolicies() {
+    public void setEscalateViolatedSLA() {
         //Ftech all the tickets that are open
-        List<Tickets> openTickets = xticketRepository.getOpenTickets();
+        TicketStatus completedStatus = xticketRepository.getTicketStatusUsingCode("COMP");
+        List<Tickets> openTickets = xticketRepository.getOpenTicketsForEscalation(completedStatus);
         if (openTickets != null) {
             for (Tickets t : openTickets) {
                 //Check if the SLA expiry is exceeded

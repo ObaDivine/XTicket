@@ -23,8 +23,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "ticket_type")
-public class TicketType implements Serializable {
+@Table(name = "service_unit")
+public class ServiceUnit implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -35,26 +35,12 @@ public class TicketType implements Serializable {
     private LocalDateTime createdAt;
     @ManyToOne
     private AppUser createdBy;
+    @Column(name = "service_unit_code")
+    private String serviceUnitCode;
+    @Column(name = "service_unit_name")
+    private String serviceUnitName;
     @ManyToOne
-    private TicketGroup ticketGroup;
-    @Column(name = "internal")
-    private boolean internal;
-    @Column(name = "ticket_type_code")
-    private String ticketTypeCode;
-    @Column(name = "ticket_type_name")
-    private String ticketTypeName;
-    @ManyToOne
-    private TicketSla sla;
-    @Column(name = "escalation_emails", length = 5000)
-    private String escalationEmails;
-    @Column(name = "email_escalation_index")
-    private int emailEscalationIndex;
+    private Entities entity;
     @Column(name = "status")
     private String status;
-    @Column(name = "require_change_request_form")
-    private boolean requireChangeRequestForm;
-    @Column(name = "require_service_request_form")
-    private boolean requireServiceRequestForm;
-    @ManyToOne
-    private ServiceUnit serviceUnit;
 }

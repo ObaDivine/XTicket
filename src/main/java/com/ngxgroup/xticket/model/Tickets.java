@@ -43,8 +43,8 @@ public class Tickets implements Serializable {
     private TicketAgent ticketAgent;
     @Column(name = "ticket_id")
     private String ticketId;
-    @Column(name = "ticket_open")
-    private boolean ticketOpen = true;
+    @Column(name = "ticket_pause")
+    private LocalDateTime ticketPause;
     @Column(name = "ticket_locked")
     private boolean ticketLocked = false;
     @Column(name = "ticket_reopened")
@@ -61,6 +61,8 @@ public class Tickets implements Serializable {
     private TicketGroup ticketGroup;
     @ManyToOne
     private TicketType ticketType;
+    @ManyToOne
+    private TicketStatus ticketStatus;
     @Column(name = "escalated")
     private boolean escalated = false;
     @Column(name = "escalated_at")
@@ -89,4 +91,6 @@ public class Tickets implements Serializable {
     private boolean attachedFile = false;
     @Column(name = "file_index")
     private int fileIndex = 1;
+    @ManyToOne
+    private Entities entity;
 }

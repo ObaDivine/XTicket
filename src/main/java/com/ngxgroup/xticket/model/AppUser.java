@@ -75,4 +75,6 @@ public class AppUser implements Serializable {
     private LocalDate passwordChangeDate;
     @Column(name = "activation_id")
     private String activationId;
+    @ManyToOne
+    private Entities entity;
 }

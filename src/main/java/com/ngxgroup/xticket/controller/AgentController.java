@@ -55,6 +55,7 @@ public class AgentController {
         model.addAttribute("ticketReassignPayload", ticketPayload);
         model.addAttribute("ticketList", xticketService.fetchTicketByUser(principal.getName()).getData());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("ticketStatusList", xticketService.fetchTicketStatus().getData());
         model.addAttribute("userList", null);
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
@@ -79,6 +80,35 @@ public class AgentController {
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "error");
         return "agentopenticket";
+    }
+
+    @PostMapping("/reply")
+    public String replyTicket(@ModelAttribute("ticketReplyPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
+        XTicketPayload response = xticketService.replyTicket(requestPayload, principal.getName());
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
+        if (response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
+            alertMessage = response.getResponseMessage();
+            alertMessageType = "success";
+            return "redirect:/agent/ticket/open";
+        }
+        model.addAttribute("ticketPayload", response);
+        model.addAttribute("profilePayload", profileDetails);
+        XTicketPayload ticketPayload = new XTicketPayload();
+        ticketPayload.setTicketId(response.getTicketId());
+        model.addAttribute("ticketReplyPayload", ticketPayload);
+        model.addAttribute("ticketReassignPayload", ticketPayload);
+        model.addAttribute("ticketList", xticketService.fetchTicketByUser(principal.getName()).getData());
+        model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("userList", null);
+        return "agentticketdetails";
+    }
+
+    @GetMapping("/close")
+    public String closeTicket(@RequestParam("seid") String seid, @RequestParam("tr") String ticketReopened, @RequestParam("troid") String ticketReopenedId, Model model, Principal principal) {
+        XTicketPayload response = xticketService.closeTicket(seid, ticketReopened, ticketReopenedId, principal.getName());
+        alertMessage = response.getResponseMessage();
+        alertMessageType = response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error";
+        return "redirect:/agent/ticket/open";
     }
 
     private void resetAlertMessage() {

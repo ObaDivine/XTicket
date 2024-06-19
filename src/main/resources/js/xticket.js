@@ -1,7 +1,8 @@
 var options = new List('listTable', {
-    valueNames: ['date','requestBy','ticketId','ticketGroup','ticketType','ticketCount','priority','slaExpiry','sla','slaViolated','reopened','subject',
-        'dateClosed','closedBy','createdBy','name','email','mobile','gender','internal','agent','locked','role','lastLogin','timeElapsed','reassigned',
-        'reassignedAt','reassignedBy','reassignedTo','initialSla','newSla','escalation','escalated','status','group','code','requireCR','requireSR'
+    valueNames: ['date', 'requestBy', 'ticketId', 'ticketGroup', 'ticketType', 'ticketCount', 'priority', 'slaExpiry', 'sla', 'slaViolated', 'reopened', 'subject',
+        'dateClosed', 'closedBy', 'createdBy', 'name', 'email', 'mobile', 'gender', 'internal', 'agent', 'locked', 'role', 'lastLogin', 'timeElapsed', 'reassigned',
+        'reassignedAt', 'reassignedBy', 'reassignedTo', 'initialSla', 'newSla', 'escalation', 'escalated', 'status', 'group', 'code', 'requireCR', 'requireSR',
+        'serviceUnit', 'entityName'
     ],
     page: 10,
     pagination: true
@@ -126,20 +127,21 @@ function emailValidation() {
     }
 
     if (adAuth) {
-        $('#password').prop('disabled', true);
-        $('#confirmPassword').prop('disabled', true);
-        $('#password').val('');
-        $('#confirmPassword').val('');
+        $('#pwd').hide();
+        $('#password').val('w6W;;%LYcwUjfh');
+        $('#confirmPassword').val('w6W;;%LYcwUjfh');
+        $('#serviceUnit').show();
     } else {
-        $('#password').prop('disabled', false);
-        $('#confirmPassword').prop('disabled', false);
+        $('#pwd').show();
+        $('#serviceUnit').hide();
     }
     ;
 }
 ;
 
-function replaceString(text, charToReplace){
-    var newString = text.replace(charToReplace,'');
+function replaceString(text, charToReplace) {
+    var newString = text.replace(charToReplace, '');
     return newString;
-};
+}
+;
 
