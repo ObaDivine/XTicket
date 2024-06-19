@@ -39,6 +39,14 @@
                                     <input class="form-control" type="date" aria-label="endDate" aria-describedby="endDate" th:field="*{endDate}" required="required"/>
                                 </div>
                                 <div class="form-icon-container">
+                                    <select class="form-select form-control-sm form-icon-input" aria-label="serviceUnit" th:field="*{serviceUnitCode}">
+                                        <option value="">---Select service unit---</option>
+                                        <option th:each="fa : ${serviceUnit}" th:value="${fa.serviceUnitCode}" th:text="${fa.serviceUnitName}"></option>
+                                    </select>
+                                    <span class="text-primary asterisk">*</span>
+                                    <span class="fas fa-layer-group text-900 fs--1 form-icon text-primary"></span>
+                                </div>
+                                <div class="form-icon-container">
                                     <select class="form-control form-control-sm form-icon-input" aria-label="email" th:field="*{email}" required="required">
                                         <option value="">---Select Agent---</option>
                                         <option th:each="fa : ${userList}" th:value="${fa.email}" th:text="${fa.lastName + ', ' + fa.otherName}"></option>
@@ -51,8 +59,14 @@
                         </div>     
                     </div>
                     <div class="row g-3 mb-6" th:if="${dataList != null}">
-                        <div class="col-lg-12 col-sm-12 col-md-12">
+                        <div class="col-lg-12 col-sm-12 col-md-12" id="listTable" data-list='{"valueNames":[],"page":10,"pagination":true}'>
                             <div class="table-responsive ms-n1 ps-1 scrollbar">
+                                <div class="offset-lg-8 col-lg-4 col-md-8 col-sm-12 mb-2">
+                                    <div class="search-box">
+                                        <input class="form-control search-input search" type="search" placeholder="Search record" aria-label="Search" />
+                                        <span class="fas fa-search search-box-icon"></span>
+                                    </div>
+                                </div>
                                 <table class="table table-responsive table-sm table-striped fs--1 mb-0 border-200">
                                     <thead>
                                         <tr>
@@ -62,13 +76,14 @@
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="closedBy">Closed By</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="slaExpiry">SLA Expiry</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketId">Ticket ID</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="serviceUnit">Service Unit</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketGroup">Ticket Group</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketType">Ticket Type</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="priority">Priority</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="subject">Subject</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="slaViolated">SLA Violated</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="reopened">Reopened</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="reopened">Reassigned</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="reassigned">Reassigned</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="escalated">Escalated</th>
                                         </tr>
                                     </thead>
@@ -80,6 +95,7 @@
                                             <td th:text="${rec.closedBy}" class="closedBy align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.slaExpiry}" class="date align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.ticketId}" class="ticketId align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.serviceUnitName}" class="serviceUnit align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.ticketGroupName}" class="ticketGroup align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.ticketTypeName}" class="ticketType align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.priority}" class="priority align-middle white-space-nowrap start ps-3"></td>

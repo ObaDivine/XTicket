@@ -3,9 +3,12 @@ package com.ngxgroup.xticket.repository;
 import com.ngxgroup.xticket.model.AppRoles;
 import com.ngxgroup.xticket.model.AppUser;
 import com.ngxgroup.xticket.model.AuditLog;
+import com.ngxgroup.xticket.model.Entities;
 import com.ngxgroup.xticket.model.GroupRoles;
 import com.ngxgroup.xticket.model.Notification;
+import com.ngxgroup.xticket.model.PublicHolidays;
 import com.ngxgroup.xticket.model.RoleGroups;
+import com.ngxgroup.xticket.model.ServiceUnit;
 import com.ngxgroup.xticket.model.TicketComment;
 import com.ngxgroup.xticket.model.TicketEscalations;
 import com.ngxgroup.xticket.model.TicketGroup;
@@ -13,6 +16,8 @@ import com.ngxgroup.xticket.model.TicketReopened;
 import com.ngxgroup.xticket.model.TicketAgent;
 import com.ngxgroup.xticket.model.TicketReassign;
 import com.ngxgroup.xticket.model.TicketSla;
+import com.ngxgroup.xticket.model.TicketStatus;
+import com.ngxgroup.xticket.model.TicketStatusChange;
 import com.ngxgroup.xticket.model.TicketType;
 import com.ngxgroup.xticket.model.TicketUpload;
 import com.ngxgroup.xticket.model.Tickets;
@@ -50,6 +55,8 @@ public interface XTicketRepository {
     List<AppUser> getAgentAppUsers();
 
     List<AppUser> getAppUserUsingRoleGroup(RoleGroups roleGroup);
+
+    List<AppUser> getAppUserUsingEntity(Entities entity);
 
     AppUser getAppUserUsingUserId(String id);
 
@@ -101,27 +108,35 @@ public interface XTicketRepository {
 
     List<Tickets> getTickets();
 
-    List<Tickets> getOpenTickets();
+    List<Tickets> getOpenTickets(TicketStatus ticketStatus);
 
-    List<Tickets> getClosedTickets();
+    List<Tickets> getOpenTicketsForEscalation(TicketStatus ticketStatus);
 
-    List<Tickets> getClosedTickets(LocalDate startDate, LocalDate endDate);
+    List<Tickets> getClosedTickets(TicketStatus ticketStatus);
 
-    List<Tickets> getTicketClosedByAgent(AppUser appUser, LocalDate startDate, LocalDate endDate);
+    List<Tickets> getClosedTickets(LocalDate startDate, LocalDate endDate, TicketStatus ticketStatus);
 
-    List<Tickets> getTicketClosedByAgent(AppUser appUser);
+    List<Tickets> getTicketClosedByAgent(AppUser appUser, LocalDate startDate, LocalDate endDate, TicketStatus ticketStatus);
+
+    List<Tickets> getTicketClosedByAgent(AppUser appUser, TicketStatus ticketStatus);
 
     List<Tickets> getViolatedTickets(LocalDate startDate, LocalDate endDate);
 
-    List<Tickets> getOpenTicketsByUser(AppUser appUser);
+    List<Tickets> getTicketsWithinSLA(LocalDate startDate, LocalDate endDate, TicketStatus ticketStatus);
+
+    List<Tickets> getOpenTicketsByUser(AppUser appUser, TicketStatus ticketStatus);
 
     List<Tickets> getTicketsByUser(AppUser appUser);
 
-    List<Tickets> getClosedTicketsByUser(AppUser appUser);
+    List<Tickets> getClosedTicketsByUser(AppUser appUser, TicketStatus ticketStatus);
 
-    List<Tickets> getOpenTicketsByType(TicketType ticketType);
+    List<Tickets> getOpenTicketsByType(TicketType ticketType, TicketStatus ticketStatus);
 
-    List<Tickets> getOpenAgentTickets(AppUser appUser);
+    List<Tickets> getOpenAgentTickets(AppUser appUser, TicketStatus ticketStatus);
+
+    List<Tickets> getTicketsUsingStatus(TicketStatus ticketStatus);
+
+    List<Tickets> getTicketsByServiceUnit(LocalDate startDate, LocalDate endDate, ServiceUnit serviceUnit);
 
     Tickets getTicketUsingTicketGroup(TicketGroup ticketGroup);
 
@@ -191,6 +206,8 @@ public interface XTicketRepository {
     List<TicketType> getTicketTypeUsingTicketGroup(TicketGroup ticketGroup, boolean userType);
 
     List<TicketType> getTicketTypeUsingTicketSla(TicketSla ticketSla);
+
+    List<TicketType> getTicketTypeUsingServiceUnit(ServiceUnit serviceUnit);
 
     int getTicketGroupByUser(AppUser appUser, TicketGroup ticketGroup);
 
@@ -300,4 +317,73 @@ public interface XTicketRepository {
     List<TicketReassign> getTicketReassignedUsingTicket(Tickets ticket);
 
     List<TicketReassign> getDistinctTicketReassigned(LocalDate startDate, LocalDate endDate);
+
+    /**
+     * Entities
+     *
+     * @return *
+     */
+    List<Entities> getEntities();
+
+    Entities getEntitiesUsingId(long id);
+
+    Entities getEntitiesUsingCode(String entityCode);
+
+    Entities getEntitiesUsingName(String entityName);
+
+    Entities createEntities(Entities entity);
+
+    Entities updateEntities(Entities entity);
+
+    Entities deleteEntities(Entities entity);
+
+    /**
+     * Service Unit
+     *
+     * @return *
+     */
+    List<ServiceUnit> getServiceUnit();
+
+    ServiceUnit getServiceUnitUsingId(long id);
+
+    ServiceUnit getServiceUnitUsingCode(String serviceUnitCode);
+
+    ServiceUnit getServiceUnitUsingName(String serviceUnitName);
+
+    ServiceUnit createServiceUnit(ServiceUnit serviceUnit);
+
+    ServiceUnit updateServiceUnit(ServiceUnit serviceUnit);
+
+    ServiceUnit deleteServiceUnit(ServiceUnit serviceUnit);
+
+    List<ServiceUnit> getServiceUnitUsingEntity(Entities entity);
+
+    /**
+     * Ticket Status
+     *
+     * @return *
+     */
+    List<TicketStatus> getTicketStatus();
+
+    TicketStatus getTicketStatusUsingId(long id);
+
+    TicketStatus getTicketStatusUsingCode(String ticketStatusCode);
+
+    TicketStatus getTicketStatusUsingName(String ticketStatusName);
+
+    TicketStatus createTicketStatus(TicketStatus ticketStatus);
+
+    TicketStatus updateTicketStatus(TicketStatus ticketStatus);
+
+    TicketStatus deleteTicketStatus(TicketStatus ticketStatus);
+
+    TicketStatusChange createTicketStatusChange(TicketStatusChange ticketStatusChange);
+
+    List<PublicHolidays> getPublicHolidays();
+
+    PublicHolidays getPublicHoliday(LocalDate holiday);
+
+    PublicHolidays createPublicHoliday(PublicHolidays publicHoliday);
+
+    PublicHolidays updatePublicHoliday(PublicHolidays publicHoliday);
 }

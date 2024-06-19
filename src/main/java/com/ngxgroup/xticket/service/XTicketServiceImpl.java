@@ -5,8 +5,11 @@ import com.google.gson.Gson;
 import com.ngxgroup.xticket.constant.ResponseCodes;
 import com.ngxgroup.xticket.model.AppRoles;
 import com.ngxgroup.xticket.model.AppUser;
+import com.ngxgroup.xticket.model.Entities;
 import com.ngxgroup.xticket.model.GroupRoles;
+import com.ngxgroup.xticket.model.PublicHolidays;
 import com.ngxgroup.xticket.model.RoleGroups;
+import com.ngxgroup.xticket.model.ServiceUnit;
 import com.ngxgroup.xticket.model.TicketAgent;
 import com.ngxgroup.xticket.model.TicketComment;
 import com.ngxgroup.xticket.model.TicketEscalations;
@@ -14,6 +17,8 @@ import com.ngxgroup.xticket.model.TicketGroup;
 import com.ngxgroup.xticket.model.TicketReassign;
 import com.ngxgroup.xticket.model.TicketReopened;
 import com.ngxgroup.xticket.model.TicketSla;
+import com.ngxgroup.xticket.model.TicketStatus;
+import com.ngxgroup.xticket.model.TicketStatusChange;
 import com.ngxgroup.xticket.model.TicketType;
 import com.ngxgroup.xticket.model.Tickets;
 import com.ngxgroup.xticket.payload.LogPayload;
@@ -34,7 +39,10 @@ import org.springframework.stereotype.Service;
 import com.ngxgroup.xticket.repository.XTicketRepository;
 import jakarta.servlet.ServletContext;
 import java.io.File;
+import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalTime;
+import java.time.Period;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -326,6 +334,15 @@ public class XTicketServiceImpl implements XTicketService {
             //Fetch the default role group for initial setup
             RoleGroups roleGroup = xticketRepository.getRoleGroupUsingGroupName("DEFAULT");
 
+            //Get the entity
+            Entities entity = null;
+            if (!useADAuth) {
+                //This is external. Set the entity to NGX
+                entity = xticketRepository.getEntitiesUsingCode("NGX");
+            } else {
+                entity = xticketRepository.getServiceUnitUsingCode(requestPayload.getServiceUnitCode()).getEntity();
+            }
+
             //Create new Record
             AppUser newUser = new AppUser();
             String activationId = UUID.randomUUID().toString().replaceAll("-", "");
@@ -333,6 +350,7 @@ public class XTicketServiceImpl implements XTicketService {
             newUser.setCreatedAt(LocalDateTime.now());
             newUser.setCreatedBy(requestPayload.getEmail());
             newUser.setEmail(requestPayload.getEmail());
+            newUser.setEntity(entity);
             newUser.setActivated(false);
             newUser.setGender(requestPayload.getGender());
             newUser.setInternal(requestPayload.getEmail().contains(companyEmailDomain));
@@ -1305,6 +1323,15 @@ public class XTicketServiceImpl implements XTicketService {
                     return response;
                 }
 
+                //Check if the service unit is valid
+                ServiceUnit serviceUnit = xticketRepository.getServiceUnitUsingCode(requestPayload.getServiceUnitCode());
+                if (serviceUnit == null) {
+                    response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Service Unit", "Code", requestPayload.getServiceUnitCode()}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
                 TicketType newTicketType = new TicketType();
                 newTicketType.setCreatedAt(LocalDateTime.now());
                 newTicketType.setCreatedBy(appUser);
@@ -1315,6 +1342,7 @@ public class XTicketServiceImpl implements XTicketService {
                 newTicketType.setEmailEscalationIndex(0);
                 newTicketType.setSla(ticketSla);
                 newTicketType.setStatus(requestPayload.getStatus());
+                newTicketType.setServiceUnit(serviceUnit);
                 newTicketType.setTicketGroup(ticketGroup);
                 newTicketType.setRequireChangeRequestForm(requestPayload.isRequireChangeRequestForm());
                 newTicketType.setRequireServiceRequestForm(requestPayload.isRequireServiceRequestForm());
@@ -1371,6 +1399,15 @@ public class XTicketServiceImpl implements XTicketService {
                 return response;
             }
 
+            //Check if the service unit is valid
+            ServiceUnit serviceUnit = xticketRepository.getServiceUnitUsingCode(requestPayload.getServiceUnitCode());
+            if (serviceUnit == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Service Unit", "Code", requestPayload.getServiceUnitCode()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
             ticketType.setCreatedAt(LocalDateTime.now());
             ticketType.setCreatedBy(appUser);
             ticketType.setStatus(requestPayload.getStatus());
@@ -1381,6 +1418,7 @@ public class XTicketServiceImpl implements XTicketService {
             ticketType.setEmailEscalationIndex(0);
             ticketType.setSla(ticketSla);
             ticketType.setStatus(requestPayload.getStatus());
+            ticketType.setServiceUnit(serviceUnit);
             ticketType.setTicketGroup(ticketGroup);
             ticketType.setRequireChangeRequestForm(requestPayload.isRequireChangeRequestForm());
             ticketType.setRequireServiceRequestForm(requestPayload.isRequireServiceRequestForm());
@@ -1693,6 +1731,12 @@ public class XTicketServiceImpl implements XTicketService {
                     newTicket.setTicketType(ticketType);
                     xticketRepository.createTicketAgent(newTicket);
                 }
+
+                //Update the user as agent if not already
+                if (!appUser.isAgent()) {
+                    appUser.setAgent(true);
+                    xticketRepository.updateAppUser(appUser);
+                }
             }
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
@@ -1809,6 +1853,15 @@ public class XTicketServiceImpl implements XTicketService {
                 return response;
             }
 
+            //Fetch the open ticket status
+            TicketStatus ticketStatus = xticketRepository.getTicketStatusUsingCode("OPEN");
+            if (ticketStatus == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{"OPEN"}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
             Tickets newTicket = new Tickets();
             newTicket.setAttachedFile(!requestPayload.getUploadedFiles().isEmpty());
             newTicket.setClosedAt(null);
@@ -1818,26 +1871,22 @@ public class XTicketServiceImpl implements XTicketService {
             newTicket.setEscalated(false);
             newTicket.setEscalatedAt(null);
             newTicket.setEscalationIndex(0);
+            newTicket.setEntity(appUser.getEntity());
             newTicket.setFileIndex(1);
             newTicket.setInternal(ticketType.isInternal());
             newTicket.setMessage(requestPayload.getMessage());
             newTicket.setSubject(requestPayload.getSubject());
             newTicket.setTicketAgent(ticketAgent);
             newTicket.setTicketGroup(ticketGroup);
+            newTicket.setTicketStatus(ticketStatus);
             newTicket.setTicketId(ticketId);
-            newTicket.setTicketOpen(true);
             newTicket.setTicketReopen(false);
             newTicket.setTicketReopened(null);
             newTicket.setTicketReassign(false);
             newTicket.setTicketReassigned(null);
             newTicket.setTicketType(ticketType);
             newTicket.setSla(String.valueOf(ticketType.getSla().getTicketSla()) + String.valueOf(ticketType.getSla().getTicketSlaPeriod()));
-            LocalDateTime slaExpiryTime = ticketType.getSla().getTicketSlaPeriod() == 'D'
-                    ? LocalDateTime.now().plusDays(ticketType.getSla().getTicketSla())
-                    : ticketType.getSla().getTicketSlaPeriod() == 'H'
-                    ? LocalDateTime.now().plusHours(ticketType.getSla().getTicketSla())
-                    : LocalDateTime.now().plusMinutes(ticketType.getSla().getTicketSla());
-            newTicket.setSlaExpiry(slaExpiryTime);
+            newTicket.setSlaExpiry(getSlaExpiryDate(ticketType));
             newTicket.setTicketLocked(false);
             newTicket.setTicketSource("Web");
             newTicket.setPriority(ticketType.getSla().getTicketSlaName());
@@ -1872,10 +1921,10 @@ public class XTicketServiceImpl implements XTicketService {
             XTicketPayload mailPayload = new XTicketPayload();
             mailPayload.setRecipientEmail(ticketAgent.getAgent().getEmail());
             mailPayload.setSubject("Ticket Request Notification");
-            String slaExpiry = dtf.format(slaExpiryTime);
+            String slaExpiry = dtf.format(getSlaExpiryDate(ticketType));
             String message = "<h4>Dear " + ticketAgent.getAgent().getLastName() + "</h4>\n"
                     + "<p>A ticket has been opened as follows;</p>\n"
-                    + "<p>Date Created: " + LocalDate.now().toString() + "</p>\n"
+                    + "<p>Date Created: " + LocalDateTime.now().toString() + "</p>\n"
                     + "<p>Initiated By: " + appUser.getLastName() + ", " + appUser.getOtherName() + "</p>\n"
                     + "<p>Ticket ID: " + ticketId + "</p>\n"
                     + "<p>Ticket Group: " + ticketType.getTicketGroup().getTicketGroupName() + "</p>\n"
@@ -1968,6 +2017,34 @@ public class XTicketServiceImpl implements XTicketService {
             mailPayload.setEmailBody(message);
             genericService.sendEmail(mailPayload, principal);
 
+            //Check if the status is changed
+            if (!requestPayload.getTicketStatusCode().equalsIgnoreCase("")) {
+                TicketStatus ticketStatus = xticketRepository.getTicketStatusUsingCode(requestPayload.getTicketStatusCode());
+                //Check if the SLA is to be extended
+                if (ticketStatus.isPauseSLA()) {
+                    ticket.setTicketPause(LocalDateTime.now());
+                } else {
+                    //Check time elapsed between when it was paused and now
+                    int timeElapsed = Duration.between(ticket.getTicketPause(), LocalDate.now()).toMinutesPart();
+                    ticket.setSlaExpiry(ticket.getSlaExpiry().plusMinutes(timeElapsed));
+                    ticket.setTicketPause(null);
+                }
+                ticket.setTicketStatus(ticketStatus);
+                xticketRepository.updateTicketStatus(ticketStatus);
+
+                //Log the status change record
+                TicketStatusChange newStatus = new TicketStatusChange();
+                newStatus.setChangedAt(LocalDateTime.now());
+                newStatus.setChangedBy(appUser);
+                newStatus.setPriority(ticket.getPriority());
+                newStatus.setReasonForChange(requestPayload.getMessage());
+                newStatus.setSla(ticket.getSla());
+                newStatus.setTicket(ticket);
+                newStatus.setTicketAgent(ticket.getTicketAgent());
+                newStatus.setTicketStatus(ticketStatus);
+                xticketRepository.createTicketStatusChange(newStatus);
+            }
+
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
             response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{ticket.getTicketType().getTicketTypeName() + " Ticket", "Created"}, Locale.ENGLISH));
             response.setData(null);
@@ -1994,7 +2071,8 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             //Fetch all the tickets created by the user
-            List<Tickets> tickets = xticketRepository.getOpenTicketsByUser(appUser);
+            TicketStatus openStatus = xticketRepository.getTicketStatusUsingCode("OPEN");
+            List<Tickets> tickets = xticketRepository.getOpenTicketsByUser(appUser, openStatus);
             if (tickets != null) {
                 List<XTicketPayload> ticketList = new ArrayList<>();
                 for (Tickets t : tickets) {
@@ -2040,7 +2118,8 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             //Fetch all the tickets created by the user
-            List<Tickets> tickets = xticketRepository.getClosedTicketsByUser(appUser);
+            TicketStatus completedStatus = xticketRepository.getTicketStatusUsingCode("COMP");
+            List<Tickets> tickets = xticketRepository.getClosedTicketsByUser(appUser, completedStatus);
             if (tickets != null) {
                 List<XTicketPayload> ticketList = new ArrayList<>();
                 for (Tickets t : tickets) {
@@ -2140,6 +2219,7 @@ public class XTicketServiceImpl implements XTicketService {
                     newTicket.setId(t.getId().intValue());
                     newTicket.setTicketGroupName(t.getTicketGroup().getTicketGroupName());
                     newTicket.setTicketTypeName(t.getTicketType().getTicketTypeName());
+                    newTicket.setServiceUnitName(t.getTicketType().getServiceUnit().getServiceUnitName());
                     newTicket.setPriority(t.getPriority());
                     newTicket.setMessage(t.getMessage());
                     ticketList.add(newTicket);
@@ -2215,8 +2295,10 @@ public class XTicketServiceImpl implements XTicketService {
 
             List<XTicketPayload> data = new ArrayList<>();
             //Fetch the ticket for the user
-            List<Tickets> closedTickets = xticketRepository.getClosedTicketsByUser(appUser);
-            List<Tickets> openTickets = xticketRepository.getOpenTicketsByUser(appUser);
+            TicketStatus openStatus = xticketRepository.getTicketStatusUsingCode("OPEN");
+            TicketStatus completedStatus = xticketRepository.getTicketStatusUsingCode("COMP");
+            List<Tickets> closedTickets = xticketRepository.getClosedTicketsByUser(appUser, completedStatus);
+            List<Tickets> openTickets = xticketRepository.getOpenTicketsByUser(appUser, openStatus);
 
             XTicketPayload closedTicket = new XTicketPayload();
             closedTicket.setValue(closedTickets.size());
@@ -2263,8 +2345,10 @@ public class XTicketServiceImpl implements XTicketService {
 
             //This is a close request for initial ticket
             if (ticketReopened.equalsIgnoreCase("f")) {
+                //Fetch the closed ticket status
+                TicketStatus closedStatus = xticketRepository.getTicketStatusUsingCode("COMP");
                 //Update ticket
-                ticket.setTicketOpen(false);
+                ticket.setTicketStatus(closedStatus);
                 ticket.setClosedAt(LocalDateTime.now());
                 ticket.setClosedBy(appUser);
                 xticketRepository.updateTicket(ticket);
@@ -2284,8 +2368,9 @@ public class XTicketServiceImpl implements XTicketService {
                 return response;
             }
 
-            //Update ticket
-            ticket.setTicketOpen(false);
+            //Update ticket with close status
+            TicketStatus closedStatus = xticketRepository.getTicketStatusUsingCode("COMP");
+            ticket.setTicketStatus(closedStatus);
             ticket.setTicketReopen(false);
             xticketRepository.updateTicket(ticket);
 
@@ -2345,17 +2430,13 @@ public class XTicketServiceImpl implements XTicketService {
             newReopenTicket.setTicket(ticket);
             newReopenTicket.setTicketAgent(ticketAgent);
             newReopenTicket.setSla(String.valueOf(ticket.getTicketType().getSla().getTicketSla()) + String.valueOf(ticket.getTicketType().getSla().getTicketSlaPeriod()));
-            LocalDateTime slaExpiryTime = ticket.getTicketType().getSla().getTicketSlaPeriod() == 'D'
-                    ? LocalDateTime.now().plusDays(ticket.getTicketType().getSla().getTicketSla())
-                    : ticket.getTicketType().getSla().getTicketSlaPeriod() == 'H'
-                    ? LocalDateTime.now().plusHours(ticket.getTicketType().getSla().getTicketSla())
-                    : LocalDateTime.now().plusMinutes(ticket.getTicketType().getSla().getTicketSla());
-            newReopenTicket.setSlaExpiry(slaExpiryTime);
+            newReopenTicket.setSlaExpiry(getSlaExpiryDate(ticket.getTicketType()));
             newReopenTicket.setPriority(ticket.getTicketType().getSla().getTicketSlaName());
             xticketRepository.createTicketReopen(newReopenTicket);
 
-            //Reopen the ticket
-            ticket.setTicketOpen(true);
+            //Reopen the ticket and update the status to open
+            TicketStatus openStatus = xticketRepository.getTicketStatusUsingCode("OPEN");
+            ticket.setTicketStatus(openStatus);
             ticket.setTicketReopen(true);
             ticket.setTicketReopened(newReopenTicket);
             xticketRepository.updateTicket(ticket);
@@ -2372,7 +2453,7 @@ public class XTicketServiceImpl implements XTicketService {
             XTicketPayload mailPayload = new XTicketPayload();
             mailPayload.setRecipientEmail(ticketAgent.getAgent().getEmail());
             mailPayload.setSubject("Ticket Reply Notification");
-            String slaExpiry = dtf.format(slaExpiryTime);
+            String slaExpiry = dtf.format(getSlaExpiryDate(ticket.getTicketType()));
             String message = "<h4>Dear " + ticketAgent.getAgent().getLastName() + "</h4>\n"
                     + "<p>A ticket has been reopened as follows;</p>\n"
                     + "<p>Date Reopened: " + LocalDate.now().toString() + "</p>\n"
@@ -2406,7 +2487,8 @@ public class XTicketServiceImpl implements XTicketService {
         XTicketPayload response = new XTicketPayload();
         try {
             //Fetch all the open tickets
-            List<Tickets> tickets = xticketRepository.getOpenTickets();
+            TicketStatus openStatus = xticketRepository.getTicketStatusUsingCode("OPEN");
+            List<Tickets> tickets = xticketRepository.getOpenTickets(openStatus);
             if (tickets != null) {
                 List<XTicketPayload> ticketList = new ArrayList<>();
                 for (Tickets t : tickets) {
@@ -2417,6 +2499,7 @@ public class XTicketServiceImpl implements XTicketService {
                     newTicket.setId(t.getId().intValue());
                     newTicket.setTicketGroupName(t.getTicketGroup().getTicketGroupName());
                     newTicket.setTicketTypeName(t.getTicketType().getTicketTypeName());
+                    newTicket.setServiceUnitName(t.getTicketType().getServiceUnit().getServiceUnitName());
                     newTicket.setPriority(t.getPriority());
                     newTicket.setSlaExpiry(dtf.format(t.getSlaExpiry()));
                     newTicket.setReopenedId(t.getTicketReopened() == null ? 0 : t.getTicketReopened().getId().intValue());
@@ -2454,7 +2537,8 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             //Fetch all the open tickets assigned to the agent
-            List<Tickets> agentTickets = xticketRepository.getOpenAgentTickets(appUser);
+            TicketStatus openStatus = xticketRepository.getTicketStatusUsingCode("OPEN");
+            List<Tickets> agentTickets = xticketRepository.getOpenAgentTickets(appUser, openStatus);
             if (agentTickets != null) {
                 List<XTicketPayload> data = new ArrayList<>();
                 for (Tickets t : agentTickets) {
@@ -2465,6 +2549,7 @@ public class XTicketServiceImpl implements XTicketService {
                     newTicket.setId(t.getId().intValue());
                     newTicket.setTicketGroupName(t.getTicketGroup().getTicketGroupName());
                     newTicket.setTicketTypeName(t.getTicketType().getTicketTypeName());
+                    newTicket.setServiceUnitName(t.getTicketType().getServiceUnit().getServiceUnitName());
                     newTicket.setPriority(t.getPriority());
                     newTicket.setSlaExpiry(dtf.format(t.getSlaExpiry()));
                     newTicket.setReopenedId(t.getTicketReopened() == null ? 0 : t.getTicketReopened().getId().intValue());
@@ -2493,7 +2578,8 @@ public class XTicketServiceImpl implements XTicketService {
         XTicketPayload response = new XTicketPayload();
         try {
             //Fetch all the Closed tickets 
-            List<Tickets> tickets = xticketRepository.getClosedTickets();
+            TicketStatus completedStatus = xticketRepository.getTicketStatusUsingCode("COMP");
+            List<Tickets> tickets = xticketRepository.getClosedTickets(completedStatus);
             if (tickets != null) {
                 List<XTicketPayload> ticketList = new ArrayList<>();
                 for (Tickets t : tickets) {
@@ -2505,6 +2591,7 @@ public class XTicketServiceImpl implements XTicketService {
                     newTicket.setId(t.getId().intValue());
                     newTicket.setTicketGroupName(t.getTicketGroup().getTicketGroupName());
                     newTicket.setTicketTypeName(t.getTicketType().getTicketTypeName());
+                    newTicket.setServiceUnitName(t.getTicketType().getServiceUnit().getServiceUnitName());
                     newTicket.setPriority(t.getPriority());
                     ticketList.add(newTicket);
                 }
@@ -2532,10 +2619,14 @@ public class XTicketServiceImpl implements XTicketService {
         if (ticketAgents != null) {
             int i = 0;
             for (TicketAgent t : ticketAgents) {
-                //Get the jobs currently assigned to the agent
-                List<Tickets> ticketsByAgent = xticketRepository.getOpenAgentTickets(t.getAgent());
-                jobStats[i] = String.valueOf(ticketsByAgent == null ? 0 : ticketsByAgent.size()) + "*" + String.valueOf(t.getId());
-                i++;
+                //Check if the agent is active
+                if (!t.getAgent().isLocked() && t.getAgent().isAgent()) {
+                    //Get the jobs currently assigned to the agent
+                    TicketStatus openStatus = xticketRepository.getTicketStatusUsingCode("OPEN");
+                    List<Tickets> ticketsByAgent = xticketRepository.getOpenAgentTickets(t.getAgent(), openStatus);
+                    jobStats[i] = String.valueOf(ticketsByAgent == null ? 0 : ticketsByAgent.size()) + "*" + String.valueOf(t.getId());
+                    i++;
+                }
             }
 
             //Loop through the array
@@ -2641,8 +2732,9 @@ public class XTicketServiceImpl implements XTicketService {
             ticketReassign.setTicket(ticket);
             xticketRepository.createTicketReassign(ticketReassign);
 
-            //Update the ticket record
-            ticket.setTicketOpen(true);
+            //Update the ticket record and status
+            TicketStatus openStatus = xticketRepository.getTicketStatusUsingCode("OPEN");
+            ticket.setTicketStatus(openStatus);
             ticket.setTicketReassign(true);
             ticket.setTicketReassigned(ticketReassign);
             ticket.setSlaExpiry(slaExpiryTime);
@@ -2682,10 +2774,11 @@ public class XTicketServiceImpl implements XTicketService {
             response.setEscalated(ticket.isEscalated());
             response.setInternal(ticket.isInternal());
             response.setTicketId(ticketId);
-            response.setTicketOpen(ticket.isTicketOpen());
+            response.setTicketOpen(ticket.getTicketStatus().getTicketStatusCode().equalsIgnoreCase("OPEN"));
             response.setReopened(ticket.isTicketReopen());
             response.setTicketGroupName(ticket.getTicketGroup().getTicketGroupName());
             response.setTicketTypeName(ticket.getTicketType().getTicketTypeName());
+            response.setServiceUnitName(ticket.getTicketType().getServiceUnit().getServiceUnitName());
             response.setPriority(ticket.getPriority());
             response.setSlaExpiry(ticket.getSlaExpiry() == null ? null : dtf.format(ticket.getSlaExpiry()));
             response.setTicketLocked(ticket.isTicketLocked());
@@ -2795,8 +2888,17 @@ public class XTicketServiceImpl implements XTicketService {
     public XTicketPayload fetchOpenTicket(XTicketPayload requestPayload) {
         XTicketPayload response = new XTicketPayload();
         try {
-            List<Tickets> tickets = xticketRepository.getOpenTickets();
+            TicketStatus openStatus = xticketRepository.getTicketStatusUsingCode("OPEN");
+            List<Tickets> tickets = xticketRepository.getOpenTickets(openStatus);
             if (tickets != null) {
+                //Check if service unit is set in the filter
+                if (!requestPayload.getServiceUnitCode().equalsIgnoreCase("")) {
+                    ServiceUnit serviceUnit = xticketRepository.getServiceUnitUsingCode(requestPayload.getServiceUnitCode());
+                    if (serviceUnit != null) {
+                        tickets = tickets.stream().filter(t -> t.getTicketType().getServiceUnit() == serviceUnit).collect(Collectors.toList());
+                    }
+                }
+
                 //Check if ticket group is set in the filter
                 if (!requestPayload.getTicketGroupCode().equalsIgnoreCase("")) {
                     TicketGroup ticketGroup = xticketRepository.getTicketGroupUsingCode(requestPayload.getTicketGroupCode());
@@ -2832,6 +2934,7 @@ public class XTicketServiceImpl implements XTicketService {
                     newTicket.setId(t.getId().intValue());
                     newTicket.setTicketGroupName(t.getTicketGroup().getTicketGroupName());
                     newTicket.setTicketTypeName(t.getTicketType().getTicketTypeName());
+                    newTicket.setServiceUnitName(t.getTicketType().getServiceUnit().getServiceUnitName());
                     newTicket.setPriority(t.getPriority());
                     newTicket.setSlaExpiry(dtf.format(t.getSlaExpiry()));
                     newTicket.setTimeElapsed(getTimeElapsed(t.getSlaExpiry(), LocalDateTime.now()));
@@ -2859,8 +2962,17 @@ public class XTicketServiceImpl implements XTicketService {
     public XTicketPayload fetchClosedTicket(XTicketPayload requestPayload) {
         XTicketPayload response = new XTicketPayload();
         try {
-            List<Tickets> tickets = xticketRepository.getClosedTickets(LocalDate.parse(requestPayload.getStartDate()), LocalDate.parse(requestPayload.getEndDate()));
+            TicketStatus completedStatus = xticketRepository.getTicketStatusUsingCode("COMP");
+            List<Tickets> tickets = xticketRepository.getClosedTickets(LocalDate.parse(requestPayload.getStartDate()), LocalDate.parse(requestPayload.getEndDate()), completedStatus);
             if (tickets != null) {
+                //Check if service unit is set in the filter
+                if (!requestPayload.getServiceUnitCode().equalsIgnoreCase("")) {
+                    ServiceUnit serviceUnit = xticketRepository.getServiceUnitUsingCode(requestPayload.getServiceUnitCode());
+                    if (serviceUnit != null) {
+                        tickets = tickets.stream().filter(t -> t.getTicketType().getServiceUnit() == serviceUnit).collect(Collectors.toList());
+                    }
+                }
+
                 //Check if ticket group is set in the filter
                 if (!requestPayload.getTicketGroupCode().equalsIgnoreCase("")) {
                     TicketGroup ticketGroup = xticketRepository.getTicketGroupUsingCode(requestPayload.getTicketGroupCode());
@@ -2911,6 +3023,7 @@ public class XTicketServiceImpl implements XTicketService {
                     newTicket.setTicketId(t.getTicketId());
                     newTicket.setTicketGroupName(t.getTicketGroup().getTicketGroupName());
                     newTicket.setTicketTypeName(t.getTicketType().getTicketTypeName());
+                    newTicket.setServiceUnitName(t.getTicketType().getServiceUnit().getServiceUnitName());
                     newTicket.setPriority(t.getPriority());
                     newTicket.setReopened(t.isTicketReopen());
                     newTicket.setSlaViolated(t.isSlaViolated());
@@ -2973,11 +3086,19 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
-    public XTicketPayload fetchTicketByViolatedSla(XTicketPayload requestPayload) {
+    public XTicketPayload fetchTicketByWithinSla(XTicketPayload requestPayload) {
         XTicketPayload response = new XTicketPayload();
         try {
             List<Tickets> tickets = xticketRepository.getViolatedTickets(LocalDate.parse(requestPayload.getStartDate()), LocalDate.parse(requestPayload.getEndDate()));
             if (tickets != null) {
+                //Check if service unit is set in the filter
+                if (!requestPayload.getServiceUnitCode().equalsIgnoreCase("")) {
+                    ServiceUnit serviceUnit = xticketRepository.getServiceUnitUsingCode(requestPayload.getServiceUnitCode());
+                    if (serviceUnit != null) {
+                        tickets = tickets.stream().filter(t -> t.getTicketType().getServiceUnit() == serviceUnit).collect(Collectors.toList());
+                    }
+                }
+
                 //Check if ticket group is set in the filter
                 if (!requestPayload.getTicketGroupCode().equalsIgnoreCase("")) {
                     TicketGroup ticketGroup = xticketRepository.getTicketGroupUsingCode(requestPayload.getTicketGroupCode());
@@ -3026,6 +3147,96 @@ public class XTicketServiceImpl implements XTicketService {
                     newTicket.setId(t.getId().intValue());
                     newTicket.setTicketGroupName(t.getTicketGroup().getTicketGroupName());
                     newTicket.setTicketTypeName(t.getTicketType().getTicketTypeName());
+                    newTicket.setServiceUnitName(t.getTicketType().getServiceUnit().getServiceUnitName());
+                    newTicket.setPriority(t.getPriority());
+                    newTicket.setSlaExpiry(dtf.format(t.getSlaExpiry()));
+                    newTicket.setInternal(t.isInternal());
+                    newTicket.setInitialSla(t.getSla());
+                    newTicket.setServiceUnitName(t.getTicketType().getServiceUnit().getServiceUnitName());
+                    newTicket.setTicketAgent(t.getTicketAgentViolated().getAgent().getLastName() + ", " + t.getTicketAgentViolated().getAgent().getOtherName());
+                    data.add(newTicket);
+                }
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
+                response.setData(data);
+                return response;
+            }
+
+            response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{"Ticket Within SLA"}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload fetchTicketByViolatedSla(XTicketPayload requestPayload) {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            List<Tickets> tickets = xticketRepository.getViolatedTickets(LocalDate.parse(requestPayload.getStartDate()), LocalDate.parse(requestPayload.getEndDate()));
+            if (tickets != null) {
+                //Check if service unit is set in the filter
+                if (!requestPayload.getServiceUnitCode().equalsIgnoreCase("")) {
+                    ServiceUnit serviceUnit = xticketRepository.getServiceUnitUsingCode(requestPayload.getServiceUnitCode());
+                    if (serviceUnit != null) {
+                        tickets = tickets.stream().filter(t -> t.getTicketType().getServiceUnit() == serviceUnit).collect(Collectors.toList());
+                    }
+                }
+
+                //Check if ticket group is set in the filter
+                if (!requestPayload.getTicketGroupCode().equalsIgnoreCase("")) {
+                    TicketGroup ticketGroup = xticketRepository.getTicketGroupUsingCode(requestPayload.getTicketGroupCode());
+                    if (ticketGroup != null) {
+                        tickets = tickets.stream().filter(t -> t.getTicketGroup() == ticketGroup).collect(Collectors.toList());
+                    }
+                }
+
+                //Check if ticket type is set in the filter
+                if (!requestPayload.getTicketTypeCode().equalsIgnoreCase("")) {
+                    TicketType ticketType = xticketRepository.getTicketTypeUsingCode(requestPayload.getTicketTypeCode());
+                    if (ticketType != null) {
+                        tickets = tickets.stream().filter(t -> t.getTicketType() == ticketType).collect(Collectors.toList());
+                    }
+                }
+
+                //Check if user type is set 
+                if (!requestPayload.getSource().equalsIgnoreCase("")) {
+                    if (requestPayload.getSource().equalsIgnoreCase("Internal")) {
+                        tickets = tickets.stream().filter(t -> t.isInternal() == true).collect(Collectors.toList());
+                    } else {
+                        tickets = tickets.stream().filter(t -> t.isInternal() == false).collect(Collectors.toList());
+                    }
+                }
+
+                //Check if ticket agent filter is set
+                if (!requestPayload.getEmail().equalsIgnoreCase("")) {
+                    AppUser appUser = xticketRepository.getAppUserUsingEmail(requestPayload.getEmail());
+                    if (appUser != null) {
+                        List<TicketAgent> agentTickets = xticketRepository.getTicketAgent(appUser);
+                        if (agentTickets != null) {
+                            for (TicketAgent ag : agentTickets) {
+                                tickets = tickets.stream().filter(t -> t.getTicketAgent() == ag).collect(Collectors.toList());
+                            }
+                        }
+                    }
+                }
+
+                //Loop through the list and transform
+                List<XTicketPayload> data = new ArrayList<>();
+                for (Tickets t : tickets) {
+                    XTicketPayload newTicket = new XTicketPayload();
+                    BeanUtils.copyProperties(t, newTicket);
+                    newTicket.setCreatedAt(t.getCreatedAt().toLocalDate().toString());
+                    newTicket.setCreatedBy(t.getCreatedBy().getLastName() + ", " + t.getCreatedBy().getOtherName());
+                    newTicket.setId(t.getId().intValue());
+                    newTicket.setTicketGroupName(t.getTicketGroup().getTicketGroupName());
+                    newTicket.setTicketTypeName(t.getTicketType().getTicketTypeName());
+                    newTicket.setServiceUnitName(t.getTicketType().getServiceUnit().getServiceUnitName());
                     newTicket.setPriority(t.getPriority());
                     newTicket.setSlaExpiry(dtf.format(t.getSlaExpiry()));
                     newTicket.setInternal(t.isInternal());
@@ -3070,7 +3281,8 @@ public class XTicketServiceImpl implements XTicketService {
                         BeanUtils.copyProperties(t, payload);
 
                         //Fetch the tickets closed by the agent
-                        List<Tickets> ticketsByAgent = xticketRepository.getTicketClosedByAgent(t.getAgent());
+                        TicketStatus completedStatus = xticketRepository.getTicketStatusUsingCode("COMP");
+                        List<Tickets> ticketsByAgent = xticketRepository.getTicketClosedByAgent(t.getAgent(), completedStatus);
                         payload.setCreatedAt(t.getCreatedAt().toLocalDate().toString());
                         payload.setCreatedBy(t.getCreatedBy().getLastName() + " " + t.getCreatedBy().getOtherName());
                         payload.setLastLogin(t.getAgent().getLastLogin().format(dtf));
@@ -3098,7 +3310,8 @@ public class XTicketServiceImpl implements XTicketService {
                     }
 
                     //Fetch the tickets closed by the agent
-                    List<Tickets> ticketsByAgent = xticketRepository.getTicketClosedByAgent(t);
+                    TicketStatus completedStatus = xticketRepository.getTicketStatusUsingCode("COMP");
+                    List<Tickets> ticketsByAgent = xticketRepository.getTicketClosedByAgent(t, completedStatus);
                     payload.setCreatedAt(t.getCreatedAt().toLocalDate().toString());
                     payload.setCreatedBy(t.getLastName() + " " + t.getOtherName());
                     payload.setLastLogin(t.getLastLogin().format(dtf));
@@ -3131,7 +3344,8 @@ public class XTicketServiceImpl implements XTicketService {
         try {
             AppUser appUser = xticketRepository.getAppUserUsingEmail(requestPayload.getEmail());
             if (appUser != null) {
-                List<Tickets> agentTickets = xticketRepository.getTicketClosedByAgent(appUser, LocalDate.parse(requestPayload.getStartDate()), LocalDate.parse(requestPayload.getEndDate()));
+                TicketStatus completedStatus = xticketRepository.getTicketStatusUsingCode("COMP");
+                List<Tickets> agentTickets = xticketRepository.getTicketClosedByAgent(appUser, LocalDate.parse(requestPayload.getStartDate()), LocalDate.parse(requestPayload.getEndDate()), completedStatus);
                 if (agentTickets != null) {
                     List<XTicketPayload> data = new ArrayList<>();
                     for (Tickets t : agentTickets) {
@@ -3143,6 +3357,7 @@ public class XTicketServiceImpl implements XTicketService {
                         newTicket.setClosedBy(t.getClosedBy().getLastName() + ", " + t.getClosedBy().getOtherName());
                         newTicket.setTicketGroupName(t.getTicketGroup().getTicketGroupName());
                         newTicket.setTicketTypeName(t.getTicketType().getTicketTypeName());
+                        newTicket.setServiceUnitName(t.getTicketType().getServiceUnit().getServiceUnitName());
                         newTicket.setTicketId(t.getTicketId());
                         newTicket.setPriority(t.getPriority());
                         newTicket.setSlaExpiry(dtf.format(t.getSlaExpiry()));
@@ -3192,6 +3407,7 @@ public class XTicketServiceImpl implements XTicketService {
                     reopen.setTicketId(t.getTicket().getTicketId());
                     reopen.setTicketGroupName(t.getTicket().getTicketGroup().getTicketGroupName());
                     reopen.setTicketTypeName(t.getTicket().getTicketType().getTicketTypeName());
+                    reopen.setServiceUnitName(t.getTicket().getTicketType().getServiceUnit().getServiceUnitName());
                     reopen.setPriority(t.getPriority());
                     reopen.setTicketAgent(t.getTicketAgent().getAgent().getLastName() + ", " + t.getTicketAgent().getAgent().getOtherName());
                     data.add(reopen);
@@ -3219,6 +3435,14 @@ public class XTicketServiceImpl implements XTicketService {
         try {
             List<TicketReassign> tickets = xticketRepository.getDistinctTicketReassigned(LocalDate.parse(requestPayload.getStartDate()), LocalDate.parse(requestPayload.getEndDate()));
             if (tickets != null) {
+                //Check if service unit is set in the filter
+                if (!requestPayload.getServiceUnitCode().equalsIgnoreCase("")) {
+                    ServiceUnit serviceUnit = xticketRepository.getServiceUnitUsingCode(requestPayload.getServiceUnitCode());
+                    if (serviceUnit != null) {
+                        tickets = tickets.stream().filter(t -> t.getTicket().getTicketType().getServiceUnit() == serviceUnit).collect(Collectors.toList());
+                    }
+                }
+
                 //Check if ticket group is set in the filter
                 if (!requestPayload.getTicketGroupCode().equalsIgnoreCase("")) {
                     TicketGroup ticketGroup = xticketRepository.getTicketGroupUsingCode(requestPayload.getTicketGroupCode());
@@ -3262,6 +3486,7 @@ public class XTicketServiceImpl implements XTicketService {
                     reassign.setTicketGroupName(t.getTicket().getTicketGroup().getTicketGroupName());
                     reassign.setTicketTypeName(t.getTicket().getTicketType().getTicketTypeName());
                     reassign.setTicketGroupName(t.getTicket().getTicketGroup().getTicketGroupName());
+                    reassign.setServiceUnitName(t.getTicket().getTicketType().getServiceUnit().getServiceUnitName());
                     reassign.setPriority(t.getTicket().getPriority());
                     reassign.setInternal(t.getTicket().isInternal());
                     reassign.setTicketId(t.getTicket().getTicketId());
@@ -3274,6 +3499,781 @@ public class XTicketServiceImpl implements XTicketService {
             }
             response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
             response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{"Open Ticket"}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    /**
+     * Entity Transactions *
+     */
+    @Override
+    public XTicketPayload fetchTicketByEntity(XTicketPayload requestPayload) {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            List<Tickets> tickets = xticketRepository.getViolatedTickets(LocalDate.parse(requestPayload.getStartDate()), LocalDate.parse(requestPayload.getEndDate()));
+            if (tickets != null) {
+                //Check if service unit is set in the filter
+                if (!requestPayload.getServiceUnitCode().equalsIgnoreCase("")) {
+                    ServiceUnit serviceUnit = xticketRepository.getServiceUnitUsingCode(requestPayload.getServiceUnitCode());
+                    if (serviceUnit != null) {
+                        tickets = tickets.stream().filter(t -> t.getTicketType().getServiceUnit() == serviceUnit).collect(Collectors.toList());
+                    }
+                }
+
+                //Check if ticket group is set in the filter
+                if (!requestPayload.getTicketGroupCode().equalsIgnoreCase("")) {
+                    TicketGroup ticketGroup = xticketRepository.getTicketGroupUsingCode(requestPayload.getTicketGroupCode());
+                    if (ticketGroup != null) {
+                        tickets = tickets.stream().filter(t -> t.getTicketGroup() == ticketGroup).collect(Collectors.toList());
+                    }
+                }
+
+                //Check if ticket type is set in the filter
+                if (!requestPayload.getTicketTypeCode().equalsIgnoreCase("")) {
+                    TicketType ticketType = xticketRepository.getTicketTypeUsingCode(requestPayload.getTicketTypeCode());
+                    if (ticketType != null) {
+                        tickets = tickets.stream().filter(t -> t.getTicketType() == ticketType).collect(Collectors.toList());
+                    }
+                }
+
+                //Check if user type is set 
+                if (!requestPayload.getSource().equalsIgnoreCase("")) {
+                    if (requestPayload.getSource().equalsIgnoreCase("Internal")) {
+                        tickets = tickets.stream().filter(t -> t.isInternal() == true).collect(Collectors.toList());
+                    } else {
+                        tickets = tickets.stream().filter(t -> t.isInternal() == false).collect(Collectors.toList());
+                    }
+                }
+
+                //Check if ticket agent filter is set
+                if (!requestPayload.getEmail().equalsIgnoreCase("")) {
+                    AppUser appUser = xticketRepository.getAppUserUsingEmail(requestPayload.getEmail());
+                    if (appUser != null) {
+                        List<TicketAgent> agentTickets = xticketRepository.getTicketAgent(appUser);
+                        if (agentTickets != null) {
+                            for (TicketAgent ag : agentTickets) {
+                                tickets = tickets.stream().filter(t -> t.getTicketAgent() == ag).collect(Collectors.toList());
+                            }
+                        }
+                    }
+                }
+
+                //Loop through the list and transform
+                List<XTicketPayload> data = new ArrayList<>();
+                for (Tickets t : tickets) {
+                    XTicketPayload newTicket = new XTicketPayload();
+                    BeanUtils.copyProperties(t, newTicket);
+                    newTicket.setCreatedAt(t.getCreatedAt().toLocalDate().toString());
+                    newTicket.setCreatedBy(t.getCreatedBy().getLastName() + ", " + t.getCreatedBy().getOtherName());
+                    newTicket.setId(t.getId().intValue());
+                    newTicket.setTicketGroupName(t.getTicketGroup().getTicketGroupName());
+                    newTicket.setTicketTypeName(t.getTicketType().getTicketTypeName());
+                    newTicket.setServiceUnitName(t.getTicketType().getServiceUnit().getServiceUnitName());
+                    newTicket.setPriority(t.getPriority());
+                    newTicket.setSlaExpiry(dtf.format(t.getSlaExpiry()));
+                    newTicket.setInternal(t.isInternal());
+                    newTicket.setInitialSla(t.getSla());
+                    newTicket.setTicketAgent(t.getTicketAgentViolated().getAgent().getLastName() + ", " + t.getTicketAgentViolated().getAgent().getOtherName());
+                    data.add(newTicket);
+                }
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
+                response.setData(data);
+                return response;
+            }
+
+            response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{"Ticket With Violated SLA"}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload fetchEntity() {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            List<XTicketPayload> data = new ArrayList<>();
+            List<Entities> entity = xticketRepository.getEntities();
+            if (entity != null) {
+                for (Entities t : entity) {
+                    XTicketPayload payload = new XTicketPayload();
+                    BeanUtils.copyProperties(t, payload);
+                    payload.setCreatedAt(t.getCreatedAt().toLocalDate().toString());
+                    payload.setCreatedBy(t.getCreatedBy().getLastName() + " " + t.getCreatedBy().getOtherName());
+                    payload.setId(t.getId().intValue());
+                    data.add(payload);
+                }
+            }
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{data.size()}, Locale.ENGLISH));
+            response.setData(data);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload fetchEntity(String id) {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            Entities entity = xticketRepository.getEntitiesUsingId(Long.parseLong(id));
+            if (entity == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{id}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            BeanUtils.copyProperties(entity, response);
+            response.setCreatedAt(entity.getCreatedAt().toLocalDate().toString());
+            response.setId(entity.getId().intValue());
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload createEntity(XTicketPayload requestPayload, String principal) {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            //Check if the request is for update or create new
+            if (requestPayload.getId() == 0) {
+                //Check if the user is valid
+                AppUser appUser = xticketRepository.getAppUserUsingEmail(principal);
+                if (appUser == null) {
+                    response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.user.notexist", new Object[]{principal}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
+                //Check if the entity exist using code
+                Entities entityByCode = xticketRepository.getEntitiesUsingCode(requestPayload.getEntityCode());
+                if (entityByCode != null) {
+                    response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Entity", "Code", requestPayload.getEntityCode()}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
+                //Check the entity using the name
+                Entities entityByName = xticketRepository.getEntitiesUsingName(requestPayload.getEntityName());
+                if (entityByName != null) {
+                    response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Entity", "Name", requestPayload.getEntityName()}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
+                Entities newEntity = new Entities();
+                newEntity.setCreatedAt(LocalDateTime.now());
+                newEntity.setCreatedBy(appUser);
+                newEntity.setStatus(requestPayload.getStatus());
+                newEntity.setEntityCode(requestPayload.getEntityCode());
+                newEntity.setEntityName(requestPayload.getEntityName());
+                xticketRepository.createEntities(newEntity);
+
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{"Entity", "Created"}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //This is an update request
+            Entities entity = xticketRepository.getEntitiesUsingId(Long.valueOf(requestPayload.getId()));
+            if (entity == null) {
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Entity", "Id", requestPayload.getId()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if the entity exist using code
+            Entities entityByCode = xticketRepository.getEntitiesUsingCode(requestPayload.getEntityCode());
+            if (entityByCode != null && !Objects.equals(entity.getId(), entityByCode.getId())) {
+                response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Entity", "Code", requestPayload.getEntityCode()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check the entity using the name
+            Entities entityByName = xticketRepository.getEntitiesUsingName(requestPayload.getEntityName());
+            if (entityByName != null && !Objects.equals(entity.getId(), entityByName.getId())) {
+                response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Entity", "Name", requestPayload.getEntityName()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            entity.setStatus(requestPayload.getStatus());
+            entity.setEntityCode(requestPayload.getEntityCode());
+            entity.setEntityName(requestPayload.getEntityName());
+            xticketRepository.updateEntities(entity);
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{"Entity", "Updated"}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload deleteEntity(String id, String principal) {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            //Check if the service unit by Id is valid
+            Entities entity = xticketRepository.getEntitiesUsingId(Long.valueOf(id));
+            if (entity == null) {
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Entity", "Id", id}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check users related to the entity
+            List<AppUser> userByEntity = xticketRepository.getAppUserUsingEntity(entity);
+            if (userByEntity != null) {
+                response.setResponseCode(ResponseCodes.IN_USE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.inuse", new Object[]{"Entity", entity.getEntityName()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if the ticket type is in use
+            List<ServiceUnit> serviceUnitByEntity = xticketRepository.getServiceUnitUsingEntity(entity);
+            if (serviceUnitByEntity != null) {
+                response.setResponseCode(ResponseCodes.IN_USE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.inuse", new Object[]{"Entity", entity.getEntityName()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            xticketRepository.deleteEntities(entity);
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.success.notexist", new Object[]{"Entity" + entity.getEntityName(), "Deleted"}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    /**
+     * Service Unit Transactions *
+     */
+    @Override
+    public XTicketPayload fetchTicketByServiceUnit(XTicketPayload requestPayload) {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            //Check if the service unit exist using code
+            ServiceUnit serviceUnit = xticketRepository.getServiceUnitUsingCode(requestPayload.getServiceUnitCode());
+            if (serviceUnit != null) {
+                response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Service Unit", "Code", requestPayload.getServiceUnitCode()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            List<Tickets> tickets = xticketRepository.getTicketsByServiceUnit(LocalDate.parse(requestPayload.getStartDate()), LocalDate.parse(requestPayload.getEndDate()), serviceUnit);
+            if (tickets != null) {
+                //Check if ticket group is set in the filter
+                if (!requestPayload.getTicketGroupCode().equalsIgnoreCase("")) {
+                    TicketGroup ticketGroup = xticketRepository.getTicketGroupUsingCode(requestPayload.getTicketGroupCode());
+                    if (ticketGroup != null) {
+                        tickets = tickets.stream().filter(t -> t.getTicketGroup() == ticketGroup).collect(Collectors.toList());
+                    }
+                }
+
+                //Check if ticket type is set in the filter
+                if (!requestPayload.getTicketTypeCode().equalsIgnoreCase("")) {
+                    TicketType ticketType = xticketRepository.getTicketTypeUsingCode(requestPayload.getTicketTypeCode());
+                    if (ticketType != null) {
+                        tickets = tickets.stream().filter(t -> t.getTicketType() == ticketType).collect(Collectors.toList());
+                    }
+                }
+
+                //Check if user type is set 
+                if (!requestPayload.getSource().equalsIgnoreCase("")) {
+                    if (requestPayload.getSource().equalsIgnoreCase("Internal")) {
+                        tickets = tickets.stream().filter(t -> t.isInternal() == true).collect(Collectors.toList());
+                    } else {
+                        tickets = tickets.stream().filter(t -> t.isInternal() == false).collect(Collectors.toList());
+                    }
+                }
+
+                //Check if ticket agent filter is set
+                if (!requestPayload.getEmail().equalsIgnoreCase("")) {
+                    AppUser appUser = xticketRepository.getAppUserUsingEmail(requestPayload.getEmail());
+                    if (appUser != null) {
+                        List<TicketAgent> agentTickets = xticketRepository.getTicketAgent(appUser);
+                        if (agentTickets != null) {
+                            for (TicketAgent ag : agentTickets) {
+                                tickets = tickets.stream().filter(t -> t.getTicketAgent() == ag).collect(Collectors.toList());
+                            }
+                        }
+                    }
+                }
+
+                //Loop through the list and transform
+                List<XTicketPayload> data = new ArrayList<>();
+                for (Tickets t : tickets) {
+                    XTicketPayload newTicket = new XTicketPayload();
+                    BeanUtils.copyProperties(t, newTicket);
+                    newTicket.setCreatedAt(t.getCreatedAt().toLocalDate().toString());
+                    newTicket.setCreatedBy(t.getCreatedBy().getLastName() + ", " + t.getCreatedBy().getOtherName());
+                    newTicket.setId(t.getId().intValue());
+                    newTicket.setTicketGroupName(t.getTicketGroup().getTicketGroupName());
+                    newTicket.setTicketTypeName(t.getTicketType().getTicketTypeName());
+                    newTicket.setServiceUnitName(t.getTicketType().getServiceUnit().getServiceUnitName());
+                    newTicket.setPriority(t.getPriority());
+                    newTicket.setSlaExpiry(dtf.format(t.getSlaExpiry()));
+                    newTicket.setInternal(t.isInternal());
+                    newTicket.setInitialSla(t.getSla());
+                    newTicket.setTicketAgent(t.getTicketAgentViolated().getAgent().getLastName() + ", " + t.getTicketAgentViolated().getAgent().getOtherName());
+                    data.add(newTicket);
+                }
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
+                response.setData(data);
+                return response;
+            }
+
+            response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{"Ticket With Violated SLA"}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload fetchServiceUnit() {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            List<XTicketPayload> data = new ArrayList<>();
+            List<ServiceUnit> serviceUnit = xticketRepository.getServiceUnit();
+            if (serviceUnit != null) {
+                for (ServiceUnit t : serviceUnit) {
+                    XTicketPayload payload = new XTicketPayload();
+                    BeanUtils.copyProperties(t, payload);
+                    payload.setCreatedAt(t.getCreatedAt().toLocalDate().toString());
+                    payload.setCreatedBy(t.getCreatedBy().getLastName() + " " + t.getCreatedBy().getOtherName());
+                    payload.setId(t.getId().intValue());
+                    payload.setEntityName(t.getEntity().getEntityName());
+                    data.add(payload);
+                }
+            }
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{data.size()}, Locale.ENGLISH));
+            response.setData(data);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload fetchServiceUnit(String id) {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            ServiceUnit serviceUnit = xticketRepository.getServiceUnitUsingId(Long.parseLong(id));
+            if (serviceUnit == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{id}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            BeanUtils.copyProperties(serviceUnit, response);
+            response.setCreatedAt(serviceUnit.getCreatedAt().toLocalDate().toString());
+            response.setId(serviceUnit.getId().intValue());
+            response.setEntityName(serviceUnit.getEntity().getEntityName());
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload createServiceUnit(XTicketPayload requestPayload, String principal) {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            //Check if the request is for update or create new
+            if (requestPayload.getId() == 0) {
+                //Check if the user is valid
+                AppUser appUser = xticketRepository.getAppUserUsingEmail(principal);
+                if (appUser == null) {
+                    response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.user.notexist", new Object[]{principal}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
+                //Check if the entity exist using code
+                Entities entityByCode = xticketRepository.getEntitiesUsingCode(requestPayload.getEntityCode());
+                if (entityByCode == null) {
+                    response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Entity", "Code", requestPayload.getEntityCode()}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
+                //Check if the service unit exist using code
+                ServiceUnit serviceUnitByCode = xticketRepository.getServiceUnitUsingCode(requestPayload.getServiceUnitCode());
+                if (serviceUnitByCode != null) {
+                    response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Service Unit", "Code", requestPayload.getServiceUnitCode()}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
+                //Check the service unit using the name
+                ServiceUnit serviceUnitByName = xticketRepository.getServiceUnitUsingName(requestPayload.getServiceUnitName());
+                if (serviceUnitByName != null) {
+                    response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Service Unit", "Name", requestPayload.getServiceUnitName()}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
+                ServiceUnit newServiceUnit = new ServiceUnit();
+                newServiceUnit.setCreatedAt(LocalDateTime.now());
+                newServiceUnit.setCreatedBy(appUser);
+                newServiceUnit.setEntity(entityByCode);
+                newServiceUnit.setStatus(requestPayload.getStatus());
+                newServiceUnit.setServiceUnitCode(requestPayload.getServiceUnitCode());
+                newServiceUnit.setServiceUnitName(requestPayload.getServiceUnitName());
+                xticketRepository.createServiceUnit(newServiceUnit);
+
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{"Service Unit", "Created"}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //This is an update request
+            ServiceUnit serviceUnit = xticketRepository.getServiceUnitUsingId(Long.valueOf(requestPayload.getId()));
+            if (serviceUnit == null) {
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Service Unit", "Id", requestPayload.getId()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if the entity exist using code
+            Entities entityByCode = xticketRepository.getEntitiesUsingCode(requestPayload.getEntityCode());
+            if (entityByCode == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Entity", "Code", requestPayload.getEntityCode()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if the service unit exist using code
+            ServiceUnit serviceUnitByCode = xticketRepository.getServiceUnitUsingCode(requestPayload.getServiceUnitCode());
+            if (serviceUnitByCode != null && !Objects.equals(serviceUnit.getId(), serviceUnitByCode.getId())) {
+                response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Service Unit", "Code", requestPayload.getServiceUnitCode()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check the service unit using the name
+            ServiceUnit serviceUnitByName = xticketRepository.getServiceUnitUsingName(requestPayload.getServiceUnitName());
+            if (serviceUnitByName != null && !Objects.equals(serviceUnit.getId(), serviceUnitByName.getId())) {
+                response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Service Unit", "Name", requestPayload.getServiceUnitName()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            serviceUnit.setEntity(entityByCode);
+            serviceUnit.setStatus(requestPayload.getStatus());
+            serviceUnit.setServiceUnitCode(requestPayload.getServiceUnitCode());
+            serviceUnit.setServiceUnitName(requestPayload.getServiceUnitName());
+            xticketRepository.updateServiceUnit(serviceUnit);
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{"Service Unit", "Updated"}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload deleteServiceUnit(String id, String principal) {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            //Check if the service unit by Id is valid
+            ServiceUnit serviceUnit = xticketRepository.getServiceUnitUsingId(Long.valueOf(id));
+            if (serviceUnit == null) {
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Service Unit", "Id", id}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if the ticket type is in use
+            List<TicketType> ticketByType = xticketRepository.getTicketTypeUsingServiceUnit(serviceUnit);
+            if (ticketByType != null) {
+                response.setResponseCode(ResponseCodes.IN_USE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.inuse", new Object[]{"Service Unit", serviceUnit.getServiceUnitName()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            xticketRepository.deleteServiceUnit(serviceUnit);
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{"Service Unit" + serviceUnit.getServiceUnitName(), "Deleted"}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    /**
+     * Ticket Status *
+     */
+    @Override
+    public XTicketPayload fetchTicketStatus() {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            List<XTicketPayload> data = new ArrayList<>();
+            List<TicketStatus> ticketStatus = xticketRepository.getTicketStatus();
+            if (ticketStatus != null) {
+                for (TicketStatus t : ticketStatus) {
+                    XTicketPayload payload = new XTicketPayload();
+                    BeanUtils.copyProperties(t, payload);
+                    payload.setCreatedAt(t.getCreatedAt().toLocalDate().toString());
+                    payload.setCreatedBy(t.getCreatedBy().getLastName() + " " + t.getCreatedBy().getOtherName());
+                    payload.setId(t.getId().intValue());
+                    data.add(payload);
+                }
+            }
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{data.size()}, Locale.ENGLISH));
+            response.setData(data);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload fetchTicketStatus(String id) {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            TicketStatus ticketStatus = xticketRepository.getTicketStatusUsingId(Long.parseLong(id));
+            if (ticketStatus == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{id}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            BeanUtils.copyProperties(ticketStatus, response);
+            response.setCreatedAt(ticketStatus.getCreatedAt().toLocalDate().toString());
+            response.setId(ticketStatus.getId().intValue());
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload createTicketStatus(XTicketPayload requestPayload, String principal) {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            //Check if the request is for update or create new
+            if (requestPayload.getId() == 0) {
+                //Check if the user is valid
+                AppUser appUser = xticketRepository.getAppUserUsingEmail(principal);
+                if (appUser == null) {
+                    response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.user.notexist", new Object[]{principal}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
+                //Check if the ticket status exist using code
+                TicketStatus ticketStatusByCode = xticketRepository.getTicketStatusUsingCode(requestPayload.getTicketStatusCode());
+                if (ticketStatusByCode != null) {
+                    response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Ticket Status", "Code", requestPayload.getTicketStatusCode()}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
+                //Check the ticket group using the name
+                TicketStatus ticketStatusByName = xticketRepository.getTicketStatusUsingName(requestPayload.getTicketStatusName());
+                if (ticketStatusByName != null) {
+                    response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Ticket Status", "Name", requestPayload.getTicketStatusName()}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
+                TicketStatus newTicketStatus = new TicketStatus();
+                newTicketStatus.setCreatedAt(LocalDateTime.now());
+                newTicketStatus.setCreatedBy(appUser);
+                newTicketStatus.setStatus(requestPayload.getStatus());
+                newTicketStatus.setTicketStatusCode(requestPayload.getTicketStatusCode());
+                newTicketStatus.setTicketStatusName(requestPayload.getTicketStatusName());
+                newTicketStatus.setPauseSLA(requestPayload.isPauseSLA());
+                xticketRepository.createTicketStatus(newTicketStatus);
+
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{"Ticket Status", "Created"}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //This is an update request
+            TicketStatus ticketStatus = xticketRepository.getTicketStatusUsingId(Long.valueOf(requestPayload.getId()));
+            if (ticketStatus == null) {
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Ticket Status", "Id", requestPayload.getId()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if the ticket status exist using code
+            TicketStatus ticketStatusByCode = xticketRepository.getTicketStatusUsingCode(requestPayload.getTicketStatusCode());
+            if (ticketStatusByCode != null && !Objects.equals(ticketStatus.getId(), ticketStatusByCode.getId())) {
+                response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Ticket Status", "Code", requestPayload.getTicketStatusCode()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check the ticket status using the name
+            TicketStatus ticketStatusByName = xticketRepository.getTicketStatusUsingName(requestPayload.getTicketStatusName());
+            if (ticketStatusByName != null && !Objects.equals(ticketStatus.getId(), ticketStatusByName.getId())) {
+                response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Ticket Status", "Name", requestPayload.getTicketStatusName()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            ticketStatus.setStatus(requestPayload.getStatus());
+            ticketStatus.setTicketStatusCode(requestPayload.getServiceUnitCode());
+            ticketStatus.setTicketStatusName(requestPayload.getServiceUnitName());
+            xticketRepository.updateTicketStatus(ticketStatus);
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{"Ticket Status", "Updated"}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload deleteTicketStatus(String id, String principal) {
+        XTicketPayload response = new XTicketPayload();
+        try {
+            //Check if the ticket status by Id is valid
+            TicketStatus ticketStatus = xticketRepository.getTicketStatusUsingId(Long.valueOf(id));
+            if (ticketStatus == null) {
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Ticket Status", "Id", id}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if the ticket status is in use
+            List<Tickets> ticketByStatus = xticketRepository.getTicketsUsingStatus(ticketStatus);
+            if (ticketByStatus != null) {
+                response.setResponseCode(ResponseCodes.IN_USE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.inuse", new Object[]{"Ticket Status", ticketStatus.getTicketStatusName()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Status Open and Completed should not be deleted
+            if (ticketStatus.getTicketStatusCode().equalsIgnoreCase("OPEN") || ticketStatus.getTicketStatusCode().equalsIgnoreCase("COMP")) {
+                response.setResponseCode(ResponseCodes.IN_USE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.inuse", new Object[]{"Ticket Status", ticketStatus.getTicketStatusName()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            xticketRepository.deleteTicketStatus(ticketStatus);
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{"Ticket Status" + ticketStatus.getTicketStatusName(), "Deleted"}, Locale.ENGLISH));
             response.setData(null);
             return response;
         } catch (Exception ex) {
@@ -3301,4 +4301,98 @@ public class XTicketServiceImpl implements XTicketService {
         long years = TimeUnit.MILLISECONDS.toDays(Time_difference) / 365l;
         return days + " days " + hours + " hours " + minutes + " minutes ";
     }
+
+    private LocalDateTime getSlaExpiryDate(TicketType ticketType) {
+        LocalDateTime slaExpiry = ticketType.getSla().getTicketSlaPeriod() == 'D'
+                ? LocalDateTime.now().plusDays(ticketType.getSla().getTicketSla())
+                : ticketType.getSla().getTicketSlaPeriod() == 'H'
+                ? LocalDateTime.now().plusHours(ticketType.getSla().getTicketSla())
+                : LocalDateTime.now().plusMinutes(ticketType.getSla().getTicketSla());
+
+        //Check if the sla expiry falls within workday and hours
+        if (slaExpiry.getDayOfWeek() != DayOfWeek.SATURDAY && slaExpiry.getDayOfWeek() != DayOfWeek.SUNDAY) {
+            //Check the time ticket is raised
+            int kalis = slaExpiry.getHour();
+            if (slaExpiry.getHour() >= 8 && slaExpiry.getHour() <= 16) {
+                //Check if day is public holiday
+                if (!isPublicHoliday(slaExpiry.toLocalDate())) {
+                    return slaExpiry;
+                } else {
+                    //Get the next working day
+                    return nextWorkingDay(slaExpiry);
+                }
+            } else {
+                //Outside official worktime. Move ticket to next day
+                LocalDateTime newSlaExpiry = slaExpiry.plusDays(1);
+                //Check if day is public holiday
+                if (!isPublicHoliday(newSlaExpiry.toLocalDate())) {
+                    return newSlaExpiry;
+                } else {
+                    //Get the next working day
+                    return nextWorkingDay(newSlaExpiry);
+                }
+            }
+        }
+
+        //This is a weekend. Move the SLA to next working day
+        if (slaExpiry.getDayOfWeek() == DayOfWeek.SATURDAY) {
+            LocalDateTime newTime = slaExpiry.plusDays(2).withHour(8).withMinute(0).withSecond(0);
+            LocalDateTime newSlaExpiry = ticketType.getSla().getTicketSlaPeriod() == 'D'
+                    ? newTime.plusDays(ticketType.getSla().getTicketSla())
+                    : ticketType.getSla().getTicketSlaPeriod() == 'H'
+                    ? newTime.plusHours(ticketType.getSla().getTicketSla())
+                    : newTime.plusMinutes(ticketType.getSla().getTicketSla());
+            //Check if public holiday
+            if (!isPublicHoliday(newSlaExpiry.toLocalDate())) {
+                return newSlaExpiry;
+            } else {
+                //Get the next working day
+                return nextWorkingDay(newSlaExpiry);
+            }
+        } else if (slaExpiry.getDayOfWeek() == DayOfWeek.SUNDAY) {
+            LocalDateTime newTime = slaExpiry.plusDays(1).withHour(8).withMinute(0).withSecond(0);
+            LocalDateTime newSlaExpiry = ticketType.getSla().getTicketSlaPeriod() == 'D'
+                    ? newTime.plusDays(ticketType.getSla().getTicketSla())
+                    : ticketType.getSla().getTicketSlaPeriod() == 'H'
+                    ? newTime.plusHours(ticketType.getSla().getTicketSla())
+                    : newTime.plusMinutes(ticketType.getSla().getTicketSla());
+            if (!isPublicHoliday(newSlaExpiry.toLocalDate())) {
+                return newSlaExpiry;
+            } else {
+                //Get the next working day
+                return nextWorkingDay(newSlaExpiry);
+            }
+        }
+
+        return slaExpiry;
+    }
+
+    private boolean isPublicHoliday(LocalDate date) {
+        List<PublicHolidays> publicHolidays = xticketRepository.getPublicHolidays();
+        boolean isPublicHols = false;
+        if (publicHolidays != null) {
+            for (PublicHolidays p : publicHolidays) {
+                if (date.equals(p.getHoliday())) {
+                    isPublicHols = true;
+                }
+            }
+        }
+        return isPublicHols;
+    }
+
+    private LocalDateTime nextWorkingDay(LocalDateTime date) {
+        LocalDateTime nextWorkDay = null;
+        //Loop 5 times to cover long holidays
+        for (int i = 0; i <= 5; i++) {
+            LocalDateTime newDate = date.plusDays(1);
+            boolean isPublicHols = isPublicHoliday(newDate.toLocalDate());
+            boolean isWeekend = (newDate.getDayOfWeek() == DayOfWeek.SATURDAY || newDate.getDayOfWeek() == DayOfWeek.SUNDAY);
+            if (!isPublicHols && !isWeekend) {
+                nextWorkDay = newDate.withHour(8).withMinute(0).withSecond(0);
+                break;
+            }
+        }
+        return nextWorkDay;
+    }
+
 }

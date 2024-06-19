@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
-        <title>X-Ticket - Ticket SLA</title>
+        <title>X-Ticket - Entity</title>
         <th:block th:include="~{fragments/xTicketFragments :: headerfiles}"></th:block>
     </head>
     <body onload="preloaderFunction()" style="margin: 0;">
@@ -13,14 +13,14 @@
                 <div class="content">
                     <div class="row gy-3 mb-3 justify-content-between">
                         <div class="col-md-4 col-auto">
-                            <h5 class="text-1100 text-primary">Setup Ticket SLA</h5>
+                            <h5 class="text-1100 text-primary">Setup Entities</h5>
                         </div>
                         <div class="col-md-5 col-auto">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb mb-0">
                                     <li class="breadcrumb-item"><a href="#" th:href="@{/}">Home</a></li>
                                     <li class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
-                                    <li class="breadcrumb-item active">Ticket SLA</li>
+                                    <li class="breadcrumb-item active">Entities</li>
                                 </ol>
                             </nav>
                         </div>
@@ -31,22 +31,22 @@
                     </div>
                     <div class="row mb-3 justify-content-between">
                         <div class="offset-lg-4 col-lg-4 col-md-12 col-sm-12">
-                            <form th:object="${ticketPayload}" th:action="@{/setup/ticket/sla/create}" method="POST">
-                                <input type="hidden" th:field="*{id}" />                                
+                            <form th:object="${ticketPayload}" th:action="@{/setup/entity/create}" method="POST">
+                                <input type="hidden" th:field="*{id}" />
                                 <div class="form-icon-container">
-                                    <input type="text" class="form-control form-control-sm form-icon-input" th:field="*{ticketSlaName}" placeholder="Enter sla name" required="required"/>
+                                    <input type="text" class="form-control form-control-sm form-icon-input" th:field="*{entityCode}" placeholder="Enter entity code" required="required"/>
+                                    <span class="text-primary asterisk">*</span>
+                                    <span class="fas fa-terminal text-900 fs--1 form-icon text-primary"></span>
+                                </div>
+                                <div class="form-icon-container">
+                                    <input type="text" class="form-control form-control-sm form-icon-input" th:field="*{entityName}" placeholder="Enter entity name" required="required"/>
                                     <span class="text-primary asterisk">*</span>
                                     <span class="fas fa-stream text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <div class="form-icon-container">
-                                    <input type="number" min="1" step="1" class="form-control form-control-sm form-icon-input" th:field="*{ticketSla}" placeholder="Enter sla" required="required"/>
-                                    <span class="fas fa-circle-check text-900 fs--1 form-icon text-primary"></span>
-                                </div>
-                                <div class="form-icon-container">
-                                    <select class="form-select form-control-sm form-icon-input" aria-label="ticketSlaPeriod" th:field="*{ticketSlaPeriod}" required="required">
-                                        <option value="D">Days</option>
-                                        <option value="H">Hours</option>
-                                        <option value="M">Minutes</option>
+                                    <select class="form-select form-control-sm form-icon-input" aria-label="status" th:field="*{status}" required="required">
+                                        <option value="Enabled">Enabled</option>
+                                        <option value="Disabled">Disabled</option>
                                     </select>
                                     <span class="fas fa-circle-check text-900 fs--1 form-icon text-primary"></span>
                                 </div>
@@ -58,7 +58,7 @@
                                                 <h6 class="modal-title text-primary">Nigerian Exchange Group - <span class="text-secondary">X-Ticket</span></h6>
                                             </div>
                                             <div class="modal-body">
-                                                <p>Confirm create ticket SLA</p>
+                                                <p>Confirm create entity</p>
                                                 <button type="submit" class="btn btn-primary btn-sm">Create</button>
                                                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
                                             </div>
@@ -74,12 +74,12 @@
                                 <div class="d-flex flex-between-center">
                                     <div>
                                         <div class="d-flex align-items-center mb-1"><span class="fa-solid fa-th-list me-2 fs--1 text-700"></span>
-                                            <p class="text-1000 mb-0 lh-1">Ticket SLA Listing</p>
+                                            <p class="text-1000 mb-0 lh-1">Entities Listing</p>
                                         </div>
                                         <p class="fs--1 text-700 mb-0"><span>X-Ticket</span>
-                                            <span class="text-400 mx-1">| </span><a th:href="@{/setup/ticket/sla/list}">Ticket SLA Listing</a>
+                                            <span class="text-400 mx-1">| </span><a th:href="@{/setup/entity/list}">Entities Listing</a>
                                             <span class="text-400 mx-1">| </span>
-                                            <span class="text-nowrap">Total of <b><span th:text="${recordCount}" class="text-primary"></span></b> Ticket SLA Created</span></p>
+                                            <span class="text-nowrap">Total of <b><span th:text="${recordCount}" class="text-primary"></span></b> Entities Created</span></p>
                                     </div>
                                 </div>
                             </div>

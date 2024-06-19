@@ -3,9 +3,12 @@ package com.ngxgroup.xticket.repository;
 import com.ngxgroup.xticket.model.AppRoles;
 import com.ngxgroup.xticket.model.AppUser;
 import com.ngxgroup.xticket.model.AuditLog;
+import com.ngxgroup.xticket.model.Entities;
 import com.ngxgroup.xticket.model.GroupRoles;
 import com.ngxgroup.xticket.model.Notification;
+import com.ngxgroup.xticket.model.PublicHolidays;
 import com.ngxgroup.xticket.model.RoleGroups;
+import com.ngxgroup.xticket.model.ServiceUnit;
 import com.ngxgroup.xticket.model.TicketComment;
 import com.ngxgroup.xticket.model.TicketEscalations;
 import com.ngxgroup.xticket.model.TicketGroup;
@@ -13,11 +16,12 @@ import com.ngxgroup.xticket.model.TicketReopened;
 import com.ngxgroup.xticket.model.TicketAgent;
 import com.ngxgroup.xticket.model.TicketReassign;
 import com.ngxgroup.xticket.model.TicketSla;
+import com.ngxgroup.xticket.model.TicketStatus;
+import com.ngxgroup.xticket.model.TicketStatusChange;
 import com.ngxgroup.xticket.model.TicketType;
 import com.ngxgroup.xticket.model.TicketUpload;
 import com.ngxgroup.xticket.model.Tickets;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -72,6 +76,17 @@ public class XTicketRepositoryImpl implements XTicketRepository {
     @Override
     public List<AppUser> getAgentAppUsers() {
         TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.agent = true", AppUser.class);
+        List<AppUser> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+    
+        @Override
+    public List<AppUser> getAppUserUsingEntity(Entities entity) {
+        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.entity = :entity", AppUser.class)
+                .setParameter("entity", entity);
         List<AppUser> record = query.getResultList();
         if (record.isEmpty()) {
             return null;
@@ -371,9 +386,9 @@ public class XTicketRepositoryImpl implements XTicketRepository {
     }
 
     @Override
-    public List<Tickets> getOpenTicketsByType(TicketType ticketType) {
-        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketType = :ticketType AND p.ticketOpen = true", Tickets.class)
-                .setParameter("ticketType", ticketType);
+    public List<Tickets> getTicketsUsingStatus(TicketStatus ticketStatus) {
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketStatus = :ticketStatus", Tickets.class)
+                .setParameter("ticketStatus", ticketStatus);
         List<Tickets> record = query.getResultList();
         if (record.isEmpty()) {
             return null;
@@ -382,9 +397,22 @@ public class XTicketRepositoryImpl implements XTicketRepository {
     }
 
     @Override
-    public List<Tickets> getOpenAgentTickets(AppUser appUser) {
-        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketAgent.agent = :appUser AND p.ticketOpen = true", Tickets.class)
-                .setParameter("appUser", appUser);
+    public List<Tickets> getOpenTicketsByType(TicketType ticketType, TicketStatus ticketStatus) {
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketType = :ticketType AND p.ticketStatus = :ticketStatus", Tickets.class)
+                .setParameter("ticketType", ticketType)
+                .setParameter("ticketStatus", ticketStatus);
+        List<Tickets> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public List<Tickets> getOpenAgentTickets(AppUser appUser, TicketStatus ticketStatus) {
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketAgent.agent = :appUser AND p.ticketStatus = :ticketStatus", Tickets.class)
+                .setParameter("appUser", appUser)
+                .setParameter("ticketStatus", ticketStatus);
         List<Tickets> record = query.getResultList();
         if (record.isEmpty()) {
             return null;
@@ -415,8 +443,9 @@ public class XTicketRepositoryImpl implements XTicketRepository {
     }
 
     @Override
-    public List<Tickets> getOpenTickets() {
-        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketOpen = true", Tickets.class);
+    public List<Tickets> getOpenTicketsForEscalation(TicketStatus ticketStatus) {
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketStatus = :ticketStatus", Tickets.class)
+                .setParameter("ticketStatus", ticketStatus);
         List<Tickets> record = query.getResultList();
         if (record.isEmpty()) {
             return null;
@@ -425,8 +454,9 @@ public class XTicketRepositoryImpl implements XTicketRepository {
     }
 
     @Override
-    public List<Tickets> getClosedTickets() {
-        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketOpen = false", Tickets.class);
+    public List<Tickets> getOpenTickets(TicketStatus ticketStatus) {
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketStatus = :ticketStatus", Tickets.class)
+                .setParameter("ticketStatus", ticketStatus);
         List<Tickets> record = query.getResultList();
         if (record.isEmpty()) {
             return null;
@@ -435,10 +465,22 @@ public class XTicketRepositoryImpl implements XTicketRepository {
     }
 
     @Override
-    public List<Tickets> getClosedTickets(LocalDate startDate, LocalDate endDate) {
-        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketOpen = false AND p.createdAt >= :startDate AND p.createdAt <= :endDate", Tickets.class)
+    public List<Tickets> getClosedTickets(TicketStatus ticketStatus) {
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketStatus = :ticketStatus", Tickets.class)
+                .setParameter("ticketStatus", ticketStatus);
+        List<Tickets> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public List<Tickets> getClosedTickets(LocalDate startDate, LocalDate endDate, TicketStatus ticketStatus) {
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketStatus = :ticketStatus AND p.createdAt >= :startDate AND p.createdAt <= :endDate", Tickets.class)
                 .setParameter("startDate", startDate.atStartOfDay())
-                .setParameter("endDate", endDate.atTime(23, 59));
+                .setParameter("endDate", endDate.atTime(23, 59))
+                .setParameter("ticketStatus", ticketStatus);
         List<Tickets> record = query.getResultList();
         if (record.isEmpty()) {
             return null;
@@ -447,22 +489,24 @@ public class XTicketRepositoryImpl implements XTicketRepository {
     }
 
     @Override
-    public List<Tickets> getTicketClosedByAgent(AppUser appUser, LocalDate startDate, LocalDate endDate) {
-        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketOpen = false AND p.closedBy = :appUser AND p.closedAt >= :startDate AND p.closedAt <= :endDate", Tickets.class)
+    public List<Tickets> getTicketClosedByAgent(AppUser appUser, LocalDate startDate, LocalDate endDate, TicketStatus ticketStatus) {
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketStatus = :ticketStatus AND p.closedBy = :appUser AND p.closedAt >= :startDate AND p.closedAt <= :endDate", Tickets.class)
                 .setParameter("appUser", appUser)
                 .setParameter("startDate", startDate.atStartOfDay())
-                .setParameter("endDate", endDate.atTime(23, 59));
+                .setParameter("endDate", endDate.atTime(23, 59))
+                .setParameter("ticketStatus", ticketStatus);
         List<Tickets> record = query.getResultList();
         if (record.isEmpty()) {
             return null;
         }
         return record;
     }
-    
-        @Override
-    public List<Tickets> getTicketClosedByAgent(AppUser appUser) {
-        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketOpen = false AND p.closedBy = :appUser", Tickets.class)
-                .setParameter("appUser", appUser);
+
+    @Override
+    public List<Tickets> getTicketClosedByAgent(AppUser appUser, TicketStatus ticketStatus) {
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketStatus = :ticketStatus AND p.closedBy = :appUser", Tickets.class)
+                .setParameter("appUser", appUser)
+                .setParameter("ticketStatus", ticketStatus);
         List<Tickets> record = query.getResultList();
         if (record.isEmpty()) {
             return null;
@@ -483,9 +527,11 @@ public class XTicketRepositoryImpl implements XTicketRepository {
     }
 
     @Override
-    public List<Tickets> getOpenTicketsByUser(AppUser appUser) {
-        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.createdBy = :appUser AND p.ticketOpen = true", Tickets.class)
-                .setParameter("appUser", appUser);
+    public List<Tickets> getTicketsWithinSLA(LocalDate startDate, LocalDate endDate, TicketStatus ticketStatus) {
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.slaViolated = false AND p.ticketStatus = :ticketStatus AND p.closedAt >= :startDate AND p.closedAt <= :endDate", Tickets.class)
+                .setParameter("startDate", startDate.atStartOfDay())
+                .setParameter("endDate", endDate.atTime(23, 59))
+                .setParameter("ticketStatus", ticketStatus);
         List<Tickets> record = query.getResultList();
         if (record.isEmpty()) {
             return null;
@@ -494,9 +540,22 @@ public class XTicketRepositoryImpl implements XTicketRepository {
     }
 
     @Override
-    public List<Tickets> getClosedTicketsByUser(AppUser appUser) {
-        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.createdBy = :appUser  AND p.ticketOpen = false", Tickets.class)
-                .setParameter("appUser", appUser);
+    public List<Tickets> getOpenTicketsByUser(AppUser appUser, TicketStatus ticketStatus) {
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.createdBy = :appUser AND p.ticketStatus = :ticketStatus", Tickets.class)
+                .setParameter("appUser", appUser)
+                .setParameter("ticketStatus", ticketStatus);
+        List<Tickets> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public List<Tickets> getClosedTicketsByUser(AppUser appUser, TicketStatus ticketStatus) {
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.createdBy = :appUser  AND p.ticketStatus = :ticketStatus", Tickets.class)
+                .setParameter("appUser", appUser)
+                .setParameter("ticketStatus", ticketStatus);
         List<Tickets> record = query.getResultList();
         if (record.isEmpty()) {
             return null;
@@ -508,6 +567,19 @@ public class XTicketRepositoryImpl implements XTicketRepository {
     public List<Tickets> getTicketsByUser(AppUser appUser) {
         TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.createdBy = :appUser", Tickets.class)
                 .setParameter("appUser", appUser);
+        List<Tickets> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public List<Tickets> getTicketsByServiceUnit(LocalDate startDate, LocalDate endDate, ServiceUnit serviceUnit) {
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.createdAt >= :startDate AND p.createdAt <= :endDate AND p.ticketType.serviceUnit = :serviceUnit", Tickets.class)
+                .setParameter("startDate", startDate.atStartOfDay())
+                .setParameter("endDate", endDate.atTime(23, 59))
+                .setParameter("serviceUnit", serviceUnit);
         List<Tickets> record = query.getResultList();
         if (record.isEmpty()) {
             return null;
@@ -724,6 +796,17 @@ public class XTicketRepositoryImpl implements XTicketRepository {
         TypedQuery<TicketType> query = em.createQuery("SELECT p FROM TicketType p WHERE p.ticketGroup = :ticketGroup AND p.internal = :userType", TicketType.class)
                 .setParameter("ticketGroup", ticketGroup)
                 .setParameter("userType", userType);
+        List<TicketType> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public List<TicketType> getTicketTypeUsingServiceUnit(ServiceUnit serviceUnit) {
+        TypedQuery<TicketType> query = em.createQuery("SELECT p FROM TicketType p WHERE p.serviceUnit = :serviceUnit", TicketType.class)
+                .setParameter("serviceUnit", serviceUnit);
         List<TicketType> record = query.getResultList();
         if (record.isEmpty()) {
             return null;
@@ -1056,4 +1139,250 @@ public class XTicketRepositoryImpl implements XTicketRepository {
         }
         return record;
     }
+
+    @Override
+    public List<ServiceUnit> getServiceUnit() {
+        TypedQuery<ServiceUnit> query = em.createQuery("SELECT p FROM ServiceUnit p", ServiceUnit.class);
+        List<ServiceUnit> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public ServiceUnit getServiceUnitUsingId(long id) {
+        TypedQuery<ServiceUnit> query = em.createQuery("SELECT p FROM ServiceUnit p WHERE p.id = :id", ServiceUnit.class)
+                .setParameter("id", id);
+        List<ServiceUnit> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record.get(0);
+    }
+
+    @Override
+    public ServiceUnit getServiceUnitUsingCode(String serviceUnitCode) {
+        TypedQuery<ServiceUnit> query = em.createQuery("SELECT p FROM ServiceUnit p WHERE p.serviceUnitCode = :serviceUnitCode", ServiceUnit.class)
+                .setParameter("serviceUnitCode", serviceUnitCode);
+        List<ServiceUnit> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record.get(0);
+    }
+
+    @Override
+    public ServiceUnit getServiceUnitUsingName(String serviceUnitName) {
+        TypedQuery<ServiceUnit> query = em.createQuery("SELECT p FROM ServiceUnit p WHERE p.serviceUnitName = :serviceUnitName", ServiceUnit.class)
+                .setParameter("serviceUnitName", serviceUnitName);
+        List<ServiceUnit> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record.get(0);
+    }
+
+    @Override
+    public List<ServiceUnit> getServiceUnitUsingEntity(Entities entity) {
+        TypedQuery<ServiceUnit> query = em.createQuery("SELECT p FROM ServiceUnit p WHERE p.entity = :entity", ServiceUnit.class)
+                .setParameter("entity", entity);
+        List<ServiceUnit> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public ServiceUnit createServiceUnit(ServiceUnit serviceUnit) {
+        em.persist(serviceUnit);
+        em.flush();
+        return serviceUnit;
+    }
+
+    @Override
+    public ServiceUnit updateServiceUnit(ServiceUnit serviceUnit) {
+        em.merge(serviceUnit);
+        em.flush();
+        return serviceUnit;
+    }
+
+    @Override
+    public ServiceUnit deleteServiceUnit(ServiceUnit serviceUnit) {
+        em.remove(em.contains(serviceUnit) ? serviceUnit : em.merge(serviceUnit));
+        em.flush();
+        return serviceUnit;
+    }
+
+    @Override
+    public List<TicketStatus> getTicketStatus() {
+        TypedQuery<TicketStatus> query = em.createQuery("SELECT p FROM TicketStatus p", TicketStatus.class);
+        List<TicketStatus> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public TicketStatus getTicketStatusUsingId(long id) {
+        TypedQuery<TicketStatus> query = em.createQuery("SELECT p FROM TicketStatus p WHERE p.id = :id", TicketStatus.class)
+                .setParameter("id", id);
+        List<TicketStatus> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record.get(0);
+    }
+
+    @Override
+    public TicketStatus getTicketStatusUsingCode(String ticketStatusCode) {
+        TypedQuery<TicketStatus> query = em.createQuery("SELECT p FROM TicketStatus p WHERE p.ticketStatusCode = :ticketStatusCode", TicketStatus.class)
+                .setParameter("ticketStatusCode", ticketStatusCode);
+        List<TicketStatus> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record.get(0);
+    }
+
+    @Override
+    public TicketStatus getTicketStatusUsingName(String ticketStatusName) {
+        TypedQuery<TicketStatus> query = em.createQuery("SELECT p FROM TicketStatus p WHERE p.ticketStatusName = :ticketStatusName", TicketStatus.class)
+                .setParameter("ticketStatusName", ticketStatusName);
+        List<TicketStatus> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record.get(0);
+    }
+
+    @Override
+    public TicketStatus createTicketStatus(TicketStatus ticketStatus) {
+        em.persist(ticketStatus);
+        em.flush();
+        return ticketStatus;
+    }
+
+    @Override
+    public TicketStatus updateTicketStatus(TicketStatus ticketStatus) {
+        em.merge(ticketStatus);
+        em.flush();
+        return ticketStatus;
+    }
+
+    @Override
+    public TicketStatus deleteTicketStatus(TicketStatus ticketStatus) {
+        em.remove(em.contains(ticketStatus) ? ticketStatus : em.merge(ticketStatus));
+        em.flush();
+        return ticketStatus;
+    }
+
+    @Override
+    public TicketStatusChange createTicketStatusChange(TicketStatusChange ticketStatusChange) {
+        em.persist(ticketStatusChange);
+        em.flush();
+        return ticketStatusChange;
+    }
+
+    @Override
+    public List<PublicHolidays> getPublicHolidays() {
+        TypedQuery<PublicHolidays> query = em.createQuery("SELECT p FROM PublicHolidays p", PublicHolidays.class);
+        List<PublicHolidays> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public PublicHolidays getPublicHoliday(LocalDate holiday) {
+        TypedQuery<PublicHolidays> query = em.createQuery("SELECT p FROM PublicHolidays p WHERE p.holiday = :holiday", PublicHolidays.class)
+                .setParameter("holiday", holiday);
+        List<PublicHolidays> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record.get(0);
+    }
+
+    @Override
+    public PublicHolidays createPublicHoliday(PublicHolidays publicHoliday) {
+        em.persist(publicHoliday);
+        em.flush();
+        return publicHoliday;
+    }
+
+    @Override
+    public PublicHolidays updatePublicHoliday(PublicHolidays publicHoliday) {
+        em.merge(publicHoliday);
+        em.flush();
+        return publicHoliday;
+    }
+
+    @Override
+    public List<Entities> getEntities() {
+        TypedQuery<Entities> query = em.createQuery("SELECT p FROM Entities p", Entities.class);
+        List<Entities> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public Entities getEntitiesUsingId(long id) {
+        TypedQuery<Entities> query = em.createQuery("SELECT p FROM Entities p  WHERE p.id = :id", Entities.class)
+                .setParameter("id", id);
+        List<Entities> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record.get(0);
+    }
+
+    @Override
+    public Entities getEntitiesUsingCode(String entityCode) {
+        TypedQuery<Entities> query = em.createQuery("SELECT p FROM Entities p  WHERE p.entityCode = :entityCode", Entities.class)
+                .setParameter("entityCode", entityCode);
+        List<Entities> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record.get(0);
+    }
+
+    @Override
+    public Entities getEntitiesUsingName(String entityName) {
+        TypedQuery<Entities> query = em.createQuery("SELECT p FROM Entities p  WHERE p.entityName = :entityName", Entities.class)
+                .setParameter("entityName", entityName);
+        List<Entities> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record.get(0);
+    }
+
+    @Override
+    public Entities createEntities(Entities entity) {
+        em.persist(entity);
+        em.flush();
+        return entity;
+    }
+
+    @Override
+    public Entities updateEntities(Entities entity) {
+        em.merge(entity);
+        em.flush();
+        return entity;
+    }
+
+    @Override
+    public Entities deleteEntities(Entities entity) {
+        em.remove(em.contains(entity) ? entity : em.merge(entity));
+        em.flush();
+        return entity;
+    }
+
 }

@@ -67,15 +67,6 @@ public class AppConfig  implements WebMvcConfigurer  {
         return templateResolver;
     }
 
-//    @Bean
-//    public SpringTemplateEngine templateEngine() {
-//        SpringTemplateEngine templateEngine = new SpringTemplateEngine();
-//        templateEngine.setTemplateResolver(templateResolver());
-//        templateEngine.setEnableSpringELCompiler(true);
-////        templateEngine.addDialect(new Java8TimeDialect());
-//        return templateEngine;
-//    }
-
     @Bean()
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();

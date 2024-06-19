@@ -180,7 +180,7 @@ public class ReportController {
     @PostMapping("/ticket/sla/process")
     public String sla(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
         XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
-        XTicketPayload response = xticketService.fetchTicketByViolatedSla(requestPayload);
+        XTicketPayload response = xticketService.fetchTicketByWithinSla(requestPayload);
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("dataList", response.getData());
@@ -190,6 +190,33 @@ public class ReportController {
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         resetAlertMessage();
         return "reportticketsbysla";
+    }
+
+    @GetMapping("/ticket/sla/violated")
+    public String violatedSla(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
+        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
+        model.addAttribute("profilePayload", profileDetails);
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
+        resetAlertMessage();
+        return "reportticketsbyviolatedsla";
+    }
+
+    @PostMapping("/ticket/sla/violated/process")
+    public String violatedSla(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
+        XTicketPayload response = xticketService.fetchTicketByViolatedSla(requestPayload);
+        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("dataList", response.getData());
+        model.addAttribute("profilePayload", profileDetails);
+        model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
+        model.addAttribute("alertMessage", response.getResponseMessage());
+        model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
+        resetAlertMessage();
+        return "reportticketsbyviolatedsla";
     }
 
     @GetMapping("/ticket/agents")
@@ -234,6 +261,33 @@ public class ReportController {
         return "reportappuser";
     }
 
+    @GetMapping("/ticket/service-unit")
+    public String serviceUnit(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
+        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
+        model.addAttribute("serviceUnitList",xticketService.fetchServiceUnit());
+        model.addAttribute("profilePayload", profileDetails);
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
+        resetAlertMessage();
+        return "reportticketsbyserviceunit";
+    }
+
+    @PostMapping("/ticket/service-unit/process")
+    public String serviceUnit(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
+        XTicketPayload response = xticketService.fetchTicketByServiceUnit(requestPayload);
+        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("dataList", response.getData());
+        model.addAttribute("profilePayload", profileDetails);
+        model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
+        model.addAttribute("alertMessage", response.getResponseMessage());
+        model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
+        resetAlertMessage();
+        return "reportticketsbyserviceunit";
+    }
 
     private void resetAlertMessage() {
         alertMessage = "";

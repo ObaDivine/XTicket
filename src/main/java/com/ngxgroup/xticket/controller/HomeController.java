@@ -108,6 +108,7 @@ public class HomeController {
         requestPayload.setAdAuthDomains(adAuthDomains);
         model.addAttribute("signupPayload", requestPayload);
         model.addAttribute("profilePayload", new XTicketPayload());
+        model.addAttribute("serviceUnit", xticketService.fetchServiceUnit().getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -123,6 +124,7 @@ public class HomeController {
             return "redirect:/";
         }
         model.addAttribute("signupPayload", requestPayload);
+        model.addAttribute("serviceUnit", xticketService.fetchServiceUnit().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "error");
         resetAlertMessage();

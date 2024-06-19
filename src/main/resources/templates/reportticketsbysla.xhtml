@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
-        <title>X-Ticket - Violated SLA Tickets</title>
+        <title>X-Ticket - Ticket Within SLA</title>
         <th:block th:include="~{fragments/xTicketFragments :: headerfiles}"></th:block>
     </head>
     <body onload="preloaderFunction()" style="margin: 0;">
@@ -13,14 +13,14 @@
                 <div class="content">
                     <div class="row gy-3 mb-3 justify-content-between">
                         <div class="col-md-4 col-auto">
-                            <h5 class="text-1100 text-primary">Tickets With Violated SLA Listing</h5>
+                            <h5 class="text-1100 text-primary">Tickets Within SLA Listing</h5>
                         </div>
                         <div class="col-md-5 col-auto">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb mb-0">
                                     <li class="breadcrumb-item"><a href="#" th:href="@{/}">Home</a></li>
                                     <li class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
-                                    <li class="breadcrumb-item active">Tickets With Violated SLA Listing</li>
+                                    <li class="breadcrumb-item active">Tickets Within SLA Listing</li>
                                 </ol>
                             </nav>
                         </div>
@@ -37,6 +37,14 @@
                                     <input class="form-control" type="date" aria-label="StartDate" aria-describedby="startDate" th:field="*{startDate}" required="required" />
                                     <span class="input-group-text" id="endDate">End Date</span>
                                     <input class="form-control" type="date" aria-label="endDate" aria-describedby="endDate" th:field="*{endDate}" required="required"/>
+                                </div>
+                                <div class="form-icon-container">
+                                    <select class="form-select form-control-sm form-icon-input" aria-label="serviceUnit" th:field="*{serviceUnitCode}">
+                                        <option value="">---Select service unit---</option>
+                                        <option th:each="fa : ${serviceUnit}" th:value="${fa.serviceUnitCode}" th:text="${fa.serviceUnitName}"></option>
+                                    </select>
+                                    <span class="text-primary asterisk">*</span>
+                                    <span class="fas fa-layer-group text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <div class="form-icon-container">
                                     <select class="form-control form-control-sm form-icon-input" aria-label="email" th:field="*{email}">
@@ -72,8 +80,14 @@
                         </div>     
                     </div>
                     <div class="row g-3 mb-6" th:if="${dataList != null}">
-                        <div class="col-lg-12 col-sm-12 col-md-12">
+                        <div class="col-lg-12 col-sm-12 col-md-12" id="listTable" data-list='{"valueNames":[],"page":10,"pagination":true}'>
                             <div class="table-responsive ms-n1 ps-1 scrollbar">
+                                <div class="offset-lg-8 col-lg-4 col-md-8 col-sm-12 mb-2">
+                                    <div class="search-box">
+                                        <input class="form-control search-input search" type="search" placeholder="Search record" aria-label="Search" />
+                                        <span class="fas fa-search search-box-icon"></span>
+                                    </div>
+                                </div>
                                 <table class="table table-responsive table-sm table-striped fs--1 mb-0 border-200">
                                     <thead>
                                         <tr>
@@ -82,6 +96,7 @@
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="sla">SLA</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="slaExpiry">SLA Expiry</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketId">Ticket ID</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="serviceUnit">Service Unit</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketGroup">Ticket Group</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketType">Ticket Type</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="priority">Priority</th>
@@ -92,15 +107,16 @@
                                     <tbody class="list" id="deal-tables-body" th:if="${dataList != null}">
                                         <tr th:each="rec : ${dataList}" class="position-static">
                                             <td th:text="${rec.createdAt}" class="date align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.createdBy}" class="date align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.initialSla}" class="date align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.slaExpiry}" class="date align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.createdBy}" class="requestBy align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.initialSla}" class="sla align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.slaExpiry}" class="slaExpiry align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.ticketId}" class="ticketId align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.serviceUnitName}" class="serviceUnit align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.ticketGroupName}" class="ticketGroup align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.ticketTypeName}" class="ticketType align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.priority}" class="priority align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.subject}" class="subject align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.ticketAgent}" class="internal align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.ticketAgent}" class="agent align-middle white-space-nowrap start ps-3"></td>
                                         </tr>
                                     </tbody>
                                 </table>
