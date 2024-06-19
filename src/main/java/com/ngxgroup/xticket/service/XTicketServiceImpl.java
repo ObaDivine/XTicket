@@ -3761,6 +3761,15 @@ public class XTicketServiceImpl implements XTicketService {
                 return response;
             }
 
+            //Check users related to the entity
+            List<AppUser> userByEntity = xticketRepository.getAppUserUsingEntity(entity);
+            if (userByEntity != null) {
+                response.setResponseCode(ResponseCodes.IN_USE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.inuse", new Object[]{"Entity", entity.getEntityName()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
             //Check if the ticket type is in use
             List<ServiceUnit> serviceUnitByEntity = xticketRepository.getServiceUnitUsingEntity(entity);
             if (serviceUnitByEntity != null) {

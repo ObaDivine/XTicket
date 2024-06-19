@@ -56,6 +56,8 @@ public interface XTicketRepository {
 
     List<AppUser> getAppUserUsingRoleGroup(RoleGroups roleGroup);
 
+    List<AppUser> getAppUserUsingEntity(Entities entity);
+
     AppUser getAppUserUsingUserId(String id);
 
     List<Notification> getNotifications(String principal);

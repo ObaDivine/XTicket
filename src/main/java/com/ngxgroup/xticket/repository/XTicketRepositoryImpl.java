@@ -82,6 +82,17 @@ public class XTicketRepositoryImpl implements XTicketRepository {
         }
         return record;
     }
+    
+        @Override
+    public List<AppUser> getAppUserUsingEntity(Entities entity) {
+        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.entity = :entity", AppUser.class)
+                .setParameter("entity", entity);
+        List<AppUser> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
 
     @Override
     public List<AppUser> getAppUserUsingRoleGroup(RoleGroups roleGroup) {
