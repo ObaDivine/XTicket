@@ -44,6 +44,7 @@
                                         <tr>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">Date</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="group">Ticket Group</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="serviceUnit">Service Unit</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="code">Ticket Type Code</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="name">Ticket Type Name</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="escalation">Escalation Emails</th>
@@ -60,6 +61,7 @@
                                         <tr th:each="rec : ${dataList}" class="position-static">
                                             <td th:text="${rec.createdAt}" class="date align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.ticketGroupName}" class="group align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.serviceUnitName}" class="serviceUnit align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.ticketTypeCode}" class="code align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.ticketTypeName}" class="name align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.escalationEmails}" class="firstEscalation align-middle white-space-nowrap start ps-3"></td>

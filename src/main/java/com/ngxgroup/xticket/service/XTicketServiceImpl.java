@@ -1215,7 +1215,10 @@ public class XTicketServiceImpl implements XTicketService {
                     payload.setCreatedBy(t.getCreatedBy().getLastName() + " " + t.getCreatedBy().getOtherName());
                     payload.setId(t.getId().intValue());
                     payload.setTicketGroupName(t.getTicketGroup().getTicketGroupName());
-                    response.setTicketGroupCode(t.getTicketGroup().getTicketGroupCode());
+                    payload.setTicketGroupCode(t.getTicketGroup().getTicketGroupCode());
+                    payload.setServiceUnitCode(t.getServiceUnit().getServiceUnitCode());
+                    payload.setServiceUnitName(t.getServiceUnit().getServiceUnitName());
+                    payload.setTicketSlaName(t.getSla().getTicketSlaName());
                     data.add(payload);
                 }
             }
@@ -1249,6 +1252,9 @@ public class XTicketServiceImpl implements XTicketService {
             response.setId(ticketType.getId().intValue());
             response.setTicketGroupName(ticketType.getTicketGroup().getTicketGroupName());
             response.setTicketGroupCode(ticketType.getTicketGroup().getTicketGroupCode());
+            response.setServiceUnitCode(ticketType.getServiceUnit().getServiceUnitCode());
+            response.setServiceUnitName(ticketType.getServiceUnit().getServiceUnitName());
+            response.setTicketSlaName(ticketType.getSla().getTicketSlaName());
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
             response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
