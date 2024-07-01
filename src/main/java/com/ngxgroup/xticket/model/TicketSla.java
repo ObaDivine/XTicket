@@ -37,6 +37,8 @@ public class TicketSla implements Serializable {
     private AppUser createdBy;
     @Column(name = "ticket_sla_name")
     private String ticketSlaName;
+    @Column(name = "priority")
+    private String priority;
     @Column(name = "ticket_sla")
     private int ticketSla;
     @Column(name = "ticket_sla_period")

@@ -43,8 +43,9 @@
                                     <thead>
                                         <tr>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">Date</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="priority">Priority Level</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="slaName">Sla Name</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="sla">SLA</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="priority">Priority Level</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="createdBy">Created By</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col">Action</th>
                                         </tr>
@@ -52,8 +53,9 @@
                                     <tbody class="list" id="deal-tables-body" th:if="${dataList != null}">
                                         <tr th:each="rec : ${dataList}" class="position-static">
                                             <td th:text="${rec.createdAt}" class="date align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.ticketSlaName}" class="priority align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.ticketSlaName}" class="slaName align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.ticketSla} + ' ' + ${rec.ticketSlaPeriod} " class="sla align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.priority}" class="priority align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.createdBy}" class="createdBy align-middle white-space-nowrap start ps-3"></td>
                                             <td class="align-middle white-space-nowrap start ps-3 btn-reveal-trigger">
                                                 <a class="text-success" href="#!" th:href="@{'/setup/ticket/sla/edit?seid=' + ${rec.id}}"><span class="fas fa-edit" data-bs-toggle="tooltip" data-bs-placement="right" title="Update Ticket"></span></a>

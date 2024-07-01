@@ -85,24 +85,14 @@ public class XTicketServiceImpl implements XTicketService {
     private int passwordChangeDays;
     @Value("${xticket.password.reset.time}")
     private String passwordResetTime;
-    @Value("${xticket.email.notification}")
-    private String emailNotification;
     @Value("${xticket.default.email.domain}")
     private String companyEmailDomain;
     @Value("${xticket.adauth.domains}")
     private String adAuthDomain;
     @Value("${xticket.company.name}")
     private String companyName;
-    @Value("${xticket.company.address}")
-    private String companyAddress;
     @Value("${xticket.company.email}")
     private String companyEmail;
-    @Value("${xticket.company.phone}")
-    private String companyPhone;
-    @Value("${xticket.company.rc}")
-    private String companyRC;
-    @Value("${xticket.company.logo}")
-    private String companyLogo;
     @Value("${xticket.host}")
     private String host;
     @Value("${xticket.default.password}")
@@ -1566,7 +1556,7 @@ public class XTicketServiceImpl implements XTicketService {
                     return response;
                 }
 
-                //Check the ticket group using the name
+                //Check the ticket sla using the name
                 TicketSla slaByName = xticketRepository.getTicketSlaUsingName(requestPayload.getTicketSlaName());
                 if (slaByName != null) {
                     response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
@@ -1581,6 +1571,7 @@ public class XTicketServiceImpl implements XTicketService {
                 newTicketSla.setTicketSla(requestPayload.getTicketSla());
                 newTicketSla.setTicketSlaPeriod(requestPayload.getTicketSlaPeriod());
                 newTicketSla.setTicketSlaName(requestPayload.getTicketSlaName());
+                newTicketSla.setPriority(requestPayload.getPriority());
                 xticketRepository.createTicketSla(newTicketSla);
 
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
