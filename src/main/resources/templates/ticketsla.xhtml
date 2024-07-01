@@ -50,6 +50,15 @@
                                     </select>
                                     <span class="fas fa-circle-check text-900 fs--1 form-icon text-primary"></span>
                                 </div>
+                                <div class="form-icon-container">
+                                    <select class="form-select form-control-sm form-icon-input" aria-label="priority" th:field="*{priority}" required="required">
+                                        <option value="Critical">Critical</option>
+                                        <option value="High">High</option>
+                                        <option value="Low">Low</option>
+                                        <option value="Normal">Normal</option>
+                                    </select>
+                                    <span class="fas fa-sort-numeric-up-alt text-900 fs--1 form-icon text-primary"></span>
+                                </div>
                                 <button class="btn btn-primary btn-sm w-40 mb-3 mt-2" type="button" data-bs-target="#confirmModal" data-bs-toggle="modal">Submit</button>
                                 <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModal" aria-hidden="true">
                                     <div class="modal-dialog">
