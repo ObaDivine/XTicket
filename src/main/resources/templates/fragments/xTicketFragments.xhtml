@@ -33,6 +33,7 @@
             <link th:href="@{/css/user.min.css}" type="text/css" rel="stylesheet" id="user-style-default"></link>
             <link th:href="@{/css/style.css}" type="text/css" rel="stylesheet" id="user-style-default"></link>
             <link th:href="@{/css/sweetalert2.min.css}" type="text/css" rel="stylesheet" id="user-style-default"></link>
+            <link th:href="@{/css/choices.min.css}" type="text/css" rel="stylesheet"></link>
             <script th:inline="javascript">
                 document.addEventListener("DOMContentLoaded", () => {
                     var message = [[${alertMessage}]];
@@ -460,12 +461,11 @@
             <script th:src="@{/js/list.min.js}"></script>
             <script th:src="@{/js/feather.min.js}"></script>
             <script th:src="@{/js/dayjs.min.js}"></script>
-            <!--            <script th:src="@{/js/phoenix.js}"></script>-->
             <script th:src="@{/js/echarts.min.js}"></script>
             <script th:src="@{/js/dhtmlxgantt.js}"></script>
             <script th:src="@{/js/sweetalert2.min.js}"></script>
             <script th:src="@{/js/xticket.js}"></script>
-            <!--            <script th:src="@{/js/dashboard.js}"></script>-->
+            <script th:src="@{/js/choices.min.js}"></script>
             <form id="logoutForm" th:action="@{/logout}" method="POST">
                 <div class="modal fade" id="confirmLogout" tabindex="-1" role="dialog" aria-labelledby="confirmLogout" aria-hidden="true">
                     <div class="modal-dialog">
