@@ -37,6 +37,8 @@ public class XTicketPayload {
     private String ticketId;
     private String entityCode;
     private String entityName;
+    private String fromEntity;
+    private String toEntity;
     private String serviceUnitCode;
     private String serviceUnitName;
     private String ticketGroupCode;
@@ -75,6 +77,7 @@ public class XTicketPayload {
     private List<XTicketPayload> reassignedTickets;
     private List<XTicketPayload> ticketEscalations;
     private List<XTicketPayload> ticketComments;
+    private List<XTicketPayload> uploadDocuments;
     private String escalationEmails;
     private boolean escalated;
     private boolean ticketOpen;
@@ -105,4 +108,6 @@ public class XTicketPayload {
     private String startDate;
     private String endDate;
     private String timeElapsed;
+    private String documentLink;
+    private String originalFileName;
 }

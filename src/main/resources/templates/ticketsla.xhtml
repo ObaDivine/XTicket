@@ -3,13 +3,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
         <title>X-Ticket - Ticket SLA</title>
-        <th:block th:include="~{fragments/xTicketFragments :: headerfiles}"></th:block>
+        <th:block th:insert="~{fragments/xTicketFragments :: headerfiles}"></th:block>
     </head>
     <body onload="preloaderFunction()" style="margin: 0;">
         <div id="loader"></div>
         <main class="main animate-bottom" id="top" style="display:none;" th:object="${profilePayload}">
             <div class="container-fluid px-0">
-                <th:block th:include="~{fragments/xTicketFragments :: topMenu}"></th:block>
+                <th:block th:insert="~{fragments/xTicketFragments :: topMenu}"></th:block>
                 <div class="content">
                     <div class="row gy-3 mb-3 justify-content-between">
                         <div class="col-md-4 col-auto">
@@ -94,10 +94,10 @@
                             </div>
                         </div>
                     </div>
-                    <th:block th:include="~{fragments/xTicketFragments :: footer}"></th:block>
+                    <th:block th:insert="~{fragments/xTicketFragments :: footer}"></th:block>
                 </div>
             </div>
-            <th:block th:include="~{fragments/xTicketFragments :: scriptfiles}"></th:block>   
+            <th:block th:insert="~{fragments/xTicketFragments :: scriptfiles}"></th:block>   
         </main>
     </body>
 </html>

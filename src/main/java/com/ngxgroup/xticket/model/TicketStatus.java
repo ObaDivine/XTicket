@@ -7,7 +7,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,8 +32,8 @@ public class TicketStatus implements Serializable {
     private Long id;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-    @ManyToOne
-    private AppUser createdBy;
+    @Column(name = "created_by")
+    private String createdBy;
     @Column(name = "ticket_status_code")
     private String ticketStatusCode;
     @Column(name = "ticket_status_name")

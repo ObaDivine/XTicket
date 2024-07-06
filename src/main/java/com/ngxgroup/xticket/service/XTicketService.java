@@ -136,6 +136,8 @@ public interface XTicketService {
 
     XTicketPayload replyTicket(XTicketPayload requestPayload, String principal);
 
+    XTicketPayload agentReplyTicket(XTicketPayload requestPayload, String principal);
+
     XTicketPayload fetchTicketUsingId(String id);
 
     XTicketPayload fetchOpenTicket(String principal);
@@ -165,13 +167,17 @@ public interface XTicketService {
     XTicketPayload fetchReassignedTicket(XTicketPayload requestPayload);
 
     XTicketPayload fetchTicketFullDetails(String ticketId);
-    
-       /**
-     * Entity Transactions *
+
+    /**
+     * Entity Transactions
+     *
+     *
      * @param requestPayload
-     * @return 
+     * @return
      */
     XTicketPayload fetchTicketByEntity(XTicketPayload requestPayload);
+
+    XTicketPayload fetchTicketByEntityToEntity(XTicketPayload requestPayload);
 
     XTicketPayload fetchEntity();
 
@@ -182,11 +188,15 @@ public interface XTicketService {
     XTicketPayload deleteEntity(String id, String principal);
 
     /**
-     * Service Unit Transactions *
+     * Service Unit Transactions
+     *
+     *
      * @param requestPayload
-     * @return 
+     * @return
      */
     XTicketPayload fetchTicketByServiceUnit(XTicketPayload requestPayload);
+
+    XTicketPayload fetchTicketByServiceUnitToEntity(XTicketPayload requestPayload);
 
     XTicketPayload fetchServiceUnit();
 
@@ -196,11 +206,12 @@ public interface XTicketService {
 
     XTicketPayload deleteServiceUnit(String id, String principal);
 
-        /**
-     * Ticket Status Transactions *
-     * @return 
+    /**
+     * Ticket Status Transactions
+     *
+     *
+     * @return
      */
-
     XTicketPayload fetchTicketStatus();
 
     XTicketPayload fetchTicketStatus(String id);

@@ -53,7 +53,7 @@ spring:
             ddl-auto: update
             dialect: org.hibernate.dialect.SQLServerDialect
 #            dialect: org.hibernate.dialect.MySQL5InnoDBDialect
-        show-sql: true
+        show-sql: false
 
 email:
     host: 10.172.16.170
@@ -65,6 +65,11 @@ email:
     password: Password10$
     
 xticket:
+  slaexpiry:
+    notification: 5 #Notification sent 5 mins or less to SLA expiry
+  office:
+    open: 8
+    close: 15
   adauth:
     domains: ngxgroup.com, brokers.ngxgroup.com  
   host: 'http://localhost:8080'

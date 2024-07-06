@@ -33,8 +33,8 @@ public class ServiceUnit implements Serializable {
     private Long id;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-    @ManyToOne
-    private AppUser createdBy;
+    @Column(name = "created_by")
+    private String createdBy;
     @Column(name = "service_unit_code")
     private String serviceUnitCode;
     @Column(name = "service_unit_name")

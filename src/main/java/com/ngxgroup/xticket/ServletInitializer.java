@@ -369,7 +369,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
         if (openStatus == null) {
             TicketStatus newStatus = new TicketStatus();
             newStatus.setCreatedAt(LocalDateTime.now());
-            newStatus.setCreatedBy(sa);
+            newStatus.setCreatedBy("System");
             newStatus.setStatus("Enabled");
             newStatus.setTicketStatusCode("OPEN");
             newStatus.setTicketStatusName("Open");
@@ -377,14 +377,14 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
             xticketRepository.createTicketStatus(newStatus);
         }
 
-        TicketStatus completedStatus = xticketRepository.getTicketStatusUsingCode("COMP");
+        TicketStatus completedStatus = xticketRepository.getTicketStatusUsingCode("CLOSED");
         if (completedStatus == null) {
             TicketStatus newStatus = new TicketStatus();
             newStatus.setCreatedAt(LocalDateTime.now());
-            newStatus.setCreatedBy(sa);
+            newStatus.setCreatedBy("System");
             newStatus.setStatus("Enabled");
-            newStatus.setTicketStatusCode("COMP");
-            newStatus.setTicketStatusName("Completed");
+            newStatus.setTicketStatusCode("CLOSED");
+            newStatus.setTicketStatusName("Closed");
             newStatus.setPauseSLA(false);
             xticketRepository.createTicketStatus(newStatus);
         }
@@ -394,7 +394,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
         if (newYear == null) {
             PublicHolidays newHoliday = new PublicHolidays();
             newHoliday.setCreatedAt(LocalDateTime.now());
-            newHoliday.setCreatedBy(sa);
+            newHoliday.setCreatedBy("System");
             newHoliday.setHoliday(LocalDate.parse("2024-01-01"));
             xticketRepository.createPublicHoliday(newHoliday);
         }
@@ -403,7 +403,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
         if (democracyDay == null) {
             PublicHolidays newHoliday = new PublicHolidays();
             newHoliday.setCreatedAt(LocalDateTime.now());
-            newHoliday.setCreatedBy(sa);
+            newHoliday.setCreatedBy("System");
             newHoliday.setHoliday(LocalDate.parse("2024-06-12"));
             xticketRepository.createPublicHoliday(newHoliday);
         }
@@ -412,7 +412,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
         if (independenceDay == null) {
             PublicHolidays newHoliday = new PublicHolidays();
             newHoliday.setCreatedAt(LocalDateTime.now());
-            newHoliday.setCreatedBy(sa);
+            newHoliday.setCreatedBy("System");
             newHoliday.setHoliday(LocalDate.parse("2024-10-10"));
             xticketRepository.createPublicHoliday(newHoliday);
         }
@@ -421,7 +421,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
         if (goodFriday == null) {
             PublicHolidays newHoliday = new PublicHolidays();
             newHoliday.setCreatedAt(LocalDateTime.now());
-            newHoliday.setCreatedBy(sa);
+            newHoliday.setCreatedBy("System");
             newHoliday.setHoliday(LocalDate.parse("2024-03-29"));
             xticketRepository.createPublicHoliday(newHoliday);
         }
@@ -430,7 +430,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
         if (easterMonday == null) {
             PublicHolidays newHoliday = new PublicHolidays();
             newHoliday.setCreatedAt(LocalDateTime.now());
-            newHoliday.setCreatedBy(sa);
+            newHoliday.setCreatedBy("System");
             newHoliday.setHoliday(LocalDate.parse("2024-04-01"));
             xticketRepository.createPublicHoliday(newHoliday);
         }
@@ -439,7 +439,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
         if (idElFitr == null) {
             PublicHolidays newHoliday = new PublicHolidays();
             newHoliday.setCreatedAt(LocalDateTime.now());
-            newHoliday.setCreatedBy(sa);
+            newHoliday.setCreatedBy("System");
             newHoliday.setHoliday(LocalDate.parse("2024-04-10"));
             xticketRepository.createPublicHoliday(newHoliday);
         }
@@ -448,7 +448,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
         if (idElFitrHol == null) {
             PublicHolidays newHoliday = new PublicHolidays();
             newHoliday.setCreatedAt(LocalDateTime.now());
-            newHoliday.setCreatedBy(sa);
+            newHoliday.setCreatedBy("System");
             newHoliday.setHoliday(LocalDate.parse("2024-04-11"));
             xticketRepository.createPublicHoliday(newHoliday);
         }
@@ -457,7 +457,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
         if (workersDay == null) {
             PublicHolidays newHoliday = new PublicHolidays();
             newHoliday.setCreatedAt(LocalDateTime.now());
-            newHoliday.setCreatedBy(sa);
+            newHoliday.setCreatedBy("System");
             newHoliday.setHoliday(LocalDate.parse("2024-05-01"));
             xticketRepository.createPublicHoliday(newHoliday);
         }
@@ -466,7 +466,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
         if (idElKabir == null) {
             PublicHolidays newHoliday = new PublicHolidays();
             newHoliday.setCreatedAt(LocalDateTime.now());
-            newHoliday.setCreatedBy(sa);
+            newHoliday.setCreatedBy("System");
             newHoliday.setHoliday(LocalDate.parse("2024-06-16"));
             xticketRepository.createPublicHoliday(newHoliday);
         }
@@ -475,7 +475,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
         if (idElMalud == null) {
             PublicHolidays newHoliday = new PublicHolidays();
             newHoliday.setCreatedAt(LocalDateTime.now());
-            newHoliday.setCreatedBy(sa);
+            newHoliday.setCreatedBy("System");
             newHoliday.setHoliday(LocalDate.parse("2024-09-16"));
             xticketRepository.createPublicHoliday(newHoliday);
         }
@@ -484,7 +484,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
         if (xmas == null) {
             PublicHolidays newHoliday = new PublicHolidays();
             newHoliday.setCreatedAt(LocalDateTime.now());
-            newHoliday.setCreatedBy(sa);
+            newHoliday.setCreatedBy("System");
             newHoliday.setHoliday(LocalDate.parse("2024-12-25"));
             xticketRepository.createPublicHoliday(newHoliday);
         }
@@ -493,7 +493,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
         if (boxingDay == null) {
             PublicHolidays newHoliday = new PublicHolidays();
             newHoliday.setCreatedAt(LocalDateTime.now());
-            newHoliday.setCreatedBy(sa);
+            newHoliday.setCreatedBy("System");
             newHoliday.setHoliday(LocalDate.parse("2024-12-26"));
             xticketRepository.createPublicHoliday(newHoliday);
         }
@@ -503,7 +503,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
         if (groupEntity == null) {
             Entities newEntity = new Entities();
             newEntity.setCreatedAt(LocalDateTime.now());
-            newEntity.setCreatedBy(sa);
+            newEntity.setCreatedBy("System");
             newEntity.setEntityCode("NGX");
             newEntity.setEntityName("Nigerian Exchange Group");
             newEntity.setStatus("Enabled");
@@ -514,7 +514,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
         if (limitedEntity == null) {
             Entities newEntity = new Entities();
             newEntity.setCreatedAt(LocalDateTime.now());
-            newEntity.setCreatedBy(sa);
+            newEntity.setCreatedBy("System");
             newEntity.setEntityCode("NGXL");
             newEntity.setEntityName("Nigerian Exchange Limited");
             newEntity.setStatus("Enabled");
@@ -525,7 +525,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
         if (regulationEntity == null) {
             Entities newEntity = new Entities();
             newEntity.setCreatedAt(LocalDateTime.now());
-            newEntity.setCreatedBy(sa);
+            newEntity.setCreatedBy("System");
             newEntity.setEntityCode("NREG");
             newEntity.setEntityName("Nigerian Exchange Regulation");
             newEntity.setStatus("Enabled");
@@ -536,7 +536,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
         if (realEstateEntity == null) {
             Entities newEntity = new Entities();
             newEntity.setCreatedAt(LocalDateTime.now());
-            newEntity.setCreatedBy(sa);
+            newEntity.setCreatedBy("System");
             newEntity.setEntityCode("NREL");
             newEntity.setEntityName("Nigerian Exchange Real Estate");
             newEntity.setStatus("Enabled");

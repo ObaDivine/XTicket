@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,11 +34,11 @@ public class Tickets implements Serializable {
     private Long id;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-    @ManyToOne
+    @OneToOne
     private AppUser createdBy;
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
-    @ManyToOne
+    @OneToOne
     private AppUser closedBy;
     @ManyToOne
     private TicketAgent ticketAgent;
@@ -93,4 +94,6 @@ public class Tickets implements Serializable {
     private int fileIndex = 1;
     @ManyToOne
     private Entities entity;
+    @Column(name = "agent_notified_of_expiry")
+    private boolean agentNotifiedOfExpiry = false;
 }

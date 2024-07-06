@@ -33,8 +33,8 @@ public class TicketAgent implements Serializable {
     private Long id;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-    @ManyToOne
-    private AppUser createdBy;
+    @Column(name = "created_by")
+    private String createdBy;
     @ManyToOne
     private AppUser agent;
     @ManyToOne

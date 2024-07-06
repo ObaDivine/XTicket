@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -23,24 +24,23 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "ticket_sla")
-public class TicketSla implements Serializable {
+@Table(name = "document_upload", indexes={@Index(columnList="doc_type, original_filename, created_at", name="idx_document_upload")})
+public class DocumentUpload implements Serializable {
 
-    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-    @Column(name = "created_by")
-    private String createdBy;
-    @Column(name = "ticket_sla_name")
-    private String ticketSlaName;
-    @Column(name = "priority")
-    private String priority;
-    @Column(name = "ticket_sla")
-    private int ticketSla;
-    @Column(name = "ticket_sla_period")
-    private char ticketSlaPeriod;
+    @ManyToOne
+    private AppUser uploadBy;
+    @Column(name = "doc_link", length = 5000)
+    private String docLink;
+    @ManyToOne
+    private Tickets ticket;
+    @Column(name = "original_filename")
+    private String originalFileName;
+    @Column(name = "new_filename")
+    private String newFileName;
 }

@@ -19,7 +19,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableWebSecurity
 public class WebSecurityConfig {
 
-    private static final String[] WHITE_LIST_URL = {"/", "/login/**", "/signup/**", "/forgot-password/**", "/logout", "/css/**", "/images/**", "/js/**", "/font/**", "/error/**", "/WEB-INF/**"};
+    private static final String[] WHITE_LIST_URL = {"/", "/login/**", "/signup/**", "/forgot-password/**", "/logout", "/css/**", "/images/**", "/js/**", "/document/**", "/font/**", "/error/**", "/WEB-INF/**"};
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
