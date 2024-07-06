@@ -3,6 +3,7 @@ package com.ngxgroup.xticket.repository;
 import com.ngxgroup.xticket.model.AppRoles;
 import com.ngxgroup.xticket.model.AppUser;
 import com.ngxgroup.xticket.model.AuditLog;
+import com.ngxgroup.xticket.model.DocumentUpload;
 import com.ngxgroup.xticket.model.Entities;
 import com.ngxgroup.xticket.model.GroupRoles;
 import com.ngxgroup.xticket.model.Notification;
@@ -108,13 +109,11 @@ public interface XTicketRepository {
 
     List<Tickets> getTickets();
 
-    List<Tickets> getOpenTickets(TicketStatus ticketStatus);
-
-    List<Tickets> getOpenTicketsForEscalation(TicketStatus ticketStatus);
-
-    List<Tickets> getClosedTickets(TicketStatus ticketStatus);
+    List<Tickets> getTicketsByStatus(TicketStatus ticketStatus);
 
     List<Tickets> getClosedTickets(LocalDate startDate, LocalDate endDate, TicketStatus ticketStatus);
+
+    List<Tickets> getClosedTickets(LocalDate startDate, LocalDate endDate, TicketStatus ticketStatus, Entities entity);
 
     List<Tickets> getTicketClosedByAgent(AppUser appUser, LocalDate startDate, LocalDate endDate, TicketStatus ticketStatus);
 
@@ -124,11 +123,9 @@ public interface XTicketRepository {
 
     List<Tickets> getTicketsWithinSLA(LocalDate startDate, LocalDate endDate, TicketStatus ticketStatus);
 
-    List<Tickets> getOpenTicketsByUser(AppUser appUser, TicketStatus ticketStatus);
-
     List<Tickets> getTicketsByUser(AppUser appUser);
 
-    List<Tickets> getClosedTicketsByUser(AppUser appUser, TicketStatus ticketStatus);
+    List<Tickets> getTicketsByUserStatus(AppUser appUser, TicketStatus ticketStatus);
 
     List<Tickets> getOpenTicketsByType(TicketType ticketType, TicketStatus ticketStatus);
 
@@ -137,6 +134,12 @@ public interface XTicketRepository {
     List<Tickets> getTicketsUsingStatus(TicketStatus ticketStatus);
 
     List<Tickets> getTicketsByServiceUnit(LocalDate startDate, LocalDate endDate, ServiceUnit serviceUnit);
+
+    List<Tickets> getTicketsByServiceUnit(LocalDate startDate, LocalDate endDate, ServiceUnit serviceUnit, TicketStatus ticketStatus);
+
+    List<DocumentUpload> getDocumentUploadUsingTicket(Tickets ticket);
+    
+    DocumentUpload createDocumentUpload(DocumentUpload documentUpload);
 
     Tickets getTicketUsingTicketGroup(TicketGroup ticketGroup);
 

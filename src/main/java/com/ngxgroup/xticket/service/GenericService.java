@@ -20,4 +20,6 @@ public interface GenericService {
     String generateTOTPSecretKey();
 
     CompletableFuture<String> sendEmail(XTicketPayload requestPayload, String principal);
+    
+    String generateFileName();
 }

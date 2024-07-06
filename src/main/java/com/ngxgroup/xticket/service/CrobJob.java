@@ -33,13 +33,15 @@ public class CrobJob {
     private String companyEmail;
     @Value("${xticket.email.escalation.interval}")
     private int escalationInterval;
+    @Value("${xticket.slaexpiry.notification}")
+    private int slaExpiryNotificationInterval;
     DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Scheduled(cron = "${xticket.cron.job}")
     public void setEscalateViolatedSLA() {
         //Ftech all the tickets that are open
-        TicketStatus completedStatus = xticketRepository.getTicketStatusUsingCode("COMP");
-        List<Tickets> openTickets = xticketRepository.getOpenTicketsForEscalation(completedStatus);
+        TicketStatus openStatus = xticketRepository.getTicketStatusUsingCode("OPEN");
+        List<Tickets> openTickets = xticketRepository.getTicketsByStatus(openStatus);
         if (openTickets != null) {
             for (Tickets t : openTickets) {
                 //Check if the SLA expiry is exceeded
@@ -69,7 +71,15 @@ public class CrobJob {
                         t.setSlaViolatedAt(LocalDateTime.now());
                         xticketRepository.updateTicket(t);
                     }
+                }
 
+                //Notify agents for tickets about to violate SLA
+                long timeElapsed = Duration.between(t.getSlaExpiry(), LocalDateTime.now().toLocalTime()).toMinutes();
+                if ((timeElapsed <= slaExpiryNotificationInterval) && !t.isAgentNotifiedOfExpiry()) {
+                    //Send notification email to the agent
+                    sendEmail(t.getTicketAgent().getAgent().getEmail(), t);
+                    t.setAgentNotifiedOfExpiry(true);
+                    xticketRepository.updateTicket(t);
                 }
             }
         }
@@ -82,12 +92,12 @@ public class CrobJob {
         String slaExpiry = dtf.format(ticket.getSlaExpiry());
         String message = "<h4>To Whom It May Concern</h4>\n"
                 + "<p>A ticket SLA has been violated as follows;</p>\n"
-                + "<p>Date Created: " + LocalDate.now().toString() + "</p>\n"
+                + "<p>Ticket Date: " + ticket.getCreatedAt().toString() + "</p>\n"
                 + "<p>Initiated By: " + ticket.getCreatedBy().getLastName() + ", " + ticket.getCreatedBy().getOtherName() + "</p>\n"
                 + "<p>Ticket ID: " + ticket.getTicketId() + "</p>\n"
                 + "<p>Ticket Group: " + ticket.getTicketGroup().getTicketGroupName() + "</p>\n"
                 + "<p>Ticket Type: " + ticket.getTicketType().getTicketTypeName() + "</p>\n"
-                + "<p>Ticket Priority: " + ticket.getTicketType().getSla().getTicketSlaName() + "</p>\n"
+                + "<p>Ticket Priority: " + ticket.getPriority() + "</p>\n"
                 + "<p>SLA Expiry: " + slaExpiry + "</p>\n"
                 + "<p>To view the ticket details or take action <a href=\"" + host + "/xticket" + "\">click here</a></p>"
                 + "<p>For support and enquiries, email: " + companyEmail + ".</p>\n"

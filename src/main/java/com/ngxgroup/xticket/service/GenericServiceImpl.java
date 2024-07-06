@@ -22,6 +22,7 @@ import jakarta.mail.Multipart;
 import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
+import java.util.Random;
 import org.apache.commons.codec.binary.Base32;
 import org.apache.commons.codec.binary.Hex;
 import java.util.logging.Logger;
@@ -189,4 +190,25 @@ public class GenericServiceImpl implements GenericService {
         }
         return CompletableFuture.completedFuture("Success");
     }
+    
+    @Override
+    public String generateFileName() {
+        try {
+            int leftLimit = 48; // numeral '0'
+            int rightLimit = 122; // letter 'z'
+            int targetStringLength = 25;
+            Random random = new Random();
+
+            String generatedString = random.ints(leftLimit, rightLimit + 1)
+                    .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
+                    .limit(targetStringLength)
+                    .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                    .toString().toUpperCase();
+            return generatedString;
+        }
+        catch (Exception ex) {
+            return null;
+        }
+    }
+
 }

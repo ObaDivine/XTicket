@@ -3,6 +3,7 @@ package com.ngxgroup.xticket.repository;
 import com.ngxgroup.xticket.model.AppRoles;
 import com.ngxgroup.xticket.model.AppUser;
 import com.ngxgroup.xticket.model.AuditLog;
+import com.ngxgroup.xticket.model.DocumentUpload;
 import com.ngxgroup.xticket.model.Entities;
 import com.ngxgroup.xticket.model.GroupRoles;
 import com.ngxgroup.xticket.model.Notification;
@@ -82,8 +83,8 @@ public class XTicketRepositoryImpl implements XTicketRepository {
         }
         return record;
     }
-    
-        @Override
+
+    @Override
     public List<AppUser> getAppUserUsingEntity(Entities entity) {
         TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.entity = :entity", AppUser.class)
                 .setParameter("entity", entity);
@@ -443,29 +444,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
     }
 
     @Override
-    public List<Tickets> getOpenTicketsForEscalation(TicketStatus ticketStatus) {
-        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketStatus = :ticketStatus", Tickets.class)
-                .setParameter("ticketStatus", ticketStatus);
-        List<Tickets> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record;
-    }
-
-    @Override
-    public List<Tickets> getOpenTickets(TicketStatus ticketStatus) {
-        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketStatus = :ticketStatus", Tickets.class)
-                .setParameter("ticketStatus", ticketStatus);
-        List<Tickets> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record;
-    }
-
-    @Override
-    public List<Tickets> getClosedTickets(TicketStatus ticketStatus) {
+    public List<Tickets> getTicketsByStatus(TicketStatus ticketStatus) {
         TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketStatus = :ticketStatus", Tickets.class)
                 .setParameter("ticketStatus", ticketStatus);
         List<Tickets> record = query.getResultList();
@@ -480,6 +459,34 @@ public class XTicketRepositoryImpl implements XTicketRepository {
         TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketStatus = :ticketStatus AND p.createdAt >= :startDate AND p.createdAt <= :endDate", Tickets.class)
                 .setParameter("startDate", startDate.atStartOfDay())
                 .setParameter("endDate", endDate.atTime(23, 59))
+                .setParameter("ticketStatus", ticketStatus);
+        List<Tickets> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public List<Tickets> getClosedTickets(LocalDate startDate, LocalDate endDate, TicketStatus ticketStatus, Entities entity) {
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketStatus = :ticketStatus AND p.createdAt >= :startDate AND p.createdAt <= :endDate AND p.closedBy.entity = :entity", Tickets.class)
+                .setParameter("startDate", startDate.atStartOfDay())
+                .setParameter("endDate", endDate.atTime(23, 59))
+                .setParameter("ticketStatus", ticketStatus)
+                .setParameter("entity", entity);
+        List<Tickets> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public List<Tickets> getTicketsByServiceUnit(LocalDate startDate, LocalDate endDate, ServiceUnit serviceUnit, TicketStatus ticketStatus) {
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.createdAt >= :startDate AND p.createdAt <= :endDate AND p.ticketType.serviceUnit = :serviceUnit AND p.ticketStatus = :ticketStatus", Tickets.class)
+                .setParameter("startDate", startDate.atStartOfDay())
+                .setParameter("endDate", endDate.atTime(23, 59))
+                .setParameter("serviceUnit", serviceUnit)
                 .setParameter("ticketStatus", ticketStatus);
         List<Tickets> record = query.getResultList();
         if (record.isEmpty()) {
@@ -540,20 +547,8 @@ public class XTicketRepositoryImpl implements XTicketRepository {
     }
 
     @Override
-    public List<Tickets> getOpenTicketsByUser(AppUser appUser, TicketStatus ticketStatus) {
+    public List<Tickets> getTicketsByUserStatus(AppUser appUser, TicketStatus ticketStatus) {
         TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.createdBy = :appUser AND p.ticketStatus = :ticketStatus", Tickets.class)
-                .setParameter("appUser", appUser)
-                .setParameter("ticketStatus", ticketStatus);
-        List<Tickets> record = query.getResultList();
-        if (record.isEmpty()) {
-            return null;
-        }
-        return record;
-    }
-
-    @Override
-    public List<Tickets> getClosedTicketsByUser(AppUser appUser, TicketStatus ticketStatus) {
-        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.createdBy = :appUser  AND p.ticketStatus = :ticketStatus", Tickets.class)
                 .setParameter("appUser", appUser)
                 .setParameter("ticketStatus", ticketStatus);
         List<Tickets> record = query.getResultList();
@@ -1383,6 +1378,24 @@ public class XTicketRepositoryImpl implements XTicketRepository {
         em.remove(em.contains(entity) ? entity : em.merge(entity));
         em.flush();
         return entity;
+    }
+
+    @Override
+    public List<DocumentUpload> getDocumentUploadUsingTicket(Tickets ticket) {
+        TypedQuery<DocumentUpload> query = em.createQuery("SELECT p FROM DocumentUpload p  WHERE p.ticket = :ticket", DocumentUpload.class)
+                .setParameter("ticket", ticket);
+        List<DocumentUpload> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
+    public DocumentUpload createDocumentUpload(DocumentUpload documentUpload) {
+        em.persist(documentUpload);
+        em.flush();
+        return documentUpload;
     }
 
 }

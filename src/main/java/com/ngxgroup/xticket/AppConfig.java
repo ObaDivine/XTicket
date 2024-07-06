@@ -45,7 +45,7 @@ import org.thymeleaf.templatemode.TemplateMode;
 @Import({WebSecurityConfig.class})
 @PropertySource("classpath:application.yml")
 @EnableTransactionManagement
-public class AppConfig  implements WebMvcConfigurer  {
+public class AppConfig implements WebMvcConfigurer {
 
     @Autowired
     Environment env;
@@ -55,6 +55,7 @@ public class AppConfig  implements WebMvcConfigurer  {
         registry.addResourceHandler("/images/**").addResourceLocations("classpath:/images/");
         registry.addResourceHandler("/css/**").addResourceLocations("classpath:/css/");
         registry.addResourceHandler("/js/**").addResourceLocations("classpath:/js/");
+        registry.addResourceHandler("/document/**").addResourceLocations("classpath:/document/");
     }
 
     @Bean
@@ -128,13 +129,11 @@ public class AppConfig  implements WebMvcConfigurer  {
         encryptor.setConfig(config);
         return encryptor;
     }
-    
-    
+
 //    @Bean(name="multipartResolver")
 //    public MultipartResolver multipartResolver() {
 //        MultipartResolver multipartResolver = null;
 ////        multipartResolver.setMaxUploadSize(5242880);
 //        return multipartResolver;
 //    }
-    
 }

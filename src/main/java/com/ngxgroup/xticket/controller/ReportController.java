@@ -265,8 +265,8 @@ public class ReportController {
     public String serviceUnit(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("ticketPayload", new XTicketPayload());
-        model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
-        model.addAttribute("serviceUnitList",xticketService.fetchServiceUnit());
+        model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup());
+        model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit());
         model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
@@ -287,6 +287,61 @@ public class ReportController {
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         resetAlertMessage();
         return "reportticketsbyserviceunit";
+    }
+
+    @GetMapping("/ticket/service-unit-entity")
+    public String serviceUnitToEntity(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
+        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
+        model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
+        model.addAttribute("entityList", xticketService.fetchEntity().getData());
+        model.addAttribute("profilePayload", profileDetails);
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
+        resetAlertMessage();
+        return "reportticketsserviceunittoentity";
+    }
+
+    @PostMapping("/ticket/service-unit-entity/process")
+    public String serviceUnitToEntity(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
+        XTicketPayload response = xticketService.fetchTicketByServiceUnitToEntity(requestPayload);
+        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
+        model.addAttribute("entityList", xticketService.fetchEntity().getData());
+        model.addAttribute("dataList", response.getData());
+        model.addAttribute("profilePayload", profileDetails);
+        model.addAttribute("alertMessage", response.getResponseMessage());
+        model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
+        resetAlertMessage();
+        return "reportticketsserviceunittoentity";
+    }
+
+    @GetMapping("/ticket/entity")
+    public String entityToEntity(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
+        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("entityList", xticketService.fetchEntity().getData());
+        model.addAttribute("profilePayload", profileDetails);
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
+        resetAlertMessage();
+        return "reportticketsbyentity";
+    }
+
+    @PostMapping("/ticket/entity/process")
+    public String entityToEntity(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
+        XTicketPayload response = xticketService.fetchTicketByEntityToEntity(requestPayload);
+        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("entityList", xticketService.fetchEntity().getData());
+        model.addAttribute("dataList", response.getData());
+        model.addAttribute("profilePayload", profileDetails);
+        model.addAttribute("alertMessage", response.getResponseMessage());
+        model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
+        resetAlertMessage();
+        return "reportticketsbyentity";
     }
 
     private void resetAlertMessage() {

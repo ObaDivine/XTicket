@@ -33,8 +33,8 @@ public class TicketGroup implements Serializable {
     private Long id;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-    @ManyToOne
-    private AppUser createdBy;
+    @Column(name = "created_by")
+    private String createdBy;
     @Column(name = "ticket_group_code")
     private String ticketGroupCode;
     @Column(name = "ticket_group_name")

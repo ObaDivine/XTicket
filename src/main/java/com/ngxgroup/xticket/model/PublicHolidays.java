@@ -34,8 +34,8 @@ public class PublicHolidays implements Serializable {
     private Long id;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-    @ManyToOne
-    private AppUser createdBy;
+    @Column(name = "created_by")
+    private String createdBy;
     @Column(name = "sla_expiry")
     private LocalDate holiday;
 }

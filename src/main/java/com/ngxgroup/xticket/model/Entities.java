@@ -33,8 +33,8 @@ public class Entities implements Serializable {
     private Long id;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-    @ManyToOne
-    private AppUser createdBy;
+    @Column(name = "created_by")
+    private String createdBy;
     @Column(name = "entity_code")
     private String entityCode;
     @Column(name = "entity_name")

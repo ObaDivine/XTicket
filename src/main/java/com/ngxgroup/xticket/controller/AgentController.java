@@ -57,6 +57,7 @@ public class AgentController {
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("ticketStatusList", xticketService.fetchTicketStatus().getData());
         model.addAttribute("userList", null);
+        model.addAttribute("documentList", response.getUploadDocuments());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -84,7 +85,7 @@ public class AgentController {
 
     @PostMapping("/reply")
     public String replyTicket(@ModelAttribute("ticketReplyPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
-        XTicketPayload response = xticketService.replyTicket(requestPayload, principal.getName());
+        XTicketPayload response = xticketService.agentReplyTicket(requestPayload, principal.getName());
         XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         if (response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
             alertMessage = response.getResponseMessage();
