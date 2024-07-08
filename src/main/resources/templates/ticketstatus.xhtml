@@ -81,7 +81,7 @@
                                             <p class="text-1000 mb-0 lh-1">Ticket Status Listing</p>
                                         </div>
                                         <p class="fs--1 text-700 mb-0"><span>X-Ticket</span>
-                                            <span class="text-400 mx-1">| </span><a th:href="@{/setup/ticket/status/list}">Ticket Status Listing</a>
+                                            <span class="text-400 mx-1">| </span><a th:if="${#request.isUserInRole('LIST_TICKET_STATUS')}" th:href="@{/setup/ticket/status/list}">Ticket Status Listing</a>
                                             <span class="text-400 mx-1">| </span>
                                             <span class="text-nowrap">Total of <b><span th:text="${recordCount}" class="text-primary"></span></b> Ticket Status Created</span></p>
                                     </div>

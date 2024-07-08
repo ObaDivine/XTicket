@@ -254,6 +254,19 @@ public class HomeController {
         return "privacy";
     }
 
+    @GetMapping("/knowledge-base")
+    public String knowledgebase(HttpServletRequest request, HttpServletResponse response, Principal principal, Model model) {
+        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
+        model.addAttribute("profilePayload", profileDetails);
+        XTicketPayload passwordChangePayload = new XTicketPayload();
+        passwordChangePayload.setEmail(principal.getName());
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
+        model.addAttribute("alertMessage", alertMessage);
+        resetAlertMessage();
+        return "knowledgebase";
+    }
+
     private String generateTicketByGroupChart(List<XTicketPayload> ticketList) {
         List<XTicketPayload> data = new ArrayList<>();
         if (ticketList != null) {

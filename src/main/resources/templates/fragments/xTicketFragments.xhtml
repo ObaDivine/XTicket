@@ -123,12 +123,12 @@
                                 <span class="uil fs-0 me-2 uil-home text-primary"></span>Home
                             </a>
                             <ul class="dropdown-menu navbar-dropdown-caret">
-                                <li>
+                                <li sec:authorize="hasRole('DASHBOARD')">
                                     <a th:if="!${profilePayload.isAgent}" class="dropdown-item" href="" th:href="@{/dashboard}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 fas fa-tachometer" data-feather="dashboard-outlined"></span>Dashboard
                                         </div>
                                     </a>
-                                    <a th:if="${profilePayload.isAgent}" class="dropdown-item" href="" th:href="@{/agent/dashboard}">
+                                    <a  th:if="${profilePayload.isAgent}" class="dropdown-item" href="" th:href="@{/agent/dashboard}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 fas fa-tachometer" data-feather="dashboard-outlined"></span>Dashboard
                                         </div>
                                     </a>
@@ -140,19 +140,19 @@
                                 <span class="uil fs-0 me-2 uil-cube text-primary"></span>Ticket
                             </a>
                             <ul class="dropdown-menu navbar-dropdown-caret">
-                                <li>
+                                <li sec:authorize="hasRole('RAISE_TICKET')">
                                     <a class="dropdown-item" href="" th:href="@{/ticket/new}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="shopping-cart"></span>New Ticket
                                         </div>
                                     </a>
                                 </li>
-                                <li>
+                                <li sec:authorize="hasRole('RAISE_TICKET')">
                                     <a class="dropdown-item" href="" th:href="@{/ticket/closed}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Closed Tickets
                                         </div>
                                     </a>
                                 </li>
-                                <li>
+                                <li sec:authorize="hasRole('RAISE_TICKET')">
                                     <a class="dropdown-item" href="" th:href="@{/ticket/open}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Open Tickets
                                         </div>
@@ -165,73 +165,73 @@
                                 <span class="uil fs-0 me-2 uil-files-landscapes-alt text-primary"></span>Report
                             </a>
                             <ul class="dropdown-menu navbar-dropdown-caret">
-                                <li>
+                                <li sec:authorize="hasRole('REPORT')">
                                     <a class="dropdown-item" href="" th:href="@{/report/ticket/open}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="pie-chart"></span>Open Tickets
                                         </div>
                                     </a>
                                 </li>
-                                <li>
+                                <li sec:authorize="hasRole('REPORT')">
                                     <a class="dropdown-item" href="" th:href="@{/report/ticket/closed}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Closed Tickets
                                         </div>
                                     </a>
                                 </li>
-                                <li>
+                                <li sec:authorize="hasRole('REPORT')">
                                     <a class="dropdown-item" href="" th:href="@{/report/ticket/reopened}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Reopened Tickets
                                         </div>
                                     </a>
                                 </li>
-                                <li>
+                                <li sec:authorize="hasRole('REPORT')">
                                     <a class="dropdown-item" href="" th:href="@{/report/ticket/reassigned}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Reassigned Tickets
                                         </div>
                                     </a>
                                 </li>
-                                <li>
+                                <li sec:authorize="hasRole('REPORT')">
                                     <a class="dropdown-item" href="" th:href="@{/report/ticket/by-agents}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Tickets By Agent
                                         </div>
                                     </a>
                                 </li>
-                                <li>
+                                <li sec:authorize="hasRole('REPORT')">
                                     <a class="dropdown-item" href="" th:href="@{/report/ticket/sla/violated}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Tickets With Violated SLA
                                         </div>
                                     </a>
                                 </li>
-                                <li>
+                                <li sec:authorize="hasRole('REPORT')">
                                     <a class="dropdown-item" href="" th:href="@{/report/ticket/sla}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Tickets Within SLA
                                         </div>
                                     </a>
                                 </li>
-                                <li>
+                                <li sec:authorize="hasRole('REPORT')">
                                     <a class="dropdown-item" href="" th:href="@{/report/ticket/service-unit}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Tickets By Service Unit
                                         </div>
                                     </a>
                                 </li>
-                                <li>
+                                <li sec:authorize="hasRole('REPORT')">
                                     <a class="dropdown-item" href="" th:href="@{/report/ticket/service-unit-entity}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Service Unit To Entity
                                         </div>
                                     </a>
                                 </li>
-                                <li>
+                                <li sec:authorize="hasRole('REPORT')">
                                     <a class="dropdown-item" href="" th:href="@{/report/ticket/entity}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Entity To Entity
                                         </div>
                                     </a>
                                 </li>
-                                <li>
+                                <li sec:authorize="hasRole('REPORT')">
                                     <a class="dropdown-item" href="" th:href="@{/report/ticket/agents}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Ticket Agents
                                         </div>
                                     </a>
                                 </li>
-                                <li>
+                                <li sec:authorize="hasRole('REPORT')">
                                     <a class="dropdown-item" href="" th:href="@{/report/app-user}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Application Users
                                         </div>
@@ -244,7 +244,7 @@
                                 <span class="uil fs-0 me-2 uil-puzzle-piece text-primary"></span>Knowledge Base
                             </a>
                             <ul class="dropdown-menu navbar-dropdown-caret">
-                                <li>
+                                <li sec:authorize="hasRole('KNOWLEDGE_BASE')">
                                     <a class="dropdown-item" href="" th:href="@{/knowledge-base}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="shopping-cart"></span>Documentation
                                         </div>
@@ -257,55 +257,55 @@
                                 <span class="uil fs-0 me-2 uil-document-layout-right text-primary"></span>System
                             </a>
                             <ul class="dropdown-menu navbar-dropdown-caret">
-                                <li>
+                                <li sec:authorize="hasRole('MANAGE_USER')">
                                     <a class="dropdown-item" href="" th:href="@{/user/}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="shopping-cart"></span>System User
                                         </div>
                                     </a>
                                 </li>
-                                <li>
+                                <li sec:authorize="hasRole('ADD_ROLES')">
                                     <a class="dropdown-item" href="" th:href="@{/user/roles}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="shopping-cart"></span>Roles &AMP; Permissions
                                         </div>
                                     </a>
                                 </li>
-                                <li>
+                                <li sec:authorize="hasRole('ADD_ENTITY')">
                                     <a class="dropdown-item" href="" th:href="@{/setup/entity}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Entity
                                         </div>
                                     </a>
                                 </li>
-                                <li>
+                                <li sec:authorize="hasRole('ADD_SERVICE_UNIT')">
                                     <a class="dropdown-item" href="" th:href="@{/setup/service-unit}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Service Unit
                                         </div>
                                     </a>
                                 </li>
-                                <li>
+                                <li sec:authorize="hasRole('ADD_TICKET_GROUP')">
                                     <a class="dropdown-item" href="" th:href="@{/setup/ticket/group}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Ticket Group
                                         </div>
                                     </a>
                                 </li>
-                                <li>
+                                <li sec:authorize="hasRole('ADD_TICKET_TYPE')">
                                     <a class="dropdown-item" href="" th:href="@{/setup/ticket/type}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Ticket Type
                                         </div>
                                     </a>
                                 </li>
-                                <li>
+                                <li sec:authorize="hasRole('ADD_TICKET_SLA')">
                                     <a class="dropdown-item" href="" th:href="@{/setup/ticket/sla}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Ticket SLA
                                         </div>
                                     </a>
                                 </li>
-                                <li>
+                                <li sec:authorize="hasRole('ADD_TICKET_AGENT')">
                                     <a class="dropdown-item" href="" th:href="@{/setup/ticket/agent}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Ticket Agent
                                         </div>
                                     </a>
                                 </li>
-                                <li>
+                                <li sec:authorize="hasRole('ADD_TICKET_STATUS')">
                                     <a class="dropdown-item" href="" th:href="@{/setup/ticket/status}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Ticket Status
                                         </div>

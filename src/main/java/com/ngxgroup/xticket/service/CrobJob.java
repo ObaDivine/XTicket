@@ -35,7 +35,7 @@ public class CrobJob {
     private int escalationInterval;
     @Value("${xticket.slaexpiry.notification}")
     private int slaExpiryNotificationInterval;
-    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern("HH:mm:ss");
 
     @Scheduled(cron = "${xticket.cron.job}")
     public void setEscalateViolatedSLA() {
@@ -50,7 +50,7 @@ public class CrobJob {
                     String[] escalationEmails = t.getTicketType().getEscalationEmails().split(",");
                     if (escalationEmails.length > 0) {
                         //Check if time to run the next escalation
-                        long timeElapsed = Duration.between(t.getEscalatedAt() == null ? LocalDateTime.now() : t.getEscalatedAt().toLocalTime(), LocalDateTime.now().toLocalTime()).toMinutes();
+                        long timeElapsed = Duration.between(t.getEscalatedAt() == null ? LocalDateTime.now() : t.getEscalatedAt().toLocalTime(), LocalDateTime.now()).toMinutes();
                         if (timeElapsed >= escalationInterval) {
                             //Check if maximum escalation is reached
                             if ((t.getEscalationIndex() + 1) <= escalationEmails.length) {
@@ -74,10 +74,10 @@ public class CrobJob {
                 }
 
                 //Notify agents for tickets about to violate SLA
-                long timeElapsed = Duration.between(t.getSlaExpiry(), LocalDateTime.now().toLocalTime()).toMinutes();
+                long timeElapsed = Duration.between(LocalDateTime.now(), t.getSlaExpiry()).toMinutes();
                 if ((timeElapsed <= slaExpiryNotificationInterval) && !t.isAgentNotifiedOfExpiry()) {
                     //Send notification email to the agent
-                    sendEmail(t.getTicketAgent().getAgent().getEmail(), t);
+                    ticketNearSLAViolationSendEmail(t.getTicketAgent().getAgent().getEmail(), t);
                     t.setAgentNotifiedOfExpiry(true);
                     xticketRepository.updateTicket(t);
                 }
@@ -88,18 +88,33 @@ public class CrobJob {
     private void sendEmail(String escalationEmail, Tickets ticket) {
         XTicketPayload mailPayload = new XTicketPayload();
         mailPayload.setRecipientEmail(escalationEmail);
-        mailPayload.setSubject("Ticket SLA Violation Notification");
-        String slaExpiry = dtf.format(ticket.getSlaExpiry());
-        String message = "<h4>To Whom It May Concern</h4>\n"
-                + "<p>A ticket SLA has been violated as follows;</p>\n"
-                + "<p>Ticket Date: " + ticket.getCreatedAt().toString() + "</p>\n"
-                + "<p>Initiated By: " + ticket.getCreatedBy().getLastName() + ", " + ticket.getCreatedBy().getOtherName() + "</p>\n"
-                + "<p>Ticket ID: " + ticket.getTicketId() + "</p>\n"
-                + "<p>Ticket Group: " + ticket.getTicketGroup().getTicketGroupName() + "</p>\n"
-                + "<p>Ticket Type: " + ticket.getTicketType().getTicketTypeName() + "</p>\n"
-                + "<p>Ticket Priority: " + ticket.getPriority() + "</p>\n"
-                + "<p>SLA Expiry: " + slaExpiry + "</p>\n"
-                + "<p>To view the ticket details or take action <a href=\"" + host + "/xticket" + "\">click here</a></p>"
+        mailPayload.setEmailSubject("Ticket SLA Violation Notification");
+        String slaTime = timeDtf.format(ticket.getSlaExpiry().toLocalTime());
+        String slaDate = ticket.getSlaExpiry().getMonth().toString() + " " + ticket.getSlaExpiry().getDayOfMonth() + ", " + ticket.getSlaExpiry().getYear();
+        String message = "<h4>To Whom It May Concern,</h4>\n"
+                + "<p>An SLA for <b>" + ticket.getTicketType().getTicketTypeName() + "</b> ticket with an ID <b>" + ticket.getTicketId()
+                + "</b> has been violated by <b>" + ticket.getTicketAgent().getAgent().getLastName() + ", " + ticket.getTicketAgent().getAgent().getOtherName() + "</b> with a priority <b>"
+                + ticket.getTicketType().getSla().getPriority() + ".</b></p>"
+                + "<p>The ticket expired by <b>" + slaTime + "</b> on <b>" + slaDate + "</b></p>"
+                + "<p>To view the ticket details or take action, kindly login into NGX X-Ticket by <a href=\"" + host + "/xticket" + "\">clicking here</a></p>"
+                + "<p>For support and enquiries, email: " + companyEmail + ".</p>\n"
+                + "<p>Best wishes,</p>"
+                + "<p>" + companyName + "</p>";
+        mailPayload.setEmailBody(message);
+        genericService.sendEmail(mailPayload, escalationEmail);
+    }
+
+    private void ticketNearSLAViolationSendEmail(String escalationEmail, Tickets ticket) {
+        XTicketPayload mailPayload = new XTicketPayload();
+        mailPayload.setRecipientEmail(escalationEmail);
+        mailPayload.setEmailSubject("Ticket SLA Violation Notification");
+        String slaTime = timeDtf.format(ticket.getSlaExpiry().toLocalTime());
+        String slaDate = ticket.getSlaExpiry().getMonth().toString() + " " + ticket.getSlaExpiry().getDayOfMonth() + ", " + ticket.getSlaExpiry().getYear();
+        String message = "<h4>Dear " + ticket.getTicketAgent().getAgent().getLastName() + ",</h4>\n"
+                + "<p>An SLA for <b>" + ticket.getTicketType().getTicketTypeName() + "</b> ticket with an ID <b>" + ticket.getTicketId()
+                + "</b> is about to be violated. The priority is <b>" + ticket.getTicketType().getSla().getPriority() + ".</b></p>"
+                + "<p>The ticket is set to expire by <b>" + slaTime + "</b> on <b>" + slaDate + "</b></p>"
+                + "<p>To view the ticket details or take action, kindly login to NGX X-Ticket by <a href=\"" + host + "/xticket" + "\">clicking here</a></p>"
                 + "<p>For support and enquiries, email: " + companyEmail + ".</p>\n"
                 + "<p>Best wishes,</p>"
                 + "<p>" + companyName + "</p>";
