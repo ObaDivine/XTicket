@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
         <title>X-Ticket - Knowledge Base</title>
         <th:block th:insert="~{fragments/xTicketFragments :: headerfiles}"></th:block>
     </head>
     <body onload="preloaderFunction()" style="margin: 0;">
         <div id="loader"></div>
-        <main class="main animate-bottom" id="top" style="display:none;" th:object="${profilePayload}">
+        <main class="main animate-bottom" id="top" style="display:none;" >
             <div class="container-fluid px-0">
                 <th:block th:insert="~{fragments/xTicketFragments :: topMenu}"></th:block>
                 <div class="content">
@@ -25,7 +25,7 @@
                             </nav>
                         </div>
                         <div class="col-md-3 col-auto">
-                            <h5 class="text-1100 text-primary" th:text="'Welcome ' + ${profilePayload.lastName + ', ' + profilePayload.otherName}">Welcome Brian</h5>
+                            <h5 class="text-1100 text-primary" th:text="'Welcome ' + ${session.fullName}">Welcome Brian</h5>
                         </div>
                         <hr/>
                     </div>
@@ -33,21 +33,21 @@
                         <div class="col-sm-auto">
                             <div class="sticky-top" style="margin-top:-72px;padding-top:72px">
                                 <div class="nav flex-column nav-pills" id="v-pills">
-                                    <a class="nav-link ps-0 ps-sm-3" href="#v-pills-home">X-Stream VPN Setup</a>
+                                    <a class="nav-link ps-0 ps-sm-3" href="#v-pills-home">X-Stream Support</a>
                                     <a class="nav-link ps-0 ps-sm-3" href="#v-pills-profile">Data Portal Subscription</a>
-                                    <a class="nav-link ps-0 ps-sm-3" href="#v-pills-messages">Office 365 Password Reset</a>
-                                    <a class="nav-link ps-0 ps-sm-3" href="#v-pills-settings">Settings</a>
+                                    <a class="nav-link ps-0 ps-sm-3" href="#v-pills-messages">Office 365 Services</a>
+                                    <a class="nav-link ps-0 ps-sm-3" href="#v-pills-settings">X-Boss & X-Issuer Service</a>
                                 </div>
                             </div>
                         </div>
                         <div class="col-sm">
-                            <h5 id="v-pills-home text-primary">X-Stream VPN Setup</h5>
+                            <h4 id="v-pills-home text-primary">X-Stream Support</h4>
                             <p class="mb-6">To setup a new or update the existing VPN for X-Stream, kindly follow the instruction below</p>
-                            <h4 id="v-pills-profile">Data Portal</h4>
+                            <h4 id="v-pills-profile">Data Portal Subscription</h4>
                             <p class="mb-6">NGX provides market data services to its esteem customer. To request for data service, follow the instruction</p>
-                            <h3 id="v-pills-messages">Office 365 Password Reset</h3>
+                            <h4 id="v-pills-messages">Office 365 Services</h4>
                             <p class="mb-6">To reset your Microsoft Office 365 password, follow the instruction</p>
-                            <h3 id="v-pills-settings">Settings</h3>
+                            <h4 id="v-pills-settings">X-Boss & X-Issuer Service</h4>
                             <p class="mb-6"></p>
                         </div>
                     </div>

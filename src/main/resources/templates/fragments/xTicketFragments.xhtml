@@ -124,11 +124,11 @@
                             </a>
                             <ul class="dropdown-menu navbar-dropdown-caret">
                                 <li sec:authorize="hasRole('DASHBOARD')">
-                                    <a th:if="!${profilePayload.isAgent}" class="dropdown-item" href="" th:href="@{/dashboard}">
+                                    <a th:if="!${session.isAgent}" class="dropdown-item" href="" th:href="@{/dashboard}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 fas fa-tachometer" data-feather="dashboard-outlined"></span>Dashboard
                                         </div>
                                     </a>
-                                    <a  th:if="${profilePayload.isAgent}" class="dropdown-item" href="" th:href="@{/agent/dashboard}">
+                                    <a  th:if="${session.isAgent}" class="dropdown-item" href="" th:href="@{/agent/dashboard}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 fas fa-tachometer" data-feather="dashboard-outlined"></span>Dashboard
                                         </div>
                                     </a>
@@ -387,14 +387,14 @@
                                         <div class="avatar avatar-xl ">
                                             <img class="rounded-circle" th:src="@{'/images/avatar.png'}" alt="" />
                                         </div>
-                                        <h6 class="mt-2 text-black" th:text="${profilePayload.lastName+ ', ' + profilePayload.otherName}">name</h6>
+                                        <h6 class="mt-2 text-black" th:text="${session.fullName}">name</h6>
                                     </div>
                                 </div>
                                 <div class="overflow-auto scrollbar" style="height: 10rem;">
                                     <ul class="nav d-flex flex-column mb-2 pb-1">
                                         <li class="nav-item"><a class="nav-link px-3" href="#!" th:href="@{/profile}"> <span class="me-2 text-900 fa fa-user"></span><span>Profile</span></a></li>
                                         <li class="nav-item"><a class="nav-link px-3" href="#!" th:href="@{/dashboard}"><span class="me-2 text-900 fa fa-tachometer"></span>Dashboard</a></li>
-                                        <li th:if="${!profilePayload.internal}" class="nav-item"><a class="nav-link px-3" href="#!" th:href="@{/change-password}"> <span class="me-2 text-900 fa fa-key"></span>Change Password</a></li>
+                                        <li th:if="${!session.isInternal}" class="nav-item"><a class="nav-link px-3" href="#!" th:href="@{/change-password}"> <span class="me-2 text-900 fa fa-key"></span>Change Password</a></li>
                                         <li class="nav-item"><a class="nav-link px-3" href="#!"> <span class="me-2 text-900 fa fa-question-circle"></span>Help Center</a></li>
                                     </ul>
                                 </div>
@@ -423,15 +423,27 @@
             </nav>
             <script>
                 var navbarVertical = document.querySelector('.navbar-vertical');
-                navbarTop.removeAttribute('style');
+//                navbarTop.removeAttribute('style');
+
+                var navbarTopStyle = window.config.config.phoenixNavbarTopStyle;
+                var navbarTop = document.querySelector('.navbar-top');
+                if (navbarTopStyle === 'darker') {
+                    navbarTop.classList.add('navbar-darker');
+                }
+
+                var navbarVerticalStyle = window.config.config.phoenixNavbarVerticalStyle;
+                var navbarVertical = document.querySelector('.navbar-vertical');
+                if (navbarVertical && navbarVerticalStyle === 'darker') {
+                    navbarVertical.classList.add('navbar-darker');
+                }
             </script>
             <div class="modal fade" id="searchBoxModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="true" data-phoenix-modal="data-phoenix-modal" style="--phoenix-backdrop-opacity: 1;">
                 <div class="modal-dialog">
                     <div class="modal-content mt-15 rounded-pill">
                         <div class="modal-body p-0">
                             <div class="search-box navbar-top-search-box" data-list='{"valueNames":["title"]}' style="width: auto;">
-                                <form class="position-relative" th:object="${profilePayload}" th:action="@{/ticket/search}" method="POST">
-                                    <input th:field="*{ticketId}" class="form-control search-input fuzzy-search rounded-pill form-control-lg" type="text" placeholder="Enter Ticket ID....." aria-label="Search" />
+                                <form class="position-relative" th:action="@{/ticket/search}" method="POST">
+                                    <input id="ticketId" name="ticketId" class="form-control search-input fuzzy-search rounded-pill form-control-lg" type="text" placeholder="Enter Ticket ID....." aria-label="Search" />
                                     <span class="fas fa-search search-box-icon"></span>
                                 </form>
                                 <div class="btn-close position-absolute end-0 top-50 translate-middle cursor-pointer shadow-none" data-bs-dismiss="search">

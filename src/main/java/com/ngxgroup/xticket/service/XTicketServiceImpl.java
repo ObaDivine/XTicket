@@ -2695,7 +2695,7 @@ public class XTicketServiceImpl implements XTicketService {
                     data.add(newTicket);
                 }
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
-                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{agentTickets.size()}, Locale.ENGLISH));
                 response.setData(data);
                 return response;
             }
@@ -4650,15 +4650,13 @@ public class XTicketServiceImpl implements XTicketService {
         Date d1 = Date.from(endTime.atZone(ZoneId.systemDefault()).toInstant());
 
         // Calculating the time difference in milliseconds  
-        long Time_difference = d1.getTime() - d0.getTime();
+        long timeDifference = d1.getTime() - d0.getTime();
 
         // Calculating the time difference in terms of minutes,   
         // hours, seconds, years, and days  
-        long seconds = TimeUnit.MILLISECONDS.toSeconds(Time_difference) % 60;
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(Time_difference) % 60;
-        long hours = TimeUnit.MILLISECONDS.toHours(Time_difference) % 24;
-        long days = TimeUnit.MILLISECONDS.toDays(Time_difference) % 365;
-        long years = TimeUnit.MILLISECONDS.toDays(Time_difference) / 365l;
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(timeDifference) % 60;
+        long hours = TimeUnit.MILLISECONDS.toHours(timeDifference) % 24;
+        long days = TimeUnit.MILLISECONDS.toDays(timeDifference) % 365;
         return days + " days " + hours + " hours " + minutes + " minutes ";
     }
 

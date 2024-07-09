@@ -65,7 +65,7 @@ public class GenericServiceImpl implements GenericService {
     public String decryptString(String textToDecrypt) {
         try {
             setKey(encryptionKey.trim());
-            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
+            Cipher cipher = Cipher.getInstance("AES/GCM/PKCS5PADDING");
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
             String decryptedResponse = new String(cipher.doFinal(java.util.Base64.getDecoder().decode(textToDecrypt.trim())));
             String[] splitString = decryptedResponse.split(":");
@@ -91,10 +91,10 @@ public class GenericServiceImpl implements GenericService {
     public String generateRequestId() {
         SecureRandom secureRnd = new SecureRandom();
         int max = 12;
-        String ALPHA_NUMERIC_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        String alphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         StringBuilder mnemonic = new StringBuilder(max);
         for (int i = 0; i < max; i++) {
-            mnemonic.append(ALPHA_NUMERIC_STRING.charAt(secureRnd.nextInt(ALPHA_NUMERIC_STRING.length())));
+            mnemonic.append(alphaNumericString.charAt(secureRnd.nextInt(alphaNumericString.length())));
         }
         return mnemonic.toString();
     }
@@ -104,7 +104,7 @@ public class GenericServiceImpl implements GenericService {
         try {
             String secret = encryptionKey;
             setKey(secret);
-            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            Cipher cipher = Cipher.getInstance("AES/GCM/PKCS5Padding");
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
             return java.util.Base64.getEncoder().encodeToString(cipher.doFinal(textToEncrypt.trim().getBytes("UTF-8")));
         } catch (Exception ex) {
@@ -197,7 +197,7 @@ public class GenericServiceImpl implements GenericService {
             int leftLimit = 48; // numeral '0'
             int rightLimit = 122; // letter 'z'
             int targetStringLength = 25;
-            Random random = new Random();
+            Random random = new SecureRandom();
 
             String generatedString = random.ints(leftLimit, rightLimit + 1)
                     .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))

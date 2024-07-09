@@ -28,5 +28,6 @@ Any value defined here will override the pom.xml file value but is only applicab
         <org-netbeans-modules-css-prep.sass_2e_compiler_2e_options/>
         <org-netbeans-modules-css-prep.less_2e_compiler_2e_options/>
         <org-netbeans-modules-css-prep.sass_2e_mappings>/scss:/css</org-netbeans-modules-css-prep.sass_2e_mappings>
+        <org-zeroturnaround-jrebel-netbeans.rebelXmlGenerationInvariantToken>PGFwcGxpY2F0aW9uIGdlbmVyYXRlZC1ieT0ibmV0YmVhbnMiPjxjbGFzc3BhdGg+PGRpciBuYW1lPSJDOi9BcHBzL1hUaWNrZXQvdGFyZ2V0L2NsYXNzZXMiPjwvZGlyPjwvY2xhc3NwYXRoPjx3ZWI+PGxpbmsgdGFyZ2V0PSIvIj48ZGlyIG5hbWU9IkM6L0FwcHMvWFRpY2tldC9zcmMvbWFpbi93ZWJhcHAiPjwvZGlyPjwvbGluaz48L3dlYj48L2FwcGxpY2F0aW9uPg==</org-zeroturnaround-jrebel-netbeans.rebelXmlGenerationInvariantToken>
     </properties>
 </project-shared-configuration>

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
         <title>X-Ticket - Ticket Details</title>
         <th:block th:insert="~{fragments/xTicketFragments :: headerfiles}"></th:block>
     </head>
     <body onload="preloaderFunction()" style="margin: 0;">
         <div id="loader"></div>
-        <main class="main animate-bottom" id="top" style="display:none;" th:object="${profilePayload}">
+        <main class="main animate-bottom" id="top" style="display:none;" >
             <div class="container-fluid px-0">
                 <th:block th:insert="~{fragments/xTicketFragments :: topMenu}"></th:block>
                 <div class="content">
@@ -19,14 +19,15 @@
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb mb-0">
                                     <li class="breadcrumb-item"><a href="#" th:href="@{/}">Home</a></li>
-                                    <li class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
+                                    <li th:if="!${session.isAgent}" class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
+                                    <li th:if="${session.isAgent}"class="breadcrumb-item"><a href="#" th:href="@{/agent/dashboard}">Dashboard</a></li>
                                     <li class="breadcrumb-item"><a href="#" th:href="@{/ticket/open}">Open Ticket</a></li>
                                     <li class="breadcrumb-item active">Ticket Details</li>
                                 </ol>
                             </nav>
                         </div>
                         <div class="col-md-3 col-auto">
-                            <h5 class="text-1100 text-primary" th:text="'Welcome ' + ${profilePayload.lastName + ', ' + profilePayload.otherName}">Welcome Brian</h5>
+                            <h5 class="text-1100 text-primary" th:text="'Welcome ' + ${session.fullName}">Welcome Brian</h5>
                         </div>
                         <hr/>
                     </div>
