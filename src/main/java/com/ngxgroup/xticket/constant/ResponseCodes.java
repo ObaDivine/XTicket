@@ -51,7 +51,7 @@ public enum ResponseCodes {
     BAD_REQUEST("400"),
     REVERSE_CODE("98");
 
-    final private String responseCode;
+    private final String responseCode;
 
     public String getResponseCode() {
         return this.responseCode;

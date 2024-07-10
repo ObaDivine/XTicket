@@ -65,7 +65,7 @@ public class HomeController {
     }
 
     @PostMapping("/login")
-    public String signin(@ModelAttribute("signinPayload") XTicketPayload requestPayload, HttpSession session, HttpServletRequest httpRequest, HttpServletResponse httpResponse, Model model) {
+    public String signin(@ModelAttribute("signinPayload") XTicketPayload requestPayload, HttpSession httpSession, HttpServletRequest httpRequest, HttpServletResponse httpResponse, Model model) {
         XTicketPayload response = xticketService.signin(requestPayload);
         if (response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
             List<SimpleGrantedAuthority> newAuthorities = new ArrayList<>();
@@ -87,6 +87,12 @@ public class HomeController {
             context.setAuthentication(new UsernamePasswordAuthenticationToken(requestPayload.getEmail(), requestPayload.getPassword(), newAuthorities));
             securityContextHolderStrategy.setContext(context);
             securityContextRepository.saveContext(context, httpRequest, httpResponse);
+
+            //set the session details
+            XTicketPayload profileDetails = xticketService.fetchProfile(requestPayload.getEmail());
+            httpSession.setAttribute("fullName", profileDetails.getLastName() + ", " + profileDetails.getOtherName());
+            httpSession.setAttribute("isAgent", profileDetails.isAgent());
+            httpSession.setAttribute("isInternal", profileDetails.isInternal());
             //Check if the user is an egent
             if (response.isAgent()) {
                 return "redirect:/agent/dashboard";
@@ -152,8 +158,6 @@ public class HomeController {
 
     @GetMapping("/dashboard")
     public String dashboard(HttpServletRequest httpRequest, HttpServletResponse httpResponse, HttpSession httpSession, Principal principal, Model model) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
-        model.addAttribute("profilePayload", profileDetails);
         List<XTicketPayload> closedTickets = xticketService.fetchClosedTicket(principal.getName()).getData();
         List<XTicketPayload> openTickets = xticketService.fetchOpenTicket(principal.getName()).getData();
         model.addAttribute("closedTicketStat", closedTickets == null ? 0 : closedTickets.size());
@@ -171,10 +175,8 @@ public class HomeController {
 
     @GetMapping("/agent/dashboard")
     public String agentDashboard(HttpServletRequest httpRequest, HttpServletResponse httpResponse, HttpSession httpSession, Principal principal, Model model) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
-        model.addAttribute("profilePayload", profileDetails);
         List<XTicketPayload> closedTickets = xticketService.fetchClosedTicket(principal.getName()).getData();
-        List<XTicketPayload> openTickets = xticketService.fetchOpenTicket().getData();
+        List<XTicketPayload> openTickets = xticketService.fetchOpenTicketForAgent(principal.getName()).getData();
         model.addAttribute("closedTicketStat", closedTickets == null ? 0 : closedTickets.size());
         model.addAttribute("agentOpenTicketStat", openTickets == null ? 0 : openTickets.size());
         List<XTicketPayload> ticketByGroup = xticketService.fetchTicketGroupStatisticsByUser(principal.getName()).getData();
@@ -190,8 +192,6 @@ public class HomeController {
 
     @GetMapping("/change-password")
     public String changePassword(Principal principal, Model model) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
-        model.addAttribute("profilePayload", profileDetails);
         XTicketPayload passwordChangePayload = new XTicketPayload();
         passwordChangePayload.setEmail(principal.getName());
         model.addAttribute("passwordPayload", passwordChangePayload);
@@ -220,8 +220,6 @@ public class HomeController {
             alertMessageType = "success";
             return "redirect:/";
         }
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
-        model.addAttribute("profilePayload", profileDetails);
         requestPayload.setEmail(principal.getName());
         model.addAttribute("passwordPayload", requestPayload);
         model.addAttribute("alertMessage", response.getResponseMessage());
@@ -252,6 +250,17 @@ public class HomeController {
         model.addAttribute("alertMessage", alertMessage);
         resetAlertMessage();
         return "privacy";
+    }
+
+    @GetMapping("/knowledge-base")
+    public String knowledgebase(HttpServletRequest request, HttpServletResponse response, Principal principal, Model model) {
+        XTicketPayload passwordChangePayload = new XTicketPayload();
+        passwordChangePayload.setEmail(principal.getName());
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
+        model.addAttribute("alertMessage", alertMessage);
+        resetAlertMessage();
+        return "knowledgebase";
     }
 
     private String generateTicketByGroupChart(List<XTicketPayload> ticketList) {

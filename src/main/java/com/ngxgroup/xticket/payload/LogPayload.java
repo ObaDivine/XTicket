@@ -15,8 +15,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class LogPayload {
 
-    private String severity;
-    private String username;
-    private String source;
-    private String message;
+    String severity;
+    String username;
+    String source;
+    String message;
 }

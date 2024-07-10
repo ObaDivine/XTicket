@@ -36,10 +36,8 @@ public class TicketController {
 
     @GetMapping("/new")
     public String newTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -49,7 +47,6 @@ public class TicketController {
     @PostMapping("/new/create")
     public String createTicket(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
         XTicketPayload response = xticketService.createTicket(requestPayload, principal.getName());
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         if (response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
             alertMessage = response.getResponseMessage();
             alertMessageType = "success";
@@ -57,7 +54,6 @@ public class TicketController {
         }
         model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "error");
         return "newticket";
@@ -66,14 +62,12 @@ public class TicketController {
     @PostMapping("/reply")
     public String replyTicket(@ModelAttribute("ticketReplyPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
         XTicketPayload response = xticketService.replyTicket(requestPayload, principal.getName());
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         if (response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
             alertMessage = response.getResponseMessage();
             alertMessageType = "success";
             return "redirect:/ticket/open";
         }
         model.addAttribute("ticketPayload", response);
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "error");
         return "ticketdetails";
@@ -103,10 +97,8 @@ public class TicketController {
 
     @GetMapping("/closed")
     public String myTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("dataList", xticketService.fetchClosedTicket(principal.getName()).getData());
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -115,10 +107,8 @@ public class TicketController {
 
     @GetMapping("/open")
     public String myOpenTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("dataList", xticketService.fetchOpenTicket(principal.getName()).getData());
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -127,12 +117,10 @@ public class TicketController {
 
     @GetMapping("/view")
     public String viewTicket(@RequestParam("seid") String seid, Model model, Principal principal) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         XTicketPayload response = xticketService.fetchTicketUsingId(seid);
         XTicketPayload ticketPayload = new XTicketPayload();
         ticketPayload.setTicketId(response.getTicketId());
         model.addAttribute("ticketPayload", response);
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("ticketReplyPayload", ticketPayload);
         model.addAttribute("ticketList", xticketService.fetchTicketByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", alertMessage);
@@ -152,7 +140,6 @@ public class TicketController {
     @PostMapping("/search")
     public String searchTicket(@ModelAttribute("profilePayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
         XTicketPayload response = xticketService.fetchTicketFullDetails(requestPayload.getTicketId());
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("ticketPayload", response);
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("dataList", xticketService.fetchTicketGroup().getData());
@@ -160,7 +147,6 @@ public class TicketController {
         model.addAttribute("reassignedTicketList", response.getReassignedTickets());
         model.addAttribute("escalatedTicketList", response.getTicketEscalations());
         model.addAttribute("commentTicketList", response.getTicketComments());
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         return "ticketfulldetails";

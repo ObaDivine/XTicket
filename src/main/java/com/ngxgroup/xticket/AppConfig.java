@@ -129,11 +129,4 @@ public class AppConfig implements WebMvcConfigurer {
         encryptor.setConfig(config);
         return encryptor;
     }
-
-//    @Bean(name="multipartResolver")
-//    public MultipartResolver multipartResolver() {
-//        MultipartResolver multipartResolver = null;
-////        multipartResolver.setMaxUploadSize(5242880);
-//        return multipartResolver;
-//    }
 }

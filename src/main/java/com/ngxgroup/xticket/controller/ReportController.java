@@ -30,11 +30,9 @@ public class ReportController {
 
     @GetMapping("/ticket/open")
     public String openTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("openTicketList", null);
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -43,12 +41,10 @@ public class ReportController {
 
     @PostMapping("/ticket/open/process")
     public String openTicket(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         XTicketPayload response = xticketService.fetchOpenTicket(requestPayload);
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("dataList", response.getData());
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         resetAlertMessage();
@@ -57,10 +53,8 @@ public class ReportController {
 
     @GetMapping("/ticket/closed")
     public String closedTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
@@ -70,12 +64,10 @@ public class ReportController {
 
     @PostMapping("/ticket/closed/process")
     public String closedTicket(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         XTicketPayload response = xticketService.fetchClosedTicket(requestPayload);
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("dataList", response.getData());
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
@@ -85,10 +77,8 @@ public class ReportController {
 
     @GetMapping("/ticket/reopened")
     public String reopened(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -97,12 +87,10 @@ public class ReportController {
 
     @PostMapping("/ticket/reopened/process")
     public String reopenedTicket(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         XTicketPayload response = xticketService.fetchReopenedTicket(requestPayload);
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("dataList", response.getData());
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
@@ -112,10 +100,8 @@ public class ReportController {
 
     @GetMapping("/ticket/reassigned")
     public String reassigned(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -124,12 +110,10 @@ public class ReportController {
 
     @PostMapping("/ticket/reassigned/process")
     public String reassignedTicket(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         XTicketPayload response = xticketService.fetchReassignedTicket(requestPayload);
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("dataList", response.getData());
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
@@ -139,11 +123,9 @@ public class ReportController {
 
     @GetMapping("/ticket/by-agents")
     public String byAgents(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -152,12 +134,10 @@ public class ReportController {
 
     @PostMapping("/ticket/by-agents/process")
     public String byAgents(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         XTicketPayload response = xticketService.fetchTicketClosedByAgent(requestPayload);
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("dataList", response.getData());
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
@@ -167,10 +147,8 @@ public class ReportController {
 
     @GetMapping("/ticket/sla")
     public String sla(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -179,12 +157,10 @@ public class ReportController {
 
     @PostMapping("/ticket/sla/process")
     public String sla(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         XTicketPayload response = xticketService.fetchTicketByWithinSla(requestPayload);
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("dataList", response.getData());
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
@@ -194,10 +170,8 @@ public class ReportController {
 
     @GetMapping("/ticket/sla/violated")
     public String violatedSla(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -206,12 +180,10 @@ public class ReportController {
 
     @PostMapping("/ticket/sla/violated/process")
     public String violatedSla(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         XTicketPayload response = xticketService.fetchTicketByViolatedSla(requestPayload);
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("dataList", response.getData());
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
@@ -221,10 +193,8 @@ public class ReportController {
 
     @GetMapping("/ticket/agents")
     public String agents(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -233,12 +203,10 @@ public class ReportController {
 
     @PostMapping("/ticket/agents/process")
     public String agents(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         XTicketPayload response = xticketService.fetchTicketAgent(requestPayload);
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("dataList", response.getData());
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
@@ -248,12 +216,10 @@ public class ReportController {
 
     @GetMapping("/app-user")
     public String appUsers(Model model, HttpServletRequest httRequest, HttpServletResponse httResponse, Principal principal) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         XTicketPayload response = xticketService.fetchAllAppUsers();
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("dataList", response.getData());
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
@@ -263,11 +229,9 @@ public class ReportController {
 
     @GetMapping("/ticket/service-unit")
     public String serviceUnit(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup());
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit());
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -276,12 +240,10 @@ public class ReportController {
 
     @PostMapping("/ticket/service-unit/process")
     public String serviceUnit(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         XTicketPayload response = xticketService.fetchTicketByServiceUnit(requestPayload);
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("dataList", response.getData());
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
@@ -291,12 +253,10 @@ public class ReportController {
 
     @GetMapping("/ticket/service-unit-entity")
     public String serviceUnitToEntity(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
         model.addAttribute("entityList", xticketService.fetchEntity().getData());
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -305,13 +265,11 @@ public class ReportController {
 
     @PostMapping("/ticket/service-unit-entity/process")
     public String serviceUnitToEntity(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         XTicketPayload response = xticketService.fetchTicketByServiceUnitToEntity(requestPayload);
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
         model.addAttribute("entityList", xticketService.fetchEntity().getData());
         model.addAttribute("dataList", response.getData());
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         resetAlertMessage();
@@ -320,10 +278,8 @@ public class ReportController {
 
     @GetMapping("/ticket/entity")
     public String entityToEntity(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("entityList", xticketService.fetchEntity().getData());
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -332,12 +288,10 @@ public class ReportController {
 
     @PostMapping("/ticket/entity/process")
     public String entityToEntity(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
-        XTicketPayload profileDetails = xticketService.fetchProfile(principal.getName());
         XTicketPayload response = xticketService.fetchTicketByEntityToEntity(requestPayload);
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("entityList", xticketService.fetchEntity().getData());
         model.addAttribute("dataList", response.getData());
-        model.addAttribute("profilePayload", profileDetails);
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         resetAlertMessage();

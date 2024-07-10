@@ -24,7 +24,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "document_upload", indexes={@Index(columnList="doc_type, original_filename, created_at", name="idx_document_upload")})
+@Table(name = "document_upload", indexes={@Index(columnList="original_filename, created_at", name="idx_document_upload")})
 public class DocumentUpload implements Serializable {
 
     @Id

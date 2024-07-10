@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
         <title>X-Ticket - Ticket SLA</title>
         <th:block th:insert="~{fragments/xTicketFragments :: headerfiles}"></th:block>
     </head>
     <body onload="preloaderFunction()" style="margin: 0;">
         <div id="loader"></div>
-        <main class="main animate-bottom" id="top" style="display:none;" th:object="${profilePayload}">
+        <main class="main animate-bottom" id="top" style="display:none;" >
             <div class="container-fluid px-0">
                 <th:block th:insert="~{fragments/xTicketFragments :: topMenu}"></th:block>
                 <div class="content">
@@ -26,7 +26,7 @@
                             </nav>
                         </div>
                         <div class="col-md-3 col-auto">
-                            <h5 class="text-1100 text-primary" th:text="'Welcome ' + ${profilePayload.lastName + ', ' + profilePayload.otherName}">Welcome Brian</h5>
+                            <h5 class="text-1100 text-primary" th:text="'Welcome ' + ${session.fullName}">Welcome Brian</h5>
                         </div>
                         <hr/>
                     </div>
@@ -58,8 +58,8 @@
                                             <td th:text="${rec.priority}" class="priority align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.createdBy}" class="createdBy align-middle white-space-nowrap start ps-3"></td>
                                             <td class="align-middle white-space-nowrap start ps-3 btn-reveal-trigger">
-                                                <a class="text-success" href="#!" th:href="@{'/setup/ticket/sla/edit?seid=' + ${rec.id}}"><span class="fas fa-edit" data-bs-toggle="tooltip" data-bs-placement="right" title="Update Ticket"></span></a>
-                                                <a class="text-danger" th:data-bs-target="'#a' + ${rec.id}" data-bs-toggle="modal"><span class="fas fa-trash" data-bs-toggle="tooltip" data-bs-placement="right" title="Delete Ticket"></span></a>
+                                                <a sec:authorize="hasRole('UPDATE_TICKET_SLA')" class="text-success" href="#!" th:href="@{'/setup/ticket/sla/edit?seid=' + ${rec.id}}"><span class="fas fa-edit" data-bs-toggle="tooltip" data-bs-placement="right" title="Update Ticket"></span></a>
+                                                <a sec:authorize="hasRole('DELETE_TICKET_SLA')" class="text-danger" th:data-bs-target="'#a' + ${rec.id}" data-bs-toggle="modal"><span class="fas fa-trash" data-bs-toggle="tooltip" data-bs-placement="right" title="Delete Ticket"></span></a>
                                                 <div class="modal fade" th:id="'a' + ${rec.id}" tabindex="-1" role="dialog" aria-labelledby="${rec.id}" aria-hidden="true">
                                                     <div class="modal-dialog">
                                                         <div class="modal-content">
