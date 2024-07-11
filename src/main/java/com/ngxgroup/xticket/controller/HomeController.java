@@ -100,7 +100,7 @@ public class HomeController {
             httpSession.setAttribute("passwordChangeDate", profileDetails.getPasswordChangeDate());
             httpSession.setAttribute("createdAt", profileDetails.getCreatedAt());
             httpSession.setAttribute("createdBy", profileDetails.getCreatedBy());
-                        httpSession.setAttribute("resetTime", profileDetails.getPasswordChangeDate());
+            httpSession.setAttribute("resetTime", profileDetails.getPasswordChangeDate());
             httpSession.setAttribute("isAgent", profileDetails.isAgent());
             httpSession.setAttribute("isInternal", profileDetails.isInternal());
             httpSession.setAttribute("isLocked", profileDetails.isLocked());
