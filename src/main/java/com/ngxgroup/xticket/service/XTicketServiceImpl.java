@@ -2786,6 +2786,11 @@ public class XTicketServiceImpl implements XTicketService {
                     i++;
                 }
             }
+            
+            //Check if agent is assigned. Returns 0 when no agent is assigned or locked.
+            if(jobStats == null  || jobStats.length == 0){
+                return null;
+            }
 
             //Loop through the array
             int minJob = Integer.parseInt(jobStats[0].split("\\*")[0]);
