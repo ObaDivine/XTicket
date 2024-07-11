@@ -365,9 +365,9 @@ public class XTicketServiceImpl implements XTicketService {
             xticketRepository.createAppUser(newUser);
 
             //Send profile activation email
-            XTicketPayload emailPayload = new XTicketPayload();
-            emailPayload.setRecipientEmail(requestPayload.getEmail());
-            emailPayload.setEmailSubject("Profile Activation");
+            XTicketPayload mailPayload = new XTicketPayload();
+            mailPayload.setRecipientEmail(requestPayload.getEmail());
+            mailPayload.setEmailSubject("Profile Activation");
             String message = "<h4>Dear " + requestPayload.getLastName() + "</h4>\n"
                     + "<p>We appreciate your interest in " + companyName + " X-TICKET, our award-winning ticketing platform and help desk.</p>\n"
                     + "<p>To activate your profile, please click on the activation button below</p>\n"
@@ -377,8 +377,8 @@ public class XTicketServiceImpl implements XTicketService {
                     + "<p>Best wishes,</p>"
                     + "<p>" + companyName + "</p>";
 
-            emailPayload.setEmailBody(message);
-            genericService.sendEmail(emailPayload, requestPayload.getEmail());
+            mailPayload.setEmailBody(message);
+            genericService.sendEmail(mailPayload, requestPayload.getEmail());
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
             response.setResponseMessage(messageSource.getMessage("appMessages.success.user", new Object[0], Locale.ENGLISH));
             return response;
@@ -428,6 +428,10 @@ public class XTicketServiceImpl implements XTicketService {
         try {
             var appUser = xticketRepository.getAppUserUsingEmail(principal);
             BeanUtils.copyProperties(appUser, response);
+            response.setPasswordChangeDate(appUser.getPasswordChangeDate().toString());
+            response.setCreatedAt(dtf.format(appUser.getCreatedAt()));
+            response.setCreatedBy(appUser.getCreatedBy());
+            response.setResetTime(appUser.getResetTime().toString());
             return response;
         } catch (Exception ex) {
             response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
@@ -548,10 +552,10 @@ public class XTicketServiceImpl implements XTicketService {
                 return response;
             }
 
-            //Send profile activation email
-            XTicketPayload emailPayload = new XTicketPayload();
-            emailPayload.setRecipientEmail(requestPayload.getEmail());
-            emailPayload.setEmailSubject("Password Change");
+            //Send password reset email
+            XTicketPayload mailPayload = new XTicketPayload();
+            mailPayload.setRecipientEmail(requestPayload.getEmail());
+            mailPayload.setEmailSubject("Password Change");
             String message = "<h4>Dear " + requestPayload.getLastName() + "</h4>\n"
                     + "<p>We appreciate your interest in " + companyName + " X-TICKET, our award-winning ticketing platform and help desk.</p>\n"
                     + "<p>To activate your profile, please click on the activation button below</p>\n"
@@ -561,8 +565,8 @@ public class XTicketServiceImpl implements XTicketService {
                     + "<p>Best wishes,</p>"
                     + "<p>" + companyName + "</p>";
 
-            emailPayload.setEmailBody(message);
-            genericService.sendEmail(requestPayload, requestPayload.getEmail());
+            mailPayload.setEmailBody(message);
+            genericService.sendEmail(mailPayload, requestPayload.getEmail());
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
             response.setResponseMessage(messageSource.getMessage("appMessages.success.forgotpassword", new Object[]{requestPayload.getEmail()}, Locale.ENGLISH));
             return response;

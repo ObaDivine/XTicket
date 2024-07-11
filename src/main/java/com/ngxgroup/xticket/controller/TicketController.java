@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpSession;
 import java.security.Principal;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +36,7 @@ public class TicketController {
     private String alertMessageType = "";
 
     @GetMapping("/new")
+    @Secured("ROLE_RAISE_TICKET")
     public String newTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
@@ -96,7 +98,8 @@ public class TicketController {
     }
 
     @GetMapping("/closed")
-    public String myTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
+    @Secured("ROLE_RAISE_TICKET")
+    public String closeTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("dataList", xticketService.fetchClosedTicket(principal.getName()).getData());
         model.addAttribute("alertMessage", alertMessage);
@@ -106,6 +109,7 @@ public class TicketController {
     }
 
     @GetMapping("/open")
+    @Secured("ROLE_RAISE_TICKET")
     public String myOpenTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("dataList", xticketService.fetchOpenTicket(principal.getName()).getData());
@@ -116,6 +120,7 @@ public class TicketController {
     }
 
     @GetMapping("/view")
+    @Secured("ROLE_RAISE_TICKET")
     public String viewTicket(@RequestParam("seid") String seid, Model model, Principal principal) {
         XTicketPayload response = xticketService.fetchTicketUsingId(seid);
         XTicketPayload ticketPayload = new XTicketPayload();
@@ -130,6 +135,7 @@ public class TicketController {
     }
 
     @GetMapping("/close")
+    @Secured("ROLE_RAISE_TICKET")
     public String closeTicket(@RequestParam("seid") String seid, @RequestParam("tr") String ticketReopened, @RequestParam("troid") String ticketReopenedId, Model model, Principal principal) {
         XTicketPayload response = xticketService.closeTicket(seid, ticketReopened, ticketReopenedId, principal.getName());
         alertMessage = response.getResponseMessage();

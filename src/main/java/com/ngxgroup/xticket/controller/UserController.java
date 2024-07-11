@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Locale;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,6 +37,7 @@ public class UserController {
     private String alertMessageType = "";
 
     @GetMapping("/")
+    @Secured("ROLE_MANAGE_USER")
     public String appUser(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("userPayload", new XTicketPayload());
         model.addAttribute("userList", xticketService.fetchAppUsers());
@@ -55,6 +57,7 @@ public class UserController {
     }
 
     @GetMapping("/list")
+    @Secured("ROLE_LIST_USER")
     public String appUserList(Model model, Principal principal) {
         List<AppUser> response = xticketService.fetchAppUsers();
         model.addAttribute("dataList", xticketService.fetchAppUsers());
@@ -65,6 +68,7 @@ public class UserController {
     }
 
     @GetMapping("/roles")
+    @Secured("ROLE_ADD_ROLES")
     public String userRoles(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("rolePayload", new XTicketPayload());
         model.addAttribute("roleList", xticketService.fetchRoleGroup());
@@ -92,6 +96,7 @@ public class UserController {
     }
 
     @GetMapping("/roles/edit")
+    @Secured("ROLE_UPDATE_ROLES")
     public String editRoleGroup(@RequestParam("seid") String seid, Model model, Principal principal, HttpServletRequest httpRequest) {
         XTicketPayload response = xticketService.fetchRoleGroup(seid);
         if (!response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
@@ -108,6 +113,7 @@ public class UserController {
     }
 
     @GetMapping("/roles/delete")
+    @Secured("ROLE_DELETE_ROLES")
     public String deleteRole(@RequestParam("seid") String seid, Model model, Principal principal, HttpServletRequest httpRequest) {
         XTicketPayload response = xticketService.deleteRoleGroup(seid, principal.getName());
         alertMessage = response.getResponseMessage();

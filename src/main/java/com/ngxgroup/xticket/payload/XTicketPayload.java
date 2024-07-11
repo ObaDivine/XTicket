@@ -81,6 +81,8 @@ public class XTicketPayload {
     String escalationEmails;
     boolean escalated;
     boolean ticketOpen;
+    boolean locked;
+    boolean activated;
     int slaMins;
     String slaExpiry;
     String recipientEmail;
@@ -110,4 +112,6 @@ public class XTicketPayload {
     String timeElapsed;
     String documentLink;
     String originalFileName;
+    String passwordChangeDate;
+    String resetTime;
 }

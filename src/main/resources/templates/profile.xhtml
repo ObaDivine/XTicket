@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head>
+        <title>X-Ticket - Profile</title>
+        <th:block th:insert="~{fragments/xTicketFragments :: headerfiles}"></th:block>
+    </head>
+    <body onload="preloaderFunction()" style="margin: 0;">
+        <div id="loader"></div>
+        <main class="main animate-bottom" id="top" style="display:none;" >
+            <div class="container-fluid px-0">
+                <th:block th:insert="~{fragments/xTicketFragments :: topMenu}"></th:block>
+                <div class="content">
+                    <div class="row gy-3 mb-3 justify-content-between">
+                        <div class="col-md-4 col-auto">
+                            <h5 class="text-1100 text-primary">Profile</h5>
+                        </div>
+                        <div class="col-md-5 col-auto">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item"><a href="#" th:href="@{/}">Home</a></li>
+                                    <li th:if="!${session.isAgent}" class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
+                                    <li th:if="${session.isAgent}"class="breadcrumb-item"><a href="#" th:href="@{/agent/dashboard}">Dashboard</a></li>
+                                    <li class="breadcrumb-item active">User Profile</li>
+                                </ol>
+                            </nav>
+                        </div>
+                        <div class="col-md-3 col-auto">
+                            <h5 class="text-1100 text-primary" th:text="'Welcome ' + ${session.fullName}">Welcome Brian</h5>
+                        </div>
+                        <hr/>
+                    </div>
+
+                    <div class="row g-3 mb-6">
+                        <div class="offset-lg-3 col-lg-6 col-sm-12 col-md-12">
+                            <div class="row">
+                                <div class="col-lg-6 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-1000 fw-semi-bold mb-0">Last Name: </span>
+                                    <span class="fs--1 text-1000 fw-bold mb-0 text-primary" th:text="${session.lastName}"></span>
+                                </div>
+                                <div class="col-lg-6 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Other Names: </span>
+                                    <span class="fs--1 text-800 fw-bold mb-0 text-primary" th:text="${session.otherNames}"></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Email: </span>
+                                    <span class="fs--1 text-800 fw-bold mb-0 text-primary" th:text="${session.email}"></span>
+                                </div>
+                                <div class="col-lg-6 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Mobile Number: </span>
+                                    <span class="fs--1 text-800 fw-bold mb-0 text-primary" th:text="${session.mobileNumber}"></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Gender: </span>
+                                    <span class="fs--1 text-800 fw-bold mb-0 text-primary" th:text="${session.gender}"></span>
+                                </div>
+                                <div class="col-lg-6 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Locked: </span>
+                                    <span class="fs--1 text-800 fw-bold mb-0 text-primary" th:text="${session.isLocked}"></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Activated: </span>
+                                    <span class="fs--1 text-800 fw-bold mb-0 text-primary" th:text="${session.isActivated}"></span>
+                                </div>
+                                <div class="col-lg-6 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Agent: </span>
+                                    <span class="fs--1 text-800 fw-bold mb-0 text-primary" th:text="${session.isAgent}"></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Created At: </span>
+                                    <span class="fs--1 text-800 fw-bold mb-0 text-primary" th:text="${session.createdAt}"></span>
+                                </div>
+                                <div class="col-lg-6 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Create By: </span>
+                                    <span class="fs--1 text-800 fw-bold mb-0 text-primary" th:text="${session.createdBy}"></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Password Expire: </span>
+                                    <span class="fs--1 text-800 fw-bold mb-0 text-primary" th:text="${session.passwordChangeDate}"></span>
+                                </div>
+                                <div class="col-lg-6 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Lockout Reset Time: </span>
+                                    <span class="fs--1 text-800 fw-bold mb-0 text-primary" th:text="${session.resetTime}"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <th:block th:insert="~{fragments/xTicketFragments :: footer}"></th:block>
+                </div>
+            </div>
+            <th:block th:insert="~{fragments/xTicketFragments :: scriptfiles}"></th:block>   
+        </main>
+    </body>
+</html>

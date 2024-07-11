@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpSession;
 import java.security.Principal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,6 +34,7 @@ public class SetupController {
     private String alertMessageType = "";
 
     @GetMapping("/ticket/group")
+    @Secured("ROLE_ADD_TICKET_GROUP")
     public String ticketGroup(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("recordCount", xticketService.fetchTicketGroup().getData().size());
@@ -59,6 +61,7 @@ public class SetupController {
     }
 
     @GetMapping("/ticket/group/edit")
+    @Secured("ROLE_UPDATE_TICKET_GROUP")
     public String ticketGroup(@RequestParam("seid") String id, Model model, Principal principal) {
         XTicketPayload response = xticketService.fetchTicketGroup(id);
         if (!response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
@@ -75,6 +78,7 @@ public class SetupController {
     }
 
     @GetMapping("/ticket/group/list")
+    @Secured("ROLE_LIST_TICKET_GROUP")
     public String ticketGroupList(Model model, Principal principal) {
         XTicketPayload response = xticketService.fetchTicketGroup();
         model.addAttribute("dataList", response.getData());
@@ -87,6 +91,7 @@ public class SetupController {
     }
 
     @GetMapping("/ticket/group/delete")
+    @Secured("ROLE_DELETE_TICKET_GROUP")
     public String deleteTicketGroup(@RequestParam("seid") String seid, Model model, Principal principal) {
         XTicketPayload response = xticketService.deleteTicketGroup(seid, principal.getName());
         alertMessage = response.getResponseMessage();
@@ -95,6 +100,7 @@ public class SetupController {
     }
 
     @GetMapping("/ticket/type")
+    @Secured("ROLE_ADD_TICKET_TYPE")
     public String ticketType(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("serviceUnit", xticketService.fetchServiceUnit().getData());
@@ -126,6 +132,7 @@ public class SetupController {
     }
 
     @GetMapping("/ticket/type/edit")
+    @Secured("ROLE_UPDATE_TICKET_TYPE")
     public String ticketType(@RequestParam("seid") String id, Model model, Principal principal) {
         XTicketPayload response = xticketService.fetchTicketType(id);
         if (!response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
@@ -145,6 +152,7 @@ public class SetupController {
     }
 
     @GetMapping("/ticket/type/list")
+    @Secured("ROLE_LIST_TICKET_TYPE")
     public String ticketTypeList(Model model, Principal principal) {
         XTicketPayload response = xticketService.fetchTicketType();
         model.addAttribute("dataList", response.getData());
@@ -158,6 +166,7 @@ public class SetupController {
     }
 
     @GetMapping("/ticket/type/delete")
+    @Secured("ROLE_DELETE_TICKET_TYPE")
     public String deleteTicketType(@RequestParam("seid") String seid, Model model, Principal principal) {
         XTicketPayload response = xticketService.deleteTicketType(seid, principal.getName());
         alertMessage = response.getResponseMessage();
@@ -166,6 +175,7 @@ public class SetupController {
     }
 
     @GetMapping("/ticket/agent")
+    @Secured("ROLE_ADD_TICKET_AGENT")
     public String ticketAgent(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("userList", xticketService.fetchInternalAppUsers());
@@ -205,6 +215,7 @@ public class SetupController {
     }
 
     @GetMapping("/ticket/agent/list")
+    @Secured("ROLE_LIST_TICKET_AGENT")
     public String ticketAgentList(Model model, Principal principal) {
         XTicketPayload response = xticketService.fetchTicketAgent();
         model.addAttribute("dataList", response.getData());
@@ -215,6 +226,7 @@ public class SetupController {
     }
 
     @GetMapping("/ticket/sla")
+    @Secured("ROLE_ADD_TICKET_SLA")
     public String ticketSla(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("recordCount", xticketService.fetchTicketSla().getData().size());
@@ -241,6 +253,7 @@ public class SetupController {
     }
 
     @GetMapping("/ticket/sla/edit")
+    @Secured("ROLE_UPDATE_TICKET_SLA")
     public String ticketSla(@RequestParam("seid") String id, Model model, Principal principal) {
         XTicketPayload response = xticketService.fetchTicketSla(id);
         if (!response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
@@ -257,6 +270,7 @@ public class SetupController {
     }
 
     @GetMapping("/ticket/sla/list")
+    @Secured("ROLE_LIST_TICKET_SLA")
     public String ticketSlaList(Model model, Principal principal) {
         XTicketPayload response = xticketService.fetchTicketSla();
         model.addAttribute("dataList", response.getData());
@@ -267,6 +281,7 @@ public class SetupController {
     }
 
     @GetMapping("/ticket/sla/delete")
+    @Secured("ROLE_DELETE_TICKET_SLA")
     public String deleteTicketSla(@RequestParam("seid") String seid, Model model, Principal principal) {
         XTicketPayload response = xticketService.deleteTicketSla(seid, principal.getName());
         alertMessage = response.getResponseMessage();
@@ -275,6 +290,7 @@ public class SetupController {
     }
 
     @GetMapping("/service-unit")
+    @Secured("ROLE_ADD_SERVICE_UNIT")
     public String serviceUnit(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("recordCount", xticketService.fetchServiceUnit().getData().size());
@@ -302,6 +318,7 @@ public class SetupController {
     }
 
     @GetMapping("/service-unit/edit")
+    @Secured("ROLE_UPDATE_SERVICE_UNIT")
     public String serviceUnit(@RequestParam("seid") String id, Model model, Principal principal) {
         XTicketPayload response = xticketService.fetchServiceUnit(id);
         if (!response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
@@ -319,6 +336,7 @@ public class SetupController {
     }
 
     @GetMapping("/service-unit/list")
+    @Secured("ROLE_LIST_SERVICE_UNIT")
     public String serviceUnit(Model model, Principal principal) {
         XTicketPayload response = xticketService.fetchServiceUnit();
         model.addAttribute("dataList", response.getData());
@@ -329,6 +347,7 @@ public class SetupController {
     }
 
     @GetMapping("/service-unit/delete")
+    @Secured("ROLE_DELETE_SERVICE_UNIT")
     public String deleteServiceUnit(@RequestParam("seid") String seid, Model model, Principal principal) {
         XTicketPayload response = xticketService.deleteServiceUnit(seid, principal.getName());
         alertMessage = response.getResponseMessage();
@@ -337,6 +356,7 @@ public class SetupController {
     }
 
     @GetMapping("/ticket/status")
+    @Secured("ROLE_ADD_TICKET_STATUS")
     public String ticketStatus(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("recordCount", xticketService.fetchTicketStatus().getData().size());
@@ -362,6 +382,7 @@ public class SetupController {
     }
 
     @GetMapping("/ticket/status/edit")
+    @Secured("ROLE_UPDATE_TICKET_STATUS")
     public String ticketStatus(@RequestParam("seid") String id, Model model, Principal principal) {
         XTicketPayload response = xticketService.fetchServiceUnit(id);
         if (!response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
@@ -378,6 +399,7 @@ public class SetupController {
     }
 
     @GetMapping("/ticket/status/list")
+    @Secured("ROLE_LIST_TICKET_STATUS")
     public String ticketStatus(Model model, Principal principal) {
         XTicketPayload response = xticketService.fetchTicketStatus();
         model.addAttribute("dataList", response.getData());
@@ -388,6 +410,7 @@ public class SetupController {
     }
 
     @GetMapping("/ticket/status/delete")
+    @Secured("ROLE_DELETE_TICKET_STATUS")
     public String deleteTicketStatus(@RequestParam("seid") String seid, Model model, Principal principal) {
         XTicketPayload response = xticketService.deleteTicketStatus(seid, principal.getName());
         alertMessage = response.getResponseMessage();
@@ -396,6 +419,7 @@ public class SetupController {
     }
 
     @GetMapping("/entity")
+    @Secured("ROLE_ADD_ENTITY")
     public String entity(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("recordCount", xticketService.fetchEntity().getData().size());
@@ -421,6 +445,7 @@ public class SetupController {
     }
 
     @GetMapping("/entity/edit")
+    @Secured("ROLE_UPDATE_ENTITY")
     public String entity(@RequestParam("seid") String id, Model model, Principal principal) {
         XTicketPayload response = xticketService.fetchEntity(id);
         if (!response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
@@ -437,6 +462,7 @@ public class SetupController {
     }
 
     @GetMapping("/entity/list")
+    @Secured("ROLE_LIST_ENTITY")
     public String entity(Model model, Principal principal) {
         XTicketPayload response = xticketService.fetchEntity();
         model.addAttribute("dataList", response.getData());
@@ -447,6 +473,7 @@ public class SetupController {
     }
 
     @GetMapping("/entity/delete")
+    @Secured("ROLE_DELETE_ENTITY")
     public String deleteEntity(@RequestParam("seid") String seid, Model model, Principal principal) {
         XTicketPayload response = xticketService.deleteEntity(seid, principal.getName());
         alertMessage = response.getResponseMessage();
