@@ -111,7 +111,7 @@
                     <a class="navbar-brand me-1 me-sm-3" th:href="@{/}">
                         <div class="d-flex align-items-center">
                             <div class="d-flex align-items-center"><img th:src="@{/images/logo_nobg.png}" alt="NGX" width="96" height="32" />
-                                <p class="logo-text ms-2 d-none d-sm-block text-primary">Ticketing System</p>
+                                <p class="logo-text ms-2 d-none d-sm-block text-primary">X-Ticket</p>
                             </div>
                         </div>
                     </a>
@@ -269,44 +269,44 @@
                                         </div>
                                     </a>
                                 </li>
-                                <li sec:authorize="hasRole('ADD_ENTITY')">
-                                    <a class="dropdown-item" href="" th:href="@{/setup/entity}">
+                                <li sec:authorize="hasRole('LIST_ENTITY')">
+                                    <a class="dropdown-item" href="" th:href="@{/setup/entity/list}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Entity
                                         </div>
                                     </a>
                                 </li>
-                                <li sec:authorize="hasRole('ADD_SERVICE_UNIT')">
-                                    <a class="dropdown-item" href="" th:href="@{/setup/service-unit}">
+                                <li sec:authorize="hasRole('LIST_SERVICE_UNIT')">
+                                    <a class="dropdown-item" href="" th:href="@{/setup/service-unit/list}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Service Unit
                                         </div>
                                     </a>
                                 </li>
-                                <li sec:authorize="hasRole('ADD_TICKET_GROUP')">
-                                    <a class="dropdown-item" href="" th:href="@{/setup/ticket/group}">
+                                <li sec:authorize="hasRole('LIST_TICKET_GROUP')">
+                                    <a class="dropdown-item" href="" th:href="@{/setup/ticket/group/list}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Ticket Group
                                         </div>
                                     </a>
                                 </li>
-                                <li sec:authorize="hasRole('ADD_TICKET_TYPE')">
-                                    <a class="dropdown-item" href="" th:href="@{/setup/ticket/type}">
+                                <li sec:authorize="hasRole('LIST_TICKET_TYPE')">
+                                    <a class="dropdown-item" href="" th:href="@{/setup/ticket/type/list}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Ticket Type
                                         </div>
                                     </a>
                                 </li>
-                                <li sec:authorize="hasRole('ADD_TICKET_SLA')">
-                                    <a class="dropdown-item" href="" th:href="@{/setup/ticket/sla}">
+                                <li sec:authorize="hasRole('LIST_TICKET_SLA')">
+                                    <a class="dropdown-item" href="" th:href="@{/setup/ticket/sla/list}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Ticket SLA
                                         </div>
                                     </a>
                                 </li>
-                                <li sec:authorize="hasRole('ADD_TICKET_AGENT')">
-                                    <a class="dropdown-item" href="" th:href="@{/setup/ticket/agent}">
+                                <li sec:authorize="hasRole('LIST_TICKET_AGENT')">
+                                    <a class="dropdown-item" href="" th:href="@{/setup/ticket/agent/list}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Ticket Agent
                                         </div>
                                     </a>
                                 </li>
-                                <li sec:authorize="hasRole('ADD_TICKET_STATUS')">
-                                    <a class="dropdown-item" href="" th:href="@{/setup/ticket/status}">
+                                <li sec:authorize="hasRole('LIST_TICKET_STATUS')">
+                                    <a class="dropdown-item" href="" th:href="@{/setup/ticket/status/list}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Ticket Status
                                         </div>
                                     </a>
@@ -334,7 +334,7 @@
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-bs-auto-close="outside">
-                            <span data-feather="bell" style="height:20px;width:20px;"></span>
+                            <span class="fas fa-bell text-primary" style="height:20px;width:20px;"></span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-end notification-dropdown-menu py-0 shadow border border-300 navbar-dropdown-caret" id="navbarDropdownNotfication" aria-labelledby="navbarDropdownNotfication">
                             <div class="card position-relative border-0">
@@ -377,7 +377,7 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link lh-1 pe-0" id="navbarDropdownUser" href="#!" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
                             <div class="avatar avatar-l ">
-                                <img class="rounded-circle " th:src="@{'/images/avatar.png'}" alt="" />
+                                <img class="rounded-circle " th:src="@{'/images/avatar.png'}" alt="" style="height:30px;width:30px;" />
                             </div>
                         </a>
                         <div class="dropdown-menu dropdown-menu-end navbar-dropdown-caret py-0 dropdown-profile shadow border border-300" aria-labelledby="navbarDropdownUser">
@@ -385,17 +385,39 @@
                                 <div class="card-body p-0">
                                     <div class="text-center pt-4 pb-3">
                                         <div class="avatar avatar-xl ">
-                                            <img class="rounded-circle" th:src="@{'/images/avatar.png'}" alt="" />
+                                            <img class="rounded-circle" th:src="@{'/images/avatar.png'}" alt="" style="height:20px;width:20px;" />
                                         </div>
                                         <h6 class="mt-2 text-black" th:text="${session.fullName}">name</h6>
                                     </div>
                                 </div>
                                 <div class="overflow-auto scrollbar" style="height: 10rem;">
                                     <ul class="nav d-flex flex-column mb-2 pb-1">
-                                        <li class="nav-item"><a class="nav-link px-3" href="#!" th:href="@{/profile}"> <span class="me-2 text-900 fa fa-user"></span><span>Profile</span></a></li>
-                                        <li class="nav-item"><a class="nav-link px-3" href="#!" th:href="@{/dashboard}"><span class="me-2 text-900 fa fa-tachometer"></span>Dashboard</a></li>
-                                        <li th:if="${!session.isInternal}" class="nav-item"><a class="nav-link px-3" href="#!" th:href="@{/change-password}"> <span class="me-2 text-900 fa fa-key"></span>Change Password</a></li>
-                                        <li class="nav-item"><a class="nav-link px-3" href="#!"> <span class="me-2 text-900 fa fa-question-circle"></span>Help Center</a></li>
+                                        <li class="nav-item">
+                                            <a class="nav-link px-3" href="#!" th:href="@{/profile}"> 
+                                                <span class="me-2 text-900 fa fa-user"></span>
+                                                <span>Profile</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a th:if="!${session.isAgent}" class="dropdown-item" href="" th:href="@{/dashboard}">
+                                                <div class="dropdown-item-wrapper"><span class="me-2 fas fa-tachometer" data-feather="dashboard-outlined"></span>Dashboard
+                                                </div>
+                                            </a>
+                                            <a  th:if="${session.isAgent}" class="dropdown-item" href="" th:href="@{/agent/dashboard}">
+                                                <div class="dropdown-item-wrapper"><span class="me-2 fas fa-tachometer" data-feather="dashboard-outlined"></span>Dashboard
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <li th:if="${!session.isInternal}" class="nav-item">
+                                            <a class="nav-link px-3" href="#!" th:href="@{/change-password}"> 
+                                                <span class="me-2 text-900 fa fa-key"></span>Change Password
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link px-3" th:href="@{/knowledge-base}"> 
+                                                <span class="me-2 text-900 fa fa-question-circle"></span>Knowledge Base
+                                            </a>
+                                        </li>
                                     </ul>
                                 </div>
                                 <div class="card-footer p-0 border-top">
@@ -405,17 +427,17 @@
                                         </a>
                                     </div>
                                     <div class="my-2 text-center fw-bold fs--2 text-600">
-                                        <a class="text-600 me-1" href="#!" th:href="@{/privacy}">Privacy policy</a>&bull;
-                                        <a class="text-600 mx-1" href="#!" th:href="@{/terms}">Terms</a>&bull;
-                                        <a class="text-600 ms-1" href="#!" th:href="@{/cookies}">Cookies</a></div>
+                                        <a class="text-600 me-1" href="https://ngxgroup.com/privacy-policy/">Privacy policy</a>&bull;
+                                        <a class="text-600 mx-1" href="https://ngxgroup.com/terms-and-conditions/">Terms</a>&bull;
+                                        <a class="text-600 ms-1" href="https://ngxgroup.com/disclaimer/">Disclaimer</a></div>
                                 </div>
                             </div>
                         </div>
                     </li>
                     <li class="nav-item">
                         <div class="theme-control-toggle fa-icon-wait px-2">
-                            <a class="btn btn-danger btn-sm d-flex flex-center w-100" href="#!" data-bs-target="#confirmLogout" data-bs-toggle="modal">
-                                <span class="me-2 fa fa-sign-out"></span>Sign out
+                            <a href="#!" data-bs-target="#confirmLogout" data-bs-toggle="modal">
+                                <span class="fas fa-sign-out" style="height:20px;width:20px;"></span>
                             </a>
                         </div>
                     </li>
@@ -430,12 +452,14 @@
                 if (navbarTopStyle === 'darker') {
                     navbarTop.classList.add('navbar-darker');
                 }
+                ;
 
                 var navbarVerticalStyle = window.config.config.phoenixNavbarVerticalStyle;
                 var navbarVertical = document.querySelector('.navbar-vertical');
                 if (navbarVertical && navbarVerticalStyle === 'darker') {
                     navbarVertical.classList.add('navbar-darker');
                 }
+                ;
             </script>
             <div class="modal fade" id="searchBoxModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="true" data-phoenix-modal="data-phoenix-modal" style="--phoenix-backdrop-opacity: 1;">
                 <div class="modal-dialog">
@@ -446,7 +470,7 @@
                                     <input id="ticketId" name="ticketId" class="form-control search-input fuzzy-search rounded-pill form-control-lg" type="text" placeholder="Enter Ticket ID....." aria-label="Search" />
                                     <span class="fas fa-search search-box-icon"></span>
                                 </form>
-                                <div class="btn-close position-absolute end-0 top-50 translate-middle cursor-pointer shadow-none" data-bs-dismiss="search">
+                                <div class="btn-close position-absolute end-0 top-50 translate-middle cursor-pointer shadow-none" data-bs-dismiss="modal">
                                     <button class="btn btn-link btn-close-falcon p-0" aria-label="Close"></button>
                                 </div>
                             </div>

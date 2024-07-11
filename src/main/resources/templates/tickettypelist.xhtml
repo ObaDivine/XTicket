@@ -34,9 +34,11 @@
                         <div class="col-lg-12 col-md-12 col-sm-12" id="listTable" data-list='{"valueNames":[],"page":10,"pagination":true}'>
                             <div class="table-responsive ms-n1 ps-1 scrollbar">
                                 <div class="offset-lg-8 col-lg-4 col-md-8 col-sm-12 mb-2">
-                                    <div class="search-box">
+                                     <div class="input-group mb-3">
                                         <input class="form-control search-input search" type="search" placeholder="Search record" aria-label="Search" />
-                                        <span class="fas fa-search search-box-icon"></span>
+                                        <div class="input-group-append">
+                                            <a class="btn btn-primary" th:href="@{/setup/ticket/type}">Add Ticket Type</a>
+                                        </div>
                                     </div>
                                 </div>
                                 <table class="table table-responsive table-sm table-striped fs--1 mb-0 border-200">

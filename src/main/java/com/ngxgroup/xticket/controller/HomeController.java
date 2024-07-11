@@ -26,6 +26,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.Locale;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -35,7 +36,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  *
- * @author Brian A. Okon okon.brian@gmail.com
+ * @author briano
  */
 @Controller
 public class HomeController {
@@ -91,8 +92,19 @@ public class HomeController {
             //set the session details
             XTicketPayload profileDetails = xticketService.fetchProfile(requestPayload.getEmail());
             httpSession.setAttribute("fullName", profileDetails.getLastName() + ", " + profileDetails.getOtherName());
+            httpSession.setAttribute("lastName", profileDetails.getLastName());
+            httpSession.setAttribute("otherNames", profileDetails.getOtherName());
+            httpSession.setAttribute("email", profileDetails.getEmail());
+            httpSession.setAttribute("mobileNumber", profileDetails.getMobileNumber());
+            httpSession.setAttribute("gender", profileDetails.getGender());
+            httpSession.setAttribute("passwordChangeDate", profileDetails.getPasswordChangeDate());
+            httpSession.setAttribute("createdAt", profileDetails.getCreatedAt());
+            httpSession.setAttribute("createdBy", profileDetails.getCreatedBy());
+                        httpSession.setAttribute("resetTime", profileDetails.getPasswordChangeDate());
             httpSession.setAttribute("isAgent", profileDetails.isAgent());
             httpSession.setAttribute("isInternal", profileDetails.isInternal());
+            httpSession.setAttribute("isLocked", profileDetails.isLocked());
+            httpSession.setAttribute("isActivated", profileDetails.isActivated());
             //Check if the user is an egent
             if (response.isAgent()) {
                 return "redirect:/agent/dashboard";
@@ -157,6 +169,7 @@ public class HomeController {
     }
 
     @GetMapping("/dashboard")
+    @Secured("ROLE_DASHBOARD")
     public String dashboard(HttpServletRequest httpRequest, HttpServletResponse httpResponse, HttpSession httpSession, Principal principal, Model model) {
         List<XTicketPayload> closedTickets = xticketService.fetchClosedTicket(principal.getName()).getData();
         List<XTicketPayload> openTickets = xticketService.fetchOpenTicket(principal.getName()).getData();
@@ -174,6 +187,7 @@ public class HomeController {
     }
 
     @GetMapping("/agent/dashboard")
+    @Secured("ROLE_DASHBOARD")
     public String agentDashboard(HttpServletRequest httpRequest, HttpServletResponse httpResponse, HttpSession httpSession, Principal principal, Model model) {
         List<XTicketPayload> closedTickets = xticketService.fetchClosedTicket(principal.getName()).getData();
         List<XTicketPayload> openTickets = xticketService.fetchOpenTicketForAgent(principal.getName()).getData();
@@ -236,23 +250,16 @@ public class HomeController {
         return "redirect:/";
     }
 
-    @GetMapping("/terms")
-    public String terms(HttpServletRequest request, HttpServletResponse response, Principal principal, Model model) {
+    @GetMapping("/profile")
+    public String profile(HttpServletRequest request, HttpServletResponse response, Principal principal, Model model) {
         model.addAttribute("profilePayload", new XTicketPayload());
         model.addAttribute("alertMessage", alertMessage);
         resetAlertMessage();
-        return "terms";
-    }
-
-    @GetMapping("/privacy")
-    public String privacy(HttpServletRequest request, HttpServletResponse response, Principal principal, Model model) {
-        model.addAttribute("profilePayload", new XTicketPayload());
-        model.addAttribute("alertMessage", alertMessage);
-        resetAlertMessage();
-        return "privacy";
+        return "profile";
     }
 
     @GetMapping("/knowledge-base")
+    @Secured("ROLE_KNOWLEDGE_BASE")
     public String knowledgebase(HttpServletRequest request, HttpServletResponse response, Principal principal, Model model) {
         XTicketPayload passwordChangePayload = new XTicketPayload();
         passwordChangePayload.setEmail(principal.getName());

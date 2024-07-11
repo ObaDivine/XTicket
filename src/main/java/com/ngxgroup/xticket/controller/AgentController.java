@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.security.Principal;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +31,7 @@ public class AgentController {
     private String alertMessageType = "";
 
     @GetMapping("/open")
+    @Secured("ROLE_TICKET_AGENT")
     public String openTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("dataList", xticketService.fetchOpenTicketForAgent(principal.getName()).getData());
@@ -42,6 +44,7 @@ public class AgentController {
     }
 
     @GetMapping("/view")
+    @Secured("ROLE_TICKET_AGENT")
     public String viewTicket(@RequestParam("seid") String seid, Model model, Principal principal) {
         XTicketPayload response = xticketService.fetchTicketUsingId(seid);
         XTicketPayload ticketPayload = new XTicketPayload();
@@ -97,6 +100,7 @@ public class AgentController {
     }
 
     @GetMapping("/close")
+    @Secured("ROLE_TICKET_AGENT")
     public String closeTicket(@RequestParam("seid") String seid, @RequestParam("tr") String ticketReopened, @RequestParam("troid") String ticketReopenedId, Model model, Principal principal) {
         XTicketPayload response = xticketService.closeTicket(seid, ticketReopened, ticketReopenedId, principal.getName());
         alertMessage = response.getResponseMessage();

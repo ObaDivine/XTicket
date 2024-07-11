@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.security.Principal;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +30,7 @@ public class ReportController {
     private String alertMessageType = "";
 
     @GetMapping("/ticket/open")
+    @Secured("ROLE_REPORT")
     public String openTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
@@ -52,6 +54,7 @@ public class ReportController {
     }
 
     @GetMapping("/ticket/closed")
+    @Secured("ROLE_REPORT")
     public String closedTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
@@ -76,6 +79,7 @@ public class ReportController {
     }
 
     @GetMapping("/ticket/reopened")
+    @Secured("ROLE_REPORT")
     public String reopened(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
@@ -99,6 +103,7 @@ public class ReportController {
     }
 
     @GetMapping("/ticket/reassigned")
+    @Secured("ROLE_REPORT")
     public String reassigned(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
@@ -122,6 +127,7 @@ public class ReportController {
     }
 
     @GetMapping("/ticket/by-agents")
+    @Secured("ROLE_REPORT")
     public String byAgents(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
@@ -146,6 +152,7 @@ public class ReportController {
     }
 
     @GetMapping("/ticket/sla")
+    @Secured("ROLE_REPORT")
     public String sla(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
@@ -169,6 +176,7 @@ public class ReportController {
     }
 
     @GetMapping("/ticket/sla/violated")
+    @Secured("ROLE_REPORT")
     public String violatedSla(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
@@ -192,6 +200,7 @@ public class ReportController {
     }
 
     @GetMapping("/ticket/agents")
+    @Secured("ROLE_REPORT")
     public String agents(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
@@ -215,6 +224,7 @@ public class ReportController {
     }
 
     @GetMapping("/app-user")
+    @Secured("ROLE_REPORT")
     public String appUsers(Model model, HttpServletRequest httRequest, HttpServletResponse httResponse, Principal principal) {
         XTicketPayload response = xticketService.fetchAllAppUsers();
         model.addAttribute("ticketPayload", new XTicketPayload());
@@ -228,6 +238,7 @@ public class ReportController {
     }
 
     @GetMapping("/ticket/service-unit")
+    @Secured("ROLE_REPORT")
     public String serviceUnit(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup());
@@ -252,6 +263,7 @@ public class ReportController {
     }
 
     @GetMapping("/ticket/service-unit-entity")
+    @Secured("ROLE_REPORT")
     public String serviceUnitToEntity(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
@@ -277,6 +289,7 @@ public class ReportController {
     }
 
     @GetMapping("/ticket/entity")
+    @Secured("ROLE_REPORT")
     public String entityToEntity(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("entityList", xticketService.fetchEntity().getData());
