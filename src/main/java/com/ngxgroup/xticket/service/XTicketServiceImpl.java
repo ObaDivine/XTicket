@@ -2776,6 +2776,7 @@ public class XTicketServiceImpl implements XTicketService {
         String[] jobStats = new String[20];
         if (ticketAgents != null) {
             int i = 0;
+            int availableAgents = 0;
             for (TicketAgent t : ticketAgents) {
                 //Check if the agent is active
                 if (!t.getAgent().isLocked() && t.getAgent().isAgent()) {
@@ -2784,11 +2785,17 @@ public class XTicketServiceImpl implements XTicketService {
                     List<Tickets> ticketsByAgent = xticketRepository.getOpenAgentTickets(t.getAgent(), openStatus);
                     jobStats[i] = String.valueOf(ticketsByAgent == null ? 0 : ticketsByAgent.size()) + "*" + String.valueOf(t.getId());
                     i++;
+                    availableAgents++;
                 }
             }
             
             //Check if agent is assigned. Returns 0 when no agent is assigned or locked.
             if(jobStats == null  || jobStats.length == 0){
+                return null;
+            }
+
+            //Check if agent is assigned. Returns 0 when no agent is identified or locked.
+            if (availableAgents == 0) {
                 return null;
             }
 
