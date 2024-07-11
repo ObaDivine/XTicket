@@ -199,7 +199,7 @@ public class GenericServiceImpl implements GenericService {
             int targetStringLength = 25;
             Random random = new SecureRandom();
 
-            String generatedString = random.ints(leftLimit, rightLimit + 1)
+            var generatedString = random.ints(leftLimit, rightLimit + 1)
                     .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
                     .limit(targetStringLength)
                     .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
