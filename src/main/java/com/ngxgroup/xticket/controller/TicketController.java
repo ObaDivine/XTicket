@@ -134,10 +134,9 @@ public class TicketController {
         return "ticketdetails";
     }
 
-    @GetMapping("/close")
-    @Secured("ROLE_RAISE_TICKET")
-    public String closeTicket(@RequestParam("seid") String seid, @RequestParam("tr") String ticketReopened, @RequestParam("troid") String ticketReopenedId, Model model, Principal principal) {
-        XTicketPayload response = xticketService.closeTicket(seid, ticketReopened, ticketReopenedId, principal.getName());
+    @PostMapping("/close")
+    public String closeTicket(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
+        XTicketPayload response = xticketService.closeTicket(requestPayload, principal.getName());
         alertMessage = response.getResponseMessage();
         alertMessageType = response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error";
         return "redirect:/ticket/open";

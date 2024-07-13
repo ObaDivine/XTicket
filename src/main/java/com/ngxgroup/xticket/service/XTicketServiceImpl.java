@@ -2468,7 +2468,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
-    public XTicketPayload closeTicket(String id, String ticketReopened, String ticketReopenedId, String principal) {
+    public XTicketPayload closeTicket(XTicketPayload requestPayload, String principal) {
         var response = new XTicketPayload();
         try {
             //Check if the user is valid. This is the person creating the record
@@ -2480,22 +2480,24 @@ public class XTicketServiceImpl implements XTicketService {
                 return response;
             }
 
-            Tickets ticket = xticketRepository.getTicketUsingId(Long.parseLong(id));
+            Tickets ticket = xticketRepository.getTicketUsingId(requestPayload.getId());
             if (ticket == null) {
                 response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
-                response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{id}, Locale.ENGLISH));
+                response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{requestPayload.getId()}, Locale.ENGLISH));
                 response.setData(null);
                 return response;
             }
 
             //This is a close request for initial ticket
-            if (ticketReopened.equalsIgnoreCase("f")) {
+            if (requestPayload.getAction().equalsIgnoreCase("f")) {
                 //Fetch the closed ticket status
                 TicketStatus closedStatus = xticketRepository.getTicketStatusUsingCode("CLOSED");
                 //Update ticket
                 ticket.setTicketStatus(closedStatus);
                 ticket.setClosedAt(LocalDateTime.now());
                 ticket.setClosedBy(appUser);
+                ticket.setRating(requestPayload.getRating());
+                ticket.setRatingComment(requestPayload.getComment());
                 xticketRepository.updateTicket(ticket);
 
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
@@ -2505,10 +2507,10 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             //This is a request to close a reopened ticket
-            TicketReopened ticketReopen = xticketRepository.getTicketReopenedUsingId(Long.parseLong(ticketReopenedId));
+            TicketReopened ticketReopen = xticketRepository.getTicketReopenedUsingId(requestPayload.getReopenedId());
             if (ticketReopen == null) {
                 response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
-                response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{ticketReopenedId}, Locale.ENGLISH));
+                response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{requestPayload.getReopenedId()}, Locale.ENGLISH));
                 response.setData(null);
                 return response;
             }
@@ -2522,6 +2524,8 @@ public class XTicketServiceImpl implements XTicketService {
             //Update the reopened ticket record
             ticketReopen.setClosedAt(LocalDateTime.now());
             ticketReopen.setClosedBy(appUser);
+            ticketReopen.setRating(requestPayload.getRating());
+            ticketReopen.setRatingComment(requestPayload.getComment());
             xticketRepository.updateTicketReopen(ticketReopen);
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
@@ -2966,6 +2970,8 @@ public class XTicketServiceImpl implements XTicketService {
             response.setTicketReopened(ticket.isTicketReopen());
             response.setTicketReassigned(ticket.isTicketReassign());
             response.setFileIndex(ticket.getFileIndex());
+            response.setRating(ticket.getRating());
+            response.setComment(ticket.getRatingComment());
 
             //Fetch all the reopen record
             List<TicketReopened> reopenedTickets = xticketRepository.getTicketReopenedUsingTicket(ticket);
@@ -2980,6 +2986,8 @@ public class XTicketServiceImpl implements XTicketService {
                     reopen.setSlaExpiry(rec.getSlaExpiry() == null ? null : dtf.format(rec.getSlaExpiry()));
                     reopen.setPriority(rec.getPriority());
                     reopen.setTicketAgent(rec.getTicketAgent().getAgent().getLastName() + ", " + rec.getTicketAgent().getAgent().getOtherName());
+                    reopen.setRating(rec.getRating());
+                    reopen.setComment(rec.getRatingComment());
                     reopenedTicketsRecord.add(reopen);
                 }
                 response.setReopenedTickets(reopenedTicketsRecord);
@@ -3867,11 +3875,16 @@ public class XTicketServiceImpl implements XTicketService {
                     newTicket.setTicketTypeName(t.getTicketType().getTicketTypeName());
                     newTicket.setSlaExpiry(dtf.format(t.getSlaExpiry()));
                     newTicket.setSlaViolated(t.isSlaViolated());
+                    newTicket.setRating(t.getRating());
                     newTicket.setInitialSla(t.getSla().replace("D", " Day(s)").replace("M", " Minute(s)").replace("H", " Hour(s)"));
 
                     //Fetch the count of the tickets reassigned
                     List<TicketReassign> ticketCount = xticketRepository.getTicketReassignedUsingTicket(t);
                     newTicket.setTicketReassignedCount(ticketCount == null ? 0 : ticketCount.size());
+
+                    //Fetch the number of escalations
+                    List<TicketEscalations> ticketEscalations = xticketRepository.getTicketEscalationUsingTicket(t);
+                    newTicket.setTicketEscalationCount(ticketEscalations == null ? 0 : ticketEscalations.size());
                     data.add(newTicket);
                 }
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
@@ -3881,7 +3894,7 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
-            response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{"Ticket With Violated SLA"}, Locale.ENGLISH));
+            response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{" selected"}, Locale.ENGLISH));
             response.setData(null);
             return response;
         } catch (Exception ex) {
@@ -4093,9 +4106,9 @@ public class XTicketServiceImpl implements XTicketService {
         try {
             //Check if the service unit exist using code
             ServiceUnit serviceUnit = xticketRepository.getServiceUnitUsingCode(requestPayload.getServiceUnitCode());
-            if (serviceUnit != null) {
-                response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
-                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Service Unit", "Code", requestPayload.getServiceUnitCode()}, Locale.ENGLISH));
+            if (serviceUnit == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Service Unit", "Code", requestPayload.getServiceUnitCode()}, Locale.ENGLISH));
                 response.setData(null);
                 return response;
             }
@@ -4154,12 +4167,21 @@ public class XTicketServiceImpl implements XTicketService {
                     newTicket.setPriority(t.getPriority());
                     newTicket.setSlaExpiry(dtf.format(t.getSlaExpiry()));
                     newTicket.setInternal(t.isInternal());
-                    newTicket.setInitialSla(t.getSla());
-                    newTicket.setTicketAgent(t.getTicketAgentViolated().getAgent().getLastName() + ", " + t.getTicketAgentViolated().getAgent().getOtherName());
+                    newTicket.setInitialSla(t.getSla().replace("D", " Day(s)").replace("M", " Minute(s)").replace("H", " Hour(s)"));
+                    newTicket.setTicketAgent(t.getTicketAgent().getAgent().getLastName() + ", " + t.getTicketAgent().getAgent().getOtherName());
+                    newTicket.setRating(t.getRating());
+
+                    //Fetch the count of the tickets reassigned
+                    List<TicketReassign> ticketCount = xticketRepository.getTicketReassignedUsingTicket(t);
+                    newTicket.setTicketReassignedCount(ticketCount == null ? 0 : ticketCount.size());
+
+                    //Fetch the number of escalations
+                    List<TicketEscalations> ticketEscalations = xticketRepository.getTicketEscalationUsingTicket(t);
+                    newTicket.setTicketEscalationCount(ticketEscalations == null ? 0 : ticketEscalations.size());
                     data.add(newTicket);
                 }
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
-                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{data.size()}, Locale.ENGLISH));
                 response.setData(data);
                 return response;
             }
@@ -4237,9 +4259,96 @@ public class XTicketServiceImpl implements XTicketService {
                     newTicket.setSlaExpiry(dtf.format(t.getSlaExpiry()));
                     newTicket.setSlaViolated(t.isSlaViolated());
                     newTicket.setInitialSla(t.getSla().replace("D", " Day(s)").replace("M", " Minute(s)").replace("H", " Hour(s)"));
-                    newTicket.setTicketReassigned(t.isTicketReassign());
+                    newTicket.setRating(t.getRating());
+
+                    //Fetch the count of the tickets reassigned
+                    List<TicketReassign> ticketCount = xticketRepository.getTicketReassignedUsingTicket(t);
+                    newTicket.setTicketReassignedCount(ticketCount == null ? 0 : ticketCount.size());
+
+                    //Fetch the number of escalations
+                    List<TicketEscalations> ticketEscalations = xticketRepository.getTicketEscalationUsingTicket(t);
+                    newTicket.setTicketEscalationCount(ticketEscalations == null ? 0 : ticketEscalations.size());
                     data.add(newTicket);
                 }
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{tickets.size()}, Locale.ENGLISH));
+                response.setData(data);
+                return response;
+            }
+
+            response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{"Service Unit"}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload fetchTicketByServiceRating(XTicketPayload requestPayload) {
+        var response = new XTicketPayload();
+        try {
+            //Fetch the open ticket status
+            TicketStatus ticketStatus = xticketRepository.getTicketStatusUsingCode("CLOSED");
+            if (ticketStatus == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{"CLOSED"}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            List<XTicketPayload> data = new ArrayList<>();
+            //Check if the service unit is selected
+            if (requestPayload.getServiceUnitCode().equalsIgnoreCase("")) {
+                //Fetch all the service units
+                List<ServiceUnit> serviceUnits = xticketRepository.getServiceUnit();
+                if (serviceUnits != null) {
+                    for (ServiceUnit s : serviceUnits) {
+                        List<Tickets> tickets = xticketRepository.getTicketsByServiceUnit(LocalDate.parse(requestPayload.getStartDate()), LocalDate.parse(requestPayload.getEndDate()), s, ticketStatus);
+                        if (tickets != null) {
+                            XTicketPayload newTicket = new XTicketPayload();
+                            newTicket.setServiceUnitName(s.getServiceUnitName());
+                            newTicket.setTicketCount(tickets.size());
+                            newTicket.setRating(tickets.stream().mapToInt(t -> t.getRating()).sum());
+                            newTicket.setRatingAverage(tickets.stream().mapToInt(t -> t.getRating()).sum() / tickets.size());
+                            data.add(newTicket);
+                        }
+                    }
+
+                    response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{data.size()}, Locale.ENGLISH));
+                    response.setData(data);
+                    return response;
+                }
+
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{"Service Unit"}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if the service unit exist using code
+            ServiceUnit serviceUnit = xticketRepository.getServiceUnitUsingCode(requestPayload.getServiceUnitCode());
+            if (serviceUnit == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Service Unit", "Code", requestPayload.getServiceUnitCode()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            List<Tickets> tickets = xticketRepository.getTicketsByServiceUnit(LocalDate.parse(requestPayload.getStartDate()), LocalDate.parse(requestPayload.getEndDate()), serviceUnit, ticketStatus);
+            if (tickets != null) {
+                XTicketPayload newTicket = new XTicketPayload();
+                newTicket.setServiceUnitName(serviceUnit.getServiceUnitName());
+                newTicket.setTicketCount(tickets.size());
+                newTicket.setRating(tickets.stream().mapToInt(t -> t.getRating()).sum());
+                newTicket.setRatingAverage(tickets.stream().mapToInt(t -> t.getRating()).sum() / tickets.size());
+                data.add(newTicket);
+                
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
                 response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{tickets.size()}, Locale.ENGLISH));
                 response.setData(data);

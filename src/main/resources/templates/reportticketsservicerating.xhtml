@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
-        <title>X-Ticket - Reopened Tickets</title>
+        <title>X-Ticket - Service Rating</title>
         <th:block th:insert="~{fragments/xTicketFragments :: headerfiles}"></th:block>
     </head>
     <body onload="preloaderFunction()" style="margin: 0;">
@@ -13,14 +13,14 @@
                 <div class="content">
                     <div class="row gy-3 mb-3 justify-content-between">
                         <div class="col-md-4 col-auto">
-                            <h5 class="text-1100 text-primary">Reopened Ticket Listing</h5>
+                            <h5 class="text-1100 text-primary">Service Rating</h5>
                         </div>
                         <div class="col-md-5 col-auto">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb mb-0">
                                     <li class="breadcrumb-item"><a href="#" th:href="@{/}">Home</a></li>
                                     <li class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
-                                    <li class="breadcrumb-item active">Reopened Ticket Listing</li>
+                                    <li class="breadcrumb-item active">Service Rating</li>
                                 </ol>
                             </nav>
                         </div>
@@ -31,7 +31,7 @@
                     </div>
                     <div class="row g-3 mb-6">
                         <div class="offset-lg-3 col-lg-6 col-sm-12 col-md-12">
-                            <form th:object="${ticketPayload}" th:action="@{/report/ticket/reopened/process}" method="POST">
+                            <form th:object="${ticketPayload}" th:action="@{/report/ticket/service-rating/process}" method="POST">
                                 <div class="input-group input-group-sm">
                                     <span class="input-group-text" id="startDate">Start Date</span>
                                     <input class="form-control" type="date" aria-label="StartDate" aria-describedby="startDate" th:field="*{startDate}" required="required" />
@@ -39,11 +39,10 @@
                                     <input class="form-control" type="date" aria-label="endDate" aria-describedby="endDate" th:field="*{endDate}" required="required"/>
                                 </div>
                                 <div class="form-icon-container">
-                                    <select class="form-select form-control-sm form-icon-input" aria-label="serviceUnit" th:field="*{serviceUnitCode}">
-                                        <option value="">---Select service unit---</option>
+                                    <select class="form-select form-control-sm form-icon-input" aria-label="serviceUnitCode" th:field="*{serviceUnitCode}">
+                                        <option value="">---Select Service Unit---</option>
                                         <option th:each="fa : ${serviceUnitList}" th:value="${fa.serviceUnitCode}" th:text="${fa.serviceUnitName}"></option>
                                     </select>
-                                    <span class="text-primary asterisk">*</span>
                                     <span class="fas fa-stream text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <button class="btn btn-primary btn-sm w-40 mb-3 mt-2" type="submit">Submit</button>
@@ -59,41 +58,25 @@
                                         <div class="input-group-append">
                                             <button id="csv" class="btn btn-sm btn-secondary">Export to CSV</button> 
                                             <button id="pdf" class="btn btn-sm btn-secondary">Export to PDF</button>
-                                            <button id="json" class="btn btn-sm btn-secondary">Export to JSON</button>
+                                            <button id="json" class="btn btn-sm btn-secondary">Export to JSON</button>  
                                         </div>
                                     </div>
                                 </div>
                                 <table class="table table-responsive table-sm table-striped fs--1 mb-0 border-200" id="xticketTable">
                                     <thead>
                                         <tr>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">Request Date</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="requestBy">Request By</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="dateClosed">Date Closed</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="closedBy">Closed By</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="dateReopened">Date Reopened</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="reopenedBy">Reopened By</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketId">Ticket ID</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="serviceUnit">Service Unit</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketType">Ticket Type</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="priority">Priority</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="subject">Reason for Reopening</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="internal">Internal</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="rating">Service Count</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="rating">Total Rating</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="rating">Average Rating</th>                                          
                                         </tr>
                                     </thead>
                                     <tbody class="list" id="deal-tables-body" th:if="${dataList != null}">
                                         <tr th:each="rec : ${dataList}" class="position-static">
-                                            <td th:text="${rec.createdAt}" class="date align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.createdBy}" class="requestBy align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.closedAt}" class="dateClosed align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.closedBy}" class="closedBy align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.reopenedAt}" class="dateReopened align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.reopenedBy}" class="reopenedBy align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.ticketId}" class="ticketId align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.serviceUnitName}" class="serviceUnit align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.ticketTypeName}" class="ticketType align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.priority}" class="priority align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.message}" class="subject align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.internal}" class="internal align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.serviceUnitName}" class="rating align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.ticketCount}" class="rating align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.rating}" class="rating align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.ratingAverage}" class="rating align-middle white-space-nowrap start ps-3"></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -122,13 +105,13 @@
         <script th:src="@{/js/tableHTMLExport.js}"></script>
         <script>
             $('#json').on('click', function () {
-                $("#xticketTable").tableHTMLExport({type: 'json', filename: 'XTicket_Open_Ticket.json'});
+                $("#xticketTable").tableHTMLExport({type: 'json', filename: 'XTicket_Service_Rating.json'});
             });
             $('#csv').on('click', function () {
-                $("#xticketTable").tableHTMLExport({type: 'csv', filename: 'XTicket_Open_Ticket.csv'});
+                $("#xticketTable").tableHTMLExport({type: 'csv', filename: 'XTicket_Service_Rating.csv'});
             });
             $('#pdf').on('click', function () {
-                $("#xticketTable").tableHTMLExport({type: 'pdf', filename: 'XTicket_Open_Ticket.pdf'});
+                $("#xticketTable").tableHTMLExport({type: 'pdf', filename: 'XTicket_Service_Rating.pdf'});
             });
         </script>
     </body>

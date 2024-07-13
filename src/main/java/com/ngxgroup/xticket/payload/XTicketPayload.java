@@ -56,6 +56,7 @@ public class XTicketPayload {
     boolean ticketReopened;
     boolean ticketReassigned;
     int ticketReassignedCount;
+    int ticketEscalationCount;
     char ticketSlaPeriod;
     String initialSla;
     String newSla;
@@ -98,6 +99,7 @@ public class XTicketPayload {
     String newValue;
     String action;
     String message;
+    String comment;
     String messageFrom;
     String subject;
     List<MultipartFile> uploadedFiles;
@@ -115,4 +117,6 @@ public class XTicketPayload {
     String originalFileName;
     String passwordChangeDate;
     String resetTime;
+    int rating;
+    double ratingAverage;
 }

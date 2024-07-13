@@ -1,5 +1,6 @@
 package com.ngxgroup.xticket.service;
 
+import com.ngxgroup.xticket.model.TicketEscalations;
 import com.ngxgroup.xticket.model.TicketStatus;
 import com.ngxgroup.xticket.model.Tickets;
 import com.ngxgroup.xticket.payload.XTicketPayload;
@@ -50,16 +51,21 @@ public class CrobJob {
                     if (escalationEmails.length > 0) {
                         //Check if time to run the next escalation
                         long timeElapsed = Duration.between(t.getEscalatedAt() == null ? LocalDateTime.now() : t.getEscalatedAt().toLocalTime(), LocalDateTime.now()).toMinutes();
-                        if (timeElapsed >= escalationInterval) {
-                            //Check if maximum escalation is reached
-                            if ((t.getEscalationIndex() + 1) <= escalationEmails.length) {
-                                //Escalate the email and push email notification
-                                sendEmail(escalationEmails[t.getEscalationIndex()], t);
+                        if (timeElapsed >= escalationInterval && (t.getEscalationIndex() + 1) <= escalationEmails.length) {
+                            //Escalate the email and push email notification
+                            sendEmail(escalationEmails[t.getEscalationIndex()], t);
 
-                                //Update the escalation index
-                                t.setEscalationIndex(t.getEscalationIndex() + 1);
-                                xticketRepository.updateTicket(t);
-                            }
+                            //Update the escalation index
+                            t.setEscalationIndex(t.getEscalationIndex() + 1);
+                            xticketRepository.updateTicket(t);
+
+                            //Add to the ticket escalations
+                            TicketEscalations newEscalation = new TicketEscalations();
+                            newEscalation.setCreatedAt(LocalDateTime.now());
+                            newEscalation.setEscalatedTo(escalationEmails[t.getEscalationIndex()]);
+                            newEscalation.setSlaExpiresAt(t.getSlaExpiry());
+                            newEscalation.setTicket(t);
+                            xticketRepository.createTicketEscalation(newEscalation);
                         }
                     }
                     //Update the ticket escalation 

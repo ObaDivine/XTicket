@@ -220,6 +220,12 @@
                                     </a>
                                 </li>
                                 <li sec:authorize="hasRole('REPORT')">
+                                    <a class="dropdown-item" href="" th:href="@{/report/ticket/service-rating}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Service Rating
+                                        </div>
+                                    </a>
+                                </li>
+                                <li sec:authorize="hasRole('REPORT')">
                                     <a class="dropdown-item" href="" th:href="@{/report/ticket/entity}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Entity To Entity
                                         </div>

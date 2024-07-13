@@ -90,17 +90,44 @@
                                                             <h6 class="modal-title text-primary">Nigerian Exchange Group - <span class="text-secondary">X-Ticket</span></h6>
                                                         </div>
                                                         <div class="modal-body">
-                                                            <p>Confirm you want to close this ticket</p>
-                                                            <form th:object="${ticketReplyPayload}" th:action="@{/ticket/close}" method="POST">
+                                                            <form th:object="${ticketPayload}" th:action="@{/ticket/close}" method="POST">
+                                                                <p><i class="text-primary">Kindly rate our service</i></p>
                                                                 <div class="form-icon-container">
-                                                                    <textarea class="form-control form-control-sm form-icon-input" th:field="*{message}" placeholder="Your comment" row="10" required="required"></textarea>
-                                                                    <span class="text-primary asterisk">*</span>
+                                                                    <div class="form-check form-check-inline">
+                                                                        <input class="form-check-input" id="highlySatisfactory" type="radio" name="rating" value="5" required="required"/>
+                                                                        <label class="form-check-label" for="highlySatisfactory">Highly Satisfactory</label>
+                                                                    </div>
+                                                                    <div class="form-check form-check-inline">
+                                                                        <input class="form-check-input" id="moderatelySatisfactory" type="radio" name="rating" value="4" required="required"/>
+                                                                        <label class="form-check-label" for="moderatelySatisfactory">Moderately Satisfactory</label>
+                                                                    </div>
+                                                                    <div class="form-check form-check-inline">
+                                                                        <input class="form-check-input" id="satisfacstory" type="radio" name="rating" value="3" required="required"/>
+                                                                        <label class="form-check-label" for="satisfactory">Satisfactory</label>
+                                                                    </div>
+                                                                    <div class="form-check form-check-inline">
+                                                                        <input class="form-check-input" id="fairlySatisfactory" type="radio" name="rating" value="2" required="required"/>
+                                                                        <label class="form-check-label" for="fairlyatisfactory">Fairly Satisfactory</label>
+                                                                    </div>
+                                                                    <div class="form-check form-check-inline">
+                                                                        <input class="form-check-input" id="notSatisfactory" type="radio" name="rating" value="1" required="required"/>
+                                                                        <label class="form-check-label" for="notatisfactory">Not Satisfactory</label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-icon-container">
+                                                                    <textarea class="form-control form-control-sm form-icon-input" th:field="*{comment}" placeholder="Your comment" row="10"></textarea>
                                                                     <span class="fas fa-comments text-900 fs--1 form-icon text-primary"></span>
                                                                 </div>
+                                                                <div class="form-icon-container">
+                                                                    <input type="hidden" th:field="*{id}" th:value="${ticketPayload.id}" required="required"/>
+                                                                    <input type="hidden" th:field="*{reopenedId}" th:value="${ticketPayload.reopenedId}" required="required"/>
+                                                                    <input th:if="${ticketPayload.reopenedId != 0}"  type="hidden" id="action" name="action" value="t" required="required"/>
+                                                                    <input th:if="${ticketPayload.reopenedId == 0}"  type="hidden" id="action" name="action" value="f" required="required"/>
+                                                                </div>
+                                                                <p class="mt-3 mb-3">Confirm you want to close this ticket</p>
+                                                                <button type="submit" class="btn btn-primary btn-sm">Close</button>
+                                                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
                                                             </form>
-                                                            <a th:if="${ticketPayload.reopenedId != 0}" th:href="@{'/ticket/close?seid=' + ${ticketPayload.id} + '&tr=t&troid=' + ${ticketPayload.reopenedId}}" class="btn btn-primary btn-sm">Close</a>
-                                                            <a th:if="${ticketPayload.reopenedId == 0}" th:href="@{'/ticket/close?seid=' + ${ticketPayload.id} + '&tr=f&troid=' + ${ticketPayload.reopenedId}}" class="btn btn-primary btn-sm">Close</a>
-                                                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
                                                         </div>
                                                     </div>
                                                 </div>

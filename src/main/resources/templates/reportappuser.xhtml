@@ -32,13 +32,17 @@
                     <div class="row g-3 mb-6">
                         <div class="col-lg-12 col-sm-12 col-md-12" id="listTable" data-list='{"valueNames":[],"page":10,"pagination":true}'>
                             <div class="table-responsive ms-n1 ps-1 scrollbar">
-                                <div class="offset-lg-8 col-lg-4 col-md-8 col-sm-12 mb-2">
-                                    <div class="search-box">
-                                        <input class="form-control search-input search" type="search" placeholder="Search record" aria-label="Search" />
-                                        <span class="fas fa-search search-box-icon"></span>
+                                <div class="offset-lg-4 col-lg-8 col-md-8 col-sm-12 mb-2">
+                                    <div class="input-group mb-3">
+                                        <input class="form-control form-control-sm search-input search" type="search" placeholder="Search record" aria-label="Search" />
+                                        <div class="input-group-append">
+                                            <button id="csv" class="btn btn-sm btn-secondary">Export to CSV</button> 
+                                            <button id="pdf" class="btn btn-sm btn-secondary">Export to PDF</button>
+                                            <button id="json" class="btn btn-sm btn-secondary">Export to JSON</button>on>
+                                        </div>
                                     </div>
                                 </div>
-                                <table class="table table-responsive table-sm table-striped fs--1 mb-0 border-200">
+                                <table class="table table-responsive table-sm table-striped fs--1 mb-0 border-200" id="xticketTable">
                                     <thead>
                                         <tr>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">Created At</th>
@@ -84,5 +88,19 @@
             </div>
             <th:block th:insert="~{fragments/xTicketFragments :: scriptfiles}"></th:block>   
         </main>
+        <script th:src="@{/js/jspdf.min.js}"></script>
+        <script th:src="@{/js/jspdf.plugin.autotable.min.js}"></script>
+        <script th:src="@{/js/tableHTMLExport.js}"></script>
+        <script>
+            $('#json').on('click', function () {
+                $("#xticketTable").tableHTMLExport({type: 'json', filename: 'XTicket_App_User.json'});
+            });
+            $('#csv').on('click', function () {
+                $("#xticketTable").tableHTMLExport({type: 'csv', filename: 'XTicket_App_User.csv'});
+            });
+            $('#pdf').on('click', function () {
+                $("#xticketTable").tableHTMLExport({type: 'pdf', filename: 'XTicket_App_User.pdf'});
+            });
+        </script>
     </body>
 </html>

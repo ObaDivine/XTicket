@@ -156,7 +156,7 @@ public interface XTicketService {
 
     XTicketPayload fetchTicketByUser(String principal);
 
-    XTicketPayload closeTicket(String id, String ticketReopened, String ticketReopenedId, String principal);
+    XTicketPayload closeTicket(XTicketPayload requestPayload, String principal);
 
     XTicketPayload createReopenTicket(XTicketPayload requestPayload, String principal);
 
@@ -197,6 +197,8 @@ public interface XTicketService {
     XTicketPayload fetchTicketByServiceUnit(XTicketPayload requestPayload);
 
     XTicketPayload fetchTicketByServiceUnitToEntity(XTicketPayload requestPayload);
+
+    XTicketPayload fetchTicketByServiceRating(XTicketPayload requestPayload);
 
     XTicketPayload fetchServiceUnit();
 

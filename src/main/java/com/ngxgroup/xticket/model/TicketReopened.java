@@ -52,4 +52,8 @@ public class TicketReopened implements Serializable {
     private String sla;
     @Column(name = "sla_expiry")
     private LocalDateTime slaExpiry;
+    @Column(name = "rating")
+    private int rating = 0;
+    @Column(name = "rating_comment", length = 5000)
+    private String ratingComment;
 }

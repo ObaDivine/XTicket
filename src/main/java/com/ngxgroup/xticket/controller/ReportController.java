@@ -315,6 +315,32 @@ public class ReportController {
         return "reportticketsserviceunittoentity";
     }
 
+    @GetMapping("/ticket/service-rating")
+    @Secured("ROLE_REPORT")
+    public String serviceRating(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
+        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
+        model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
+        model.addAttribute("entityList", xticketService.fetchEntity().getData());
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
+        resetAlertMessage();
+        return "reportticketsservicerating";
+    }
+
+    @PostMapping("/ticket/service-rating/process")
+    public String serviceRating(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
+        XTicketPayload response = xticketService.fetchTicketByServiceRating(requestPayload);
+        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
+        model.addAttribute("entityList", xticketService.fetchEntity().getData());
+        model.addAttribute("dataList", response.getData());
+        model.addAttribute("alertMessage", response.getResponseMessage());
+        model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
+        resetAlertMessage();
+        return "reportticketsservicerating";
+    }
+
     @GetMapping("/ticket/entity")
     @Secured("ROLE_REPORT")
     public String entityToEntity(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
