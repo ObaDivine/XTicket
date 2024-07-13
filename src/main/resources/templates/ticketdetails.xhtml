@@ -91,6 +91,13 @@
                                                         </div>
                                                         <div class="modal-body">
                                                             <p>Confirm you want to close this ticket</p>
+                                                            <form th:object="${ticketReplyPayload}" th:action="@{/ticket/close}" method="POST">
+                                                                <div class="form-icon-container">
+                                                                    <textarea class="form-control form-control-sm form-icon-input" th:field="*{message}" placeholder="Your comment" row="10" required="required"></textarea>
+                                                                    <span class="text-primary asterisk">*</span>
+                                                                    <span class="fas fa-comments text-900 fs--1 form-icon text-primary"></span>
+                                                                </div>
+                                                            </form>
                                                             <a th:if="${ticketPayload.reopenedId != 0}" th:href="@{'/ticket/close?seid=' + ${ticketPayload.id} + '&tr=t&troid=' + ${ticketPayload.reopenedId}}" class="btn btn-primary btn-sm">Close</a>
                                                             <a th:if="${ticketPayload.reopenedId == 0}" th:href="@{'/ticket/close?seid=' + ${ticketPayload.id} + '&tr=f&troid=' + ${ticketPayload.reopenedId}}" class="btn btn-primary btn-sm">Close</a>
                                                             <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>

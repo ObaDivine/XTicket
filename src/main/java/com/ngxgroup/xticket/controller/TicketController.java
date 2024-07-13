@@ -153,6 +153,10 @@ public class TicketController {
         model.addAttribute("reassignedTicketList", response.getReassignedTickets());
         model.addAttribute("escalatedTicketList", response.getTicketEscalations());
         model.addAttribute("commentTicketList", response.getTicketComments());
+        model.addAttribute("reopenedTicketCount", response.getReopenedTickets() == null ? 0 : response.getReopenedTickets().size());
+        model.addAttribute("reassignedTicketCount", response.getReassignedTickets() == null ? 0 : response.getReassignedTickets().size());
+        model.addAttribute("escalatedTicketCount", response.getTicketEscalations() == null ? 0 : response.getTicketEscalations().size());
+        model.addAttribute("commentTicketCount", response.getTicketComments() == null ? 0 : response.getTicketComments().size());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         return "ticketfulldetails";

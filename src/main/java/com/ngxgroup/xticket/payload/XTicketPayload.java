@@ -55,6 +55,7 @@ public class XTicketPayload {
     boolean ticketLocked;
     boolean ticketReopened;
     boolean ticketReassigned;
+    int ticketReassignedCount;
     char ticketSlaPeriod;
     String initialSla;
     String newSla;

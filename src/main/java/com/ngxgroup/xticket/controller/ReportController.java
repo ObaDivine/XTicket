@@ -34,6 +34,8 @@ public class ReportController {
     public String openTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
         model.addAttribute("openTicketList", null);
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
@@ -46,6 +48,8 @@ public class ReportController {
         XTicketPayload response = xticketService.fetchOpenTicket(requestPayload);
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
         model.addAttribute("dataList", response.getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
@@ -57,8 +61,10 @@ public class ReportController {
     @Secured("ROLE_REPORT")
     public String closedTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
-        model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
+        model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
+        model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -70,6 +76,8 @@ public class ReportController {
         XTicketPayload response = xticketService.fetchClosedTicket(requestPayload);
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
         model.addAttribute("dataList", response.getData());
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
@@ -82,7 +90,7 @@ public class ReportController {
     @Secured("ROLE_REPORT")
     public String reopened(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
-        model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
+        model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -93,9 +101,8 @@ public class ReportController {
     public String reopenedTicket(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
         XTicketPayload response = xticketService.fetchReopenedTicket(requestPayload);
         model.addAttribute("ticketPayload", new XTicketPayload());
-        model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
         model.addAttribute("dataList", response.getData());
-        model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         resetAlertMessage();
@@ -106,7 +113,10 @@ public class ReportController {
     @Secured("ROLE_REPORT")
     public String reassigned(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
-        model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
+        model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
+        model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -118,6 +128,8 @@ public class ReportController {
         XTicketPayload response = xticketService.fetchReassignedTicket(requestPayload);
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
         model.addAttribute("dataList", response.getData());
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
@@ -130,7 +142,7 @@ public class ReportController {
     @Secured("ROLE_REPORT")
     public String byAgents(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
-        model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
+        model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
@@ -142,7 +154,7 @@ public class ReportController {
     public String byAgents(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
         XTicketPayload response = xticketService.fetchTicketClosedByAgent(requestPayload);
         model.addAttribute("ticketPayload", new XTicketPayload());
-        model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
         model.addAttribute("dataList", response.getData());
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
@@ -155,7 +167,10 @@ public class ReportController {
     @Secured("ROLE_REPORT")
     public String sla(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
-        model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
+        model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
+        model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -167,8 +182,10 @@ public class ReportController {
         XTicketPayload response = xticketService.fetchTicketByWithinSla(requestPayload);
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
-        model.addAttribute("dataList", response.getData());
+        model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
+        model.addAttribute("dataList", response.getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         resetAlertMessage();
@@ -179,7 +196,10 @@ public class ReportController {
     @Secured("ROLE_REPORT")
     public String violatedSla(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
-        model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
+        model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
+        model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -191,8 +211,10 @@ public class ReportController {
         XTicketPayload response = xticketService.fetchTicketByViolatedSla(requestPayload);
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
-        model.addAttribute("dataList", response.getData());
+        model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
+        model.addAttribute("dataList", response.getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         resetAlertMessage();
@@ -204,6 +226,8 @@ public class ReportController {
     public String agents(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -215,8 +239,9 @@ public class ReportController {
         XTicketPayload response = xticketService.fetchTicketAgent(requestPayload);
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
         model.addAttribute("dataList", response.getData());
-        model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         resetAlertMessage();
@@ -228,9 +253,7 @@ public class ReportController {
     public String appUsers(Model model, HttpServletRequest httRequest, HttpServletResponse httResponse, Principal principal) {
         XTicketPayload response = xticketService.fetchAllAppUsers();
         model.addAttribute("ticketPayload", new XTicketPayload());
-        model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("dataList", response.getData());
-        model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         resetAlertMessage();
@@ -241,8 +264,10 @@ public class ReportController {
     @Secured("ROLE_REPORT")
     public String serviceUnit(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
-        model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup());
-        model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit());
+        model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
+        model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -254,6 +279,8 @@ public class ReportController {
         XTicketPayload response = xticketService.fetchTicketByServiceUnit(requestPayload);
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
         model.addAttribute("dataList", response.getData());
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());

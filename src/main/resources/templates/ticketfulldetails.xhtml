@@ -114,22 +114,22 @@
                                 <ul class="nav nav-underline flex-nowrap mb-3 pb-1" id="myTab" role="tablist">
                                     <li class="nav-item me-3">
                                         <a class="nav-link text-nowrap active" id="reopen-tab" data-bs-toggle="tab" href="#tab-reopen" role="tab" aria-controls="tab-reopen" aria-selected="true">
-                                            <span class="fas fa-folder-open me-2"></span>Reopened Tickets<span class="text-700 fw-normal"> (35)</span>
+                                            <span class="fas fa-folder-open me-2"></span>Reopened Tickets<span class="text-700 fw-normal" th:text="'(' + ${reopenedTicketCount} + ')'"> 0</span>
                                         </a>
                                     </li>
                                     <li class="nav-item me-3">
                                         <a class="nav-link text-nowrap" id="reassign-tab" data-bs-toggle="tab" href="#tab-reassign" role="tab" aria-controls="tab-reassign" aria-selected="true">
-                                            <span class="fas fa-share me-2"></span>Reassigned Tickets<span class="text-700 fw-normal"> (24)</span>
+                                            <span class="fas fa-share me-2"></span>Reassigned Tickets<span class="text-700 fw-normal" th:text="'(' + ${reassignedTicketCount} + ')'"> (24)</span>
                                         </a>
                                     </li>
                                     <li class="nav-item me-3">
                                         <a class="nav-link text-nowrap" id="comment-tab" data-bs-toggle="tab" href="#tab-comment" role="tab" aria-controls="tab-comment" aria-selected="true">
-                                            <span class="fas fa-comments me-2"></span>Ticket Comments
+                                            <span class="fas fa-comments me-2"></span>Ticket Comments <span class="text-700 fw-normal" th:text="'(' + ${commentTicketCount} + ')'"></span>
                                         </a>
                                     </li>
                                     <li class="nav-item me-3">
                                         <a class="nav-link text-nowrap" id="escalation-tab" data-bs-toggle="tab" href="#tab-escalation" role="tab" aria-controls="tab-escalation" aria-selected="true">
-                                            <span class="fas fa-share-alt-square me-2"></span>Ticket Escalations
+                                            <span class="fas fa-share-alt-square me-2"></span>Ticket Escalations <span class="text-700 fw-normal" th:text="'(' + ${escalatedTicketCount} + ')'"></span>
                                         </a>
                                     </li>
                                 </ul>

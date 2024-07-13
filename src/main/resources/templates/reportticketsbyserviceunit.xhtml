@@ -63,6 +63,7 @@
                                 <div class="form-icon-container">
                                     <select class="form-select form-control-sm form-icon-input" aria-label="ticketTypeCode" th:field="*{ticketTypeCode}">
                                         <option value="">---Select Ticket Type---</option>
+                                        <option th:each="fa : ${ticketTypeList}" th:value="${fa.ticketTypeCode}" th:text="${fa.ticketTypeName}"></option>
                                     </select>
                                     <span class="fas fa-ticket-alt text-900 fs--1 form-icon text-primary"></span>
                                 </div>

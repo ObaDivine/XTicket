@@ -216,6 +216,8 @@ public interface XTicketService {
 
     XTicketPayload fetchTicketStatus(String id);
 
+    XTicketPayload fetchTicketStatusForReply();
+
     XTicketPayload createTicketStatus(XTicketPayload requestPayload, String principal);
 
     XTicketPayload deleteTicketStatus(String id, String principal);

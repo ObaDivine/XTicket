@@ -283,6 +283,14 @@ public class HomeController {
         return gson.toJson(data);
     }
 
+    @GetMapping("/accessDenied")
+    public String accessDenied(HttpServletRequest request, HttpServletResponse response, Principal principal, Model model) {
+        model.addAttribute("profilePayload", new XTicketPayload());
+        model.addAttribute("alertMessage", alertMessage);
+        resetAlertMessage();
+        return "403";
+    }
+
     private boolean isLogin() {
         return SecurityContextHolder.getContext().getAuthentication() != null
                 && SecurityContextHolder.getContext().getAuthentication().isAuthenticated()

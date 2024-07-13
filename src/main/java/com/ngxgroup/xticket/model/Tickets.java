@@ -96,4 +96,8 @@ public class Tickets implements Serializable {
     private Entities entity;
     @Column(name = "agent_notified_of_expiry")
     private boolean agentNotifiedOfExpiry = false;
+    @Column(name = "rating")
+    private int rating = 0;
+    @Column(name = "rating_comment", length = 5000)
+    private String ratingComment;
 }

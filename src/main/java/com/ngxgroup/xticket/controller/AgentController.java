@@ -54,7 +54,7 @@ public class AgentController {
         model.addAttribute("ticketReassignPayload", ticketPayload);
         model.addAttribute("ticketList", xticketService.fetchTicketByUser(principal.getName()).getData());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
-        model.addAttribute("ticketStatusList", xticketService.fetchTicketStatus().getData());
+        model.addAttribute("ticketStatusList", xticketService.fetchTicketStatusForReply().getData());
         model.addAttribute("userList", null);
         model.addAttribute("documentList", response.getUploadDocuments());
         model.addAttribute("alertMessage", alertMessage);
