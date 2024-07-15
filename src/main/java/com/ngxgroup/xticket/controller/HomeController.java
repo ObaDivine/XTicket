@@ -21,17 +21,21 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import com.ngxgroup.xticket.service.XTicketService;
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.Locale;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.servlet.error.ErrorController;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
@@ -39,7 +43,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @author briano
  */
 @Controller
-public class HomeController {
+public class HomeController implements ErrorController {
 
     @Autowired
     XTicketService xticketService;
@@ -283,12 +287,21 @@ public class HomeController {
         return gson.toJson(data);
     }
 
-    @GetMapping("/accessDenied")
-    public String accessDenied(HttpServletRequest request, HttpServletResponse response, Principal principal, Model model) {
-        model.addAttribute("profilePayload", new XTicketPayload());
-        model.addAttribute("alertMessage", alertMessage);
-        resetAlertMessage();
-        return "403";
+    @RequestMapping("/error")
+    public String handleError(HttpServletRequest request) {
+        Object status = request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
+        if (status != null) {
+            Integer statusCode = Integer.valueOf(status.toString());
+
+            if (statusCode == HttpStatus.NOT_FOUND.value()) {
+                return "404";
+            } else if (statusCode == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
+                return "500";
+            }else if (statusCode == HttpStatus.FORBIDDEN.value()) {
+                return "403";
+            }
+        }
+        return "error";
     }
 
     private boolean isLogin() {
