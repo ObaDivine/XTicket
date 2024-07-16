@@ -13,7 +13,7 @@ appMessages:
     expire: Your password has expired. Kindly change password
     invalid: The current password is incorrect
   reset:
-    on: Reset time has not elapsed
+    on: Reset time will elapse at {0}
   norecord: No record found matching the parameter {0}
   delete:
     roles: Role deleted successfully

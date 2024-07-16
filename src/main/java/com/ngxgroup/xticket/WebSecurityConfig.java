@@ -22,7 +22,9 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class WebSecurityConfig {
 
-    private static final String[] WHITE_LIST_URL = {"/", "/login/**", "/signup/**", "/forgot-password/**", "/logout", "/css/**", "/images/**", "/js/**", "/document/**", "/font/**", "/error/**", "/WEB-INF/**"};
+    private static final String[] WHITE_LIST_URL = {"/", "/login/**", "/signup/**", "/forgot-password/**", 
+        "/logout", "/css/**", "/images/**", "/js/**", "/document/**", "/font/**", "/error/**", "/WEB-INF/**",
+    "/change-expired-password/**"};
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {

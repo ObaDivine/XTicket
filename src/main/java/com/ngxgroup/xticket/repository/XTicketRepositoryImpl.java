@@ -1092,6 +1092,19 @@ public class XTicketRepositoryImpl implements XTicketRepository {
     }
 
     @Override
+    public int getTicketOpenForAgentByGroup(AppUser appUser, TicketStatus ticketStatus, TicketGroup ticketGroup) {
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketAgent.agent = :appUser AND p.ticketGroup = :ticketGroup AND p.ticketStatus = :ticketStatus", Tickets.class)
+                .setParameter("appUser", appUser)
+                .setParameter("ticketGroup", ticketGroup)
+                .setParameter("ticketStatus", ticketStatus);
+        List<Tickets> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return 0;
+        }
+        return recordset.size();
+    }
+
+    @Override
     public TicketReassign createTicketReassign(TicketReassign ticketReassign) {
         em.persist(ticketReassign);
         em.flush();

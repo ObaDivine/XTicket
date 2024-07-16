@@ -119,6 +119,8 @@ public interface XTicketRepository {
 
     List<Tickets> getTicketClosedByAgent(AppUser appUser, TicketStatus ticketStatus);
 
+    int getTicketOpenForAgentByGroup(AppUser appUser, TicketStatus ticketStatus, TicketGroup ticketGroup);
+
     List<Tickets> getViolatedTickets(LocalDate startDate, LocalDate endDate);
 
     List<Tickets> getTicketsWithinSLA(LocalDate startDate, LocalDate endDate, TicketStatus ticketStatus);
@@ -138,7 +140,7 @@ public interface XTicketRepository {
     List<Tickets> getTicketsByServiceUnit(LocalDate startDate, LocalDate endDate, ServiceUnit serviceUnit, TicketStatus ticketStatus);
 
     List<DocumentUpload> getDocumentUploadUsingTicket(Tickets ticket);
-    
+
     DocumentUpload createDocumentUpload(DocumentUpload documentUpload);
 
     Tickets getTicketUsingTicketGroup(TicketGroup ticketGroup);

@@ -67,13 +67,13 @@
                                                             <option value="">---Select service unit---</option>
                                                             <option th:each="fa : ${serviceUnit}" th:value="${fa.serviceUnitCode}" th:text="${fa.serviceUnitName}"></option>
                                                         </select>
-                                                        <span class="text-primary asterisk">*</span>
+                                                        <span class="text-danger asterisk">*</span>
                                                         <span class="fas fa-layer-group text-900 fs--1 form-icon text-primary"></span>
                                                     </div>
                                                     <div id="pwd">
-                                                        <p class="h6 mt-2 mb-2 text-500 text-danger">Password should be [8-16] characters. Contain capital & small letters, numbers and special character [-#$.%&*]</p>
+                                                        <p class="h6 mt-2 mb-2 text-500 text-danger">Password should be [8-16] characters. Contain capital & small letters, numbers and special character [-#$.%&*@]</p>
                                                         <div class="form-icon-container">
-                                                            <input class="form-control form-icon-input" th:field="*{password}" type="password" placeholder="Password" required="required" pattern="^(?=.*\d)(?=.*[a-zA-Z])(?=.*[A-Z])(?=.*[-\#\$\.\%\&\*])(?=.*[a-zA-Z]).{8,16}$" title="Password donot meet required complexity"/>
+                                                            <input class="form-control form-icon-input" th:field="*{password}" type="password" placeholder="Password" required="required" pattern="^(?=.*\d)(?=.*[a-zA-Z])(?=.*[A-Z])(?=.*[-\#\$\.\%\&\*\@])(?=.*[a-zA-Z]).{8,16}$" title="Password donot meet required complexity"/>
                                                             <span class="fas fa-key text-900 fs--1 form-icon text-primary"></span>
                                                         </div>
                                                         <div class="form-icon-container">

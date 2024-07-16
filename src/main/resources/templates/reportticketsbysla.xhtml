@@ -43,7 +43,7 @@
                                         <option value="">---Select service unit---</option>
                                         <option th:each="fa : ${serviceUnitList}" th:value="${fa.serviceUnitCode}" th:text="${fa.serviceUnitName}"></option>
                                     </select>
-                                    <span class="text-primary asterisk">*</span>
+                                    <span class="text-danger asterisk">*</span>
                                     <span class="fas fa-stream text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <div class="form-icon-container">
@@ -51,7 +51,7 @@
                                         <option value="">---Select Agent---</option>
                                         <option th:each="fa : ${userList}" th:value="${fa.email}" th:text="${fa.lastName + ', ' + fa.otherName}"></option>
                                     </select>
-                                    <span class="text-primary asterisk">*</span>
+                                    <span class="text-danger asterisk">*</span>
                                     <span class="fas fa-users text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <div class="form-icon-container">

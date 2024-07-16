@@ -38,7 +38,7 @@
                                         <option value="">---Select service unit---</option>
                                         <option th:each="fa : ${serviceUnit}" th:value="${fa.serviceUnitCode}" th:text="${fa.serviceUnitName}"></option>
                                     </select>
-                                    <span class="text-primary asterisk">*</span>
+                                    <span class="text-danger asterisk">*</span>
                                     <span class="fas fa-layer-group text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <div class="form-icon-container">
@@ -46,24 +46,24 @@
                                         <option value="">---Select ticket group---</option>
                                         <option th:each="fa : ${ticketGroup}" th:value="${fa.ticketGroupCode}" th:text="${fa.ticketGroupName}"></option>
                                     </select>
-                                    <span class="text-primary asterisk">*</span>
+                                    <span class="text-danger asterisk">*</span>
                                     <span class="fas fa-layer-group text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <div class="form-icon-container">
                                     <input type="text" class="form-control form-control-sm form-icon-input" th:field="*{ticketTypeCode}" placeholder="Enter ticket code" required="required"/>
-                                    <span class="text-primary asterisk">*</span>
+                                    <span class="text-danger asterisk">*</span>
                                     <span class="fas fa-terminal text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <div class="form-icon-container">
                                     <input type="text" class="form-control form-control-sm form-icon-input" th:field="*{ticketTypeName}" placeholder="Enter ticket name" required="required"/>
-                                    <span class="text-primary asterisk">*</span>
+                                    <span class="text-danger asterisk">*</span>
                                     <span class="fas fa-stream text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <div class="form-icon-container">
                                     <input type="text" class="form-control form-control-sm form-icon-input" th:field="*{escalationEmails}" placeholder="Enter email(s) for escalation" 
                                            required="required" pattern="^(([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)(\\s*,\\s*|\\s*$))*$",
                                            title="Emails separated by comma"/>
-                                    <span class="text-primary asterisk">*</span>
+                                    <span class="text-danger asterisk">*</span>
                                     <span class="fas fa-at text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <div class="form-icon-container">
@@ -71,7 +71,7 @@
                                         <option value="">---Select ticket SLA---</option>
                                         <option th:each="fa : ${ticketSla}" th:value="${fa.ticketSlaName}" th:text="${fa.ticketSlaName}"></option>
                                     </select>
-                                    <span class="text-primary asterisk">*</span>
+                                    <span class="text-danger asterisk">*</span>
                                     <span class="fas fa-layer-group text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <div class="form-icon-container">
