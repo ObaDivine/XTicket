@@ -43,7 +43,7 @@
                                         <option value="">---Select service unit---</option>
                                         <option th:each="fa : ${serviceUnitList}" th:value="${fa.serviceUnitCode}" th:text="${fa.serviceUnitName}"></option>
                                     </select>
-                                    <span class="text-primary asterisk">*</span>
+                                    <span class="text-danger asterisk">*</span>
                                     <span class="fas fa-stream text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <button class="btn btn-primary btn-sm w-40 mb-3 mt-2" type="submit">Submit</button>

@@ -116,6 +116,15 @@ public class HomeController implements ErrorController {
             return "redirect:/dashboard";
         }
 
+        //Check if password has expired
+        if (response.getResponseMessage().equalsIgnoreCase(messageSource.getMessage("appMessages.password.expire", new Object[0], Locale.ENGLISH))) {
+            model.addAttribute("passwordPayload", requestPayload);
+            model.addAttribute("alertMessage", response.getResponseMessage());
+            model.addAttribute("alertMessageType", "error");
+            resetAlertMessage();
+            return "passwordexpire";
+        }
+
         model.addAttribute("loginPayload", requestPayload);
         model.addAttribute("passwordPayload", new XTicketPayload());
         model.addAttribute("alertMessage", response.getResponseMessage());
@@ -194,12 +203,17 @@ public class HomeController implements ErrorController {
     @Secured("ROLE_DASHBOARD")
     public String agentDashboard(HttpServletRequest httpRequest, HttpServletResponse httpResponse, HttpSession httpSession, Principal principal, Model model) {
         List<XTicketPayload> closedTickets = xticketService.fetchClosedTicket(principal.getName()).getData();
-        List<XTicketPayload> openTickets = xticketService.fetchOpenTicketForAgent(principal.getName()).getData();
-        model.addAttribute("closedTicketStat", closedTickets == null ? 0 : closedTickets.size());
-        model.addAttribute("agentOpenTicketStat", openTickets == null ? 0 : openTickets.size());
+        List<XTicketPayload> openTickets = xticketService.fetchOpenTicketForAgent(principal.getName(), "all").getData();
+        XTicketPayload aboutToViolateSlaTickets = xticketService.fetchOpenTicketAboutToViolateSlaForAgent(principal.getName());
+        XTicketPayload criticalSlaTickets = xticketService.fetchOpenTicketWithCriticalSlaForAgent(principal.getName());
         List<XTicketPayload> ticketByGroup = xticketService.fetchTicketGroupStatisticsByUser(principal.getName()).getData();
         List<XTicketPayload> ticketByStatus = xticketService.fetchTicketStatusStatisticsByUser(principal.getName()).getData();
-        model.addAttribute("ticketList", ticketByGroup);
+        List<XTicketPayload> openTicketByGroup = xticketService.fetchOpenTicketGroupStatisticsForAgent(principal.getName()).getData();
+        model.addAttribute("closedTicketStat", closedTickets == null ? 0 : closedTickets.size());
+        model.addAttribute("agentOpenTicketStat", openTickets == null ? 0 : openTickets.size());
+        model.addAttribute("aboutToViolateSlaTicketStat", aboutToViolateSlaTickets.getValue());
+        model.addAttribute("criticalSlaTicketStat", criticalSlaTickets.getValue());
+        model.addAttribute("ticketList", openTicketByGroup);
         model.addAttribute("ticketByGroupChartData", generateTicketByGroupChart(ticketByGroup));
         model.addAttribute("ticketByStatusChartData", generateTicketByGroupChart(ticketByStatus));
         model.addAttribute("alertMessage", alertMessage);
@@ -254,6 +268,32 @@ public class HomeController implements ErrorController {
         return "redirect:/";
     }
 
+    @PostMapping("/change-expired-password/")
+    public String changeExpiredPassword(@ModelAttribute("passwordPayload") XTicketPayload requestPayload, HttpSession session, Model model, Principal principal, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+        XTicketPayload response = xticketService.changePassword(requestPayload);
+        //Check for locked account due to multiple invalid attempts
+        if (response.getResponseCode().equalsIgnoreCase(ResponseCodes.MULTIPLE_ATTEMPT.getResponseCode())) {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null) {
+                new SecurityContextLogoutHandler().logout(httpRequest, httpResponse, auth);
+            }
+            alertMessage = response.getResponseMessage();
+            alertMessageType = "error";
+            return "redirect:/";
+        }
+
+        if (response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
+            alertMessage = response.getResponseMessage();
+            alertMessageType = "success";
+            return "redirect:/";
+        }
+        model.addAttribute("passwordPayload", requestPayload);
+        model.addAttribute("alertMessage", response.getResponseMessage());
+        model.addAttribute("alertMessageType", "error");
+        resetAlertMessage();
+        return "passwordexpire";
+    }
+
     @GetMapping("/profile")
     public String profile(HttpServletRequest request, HttpServletResponse response, Principal principal, Model model) {
         model.addAttribute("profilePayload", new XTicketPayload());
@@ -297,7 +337,7 @@ public class HomeController implements ErrorController {
                 return "404";
             } else if (statusCode == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
                 return "500";
-            }else if (statusCode == HttpStatus.FORBIDDEN.value()) {
+            } else if (statusCode == HttpStatus.FORBIDDEN.value()) {
                 return "403";
             }
         }

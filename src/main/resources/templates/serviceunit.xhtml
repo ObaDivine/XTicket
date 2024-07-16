@@ -38,17 +38,17 @@
                                         <option value="">---Select entity---</option>
                                         <option th:each="fa : ${entityList}" th:value="${fa.entityCode}" th:text="${fa.entityName}"></option>
                                     </select>
-                                    <span class="text-primary asterisk">*</span>
+                                    <span class="text-danger asterisk">*</span>
                                     <span class="fas fa-layer-group text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <div class="form-icon-container">
                                     <input type="text" class="form-control form-control-sm form-icon-input" th:field="*{serviceUnitCode}" placeholder="Enter service unit code" required="required"/>
-                                    <span class="text-primary asterisk">*</span>
+                                    <span class="text-danger asterisk">*</span>
                                     <span class="fas fa-terminal text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <div class="form-icon-container">
                                     <input type="text" class="form-control form-control-sm form-icon-input" th:field="*{serviceUnitName}" placeholder="Enter service unit name" required="required"/>
-                                    <span class="text-primary asterisk">*</span>
+                                    <span class="text-danger asterisk">*</span>
                                     <span class="fas fa-stream text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <div class="form-icon-container">

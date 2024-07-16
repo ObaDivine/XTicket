@@ -32,9 +32,9 @@ public class AgentController {
 
     @GetMapping("/open")
     @Secured("ROLE_TICKET_AGENT")
-    public String openTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
+    public String openTicket(@RequestParam("tr") String tr, Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
-        model.addAttribute("dataList", xticketService.fetchOpenTicketForAgent(principal.getName()).getData());
+        model.addAttribute("dataList", xticketService.fetchOpenTicketForAgent(principal.getName(), tr).getData());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("userList", null);
         model.addAttribute("alertMessage", alertMessage);
@@ -69,10 +69,10 @@ public class AgentController {
         if (response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
             alertMessage = response.getResponseMessage();
             alertMessageType = "success";
-            return "redirect:/agent/ticket/open";
+            return "redirect:/agent/ticket/open?tr=all";
         }
         model.addAttribute("ticketPayload", requestPayload);
-        model.addAttribute("dataList", xticketService.fetchOpenTicketForAgent(principal.getName()).getData());
+        model.addAttribute("dataList", xticketService.fetchOpenTicketForAgent(principal.getName(), "all").getData());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("userList", null);
         model.addAttribute("alertMessage", response.getResponseMessage());

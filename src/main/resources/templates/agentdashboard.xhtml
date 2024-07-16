@@ -22,7 +22,7 @@
                     </div>
                     <div class="row align-items-center g-6">
                         <div class="col-12 col-md-auto">
-                            <a href="!#" th:href="@{/agent/ticket/open}">
+                            <a href="!#" th:href="@{/agent/ticket/open?tr=all}">
                                 <div class="d-flex align-items-center"><img th:src="@{/images/icons/18.png}" src="" alt="" height="46" width="46" />
                                     <div class="ms-3">
                                         <h4 class="mb-0" th:text="${agentOpenTicketStat}">57</h4>
@@ -32,17 +32,27 @@
                             </a>
                         </div>
                         <div class="col-12 col-md-auto">
-                            <a href="!#" th:href="@{/agent/ticket/close}">
-                                <div class="d-flex align-items-center"><img th:src="@{/images/icons/19.png}" src="" alt="" height="46" width="46" />
+                            <a href="!#" th:href="@{/agent/ticket/open?tr=sla}">
+                                <div class="d-flex align-items-center"><img th:src="@{/images/icons/21.png}" src="" alt="" height="46" width="46" />
                                     <div class="ms-3">
-                                        <h4 class="mb-0" th:text="${closedTicketStat}">5</h4>
-                                        <p class="text-800 fs--1 mb-0">Closed Tickets</p>
+                                        <h4 class="mb-0" th:text="${aboutToViolateSlaTicketStat}">5</h4>
+                                        <p class="text-800 fs--1 mb-0">Near Sla Violation Tickets</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-12 col-md-auto">
+                            <a href="!#" th:href="@{/agent/ticket/open?tr=critical}">
+                                <div class="d-flex align-items-center"><img th:src="@{/images/icons/22.png}" src="" alt="" height="46" width="46" />
+                                    <div class="ms-3">
+                                        <h4 class="mb-0" th:text="${criticalSlaTicketStat}">5</h4>
+                                        <p class="text-800 fs--1 mb-0">Critical Sla Tickets</p>
                                     </div>
                                 </div>
                             </a>
                         </div>
                         <div class="col-12 col-md-auto" th:each="rec : ${ticketList}">
-                            <a href="!#">
+                            <a th:href="@{'/agent/ticket/open?tr=' + ${rec.name}}">
                                 <div class="d-flex align-items-center"><img th:src="@{/images/icons/23.png}" src="" alt="" height="46" width="46" />
                                     <div class="ms-3">
                                         <h4 class="mb-0" th:text="${rec.value}">15</h4>

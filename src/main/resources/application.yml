@@ -67,6 +67,7 @@ email:
 xticket:
   slaexpiry:
     notification: 5 #Notification sent 5 mins or less to SLA expiry
+    timeleft: 5 #Time left before ticket SLA is violated
   office:
     open: 8
     close: 15
@@ -107,7 +108,7 @@ xticket:
     image:
       url: C:/Apps/Java/XTicket/target/xticket-1.0/WEB-INF/classes/images/qrcode
   password:
-    pattern: ^(?=.*\d)(?=.*[a-zA-Z])(?=.*[A-Z])(?=.*[-\#\$\.\%\&\*])(?=.*[a-zA-Z]).{8,16}$
+    pattern: ^(?=.*\d)(?=.*[a-zA-Z])(?=.*[A-Z])(?=.*[-\#\$\.\%\&\*\@])(?=.*[a-zA-Z]).{8,16}$
     default: Password23#
     reset:
       time: 1
