@@ -99,9 +99,9 @@ public class TicketController {
 
     @GetMapping("/closed")
     @Secured("ROLE_RAISE_TICKET")
-    public String closeTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
+    public String closeTicket(@RequestParam("tr") String tr, Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
-        model.addAttribute("dataList", xticketService.fetchClosedTicket(principal.getName()).getData());
+        model.addAttribute("dataList", xticketService.fetchClosedTicket(principal.getName(), tr).getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();

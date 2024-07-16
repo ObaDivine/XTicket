@@ -31,7 +31,7 @@
                             </a>
                         </div>
                         <div class="col-12 col-md-auto">
-                            <a href="!#" th:href="@{/ticket/close}">
+                            <a href="!#" th:href="@{/ticket/closed?tr=all}">
                                 <div class="d-flex align-items-center"><img th:src="@{/images/icons/19.png}" src="" alt="" height="46" width="46" />
                                     <div class="ms-3">
                                         <h4 class="mb-0" th:text="${closedTicketStat}">5</h4>
@@ -41,7 +41,7 @@
                             </a>
                         </div>
                         <div class="col-12 col-md-auto" th:each="rec : ${ticketList}">
-                            <a href="!#">
+                            <a th:href="@{'/ticket/closed?tr=' + ${rec.name}}">
                                 <div class="d-flex align-items-center"><img th:src="@{/images/icons/23.png}" src="" alt="" height="46" width="46" />
                                     <div class="ms-3">
                                         <h4 class="mb-0" th:text="${rec.value}">15</h4>
