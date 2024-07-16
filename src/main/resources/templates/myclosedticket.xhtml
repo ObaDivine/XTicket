@@ -68,7 +68,7 @@
                                             <td th:text="${rec.priority}" class="priority align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.subject}" class="subject align-middle white-space-nowrap start ps-3"></td>
                                             <td class="align-middle white-space-nowrap start ps-3 btn-reveal-trigger">
-                                                <a class="btn btn-sm btn-info" th:data-bs-target="'#a' + ${rec.id}" data-bs-toggle="modal" >
+                                                <a class="text-info" th:data-bs-target="'#a' + ${rec.id}" data-bs-toggle="modal" >
                                                     <span class="fas fa-door-open" data-bs-toggle="tooltip" data-bs-placement="right" title="Reopen Ticket"></span>
                                                 </a>
                                                 <div class="modal fade" th:id="'a' + ${rec.id}" tabindex="-1" role="dialog" aria-labelledby="confirmModal" aria-hidden="true">

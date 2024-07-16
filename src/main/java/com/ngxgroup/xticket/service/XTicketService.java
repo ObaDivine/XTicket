@@ -147,7 +147,7 @@ public interface XTicketService {
     XTicketPayload fetchOpenTicket(XTicketPayload requestPayload);
 
     XTicketPayload fetchOpenTicketForAgent(String principal, String transType);
-    
+
     XTicketPayload fetchOpenTicketGroupStatisticsForAgent(String principal);
 
     XTicketPayload fetchOpenTicketAboutToViolateSlaForAgent(String principal);
@@ -155,6 +155,8 @@ public interface XTicketService {
     XTicketPayload fetchOpenTicketWithCriticalSlaForAgent(String principal);
 
     XTicketPayload fetchClosedTicket(String principal);
+
+    XTicketPayload fetchClosedTicket(String principal, String transType);
 
     XTicketPayload fetchClosedTicket(XTicketPayload requestPayload);
 

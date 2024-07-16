@@ -506,6 +506,15 @@ public class XTicketServiceImpl implements XTicketService {
                 return response;
             }
 
+            //Check the password complexity. This is for external users
+            Pattern pattern = Pattern.compile(passwordPattern, Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(requestPayload.getNewPassword());
+            if (!matcher.matches()) {
+                response.setResponseCode(ResponseCodes.PASSWORD_PIN_MISMATCH.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.user.password.complexity", new Object[0], Locale.ENGLISH));
+                return response;
+            }
+
             appUser.setPassword(passwordEncoder.encode(requestPayload.getNewPassword()));
             appUser.setPasswordChangeDate(LocalDate.now().plusDays(passwordChangeDays));
             xticketRepository.updateAppUser(appUser);
@@ -2283,6 +2292,71 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    public XTicketPayload fetchClosedTicket(String principal, String transType) {
+        var response = new XTicketPayload();
+        try {
+            //Check if the user is valid. This is the person creating the record
+            var appUser = xticketRepository.getAppUserUsingEmail(principal);
+            if (appUser == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.user.notexist", new Object[]{principal}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Fetch all the tickets created by the user
+            TicketStatus closedStatus = xticketRepository.getTicketStatusUsingCode("CLOSED");
+            List<Tickets> tickets = xticketRepository.getTicketsByUserStatus(appUser, closedStatus);
+            if (tickets != null) {
+
+                if (!transType.equalsIgnoreCase("all") && !transType.equalsIgnoreCase("")) {
+                    tickets = tickets.stream().filter(t -> t.getTicketGroup().getTicketGroupName().equalsIgnoreCase(transType)).collect(Collectors.toList());
+                }
+
+                List<XTicketPayload> ticketList = new ArrayList<>();
+                for (Tickets t : tickets) {
+                    XTicketPayload newTicket = new XTicketPayload();
+                    BeanUtils.copyProperties(t, newTicket);
+                    newTicket.setCreatedAt(dtf.format(t.getCreatedAt()));
+                    //Check if the ticket was reopened
+                    LocalDateTime closedDate;
+                    String closedBy;
+                    if (t.isTicketReopen()) {
+                        //Get the last reopened record
+                        TicketReopened reopenedTicket = xticketRepository.getTicketReopenedUsingId(t.getTicketReopened().getId());
+                        closedDate = reopenedTicket.getClosedAt();
+                        closedBy = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
+                    } else {
+                        closedDate = t.getClosedAt();
+                        closedBy = t.getClosedBy().getLastName() + ", " + t.getClosedBy().getOtherName();
+                    }
+                    newTicket.setClosedAt(dtf.format(closedDate));
+                    newTicket.setClosedBy(closedBy);
+                    newTicket.setId(t.getId().intValue());
+                    newTicket.setTicketGroupName(t.getTicketGroup().getTicketGroupName());
+                    newTicket.setTicketTypeName(t.getTicketType().getTicketTypeName());
+                    newTicket.setPriority(t.getPriority());
+                    ticketList.add(newTicket);
+                }
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{ticketList.size()}, Locale.ENGLISH));
+                response.setData(ticketList);
+                return response;
+            }
+
+            response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{principal}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
     public XTicketPayload fetchTicketUsingId(String id) {
         var response = new XTicketPayload();
         try {
@@ -2571,7 +2645,7 @@ public class XTicketServiceImpl implements XTicketService {
                 XTicketPayload openTicket = new XTicketPayload();
                 openTicket.setValue(openTickets.size());
                 openTicket.setName("Critical Sla Tickets");
-              } else {
+            } else {
                 XTicketPayload openTicket = new XTicketPayload();
                 openTicket.setValue(0);
                 openTicket.setName("Critical Sla Tickets");
