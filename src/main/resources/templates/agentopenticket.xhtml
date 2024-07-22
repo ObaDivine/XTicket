@@ -25,7 +25,7 @@
                             </nav>
                         </div>
                         <div class="col-md-3 col-auto">
-                            <h5 class="text-1100 text-primary" th:text="'Welcome ' + ${session.fullName}">Welcome Brian</h5>
+                            <h5><span class="text-1100 text-primary" th:text="'Welcome ' + ${session.fullName} + ' :: '"></span><span th:text="${session.userType}" class="text-secondary"></span></h5>
                         </div>
                         <hr/>
                     </div>
@@ -50,6 +50,7 @@
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="priority">Priority</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="slaExpiry">SLA Expiry</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="subject">Subject</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="status">Status</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col">Action</th>
                                         </tr>
                                     </thead>
@@ -64,6 +65,7 @@
                                             <td th:text="${rec.priority}" class="priority align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.slaExpiry}" class="slaExpiry align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.subject}" class="subject align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.status}" class="status align-middle white-space-nowrap start ps-3"></td>
                                             <td class="align-middle white-space-nowrap start ps-3 btn-reveal-trigger">
                                                 <a class="btn btn-sm btn-info" href="#!" th:href="@{'/agent/ticket/view?seid=' + ${rec.id}}">
                                                     <span class="fas fa-eye" data-bs-toggle="tooltip" data-bs-placement="right" title="View Ticket Details"></span>

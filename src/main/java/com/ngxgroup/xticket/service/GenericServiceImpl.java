@@ -158,6 +158,9 @@ public class GenericServiceImpl implements GenericService {
             MimeMessage emailDetails = mailSender.createMimeMessage();
             emailDetails.setFrom(mailFrom);
             emailDetails.setRecipients(Message.RecipientType.TO, requestPayload.getRecipientEmail());
+            if (!requestPayload.getCarbonCopyEmail().equalsIgnoreCase("")) {
+                emailDetails.setRecipients(Message.RecipientType.CC, requestPayload.getCarbonCopyEmail());
+            }
             emailDetails.setSubject(requestPayload.getEmailSubject());
 
             BodyPart messageBodyPart = new MimeBodyPart();
@@ -190,7 +193,7 @@ public class GenericServiceImpl implements GenericService {
         }
         return CompletableFuture.completedFuture("Success");
     }
-    
+
     @Override
     public String generateFileName() {
         try {
@@ -205,8 +208,7 @@ public class GenericServiceImpl implements GenericService {
                     .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                     .toString().toUpperCase();
             return generatedString;
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             return null;
         }
     }

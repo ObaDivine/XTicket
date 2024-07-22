@@ -384,7 +384,7 @@ public class SetupController {
     @GetMapping("/ticket/status/edit")
     @Secured("ROLE_UPDATE_TICKET_STATUS")
     public String ticketStatus(@RequestParam("seid") String id, Model model, Principal principal) {
-        XTicketPayload response = xticketService.fetchServiceUnit(id);
+        XTicketPayload response = xticketService.fetchTicketStatus(id);
         if (!response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
             alertMessage = response.getResponseMessage();
             alertMessageType = "error";

@@ -8,6 +8,8 @@ import com.ngxgroup.xticket.model.AppUser;
 import com.ngxgroup.xticket.model.DocumentUpload;
 import com.ngxgroup.xticket.model.Entities;
 import com.ngxgroup.xticket.model.GroupRoles;
+import com.ngxgroup.xticket.model.KnowledgeBase;
+import com.ngxgroup.xticket.model.KnowledgeBaseCategory;
 import com.ngxgroup.xticket.model.PublicHolidays;
 import com.ngxgroup.xticket.model.RoleGroups;
 import com.ngxgroup.xticket.model.ServiceUnit;
@@ -1237,7 +1239,8 @@ public class XTicketServiceImpl implements XTicketService {
                     payload.setTicketGroupCode(t.getTicketGroup().getTicketGroupCode());
                     payload.setServiceUnitCode(t.getServiceUnit().getServiceUnitCode());
                     payload.setServiceUnitName(t.getServiceUnit().getServiceUnitName());
-                    payload.setTicketSlaName(t.getSla().getTicketSlaName());
+                    payload.setInitialSla(t.getSla().getTicketSlaPeriod() == 'D' ? t.getSla().getTicketSla() + " Day(s)"
+                            : t.getSla().getTicketSlaPeriod() == 'M' ? t.getSla().getTicketSla() + " Minute(s)" : t.getSla().getTicketSla() + " Hour(s)");
                     data.add(payload);
                 }
             }
@@ -1906,7 +1909,7 @@ public class XTicketServiceImpl implements XTicketService {
             newTicket.setSlaExpiry(getSlaExpiryDate(ticketType));
             newTicket.setTicketLocked(false);
             newTicket.setTicketSource("Web");
-            newTicket.setPriority(ticketType.getSla().getTicketSlaName());
+            newTicket.setPriority(ticketType.getSla().getPriority());
             Tickets createTicket = xticketRepository.createTicket(newTicket);
 
             int fileIndex = 1;
@@ -2376,6 +2379,7 @@ public class XTicketServiceImpl implements XTicketService {
             response.setPriority(ticket.getPriority());
             response.setSlaExpiry(dtf.format(ticket.getSlaExpiry()));
             response.setReopenedId(ticket.getTicketReopened() == null ? 0 : ticket.getTicketReopened().getId().intValue());
+            response.setStatus(ticket.getTicketStatus().getTicketStatusName());
 
             //Fetch ticket responses
             List<TicketComment> comments = xticketRepository.getTicketCommentUsingTicket(ticket);
@@ -2775,7 +2779,7 @@ public class XTicketServiceImpl implements XTicketService {
             newReopenTicket.setTicketAgent(ticketAgent);
             newReopenTicket.setSla(String.valueOf(ticket.getTicketType().getSla().getTicketSla()) + String.valueOf(ticket.getTicketType().getSla().getTicketSlaPeriod()));
             newReopenTicket.setSlaExpiry(getSlaExpiryDate(ticket.getTicketType()));
-            newReopenTicket.setPriority(ticket.getTicketType().getSla().getTicketSlaName());
+            newReopenTicket.setPriority(ticket.getTicketType().getSla().getPriority());
             xticketRepository.createTicketReopen(newReopenTicket);
 
             //Reopen the ticket and update the status to open
@@ -3149,11 +3153,15 @@ public class XTicketServiceImpl implements XTicketService {
             //Check if the ticket was reopened
             LocalDateTime closedDate;
             String closedBy;
+            TicketStatus openTicketStatus = xticketRepository.getTicketStatusUsingCode("OPEN");
             if (ticket.isTicketReopen()) {
                 //Get the last reopened record
                 TicketReopened reopenedTicket = xticketRepository.getTicketReopenedUsingId(ticket.getTicketReopened().getId());
                 closedDate = reopenedTicket.getClosedAt();
                 closedBy = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
+            } else if (Objects.equals(ticket.getTicketStatus(), openTicketStatus)) {
+                closedDate = null;
+                closedBy = "";
             } else {
                 closedDate = ticket.getClosedAt();
                 closedBy = ticket.getClosedBy().getLastName() + ", " + ticket.getClosedBy().getOtherName();
@@ -3336,6 +3344,8 @@ public class XTicketServiceImpl implements XTicketService {
                     newTicket.setSlaExpiry(dtf.format(t.getSlaExpiry()));
                     newTicket.setTimeElapsed(getTimeElapsed(t.getSlaExpiry(), LocalDateTime.now()));
                     newTicket.setInternal(t.isInternal());
+                    newTicket.setTicketAgent(t.getTicketAgent().getAgent().getLastName() + ", " + t.getTicketAgent().getAgent().getOtherName());
+                    newTicket.setStatus(t.getTicketStatus().getTicketStatusName());
                     data.add(newTicket);
                 }
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
@@ -4951,8 +4961,8 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             ticketStatus.setStatus(requestPayload.getStatus());
-            ticketStatus.setTicketStatusCode(requestPayload.getServiceUnitCode());
-            ticketStatus.setTicketStatusName(requestPayload.getServiceUnitName());
+            ticketStatus.setTicketStatusCode(requestPayload.getTicketStatusCode());
+            ticketStatus.setTicketStatusName(requestPayload.getTicketStatusName());
             xticketRepository.updateTicketStatus(ticketStatus);
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
@@ -5179,6 +5189,381 @@ public class XTicketServiceImpl implements XTicketService {
             }
         }
         return nextWorkDay;
+    }
+
+    @Override
+    public XTicketPayload fetchKnowledgeBaseCategory() {
+        var response = new XTicketPayload();
+        try {
+            List<XTicketPayload> data = new ArrayList<>();
+            List<KnowledgeBaseCategory> knowledgeBaseCategory = xticketRepository.getKnowledgeBaseCategory();
+            if (knowledgeBaseCategory != null) {
+                for (KnowledgeBaseCategory t : knowledgeBaseCategory) {
+                    XTicketPayload payload = new XTicketPayload();
+                    BeanUtils.copyProperties(t, payload);
+                    payload.setCreatedAt(dtf.format(t.getCreatedAt()));
+                    payload.setCreatedBy(t.getCreatedBy());
+                    payload.setId(t.getId().intValue());
+                    payload.setCategoryCode(t.getCategoryCode());
+                    payload.setCategoryName(t.getCategoryName());
+                    data.add(payload);
+                }
+            }
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{data.size()}, Locale.ENGLISH));
+            response.setData(data);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload fetchKnowledgeBaseCategory(String id) {
+        var response = new XTicketPayload();
+        try {
+            KnowledgeBaseCategory knowledgeBaseCategory = xticketRepository.getKnowledgeBaseCategoryUsingId(Long.parseLong(id));
+            if (knowledgeBaseCategory == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{id}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            BeanUtils.copyProperties(knowledgeBaseCategory, response);
+            response.setCreatedAt(knowledgeBaseCategory.getCreatedAt().toLocalDate().toString());
+            response.setId(knowledgeBaseCategory.getId().intValue());
+            response.setCategoryCode(knowledgeBaseCategory.getCategoryCode());
+            response.setCategoryName(knowledgeBaseCategory.getCategoryName());
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload createKnowledgeBaseCategory(XTicketPayload requestPayload, String principal) {
+        var response = new XTicketPayload();
+        try {
+            //Check if the request is for update or create new
+            if (requestPayload.getId() == 0) {
+                //Check if the user is valid
+                var appUser = xticketRepository.getAppUserUsingEmail(principal);
+                if (appUser == null) {
+                    response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.user.notexist", new Object[]{principal}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
+                //Check if the knowledge base category exist using code
+                KnowledgeBaseCategory knowledgeBaseCategoryByCode = xticketRepository.getKnowledgeBaseCategoryUsingCode(requestPayload.getCategoryCode());
+                if (knowledgeBaseCategoryByCode != null) {
+                    response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Knowledge Base Category", "Code", requestPayload.getCategoryCode()}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
+                //Check the knowledge base category using the name
+                KnowledgeBaseCategory knowledgeBaseCategoryByName = xticketRepository.getKnowledgeBaseCategoryUsingName(requestPayload.getCategoryName());
+                if (knowledgeBaseCategoryByName != null) {
+                    response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Knowledge Base Category", "Name", requestPayload.getCategoryName()}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
+                KnowledgeBaseCategory newCategory = new KnowledgeBaseCategory();
+                newCategory.setCreatedAt(LocalDateTime.now());
+                newCategory.setCreatedBy(principal);
+                newCategory.setCategoryCode(requestPayload.getCategoryCode());
+                newCategory.setCategoryName(requestPayload.getCategoryName());
+                xticketRepository.createKnowledgeBaseCategory(newCategory);
+
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{"Knowledge Base Category", "Created"}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //This is an update request
+            KnowledgeBaseCategory knowledgeBaseCategory = xticketRepository.getKnowledgeBaseCategoryUsingId(Long.valueOf(requestPayload.getId()));
+            if (knowledgeBaseCategory == null) {
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Knowledge Base Category", "Id", requestPayload.getId()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if the knowledge base category exist using code
+            KnowledgeBaseCategory categoryByCode = xticketRepository.getKnowledgeBaseCategoryUsingCode(requestPayload.getCategoryCode());
+            if (categoryByCode != null && !Objects.equals(knowledgeBaseCategory.getId(), categoryByCode.getId())) {
+                response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Knowledge Base Category", "Code", requestPayload.getCategoryCode()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check the knowledge base category using the name
+            KnowledgeBaseCategory categoryByName = xticketRepository.getKnowledgeBaseCategoryUsingName(requestPayload.getCategoryName());
+            if (categoryByName != null && !Objects.equals(knowledgeBaseCategory.getId(), categoryByName.getId())) {
+                response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Knowledge Base Category", "Name", requestPayload.getCategoryName()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            knowledgeBaseCategory.setCategoryCode(requestPayload.getCategoryCode());
+            knowledgeBaseCategory.setCategoryName(requestPayload.getCategoryName());
+            xticketRepository.updateKnowledgeBaseCategory(knowledgeBaseCategory);
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{"Knowledge Base Category", "Updated"}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload deleteKnowledgeBaseCategory(String id, String principal) {
+        var response = new XTicketPayload();
+        try {
+            //Check if the knowledge base by Id is valid
+            KnowledgeBaseCategory knowledgeBaseCategory = xticketRepository.getKnowledgeBaseCategoryUsingId(Long.valueOf(id));
+            if (knowledgeBaseCategory == null) {
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Knowledge Base Category", "Id", id}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if the ticket status is in use
+            List<KnowledgeBase> knowledgeBaseByCategory = xticketRepository.getKnowledgeBaseUsingCategory(knowledgeBaseCategory);
+            if (knowledgeBaseByCategory != null) {
+                response.setResponseCode(ResponseCodes.IN_USE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.inuse", new Object[]{"Knowledge Base Category", knowledgeBaseCategory.getCategoryName()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            xticketRepository.deleteKnowledgeBaseCategory(knowledgeBaseCategory);
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{"Knowledge Base Category" + knowledgeBaseCategory.getCategoryName(), "Deleted"}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload fetchKnowledgeBaseContent() {
+        var response = new XTicketPayload();
+        try {
+            List<XTicketPayload> data = new ArrayList<>();
+            List<KnowledgeBase> knowledgeBase = xticketRepository.getKnowledgeBase();
+            if (knowledgeBase != null) {
+                for (KnowledgeBase t : knowledgeBase) {
+                    XTicketPayload payload = new XTicketPayload();
+                    BeanUtils.copyProperties(t, payload);
+                    payload.setCreatedAt(dtf.format(t.getCreatedAt()));
+                    payload.setCreatedBy(t.getCreatedBy());
+                    payload.setId(t.getId().intValue());
+                    data.add(payload);
+                }
+            }
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{data.size()}, Locale.ENGLISH));
+            response.setData(data);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload fetchKnowledgeBaseContent(String id) {
+        var response = new XTicketPayload();
+        try {
+            KnowledgeBase knowledgeBase = xticketRepository.getKnowledgeBaseUsingId(Long.parseLong(id));
+            if (knowledgeBase == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{id}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            BeanUtils.copyProperties(knowledgeBase, response);
+            response.setCreatedAt(knowledgeBase.getCreatedAt().toLocalDate().toString());
+            response.setId(knowledgeBase.getId().intValue());
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload createKnowledgeBaseContent(XTicketPayload requestPayload, String principal) {
+        var response = new XTicketPayload();
+        try {
+            //Check if the request is for update or create new
+            if (requestPayload.getId() == 0) {
+                //Check if the user is valid
+                var appUser = xticketRepository.getAppUserUsingEmail(principal);
+                if (appUser == null) {
+                    response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.user.notexist", new Object[]{principal}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
+                //Check if the ticket status exist using code
+                KnowledgeBase knowledgeBaseByHeader = xticketRepository.getKnowledgeBaseUsingTitle(requestPayload.getKnowledgeBaseHeader());
+                if (knowledgeBaseByHeader != null) {
+                    response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Knowledge Base", "Header", requestPayload.getKnowledgeBaseHeader()}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
+                //Check if the knowledge base category exist using code
+                KnowledgeBaseCategory knowledgeBaseCategory = xticketRepository.getKnowledgeBaseCategoryUsingCode(requestPayload.getCategoryCode());
+                if (knowledgeBaseCategory != null && !Objects.equals(knowledgeBaseByHeader.getId(), knowledgeBaseCategory.getId())) {
+                    response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Knowledge Base Category", "Category", requestPayload.getCategoryCode()}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
+                String path = "";
+                if (!requestPayload.getUploadedFiles().isEmpty()) {
+                    for (MultipartFile f : requestPayload.getUploadedFiles()) {
+                        String fileExt = FilenameUtils.getExtension(f.getOriginalFilename());
+                        String newFileName = genericService.generateFileName();
+                        //Copy the file to destination
+                        path = servletContext.getRealPath("/") + "WEB-INF/classes/document" + "/" + newFileName + "." + fileExt;
+                        File newFile = new File(path);
+                        FileCopyUtils.copy(f.getBytes(), newFile);
+                    }
+                }
+
+                KnowledgeBase newKnowledgeBase = new KnowledgeBase();
+                newKnowledgeBase.setCreatedAt(LocalDateTime.now());
+                newKnowledgeBase.setCreatedBy(principal);
+                newKnowledgeBase.setBody(requestPayload.getKnowledgeBaseContent());
+                newKnowledgeBase.setHeader(requestPayload.getKnowledgeBaseHeader());
+                newKnowledgeBase.setKnowledgeBaseCategory(knowledgeBaseCategory);
+                newKnowledgeBase.setTag(requestPayload.getTag());
+                newKnowledgeBase.setVideoLink(path);
+                xticketRepository.createKnowledgeBase(newKnowledgeBase);
+
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{"Knowledge Base", "Created"}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //This is an update request
+            KnowledgeBase knowledgeBase = xticketRepository.getKnowledgeBaseUsingId(Long.valueOf(requestPayload.getId()));
+            if (knowledgeBase == null) {
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Knowledge Base", "Id", requestPayload.getId()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if the knowledge base exist using header
+            KnowledgeBase knowledgeBaseByHeader = xticketRepository.getKnowledgeBaseUsingTitle(requestPayload.getKnowledgeBaseHeader());
+            if (knowledgeBaseByHeader != null && !Objects.equals(knowledgeBase.getId(), knowledgeBaseByHeader.getId())) {
+                response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Knowledge Base", "Header", requestPayload.getKnowledgeBaseHeader()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if the knowledge base category exist using code
+            KnowledgeBaseCategory knowledgeBaseCategory = xticketRepository.getKnowledgeBaseCategoryUsingCode(requestPayload.getCategoryCode());
+            if (knowledgeBaseCategory != null && !Objects.equals(knowledgeBaseByHeader.getId(), knowledgeBaseCategory.getId())) {
+                response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Knowledge Base Category", "Category", requestPayload.getCategoryCode()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            knowledgeBase.setBody(requestPayload.getKnowledgeBaseContent());
+            knowledgeBase.setHeader(requestPayload.getKnowledgeBaseHeader());
+            knowledgeBase.setKnowledgeBaseCategory(knowledgeBaseCategory);
+            knowledgeBase.setTag(requestPayload.getTag());
+            knowledgeBase.setVideoLink(requestPayload.getDocumentLink());
+            xticketRepository.updateKnowledgeBase(knowledgeBase);
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{"Ticket Status", "Updated"}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload deleteKnowledgeBaseContent(String id, String principal) {
+        var response = new XTicketPayload();
+        try {
+            //Check if the knowledge base by Id is valid
+            KnowledgeBase knowledgeBase = xticketRepository.getKnowledgeBaseUsingId(Long.valueOf(id));
+            if (knowledgeBase == null) {
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Knowledge Base", "Id", id}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            xticketRepository.deleteKnowledgeBase(knowledgeBase);
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{"Knowledge Base" + knowledgeBase.getHeader(), "Deleted"}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
     }
 
 }

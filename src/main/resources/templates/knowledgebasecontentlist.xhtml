@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
-        <title>X-Ticket - Ticket Agent</title>
+        <title>X-Ticket - Ticket Status</title>
         <th:block th:insert="~{fragments/xTicketFragments :: headerfiles}"></th:block>
     </head>
     <body onload="preloaderFunction()" style="margin: 0;">
@@ -13,15 +13,15 @@
                 <div class="content">
                     <div class="row gy-3 mb-3 justify-content-between">
                         <div class="col-md-4 col-auto">
-                            <h5 class="text-1100 text-primary">Ticket Agent List</h5>
+                            <h5 class="text-1100 text-primary">Knowledge Base Category List</h5>
                         </div>
                         <div class="col-md-5 col-auto">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb mb-0">
                                     <li class="breadcrumb-item"><a href="#" th:href="@{/}">Home</a></li>
                                     <li class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
-                                    <li class="breadcrumb-item"><a href="#" th:href="@{/setup/ticket/agent}">Ticket Agent</a></li>
-                                    <li class="breadcrumb-item active">Ticket Agent Listing</li>
+                                    <li class="breadcrumb-item"><a href="#" th:href="@{/knowledge-base/content}">Knowledge Base Content</a></li>
+                                    <li class="breadcrumb-item active">Knowledge Base Content Listing</li>
                                 </ol>
                             </nav>
                         </div>
@@ -30,14 +30,14 @@
                         </div>
                         <hr/>
                     </div>
-                    <div sec:authorize="hasRole('LIST_TICKET_AGENT')" class="row mb-6 justify-content-between">
+                    <div class="row mb-6 justify-content-between">
                         <div class="offset-lg-1 col-lg-10 col-md-12 col-sm-12" id="listTable" data-list='{"valueNames":[],"page":10,"pagination":true}'>
                             <div class="table-responsive ms-n1 ps-1 scrollbar">
                                 <div class="offset-lg-2 col-lg-10 col-md-8 col-sm-12 mb-2">
                                     <div class="input-group mb-3">
                                         <input class="form-control form-control-sm search-input search" type="search" placeholder="Search record" aria-label="Search" />
                                         <div class="input-group-append">
-                                            <a class="btn btn-sm btn-primary" th:href="@{/setup/ticket/agent}">Add Ticket Agent</a>
+                                            <a class="btn btn-sm btn-primary" th:href="@{/knowledge-base/content}">Add Knowledge Base</a>
                                             <button id="csv" class="btn btn-sm btn-secondary">Export to CSV</button> 
                                             <button id="pdf" class="btn btn-sm btn-secondary">Export to PDF</button>
                                             <button id="json" class="btn btn-sm btn-secondary">Export to JSON</button>
@@ -48,24 +48,43 @@
                                     <thead>
                                         <tr>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">Date</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="name">Agent Name</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="email">Agent Email</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="mobile">Agent Mobile Number</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="lastLogin">Last Login</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="createdBy">Created By</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="subject">Header</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="name">Tag</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="message">Content</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="link">Video Link</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="cretedBy">Created By</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody class="list" id="deal-tables-body" th:if="${dataList != null}">
                                         <tr th:each="rec : ${dataList}" class="position-static">
                                             <td th:text="${rec.createdAt}" class="date align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.lastName + ', ' + rec.otherName}" class="name align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.email}" class="email align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.mobileNumber}" class="mobile align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.lastLogin}" class="lastLogin align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.header}" class="subject align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.tag}" class="name align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.body}" class="message align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.documentLink}" class="link align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.createdBy}" class="createdBy align-middle white-space-nowrap start ps-3"></td>
                                             <td class="align-middle white-space-nowrap start ps-3 btn-reveal-trigger">
-                                                <a class="text-success" href="#!" th:href="@{'/user/edit?seid=' + ${rec.id}}"><span class="fas fa-edit" data-bs-toggle="tooltip" data-bs-placement="right" title="Update Ticket"></span></a>
+                                                <a sec:authorize="hasRole('KNOWLEDGE_BASE_SETUP')" class="text-success" href="#!" th:href="@{'/knowledge-base/content/edit?seid=' + ${rec.id}}">
+                                                    <span class="fas fa-edit" data-bs-toggle="tooltip" data-bs-placement="right" title="Update Ticket Status"></span>
+                                                </a>
+                                                <a sec:authorize="hasRole('KNOWLEDGE_BASE_SETUP')" class="text-danger" th:data-bs-target="'#a' + ${rec.id}" data-bs-toggle="modal">
+                                                    <span class="fas fa-trash" data-bs-toggle="tooltip" data-bs-placement="right" title="Delete Ticket Status"></span>
+                                                </a>
+                                                <div class="modal fade" th:id="'a' + ${rec.id}" tabindex="-1" role="dialog" aria-labelledby="${rec.id}" aria-hidden="true">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h6 class="modal-title text-primary">Nigerian Exchange Group - <span class="text-secondary">X-Ticket</span></h6>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <p>Confirm you ticket status delete</p>
+                                                                <a class="btn btn-sm btn-danger" href="#!" th:href="@{'/knowledge-base/content/delete?seid=' + ${rec.id}}">Delete</a>
+                                                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -95,13 +114,13 @@
         <script th:src="@{/js/tableHTMLExport.js}"></script>
         <script>
             $('#json').on('click', function () {
-                $("#xticketTable").tableHTMLExport({type: 'json', filename: 'XTicket_Agent.json'});
+                $("#xticketTable").tableHTMLExport({type: 'json', filename: 'XTicket_Status.json'});
             });
             $('#csv').on('click', function () {
-                $("#xticketTable").tableHTMLExport({type: 'csv', filename: 'XTicket_Agent.csv'});
+                $("#xticketTable").tableHTMLExport({type: 'csv', filename: 'XTicket_Status.csv'});
             });
             $('#pdf').on('click', function () {
-                $("#xticketTable").tableHTMLExport({type: 'pdf', filename: 'XTicket_Agent.pdf'});
+                $("#xticketTable").tableHTMLExport({type: 'pdf', filename: 'XTicket_Status.pdf'});
             });
         </script>
     </body>

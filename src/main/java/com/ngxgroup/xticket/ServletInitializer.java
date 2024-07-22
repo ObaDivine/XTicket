@@ -37,9 +37,6 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
     @Value("${xticket.company.phone}")
     private String companyPhone;
     static final String SYSTEM_USER = "System";
-    static final String DASHBOARD_ROLE = "DASHBOARD";
-    static final String RAISE_TICKET_ROLE = "RAISE_TICKET";
-    static final String KNOWLEDGE_BASE_ROLE = "KNOWLEDGE_BASE";
     static final String ENABLE_STATUS = "Enabled";
 
     @Override
@@ -52,7 +49,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
 
         //Add App Roles
         Map<String, String> appRoles = new HashMap<>();
-        appRoles.put(DASHBOARD_ROLE, "Application Dashboard");
+        appRoles.put("DASHBOARD", "Application Dashboard");
         appRoles.put("UPDATE_ROLES", "Update Roles");
         appRoles.put("DELETE_ROLES", "Delete Roles");
         appRoles.put("ADD_ROLES", "Add Roles");
@@ -86,8 +83,9 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
         appRoles.put("DELETE_ENTITY", "Delete Entity");
         appRoles.put("UPDATE_ENTITY", "Update Entity");
         appRoles.put("LIST_ENTITY", "List Entity");
-        appRoles.put(KNOWLEDGE_BASE_ROLE, "View Knowledge Base Documentation");
-        appRoles.put(RAISE_TICKET_ROLE, "Raise Tickets");
+        appRoles.put("KNOWLEDGE_BASE", "View Knowledge Base Documentation");
+        appRoles.put("KNOWLEDGE_BASE_SETUP", "Setup Knowledge Base Documentation");
+        appRoles.put("RAISE_TICKET", "Raise Tickets");
         appRoles.put("REPORT", "View Reports accross entities");
         appRoles.put("TICKET_AGENT", "Set user as a ticket agent");
 
@@ -114,7 +112,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
         //Check the group roles
         List<GroupRoles> saGroupRoles = xticketRepository.getGroupRolesUsingRoleGroup(saGroup);
         if (saGroupRoles == null) {
-            AppRoles dashboard = xticketRepository.getRoleUsingRoleName(DASHBOARD_ROLE);
+            AppRoles dashboard = xticketRepository.getRoleUsingRoleName("DASHBOARD");
             if (dashboard != null) {
                 GroupRoles newGroupRole = new GroupRoles();
                 newGroupRole.setAppRole(dashboard);
@@ -123,7 +121,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
                 xticketRepository.createGroupRoles(newGroupRole);
             }
 
-            AppRoles knowledge = xticketRepository.getRoleUsingRoleName(KNOWLEDGE_BASE_ROLE);
+            AppRoles knowledge = xticketRepository.getRoleUsingRoleName("KNOWLEDGE_BASE");
             if (knowledge != null) {
                 GroupRoles newGroupRole = new GroupRoles();
                 newGroupRole.setAppRole(knowledge);
@@ -132,7 +130,16 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
                 xticketRepository.createGroupRoles(newGroupRole);
             }
 
-            AppRoles ticket = xticketRepository.getRoleUsingRoleName(RAISE_TICKET_ROLE);
+            AppRoles knowledgeBase = xticketRepository.getRoleUsingRoleName("KNOWLEDGE_BASE_SETUP");
+            if (knowledgeBase != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(knowledgeBase);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles ticket = xticketRepository.getRoleUsingRoleName("RAISE_TICKET");
             if (ticket != null) {
                 GroupRoles newGroupRole = new GroupRoles();
                 newGroupRole.setAppRole(ticket);
@@ -433,7 +440,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
         //Check the group roles
         List<GroupRoles> defaultGroupRoles = xticketRepository.getGroupRolesUsingRoleGroup(defaultGroup);
         if (defaultGroupRoles == null) {
-            AppRoles dashboard = xticketRepository.getRoleUsingRoleName(DASHBOARD_ROLE);
+            AppRoles dashboard = xticketRepository.getRoleUsingRoleName("DASHBOARD");
             if (dashboard != null) {
                 GroupRoles newGroupRole = new GroupRoles();
                 newGroupRole.setAppRole(dashboard);
@@ -442,7 +449,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
                 xticketRepository.createGroupRoles(newGroupRole);
             }
 
-            AppRoles knowledge = xticketRepository.getRoleUsingRoleName(KNOWLEDGE_BASE_ROLE);
+            AppRoles knowledge = xticketRepository.getRoleUsingRoleName("KNOWLEDGE_BASE");
             if (knowledge != null) {
                 GroupRoles newGroupRole = new GroupRoles();
                 newGroupRole.setAppRole(knowledge);
@@ -450,8 +457,17 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
                 newGroupRole.setRoleGroup(defaultGroup);
                 xticketRepository.createGroupRoles(newGroupRole);
             }
+            
+            AppRoles knowledgeBase = xticketRepository.getRoleUsingRoleName("KNOWLEDGE_BASE_SETUP");
+            if (knowledgeBase != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(knowledgeBase);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(defaultGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
 
-            AppRoles ticket = xticketRepository.getRoleUsingRoleName(RAISE_TICKET_ROLE);
+            AppRoles ticket = xticketRepository.getRoleUsingRoleName("RAISE_TICKET");
             if (ticket != null) {
                 GroupRoles newGroupRole = new GroupRoles();
                 newGroupRole.setAppRole(ticket);

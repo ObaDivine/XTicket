@@ -161,6 +161,25 @@ public class TicketController {
         return "ticketfulldetails";
     }
 
+    @GetMapping("/view/details")
+    public String searchTicket(@RequestParam("seid") String seid, HttpSession httpSession, Principal principal, Model model) {
+        XTicketPayload response = xticketService.fetchTicketFullDetails(seid);
+        model.addAttribute("ticketPayload", response);
+        model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("dataList", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("reopenedTicketList", response.getReopenedTickets());
+        model.addAttribute("reassignedTicketList", response.getReassignedTickets());
+        model.addAttribute("escalatedTicketList", response.getTicketEscalations());
+        model.addAttribute("commentTicketList", response.getTicketComments());
+        model.addAttribute("reopenedTicketCount", response.getReopenedTickets() == null ? 0 : response.getReopenedTickets().size());
+        model.addAttribute("reassignedTicketCount", response.getReassignedTickets() == null ? 0 : response.getReassignedTickets().size());
+        model.addAttribute("escalatedTicketCount", response.getTicketEscalations() == null ? 0 : response.getTicketEscalations().size());
+        model.addAttribute("commentTicketCount", response.getTicketComments() == null ? 0 : response.getTicketComments().size());
+        model.addAttribute("alertMessage", response.getResponseMessage());
+        model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
+        return "ticketfulldetails";
+    }
+
     private void resetAlertMessage() {
         alertMessage = "";
         alertMessageType = "";

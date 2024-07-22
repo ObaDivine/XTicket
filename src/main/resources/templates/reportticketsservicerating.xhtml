@@ -19,13 +19,14 @@
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb mb-0">
                                     <li class="breadcrumb-item"><a href="#" th:href="@{/}">Home</a></li>
-                                    <li class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
+                                    <li  th:if="!${session.isAgent}" class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
+                                    <li  th:if="${session.isAgent}" class="breadcrumb-item"><a href="#" th:href="@{/agent/dashboard}">Dashboard</a></li>
                                     <li class="breadcrumb-item active">Service Rating</li>
                                 </ol>
                             </nav>
                         </div>
                         <div class="col-md-3 col-auto">
-                            <h5 class="text-1100 text-primary" th:text="'Welcome ' + ${session.fullName}">Welcome Brian</h5>
+                            <h5><span class="text-1100 text-primary" th:text="'Welcome ' + ${session.fullName} + ' :: '"></span><span th:text="${session.userType}" class="text-secondary"></span></h5>
                         </div>
                         <hr/>
                     </div>

@@ -19,13 +19,14 @@
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb mb-0">
                                     <li class="breadcrumb-item"><a href="#" th:href="@{/}">Home</a></li>
-                                    <li class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
+                                    <li  th:if="!${session.isAgent}" class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
+                                    <li  th:if="${session.isAgent}" class="breadcrumb-item"><a href="#" th:href="@{/agent/dashboard}">Dashboard</a></li>
                                     <li class="breadcrumb-item active">Tickets By Service Unit To Entities</li>
                                 </ol>
                             </nav>
                         </div>
                         <div class="col-md-3 col-auto">
-                            <h5 class="text-1100 text-primary" th:text="'Welcome ' + ${session.fullName}">Welcome Brian</h5>
+                            <h5><span class="text-1100 text-primary" th:text="'Welcome ' + ${session.fullName} + ' :: '"></span><span th:text="${session.userType}" class="text-secondary"></span></h5>
                         </div>
                         <hr/>
                     </div>
@@ -95,7 +96,9 @@
                                             <td th:text="${rec.ticketTypeName}" class="ticketType align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.closedAt}" class="dateClosed align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.closedBy}" class="closedBy align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.ticketId}" class="ticketId align-middle white-space-nowrap start ps-3"></td>
+                                            <td class="ticketId align-middle white-space-nowrap start ps-3">
+                                                <a th:href="@{'/ticket/view/details?seid=' + ${rec.ticketId}}" th:text="${rec.ticketId}"></a>
+                                            </td>
                                             <td th:text="${rec.initialSla}" class="sla align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.slaViolated}" class="slaViolated align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.ticketEscalationCount}" class="escalation align-middle white-space-nowrap start ps-3"></td>

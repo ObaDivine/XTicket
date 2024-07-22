@@ -2,7 +2,7 @@ var options = new List('listTable', {
     valueNames: ['date', 'requestBy', 'ticketId', 'ticketGroup', 'ticketType', 'ticketCount', 'priority', 'slaExpiry', 'sla', 'slaViolated', 'reopened', 'subject',
         'dateClosed', 'closedBy', 'createdBy', 'name', 'email', 'mobile', 'gender', 'internal', 'agent', 'locked', 'role', 'lastLogin', 'timeElapsed', 'reassigned',
         'reassignedAt', 'reassignedBy', 'reassignedTo', 'initialSla', 'newSla', 'escalation', 'escalated', 'status', 'group', 'code', 'requireCR', 'requireSR',
-        'serviceUnit', 'entityName', 'escalation', 'rating'
+        'serviceUnit', 'entityName', 'escalation', 'rating', 'link'
     ],
     page: 10,
     pagination: true

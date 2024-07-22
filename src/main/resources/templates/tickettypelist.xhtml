@@ -26,7 +26,7 @@
                             </nav>
                         </div>
                         <div class="col-md-3 col-auto">
-                            <h5 class="text-1100 text-primary" th:text="'Welcome ' + ${session.fullName}">Welcome Brian</h5>
+                            <h5><span class="text-1100 text-primary" th:text="'Welcome ' + ${session.fullName} + ' :: '"></span><span th:text="${session.userType}" class="text-secondary"></span></h5>
                         </div>
                         <hr/>
                     </div>
@@ -54,7 +54,7 @@
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="name">Ticket Type Name</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="escalation">Escalation Emails</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="internal">Internal</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="sla">SLA Limit (Mins)</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="sla">SLA Limit</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="requireCR">Require CR Form</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="requireSR">Require IT SR Form</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="createdBy">Created By</th>
@@ -71,7 +71,7 @@
                                             <td th:text="${rec.ticketTypeName}" class="name align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.escalationEmails}" class="firstEscalation align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.internal}" class="internal align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.slaMins}" class="sla align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.initialSla}" class="sla align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.requireChangeRequestForm}" class="requireCR align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.requireServiceRequestForm}" class="requireSR align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.createdBy}" class="createdBy align-middle white-space-nowrap start ps-3"></td>
@@ -128,7 +128,7 @@
                 $("#xticketTable").tableHTMLExport({type: 'csv', filename: 'XTicket_Type.csv'});
             });
             $('#pdf').on('click', function () {
-                $("#xticketTable").tableHTMLExport({type: 'pdf', filename: 'XTicket_Type.pdf'});
+                $("#xticketTable").tableHTMLExport({type: 'pdf', filename: 'XTicket_Type.pdf', orientation:'p'});
             });
         </script>
     </body>

@@ -6,6 +6,8 @@ import com.ngxgroup.xticket.model.AuditLog;
 import com.ngxgroup.xticket.model.DocumentUpload;
 import com.ngxgroup.xticket.model.Entities;
 import com.ngxgroup.xticket.model.GroupRoles;
+import com.ngxgroup.xticket.model.KnowledgeBase;
+import com.ngxgroup.xticket.model.KnowledgeBaseCategory;
 import com.ngxgroup.xticket.model.Notification;
 import com.ngxgroup.xticket.model.PublicHolidays;
 import com.ngxgroup.xticket.model.RoleGroups;
@@ -1409,6 +1411,134 @@ public class XTicketRepositoryImpl implements XTicketRepository {
         em.persist(documentUpload);
         em.flush();
         return documentUpload;
+    }
+
+    @Override
+    public List<KnowledgeBaseCategory> getKnowledgeBaseCategory() {
+       TypedQuery<KnowledgeBaseCategory> query = em.createQuery("SELECT p FROM KnowledgeBaseCategory p", KnowledgeBaseCategory.class);
+        List<KnowledgeBaseCategory> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset; 
+    }
+
+    @Override
+    public List<KnowledgeBase> getKnowledgeBase() {
+        TypedQuery<KnowledgeBase> query = em.createQuery("SELECT p FROM KnowledgeBase p", KnowledgeBase.class);
+        List<KnowledgeBase> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset; 
+    }
+
+    @Override
+    public List<KnowledgeBase> getKnowledgeBaseUsingCategory(KnowledgeBaseCategory category) {
+        TypedQuery<KnowledgeBase> query = em.createQuery("SELECT p FROM KnowledgeBase p WHERE p.knowledgeBaseCategory = :knowledgeBaseCategory", KnowledgeBase.class)
+                .setParameter("knowledgeBaseCategory", category);
+        List<KnowledgeBase> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset; 
+    }
+
+    @Override
+    public KnowledgeBase getKnowledgeBaseUsingId(long id) {
+        TypedQuery<KnowledgeBase> query = em.createQuery("SELECT p FROM KnowledgeBase p WHERE p.id = :id", KnowledgeBase.class)
+                .setParameter("id", id);
+        List<KnowledgeBase> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset.get(0); 
+    }
+
+    @Override
+    public KnowledgeBaseCategory getKnowledgeBaseCategoryUsingId(long id) {
+        TypedQuery<KnowledgeBaseCategory> query = em.createQuery("SELECT p FROM KnowledgeBaseCategory p WHERE p.id = :id", KnowledgeBaseCategory.class)
+                .setParameter("id", id);
+        List<KnowledgeBaseCategory> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset.get(0); 
+    }
+
+    @Override
+    public KnowledgeBaseCategory getKnowledgeBaseCategoryUsingCode(String categoryCode) {
+        TypedQuery<KnowledgeBaseCategory> query = em.createQuery("SELECT p FROM KnowledgeBaseCategory p WHERE p.categoryCode = :categoryCode", KnowledgeBaseCategory.class)
+                .setParameter("categoryCode", categoryCode);
+        List<KnowledgeBaseCategory> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset.get(0); 
+    }
+
+    @Override
+    public KnowledgeBaseCategory getKnowledgeBaseCategoryUsingName(String categoryName) {
+        TypedQuery<KnowledgeBaseCategory> query = em.createQuery("SELECT p FROM KnowledgeBaseCategory p WHERE p.categoryName = :categoryName", KnowledgeBaseCategory.class)
+                .setParameter("categoryName", categoryName);
+        List<KnowledgeBaseCategory> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset.get(0); 
+    }
+
+    @Override
+    public KnowledgeBase getKnowledgeBaseUsingTitle(String title) {
+        TypedQuery<KnowledgeBase> query = em.createQuery("SELECT p FROM KnowledgeBase p WHERE p.header = :title", KnowledgeBase.class)
+                .setParameter("title", title);
+        List<KnowledgeBase> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset.get(0); 
+    }
+
+    @Override
+    public KnowledgeBase createKnowledgeBase(KnowledgeBase knowledgeBase) {
+         em.persist(knowledgeBase);
+        em.flush();
+        return knowledgeBase;
+    }
+
+    @Override
+    public KnowledgeBase updateKnowledgeBase(KnowledgeBase knowledgeBase) {
+       em.merge(knowledgeBase);
+        em.flush();
+        return knowledgeBase;  
+    }
+
+    @Override
+    public KnowledgeBase deleteKnowledgeBase(KnowledgeBase knowledgeBase) {
+        em.remove(em.contains(knowledgeBase) ? knowledgeBase : em.merge(knowledgeBase));
+        em.flush();
+        return knowledgeBase;
+    }
+
+    @Override
+    public KnowledgeBaseCategory createKnowledgeBaseCategory(KnowledgeBaseCategory knowledgeBaseCategory) {
+        em.persist(knowledgeBaseCategory);
+        em.flush();
+        return knowledgeBaseCategory;
+    }
+
+    @Override
+    public KnowledgeBaseCategory updateKnowledgeBaseCategory(KnowledgeBaseCategory knowledgeBaseCategory) {
+         em.merge(knowledgeBaseCategory);
+        em.flush();
+        return knowledgeBaseCategory;
+    }
+
+    @Override
+    public KnowledgeBaseCategory deleteKnowledgeBaseCategory(KnowledgeBaseCategory knowledgeBaseCategory) {
+        em.remove(em.contains(knowledgeBaseCategory) ? knowledgeBaseCategory : em.merge(knowledgeBaseCategory));
+        em.flush();
+        return knowledgeBaseCategory;
     }
 
 }

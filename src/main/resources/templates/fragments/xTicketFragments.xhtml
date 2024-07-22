@@ -252,10 +252,22 @@
                             <ul class="dropdown-menu navbar-dropdown-caret">
                                 <li sec:authorize="hasRole('KNOWLEDGE_BASE')">
                                     <a class="dropdown-item" href="" th:href="@{/knowledge-base}">
-                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="shopping-cart"></span>Documentation
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="book"></span>Documentation
                                         </div>
                                     </a>
-                                </li>                           
+                                </li>
+                                <li sec:authorize="hasRole('KNOWLEDGE_BASE_SETUP')">
+                                    <a class="dropdown-item" href="" th:href="@{/knowledge-base/category/list}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="bookmark"></span>Knowledge Base Category
+                                        </div>
+                                    </a>
+                                </li>
+                                <li sec:authorize="hasRole('KNOWLEDGE_BASE_SETUP')">
+                                    <a class="dropdown-item" href="" th:href="@{/knowledge-base/content/list}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="bookmark"></span>Knowledge Base Content
+                                        </div>
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown" sec:authorize="hasRole('MANAGE_USER') || hasRole('ADD_ROLES') || hasRole('LIST_ENTITY') 
