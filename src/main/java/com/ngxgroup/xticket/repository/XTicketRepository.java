@@ -6,6 +6,8 @@ import com.ngxgroup.xticket.model.AuditLog;
 import com.ngxgroup.xticket.model.DocumentUpload;
 import com.ngxgroup.xticket.model.Entities;
 import com.ngxgroup.xticket.model.GroupRoles;
+import com.ngxgroup.xticket.model.KnowledgeBase;
+import com.ngxgroup.xticket.model.KnowledgeBaseCategory;
 import com.ngxgroup.xticket.model.Notification;
 import com.ngxgroup.xticket.model.PublicHolidays;
 import com.ngxgroup.xticket.model.RoleGroups;
@@ -391,4 +393,38 @@ public interface XTicketRepository {
     PublicHolidays createPublicHoliday(PublicHolidays publicHoliday);
 
     PublicHolidays updatePublicHoliday(PublicHolidays publicHoliday);
+
+    /**
+     * Knowledge Base
+     *
+     * @return *
+     */
+    List<KnowledgeBaseCategory> getKnowledgeBaseCategory();
+
+    List<KnowledgeBase> getKnowledgeBase();
+
+    List<KnowledgeBase> getKnowledgeBaseUsingCategory(KnowledgeBaseCategory category);
+
+    KnowledgeBase getKnowledgeBaseUsingId(long id);
+
+    KnowledgeBaseCategory getKnowledgeBaseCategoryUsingId(long id);
+
+    KnowledgeBaseCategory getKnowledgeBaseCategoryUsingCode(String categoryCode);
+
+    KnowledgeBaseCategory getKnowledgeBaseCategoryUsingName(String categoryName);
+
+    KnowledgeBase getKnowledgeBaseUsingTitle(String title);
+
+    KnowledgeBase createKnowledgeBase(KnowledgeBase knowledgeBase);
+
+    KnowledgeBase updateKnowledgeBase(KnowledgeBase knowledgeBase);
+
+    KnowledgeBase deleteKnowledgeBase(KnowledgeBase knowledgeBase);
+
+    KnowledgeBaseCategory createKnowledgeBaseCategory(KnowledgeBaseCategory knowledgeBaseCategory);
+
+    KnowledgeBaseCategory updateKnowledgeBaseCategory(KnowledgeBaseCategory knowledgeBaseCategory);
+
+    KnowledgeBaseCategory deleteKnowledgeBaseCategory(KnowledgeBaseCategory knowledgeBaseCategory);
+
 }

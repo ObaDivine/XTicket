@@ -19,13 +19,14 @@
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb mb-0">
                                     <li class="breadcrumb-item"><a href="#" th:href="@{/}">Home</a></li>
-                                    <li class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
+                                    <li  th:if="!${session.isAgent}" class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
+                                    <li  th:if="${session.isAgent}" class="breadcrumb-item"><a href="#" th:href="@{/agent/dashboard}">Dashboard</a></li>
                                     <li class="breadcrumb-item active">Open Ticket Listing</li>
                                 </ol>
                             </nav>
                         </div>
                         <div class="col-md-3 col-auto">
-                            <h5 class="text-1100 text-primary" th:text="'Welcome ' + ${session.fullName}">Welcome Brian</h5>
+                            <h5><span class="text-1100 text-primary" th:text="'Welcome ' + ${session.fullName} + ' :: '"></span><span th:text="${session.userType}" class="text-secondary"></span></h5>
                         </div>
                         <hr/>
                     </div>
@@ -36,7 +37,7 @@
                                     <select class="form-select form-control-sm form-icon-input" aria-label="serviceUnit" th:field="*{serviceUnitCode}">
                                         <option value="">---Select service unit---</option>
                                         <option th:each="fa : ${serviceUnitList}" th:value="${fa.serviceUnitCode}" th:text="${fa.serviceUnitName}"></option>
-                                    </select>>
+                                    </select>
                                     <span class="fas fa-layer-group text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <div class="form-icon-container">
@@ -85,12 +86,14 @@
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="slaExpiry">SLA Expiry</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="timeElapsed">Time Elapsed</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketId">Ticket ID</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="agent">Ticket Agent</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="serviceUnit">Service Unit</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketGroup">Ticket Group</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketType">Ticket Type</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="priority">Priority</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="subject">Subject</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="internal">Internal</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="status">Status</th>
                                         </tr>
                                     </thead>
                                     <tbody class="list" id="deal-tables-body" th:if="${dataList != null}">
@@ -98,13 +101,17 @@
                                             <td th:text="${rec.createdAt}" class="date align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.slaExpiry}" class="date align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.timeElapsed}" class="timeElapsed align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.ticketId}" class="ticketId align-middle white-space-nowrap start ps-3"></td>
+                                            <td class="ticketId align-middle white-space-nowrap start ps-3">
+                                                <a th:href="@{'/ticket/view/details?seid=' + ${rec.ticketId}}" th:text="${rec.ticketId}"></a>
+                                            </td>
+                                            <td th:text="${rec.ticketAgent}" class="agent align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.serviceUnitName}" class="serviceUnit align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.ticketGroupName}" class="ticketGroup align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.ticketTypeName}" class="ticketType align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.priority}" class="priority align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.subject}" class="subject align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.internal}" class="internal align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.status}" class="status align-middle white-space-nowrap start ps-3"></td>
                                         </tr>
                                     </tbody>
                                 </table>

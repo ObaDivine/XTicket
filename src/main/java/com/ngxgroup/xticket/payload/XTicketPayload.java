@@ -88,6 +88,7 @@ public class XTicketPayload {
     int slaMins;
     String slaExpiry;
     String recipientEmail;
+    String carbonCopyEmail;
     String emailSubject;
     String emailBody;
     String attachmentFilePath;
@@ -119,4 +120,9 @@ public class XTicketPayload {
     String resetTime;
     int rating;
     double ratingAverage;
+    String categoryCode;
+    String categoryName;
+    String tag;
+    String knowledgeBaseHeader;
+    String knowledgeBaseContent;
 }

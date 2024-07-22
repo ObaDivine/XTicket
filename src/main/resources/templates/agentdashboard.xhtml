@@ -17,7 +17,7 @@
                             <h5 class="text-700 fw-semi-bold">X-Ticket System</h5>
                         </div>
                         <div class="col-md-3 col-auto">
-                            <h5 class="mb-2 text-1100 text-primary" th:text="'Welcome ' + ${session.fullName}">Welcome Brian</h5>
+                            <h5><span class="text-1100 text-primary" th:text="'Welcome ' + ${session.fullName} + ' :: '"></span><span th:text="${session.userType}" class="text-secondary"></span></h5>
                         </div>
                     </div>
                     <div class="row align-items-center g-6">

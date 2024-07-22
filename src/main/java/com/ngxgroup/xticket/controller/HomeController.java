@@ -109,6 +109,7 @@ public class HomeController implements ErrorController {
             httpSession.setAttribute("isInternal", profileDetails.isInternal());
             httpSession.setAttribute("isLocked", profileDetails.isLocked());
             httpSession.setAttribute("isActivated", profileDetails.isActivated());
+            httpSession.setAttribute("userType", profileDetails.isAgent() ? "Agent" : !profileDetails.isInternal() ? "User" : "Admin");
             //Check if the user is an egent
             if (response.isAgent()) {
                 return "redirect:/agent/dashboard";
@@ -312,6 +313,133 @@ public class HomeController implements ErrorController {
         model.addAttribute("alertMessage", alertMessage);
         resetAlertMessage();
         return "knowledgebase";
+    }
+
+    @GetMapping("/knowledge-base/category")
+    @Secured("ROLE_KNOWLEDGE_BASE_SETUP")
+    public String knowledgeBaseCategory(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
+        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("recordCount", xticketService.fetchKnowledgeBaseCategory().getData().size());
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
+        resetAlertMessage();
+        return "knowledgebasecategory";
+    }
+
+    @PostMapping("/knowledge-base/category/create")
+    public String knowledgeBaseCategory(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession session, Principal principal, Model model) {
+        XTicketPayload response = xticketService.createKnowledgeBaseCategory(requestPayload, principal.getName());
+        if (response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
+            alertMessage = response.getResponseMessage();
+            alertMessageType = "success";
+            return "redirect:/knowledge-base/category";
+        }
+        model.addAttribute("ticketPayload", requestPayload);
+        model.addAttribute("alertMessage", response.getResponseMessage());
+        model.addAttribute("alertMessageType", "error");
+        resetAlertMessage();
+        return "knowledgebasecategory";
+    }
+
+    @GetMapping("/knowledge-base/category/edit")
+    @Secured("ROLE_KNOWLEDGE_BASE_SETUP")
+    public String knowledgeBaseCategory(@RequestParam("seid") String id, Model model, Principal principal) {
+        XTicketPayload response = xticketService.fetchKnowledgeBaseCategory(id);
+        if (!response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
+            alertMessage = response.getResponseMessage();
+            alertMessageType = "error";
+            return "redirect:/knowledge-base/category/list";
+        }
+        model.addAttribute("ticketPayload", response);
+        model.addAttribute("recordCount", xticketService.fetchKnowledgeBaseCategory().getData().size());
+        model.addAttribute("alertMessage", response.getResponseMessage());
+        model.addAttribute("alertMessageType", "success");
+        resetAlertMessage();
+        return "knowledgebasecategory";
+    }
+
+    @GetMapping("/knowledge-base/category/list")
+    @Secured("ROLE_KNOWLEDGE_BASE_SETUP")
+    public String knowledgeBaseCategory(Model model, Principal principal) {
+        XTicketPayload response = xticketService.fetchKnowledgeBaseCategory();
+        model.addAttribute("dataList", response.getData());
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
+        resetAlertMessage();
+        return "knowledgebasecategorylist";
+    }
+
+    @GetMapping("/knowledge-base/category/delete")
+    @Secured("ROLE_KNOWLEDGE_BASE_SETUP")
+    public String deleteKnowledgeBaseCategory(@RequestParam("seid") String seid, Model model, Principal principal) {
+        XTicketPayload response = xticketService.deleteKnowledgeBaseCategory(seid, principal.getName());
+        alertMessage = response.getResponseMessage();
+        alertMessageType = response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error";
+        return "redirect:/knowledge-base/category/list";
+    }
+
+    @GetMapping("/knowledge-base/content")
+    @Secured("ROLE_KNOWLEDGE_BASE_SETUP")
+    public String knowledgeBaseContent(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
+        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("recordCount", xticketService.fetchKnowledgeBaseContent().getData().size());
+        model.addAttribute("knowledgeBaseCategoryList", xticketService.fetchKnowledgeBaseCategory().getData().size());
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
+        resetAlertMessage();
+        return "knowledgebasecontent";
+    }
+
+    @PostMapping("/knowledge-base/content/create")
+    public String knowledgeBaseContent(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession session, Principal principal, Model model) {
+        XTicketPayload response = xticketService.createKnowledgeBaseContent(requestPayload, principal.getName());
+        if (response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
+            alertMessage = response.getResponseMessage();
+            alertMessageType = "success";
+            return "redirect:/knowledge-base/category";
+        }
+        model.addAttribute("ticketPayload", requestPayload);
+        model.addAttribute("alertMessage", response.getResponseMessage());
+        model.addAttribute("alertMessageType", "error");
+        resetAlertMessage();
+        return "knowledgebasecontent";
+    }
+
+    @GetMapping("/knowledge-base/content/edit")
+    @Secured("ROLE_KNOWLEDGE_BASE_SETUP")
+    public String knowledgeBaseContent(@RequestParam("seid") String id, Model model, Principal principal) {
+        XTicketPayload response = xticketService.fetchKnowledgeBaseContent(id);
+        if (!response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
+            alertMessage = response.getResponseMessage();
+            alertMessageType = "error";
+            return "redirect:/knowledge-base/category/list";
+        }
+        model.addAttribute("ticketPayload", response);
+        model.addAttribute("recordCount", xticketService.fetchKnowledgeBaseContent().getData().size());
+        model.addAttribute("alertMessage", response.getResponseMessage());
+        model.addAttribute("alertMessageType", "success");
+        resetAlertMessage();
+        return "knowledgebasecontent";
+    }
+
+    @GetMapping("/knowledge-base/content/list")
+    @Secured("ROLE_KNOWLEDGE_BASE_SETUP")
+    public String knowledgeBaseContent(Model model, Principal principal) {
+        XTicketPayload response = xticketService.fetchKnowledgeBaseContent();
+        model.addAttribute("dataList", response.getData());
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
+        resetAlertMessage();
+        return "knowledgebasecontentlist";
+    }
+
+    @GetMapping("/knowledge-base/content/delete")
+    @Secured("ROLE_KNOWLEDGE_BASE_SETUP")
+    public String deleteKnowledgeBaseContent(@RequestParam("seid") String seid, Model model, Principal principal) {
+        XTicketPayload response = xticketService.deleteKnowledgeBaseContent(seid, principal.getName());
+        alertMessage = response.getResponseMessage();
+        alertMessageType = response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error";
+        return "redirect:/knowledge-base/content/list";
     }
 
     private String generateTicketByGroupChart(List<XTicketPayload> ticketList) {
