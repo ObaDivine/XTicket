@@ -405,6 +405,10 @@ public interface XTicketRepository {
 
     List<KnowledgeBase> getKnowledgeBaseUsingCategory(KnowledgeBaseCategory category);
 
+    List<KnowledgeBase> getKnowledgeBasePopularArticle();
+
+    List<KnowledgeBase> getKnowledgeBaseLatestArticle();
+
     KnowledgeBase getKnowledgeBaseUsingId(long id);
 
     KnowledgeBaseCategory getKnowledgeBaseCategoryUsingId(long id);
@@ -426,5 +430,7 @@ public interface XTicketRepository {
     KnowledgeBaseCategory updateKnowledgeBaseCategory(KnowledgeBaseCategory knowledgeBaseCategory);
 
     KnowledgeBaseCategory deleteKnowledgeBaseCategory(KnowledgeBaseCategory knowledgeBaseCategory);
+
+    List<AuditLog> getAuditLog(LocalDate startDate, LocalDate endDate);
 
 }

@@ -80,6 +80,7 @@ public class XTicketPayload {
     List<XTicketPayload> ticketEscalations;
     List<XTicketPayload> ticketComments;
     List<XTicketPayload> uploadDocuments;
+    List<XTicketPayload> knowledgeBaseContentList;
     String escalationEmails;
     boolean escalated;
     boolean ticketOpen;
@@ -125,4 +126,12 @@ public class XTicketPayload {
     String tag;
     String knowledgeBaseHeader;
     String knowledgeBaseContent;
+    String userType;
+    String refNo;
+    String auditClass;
+    String auditCategory;
+    String auditAction;
+    String oldValue;
+    boolean popularArticle;
+    boolean latestArticle;
 }

@@ -1,8 +1,10 @@
 package com.ngxgroup.xticket.service;
 
 import com.google.gson.Gson;
+import com.ngxgroup.xticket.model.AuditLog;
 import com.ngxgroup.xticket.payload.LogPayload;
 import com.ngxgroup.xticket.payload.XTicketPayload;
+import com.ngxgroup.xticket.repository.XTicketRepository;
 import de.taimos.totp.TOTP;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
@@ -22,6 +24,7 @@ import jakarta.mail.Multipart;
 import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
+import java.time.LocalDateTime;
 import java.util.Random;
 import org.apache.commons.codec.binary.Base32;
 import org.apache.commons.codec.binary.Hex;
@@ -39,6 +42,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class GenericServiceImpl implements GenericService {
 
+    @Autowired
+    XTicketRepository xticketRepository;
     @Autowired
     Gson gson;
     @Value("${xticket.encryption.key.web}")
@@ -211,6 +216,21 @@ public class GenericServiceImpl implements GenericService {
         } catch (Exception ex) {
             return null;
         }
+    }
+
+    @Override
+    public CompletableFuture<String> logResponse(String username, Object refNo, String auditClass, String auditCategory, String auditAction, String oldValue, String newValue) {
+        AuditLog newLog = new AuditLog();
+        newLog.setAuditAction(auditAction);
+        newLog.setAuditCategory(auditCategory);
+        newLog.setAuditClass(auditClass);
+        newLog.setCreatedAt(LocalDateTime.now());
+        newLog.setNewValue(newValue);
+        newLog.setOldValue(oldValue);
+        newLog.setRefNo(String.valueOf(refNo));
+        newLog.setUsername(username);
+        xticketRepository.createAuditLog(newLog);
+        return CompletableFuture.completedFuture("Success");
     }
 
 }

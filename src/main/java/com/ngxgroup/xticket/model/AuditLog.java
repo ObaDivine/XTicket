@@ -32,20 +32,20 @@ public class AuditLog implements Serializable {
     @Basic(optional = false)
     @Column(name = "id")
     private Long id;
-    @Column(name = "Username")
+    @Column(name = "username")
     private String username;
-    @Column(name = "AuditAction")
+    @Column(name = "audit_action")
     private String auditAction;
-    @Column(name = "AuditCategory")
+    @Column(name = "audit_category")
     private String auditCategory;
-    @Column(name = "AuditClass")
+    @Column(name = "audit_class")
     private String auditClass;
-    @Column(name = "RefNo")
+    @Column(name = "ref_no")
     private String refNo;
-    @Column(name = "OldValue", length = 5000)
+    @Column(name = "old_value", length = 5000)
     private String oldValue;
-    @Column(name = "NewValue", length = 5000)
+    @Column(name = "new_value", length = 5000)
     private String newValue;
-    @Column(name = "CreatedAt")
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 }

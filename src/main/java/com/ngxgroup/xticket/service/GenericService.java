@@ -22,4 +22,6 @@ public interface GenericService {
     CompletableFuture<String> sendEmail(XTicketPayload requestPayload, String principal);
     
     String generateFileName();
+    
+    CompletableFuture<String> logResponse(String username, Object refNo, String auditClass, String auditCategory, String auditAction, String oldValue, String newValue);
 }

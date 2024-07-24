@@ -46,4 +46,8 @@ public class KnowledgeBase implements Serializable {
     private String videoLink;
     @ManyToOne
     private KnowledgeBaseCategory knowledgeBaseCategory;
+    @Column(name = "popular_article")
+    private boolean popularArticle;
+    @Column(name = "latest_article")
+    private boolean latestArticle;
 }
