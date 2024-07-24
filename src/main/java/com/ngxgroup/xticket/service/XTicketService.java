@@ -231,8 +231,8 @@ public interface XTicketService {
     XTicketPayload createTicketStatus(XTicketPayload requestPayload, String principal);
 
     XTicketPayload deleteTicketStatus(String id, String principal);
-    
-        /**
+
+    /**
      * Ticket Status Transactions
      *
      *
@@ -245,12 +245,30 @@ public interface XTicketService {
     XTicketPayload createKnowledgeBaseCategory(XTicketPayload requestPayload, String principal);
 
     XTicketPayload deleteKnowledgeBaseCategory(String id, String principal);
-    
+
     XTicketPayload fetchKnowledgeBaseContent();
+
+    XTicketPayload fetchKnowledgeBase();
+    
+    XTicketPayload fetchKnowledgeBasePopularArticle();
+    
+    XTicketPayload fetchKnowledgeBaseLatestArticle();
+    
+    XTicketPayload fetchKnowledgeBasePopularTag();
 
     XTicketPayload fetchKnowledgeBaseContent(String id);
 
     XTicketPayload createKnowledgeBaseContent(XTicketPayload requestPayload, String principal);
 
     XTicketPayload deleteKnowledgeBaseContent(String id, String principal);
+
+    /**
+     * Audit Log
+     *
+     *
+     * @param requestPayload
+     * @return
+     */
+    XTicketPayload fetchAuditLog(XTicketPayload requestPayload);
+
 }

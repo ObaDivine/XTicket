@@ -109,7 +109,7 @@ public class HomeController implements ErrorController {
             httpSession.setAttribute("isInternal", profileDetails.isInternal());
             httpSession.setAttribute("isLocked", profileDetails.isLocked());
             httpSession.setAttribute("isActivated", profileDetails.isActivated());
-            httpSession.setAttribute("userType", profileDetails.isAgent() ? "Agent" : !profileDetails.isInternal() ? "User" : "Admin");
+            httpSession.setAttribute("userType", profileDetails.getUserType());
             //Check if the user is an egent
             if (response.isAgent()) {
                 return "redirect:/agent/dashboard";
@@ -305,9 +305,13 @@ public class HomeController implements ErrorController {
 
     @GetMapping("/knowledge-base")
     @Secured("ROLE_KNOWLEDGE_BASE")
-    public String knowledgebase(HttpServletRequest request, HttpServletResponse response, Principal principal, Model model) {
-        XTicketPayload passwordChangePayload = new XTicketPayload();
-        passwordChangePayload.setEmail(principal.getName());
+    public String knowledgebase(HttpServletRequest httpRequest, HttpServletResponse httpResponse, Principal principal, Model model) {
+        XTicketPayload requestPayload = new XTicketPayload();
+        requestPayload.setEmail(principal.getName());
+        model.addAttribute("dataList", xticketService.fetchKnowledgeBase());
+        model.addAttribute("popularArticleList", xticketService.fetchKnowledgeBasePopularArticle().getData());
+        model.addAttribute("latestArticleList", xticketService.fetchKnowledgeBaseLatestArticle().getData());
+        model.addAttribute("popularTagList", xticketService.fetchKnowledgeBasePopularTag().getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         model.addAttribute("alertMessage", alertMessage);
@@ -383,7 +387,7 @@ public class HomeController implements ErrorController {
     public String knowledgeBaseContent(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("recordCount", xticketService.fetchKnowledgeBaseContent().getData().size());
-        model.addAttribute("knowledgeBaseCategoryList", xticketService.fetchKnowledgeBaseCategory().getData().size());
+        model.addAttribute("knowledgeBaseCategoryList", xticketService.fetchKnowledgeBaseCategory().getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -396,9 +400,11 @@ public class HomeController implements ErrorController {
         if (response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
             alertMessage = response.getResponseMessage();
             alertMessageType = "success";
-            return "redirect:/knowledge-base/category";
+            return "redirect:/knowledge-base/content";
         }
         model.addAttribute("ticketPayload", requestPayload);
+        model.addAttribute("recordCount", xticketService.fetchKnowledgeBaseContent().getData().size());
+        model.addAttribute("knowledgeBaseCategoryList", xticketService.fetchKnowledgeBaseCategory().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "error");
         resetAlertMessage();
@@ -412,9 +418,10 @@ public class HomeController implements ErrorController {
         if (!response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
             alertMessage = response.getResponseMessage();
             alertMessageType = "error";
-            return "redirect:/knowledge-base/category/list";
+            return "redirect:/knowledge-base/content/list";
         }
         model.addAttribute("ticketPayload", response);
+        model.addAttribute("knowledgeBaseCategoryList", xticketService.fetchKnowledgeBaseCategory().getData());
         model.addAttribute("recordCount", xticketService.fetchKnowledgeBaseContent().getData().size());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "success");

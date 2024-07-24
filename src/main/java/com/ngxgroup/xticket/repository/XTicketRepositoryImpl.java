@@ -1415,12 +1415,12 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<KnowledgeBaseCategory> getKnowledgeBaseCategory() {
-       TypedQuery<KnowledgeBaseCategory> query = em.createQuery("SELECT p FROM KnowledgeBaseCategory p", KnowledgeBaseCategory.class);
+        TypedQuery<KnowledgeBaseCategory> query = em.createQuery("SELECT p FROM KnowledgeBaseCategory p", KnowledgeBaseCategory.class);
         List<KnowledgeBaseCategory> recordset = query.getResultList();
         if (recordset.isEmpty()) {
             return null;
         }
-        return recordset; 
+        return recordset;
     }
 
     @Override
@@ -1430,7 +1430,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
         if (recordset.isEmpty()) {
             return null;
         }
-        return recordset; 
+        return recordset;
     }
 
     @Override
@@ -1441,7 +1441,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
         if (recordset.isEmpty()) {
             return null;
         }
-        return recordset; 
+        return recordset;
     }
 
     @Override
@@ -1452,7 +1452,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
         if (recordset.isEmpty()) {
             return null;
         }
-        return recordset.get(0); 
+        return recordset.get(0);
     }
 
     @Override
@@ -1463,7 +1463,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
         if (recordset.isEmpty()) {
             return null;
         }
-        return recordset.get(0); 
+        return recordset.get(0);
     }
 
     @Override
@@ -1474,7 +1474,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
         if (recordset.isEmpty()) {
             return null;
         }
-        return recordset.get(0); 
+        return recordset.get(0);
     }
 
     @Override
@@ -1485,7 +1485,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
         if (recordset.isEmpty()) {
             return null;
         }
-        return recordset.get(0); 
+        return recordset.get(0);
     }
 
     @Override
@@ -1496,21 +1496,41 @@ public class XTicketRepositoryImpl implements XTicketRepository {
         if (recordset.isEmpty()) {
             return null;
         }
-        return recordset.get(0); 
+        return recordset.get(0);
+    }
+
+    @Override
+    public List<KnowledgeBase> getKnowledgeBasePopularArticle() {
+        TypedQuery<KnowledgeBase> query = em.createQuery("SELECT p FROM KnowledgeBase p WHERE p.popularArticle = 1", KnowledgeBase.class);
+        List<KnowledgeBase> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset;
+    }
+
+    @Override
+    public List<KnowledgeBase> getKnowledgeBaseLatestArticle() {
+        TypedQuery<KnowledgeBase> query = em.createQuery("SELECT p FROM KnowledgeBase p WHERE p.latestArticle = 1", KnowledgeBase.class);
+        List<KnowledgeBase> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset;
     }
 
     @Override
     public KnowledgeBase createKnowledgeBase(KnowledgeBase knowledgeBase) {
-         em.persist(knowledgeBase);
+        em.persist(knowledgeBase);
         em.flush();
         return knowledgeBase;
     }
 
     @Override
     public KnowledgeBase updateKnowledgeBase(KnowledgeBase knowledgeBase) {
-       em.merge(knowledgeBase);
+        em.merge(knowledgeBase);
         em.flush();
-        return knowledgeBase;  
+        return knowledgeBase;
     }
 
     @Override
@@ -1529,7 +1549,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public KnowledgeBaseCategory updateKnowledgeBaseCategory(KnowledgeBaseCategory knowledgeBaseCategory) {
-         em.merge(knowledgeBaseCategory);
+        em.merge(knowledgeBaseCategory);
         em.flush();
         return knowledgeBaseCategory;
     }
@@ -1539,6 +1559,18 @@ public class XTicketRepositoryImpl implements XTicketRepository {
         em.remove(em.contains(knowledgeBaseCategory) ? knowledgeBaseCategory : em.merge(knowledgeBaseCategory));
         em.flush();
         return knowledgeBaseCategory;
+    }
+
+    @Override
+    public List<AuditLog> getAuditLog(LocalDate startDate, LocalDate endDate) {
+        TypedQuery<AuditLog> query = em.createQuery("SELECT p FROM AuditLog p WHERE p.createdAt >= :startDate AND p.createdAt <= :endDate", AuditLog.class)
+                .setParameter("startDate", startDate.atStartOfDay())
+                .setParameter("endDate", endDate.atTime(23, 59));
+        List<AuditLog> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset;
     }
 
 }

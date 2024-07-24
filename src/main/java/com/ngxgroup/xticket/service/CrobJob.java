@@ -121,6 +121,7 @@ public class CrobJob {
         XTicketPayload mailPayload = new XTicketPayload();
         mailPayload.setRecipientEmail(escalationEmail);
         mailPayload.setEmailSubject("Ticket SLA Violation Notification");
+        mailPayload.setCarbonCopyEmail("");
         String slaTime = timeDtf.format(ticket.getSlaExpiry().toLocalTime());
         String slaDate = ticket.getSlaExpiry().getMonth().toString() + " " + ticket.getSlaExpiry().getDayOfMonth() + ", " + ticket.getSlaExpiry().getYear();
         String message = "<h4>Dear " + ticket.getTicketAgent().getAgent().getLastName() + ",</h4>\n"

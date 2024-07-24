@@ -31,7 +31,7 @@
                         <hr/>
                     </div>
                     <div class="row mb-6 justify-content-between">
-                        <div class="offset-lg-1 col-lg-10 col-md-12 col-sm-12" id="listTable" data-list='{"valueNames":[],"page":10,"pagination":true}'>
+                        <div class="col-lg-12 col-md-12 col-sm-12" id="listTable" data-list='{"valueNames":[],"page":10,"pagination":true}'>
                             <div class="table-responsive ms-n1 ps-1 scrollbar">
                                 <div class="offset-lg-2 col-lg-10 col-md-8 col-sm-12 mb-2">
                                     <div class="input-group mb-3">
@@ -59,9 +59,9 @@
                                     <tbody class="list" id="deal-tables-body" th:if="${dataList != null}">
                                         <tr th:each="rec : ${dataList}" class="position-static">
                                             <td th:text="${rec.createdAt}" class="date align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.header}" class="subject align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.knowledgeBaseHeader}" class="subject align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.tag}" class="name align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.body}" class="message align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.knowledgeBaseContent}" class="message align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.documentLink}" class="link align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.createdBy}" class="createdBy align-middle white-space-nowrap start ps-3"></td>
                                             <td class="align-middle white-space-nowrap start ps-3 btn-reveal-trigger">
