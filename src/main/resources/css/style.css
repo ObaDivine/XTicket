@@ -171,3 +171,10 @@ text-secondary{
     width: 200px !important;
 }
 
+.border-20{
+    border-radius:20px !important;
+}
+
+.border-10{
+    border-radius:10px !important;
+}

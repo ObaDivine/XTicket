@@ -247,6 +247,8 @@ public interface XTicketService {
     XTicketPayload deleteKnowledgeBaseCategory(String id, String principal);
 
     XTicketPayload fetchKnowledgeBaseContent();
+    
+    XTicketPayload fetchKnowledgeBaseContentUsingCategory(String id);
 
     XTicketPayload fetchKnowledgeBase();
     
@@ -257,6 +259,8 @@ public interface XTicketService {
     XTicketPayload fetchKnowledgeBasePopularTag();
 
     XTicketPayload fetchKnowledgeBaseContent(String id);
+    
+    XTicketPayload searchKnowledgeBaseContent(String searchKeyWord);
 
     XTicketPayload createKnowledgeBaseContent(XTicketPayload requestPayload, String principal);
 
@@ -270,5 +274,7 @@ public interface XTicketService {
      * @return
      */
     XTicketPayload fetchAuditLog(XTicketPayload requestPayload);
+    
+    XTicketPayload createContactUs(XTicketPayload requestPayload);
 
 }

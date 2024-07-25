@@ -84,6 +84,7 @@ xticket:
   cron:
     job: '*/2 * * * * ?' #This cron job runs every 2 minutes
   email:
+    contactus: bokon@ngxgroup.com
     escalation:
       interval: 20 #This is 5 minutes between escalation
     notification: bokon@ngxgroup.com

@@ -3,6 +3,7 @@ package com.ngxgroup.xticket.repository;
 import com.ngxgroup.xticket.model.AppRoles;
 import com.ngxgroup.xticket.model.AppUser;
 import com.ngxgroup.xticket.model.AuditLog;
+import com.ngxgroup.xticket.model.ContactUs;
 import com.ngxgroup.xticket.model.DocumentUpload;
 import com.ngxgroup.xticket.model.Entities;
 import com.ngxgroup.xticket.model.GroupRoles;
@@ -108,6 +109,8 @@ public interface XTicketRepository {
     Tickets deleteTicket(Tickets ticket);
 
     Tickets getTicketUsingId(long id);
+
+    Tickets getTicketUsingAgent(TicketAgent ticketAgent);
 
     List<Tickets> getTickets();
 
@@ -247,6 +250,8 @@ public interface XTicketRepository {
     List<TicketAgent> getTicketAgent(AppUser ticketAgent);
 
     List<TicketAgent> getTicketAgentUsingTicketType(TicketType ticketType);
+
+    List<TicketAgent> getTicketAgentUsingTicketType(AppUser appUser, TicketType ticketType);
 
     TicketAgent createTicketAgent(TicketAgent ticketAgent);
 
@@ -409,6 +414,8 @@ public interface XTicketRepository {
 
     List<KnowledgeBase> getKnowledgeBaseLatestArticle();
 
+    List<KnowledgeBase> getKnowledgeBaseUsingTags(String tag);
+
     KnowledgeBase getKnowledgeBaseUsingId(long id);
 
     KnowledgeBaseCategory getKnowledgeBaseCategoryUsingId(long id);
@@ -432,5 +439,7 @@ public interface XTicketRepository {
     KnowledgeBaseCategory deleteKnowledgeBaseCategory(KnowledgeBaseCategory knowledgeBaseCategory);
 
     List<AuditLog> getAuditLog(LocalDate startDate, LocalDate endDate);
+
+    ContactUs createContactUs(ContactUs contactUs);
 
 }

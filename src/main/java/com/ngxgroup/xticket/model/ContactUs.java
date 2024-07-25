@@ -1,14 +1,14 @@
 package com.ngxgroup.xticket.model;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,29 +16,29 @@ import lombok.Setter;
 
 /**
  *
- * @author briano
+ * @author bokon
  */
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "ticket_agent")
-public class TicketAgent implements Serializable {
+@Table(name = "contact_us")
+public class ContactUs implements Serializable {
 
-    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
     @Column(name = "id")
     private Long id;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-    @Column(name = "created_by")
-    private String createdBy;
-    @ManyToOne
-    private AppUser agent;
-    @ManyToOne
-    private TicketType ticketType;
-    @Column(name = "in_use")
-    private boolean inUse;
+    @Column(name = "full_name")
+    private String fullName;
+    @Column(name = "email")
+    private String email;
+    @Column(name = "mobile_number")
+    private String mobileNumber;
+    @Column(name = "message", length = 5000)
+    private String message;
 }

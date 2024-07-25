@@ -87,6 +87,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
         appRoles.put("KNOWLEDGE_BASE_SETUP", "Setup Knowledge Base Documentation");
         appRoles.put("RAISE_TICKET", "Raise Tickets");
         appRoles.put("REPORT", "View Reports accross entities");
+        appRoles.put("MANAGEMENT_REPORT", "View Management Reports");
         appRoles.put("TICKET_AGENT", "Set user as a ticket agent");
 
         for (Map.Entry<String, String> role : appRoles.entrySet()) {
@@ -305,6 +306,15 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
             if (report != null) {
                 GroupRoles newGroupRole = new GroupRoles();
                 newGroupRole.setAppRole(report);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+            
+            AppRoles managementReport = xticketRepository.getRoleUsingRoleName("MANAGEMENT_REPORT");
+            if (managementReport != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(managementReport);
                 newGroupRole.setCreatedAt(LocalDateTime.now());
                 newGroupRole.setRoleGroup(saGroup);
                 xticketRepository.createGroupRoles(newGroupRole);

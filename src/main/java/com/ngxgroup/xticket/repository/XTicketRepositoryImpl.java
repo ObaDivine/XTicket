@@ -3,6 +3,7 @@ package com.ngxgroup.xticket.repository;
 import com.ngxgroup.xticket.model.AppRoles;
 import com.ngxgroup.xticket.model.AppUser;
 import com.ngxgroup.xticket.model.AuditLog;
+import com.ngxgroup.xticket.model.ContactUs;
 import com.ngxgroup.xticket.model.DocumentUpload;
 import com.ngxgroup.xticket.model.Entities;
 import com.ngxgroup.xticket.model.GroupRoles;
@@ -421,6 +422,17 @@ public class XTicketRepositoryImpl implements XTicketRepository {
             return null;
         }
         return recordset;
+    }
+
+    @Override
+    public Tickets getTicketUsingAgent(TicketAgent ticketAgent) {
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketAgent = :ticketAgent", Tickets.class)
+                .setParameter("ticketAgent", ticketAgent);
+        List<Tickets> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset.get(0);
     }
 
     @Override
@@ -877,7 +889,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<TicketAgent> getTicketAgent() {
-        TypedQuery<TicketAgent> query = em.createQuery("SELECT p FROM TicketAgent p", TicketAgent.class);
+        TypedQuery<TicketAgent> query = em.createQuery("SELECT p FROM TicketAgent p WHERE p.inUse = true", TicketAgent.class);
         List<TicketAgent> recordset = query.getResultList();
         if (recordset.isEmpty()) {
             return null;
@@ -887,7 +899,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<AppUser> getDistinctTicketAgent() {
-        TypedQuery<AppUser> query = em.createQuery("SELECT distinct p.agent FROM TicketAgent p", AppUser.class);
+        TypedQuery<AppUser> query = em.createQuery("SELECT distinct p.agent FROM TicketAgent p WHERE p.inUse = true", AppUser.class);
         List<AppUser> recordset = query.getResultList();
         if (recordset.isEmpty()) {
             return null;
@@ -897,7 +909,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<TicketAgent> getTicketAgent(AppUser ticketAgent) {
-        TypedQuery<TicketAgent> query = em.createQuery("SELECT p FROM TicketAgent p WHERE p.agent = :ticketAgent", TicketAgent.class)
+        TypedQuery<TicketAgent> query = em.createQuery("SELECT p FROM TicketAgent p WHERE p.agent = :ticketAgent AND p.inUse = true", TicketAgent.class)
                 .setParameter("ticketAgent", ticketAgent);
         List<TicketAgent> recordset = query.getResultList();
         if (recordset.isEmpty()) {
@@ -908,8 +920,20 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<TicketAgent> getTicketAgentUsingTicketType(TicketType ticketType) {
-        TypedQuery<TicketAgent> query = em.createQuery("SELECT p FROM TicketAgent p WHERE p.ticketType = :ticketType", TicketAgent.class)
+        TypedQuery<TicketAgent> query = em.createQuery("SELECT p FROM TicketAgent p WHERE p.ticketType = :ticketType AND p.inUse = true", TicketAgent.class)
                 .setParameter("ticketType", ticketType);
+        List<TicketAgent> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset;
+    }
+    
+        @Override
+    public List<TicketAgent> getTicketAgentUsingTicketType(AppUser appUser, TicketType ticketType) {
+        TypedQuery<TicketAgent> query = em.createQuery("SELECT p FROM TicketAgent p WHERE p.ticketType = :ticketType AND p.agent = :appUser AND p.inUse = true", TicketAgent.class)
+                .setParameter("ticketType", ticketType)
+                .setParameter("appUser", appUser);
         List<TicketAgent> recordset = query.getResultList();
         if (recordset.isEmpty()) {
             return null;
@@ -919,7 +943,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public TicketAgent getTicketAgentUsingId(long id) {
-        TypedQuery<TicketAgent> query = em.createQuery("SELECT p FROM TicketAgent p WHERE p.id = :id", TicketAgent.class)
+        TypedQuery<TicketAgent> query = em.createQuery("SELECT p FROM TicketAgent p WHERE p.id = :id AND p.inUse = true", TicketAgent.class)
                 .setParameter("id", id);
         List<TicketAgent> recordset = query.getResultList();
         if (recordset.isEmpty()) {
@@ -1456,6 +1480,29 @@ public class XTicketRepositoryImpl implements XTicketRepository {
     }
 
     @Override
+    public List<KnowledgeBase> getKnowledgeBaseUsingTags(String searchKeyWord) {
+        StringBuilder strQuery = new StringBuilder();
+        strQuery.append("SELECT t FROM KnowledgeBase t WHERE ");
+
+        String[] searchStrings = searchKeyWord.split(",");
+        int i = 1;
+        for (String str : searchStrings) {
+            if (i == searchStrings.length) {
+                strQuery = strQuery.append("t.tag LIKE '%").append(str.trim()).append("%'");
+            } else {
+                strQuery = strQuery.append("t.tag LIKE '%").append(str.trim()).append("%' OR ");
+            }
+            i++;
+        }
+        TypedQuery<KnowledgeBase> query = em.createQuery(strQuery.toString(), KnowledgeBase.class);
+        List<KnowledgeBase> record = query.getResultList();
+        if (record.isEmpty()) {
+            return null;
+        }
+        return record;
+    }
+
+    @Override
     public KnowledgeBaseCategory getKnowledgeBaseCategoryUsingId(long id) {
         TypedQuery<KnowledgeBaseCategory> query = em.createQuery("SELECT p FROM KnowledgeBaseCategory p WHERE p.id = :id", KnowledgeBaseCategory.class)
                 .setParameter("id", id);
@@ -1501,7 +1548,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<KnowledgeBase> getKnowledgeBasePopularArticle() {
-        TypedQuery<KnowledgeBase> query = em.createQuery("SELECT p FROM KnowledgeBase p WHERE p.popularArticle = 1", KnowledgeBase.class);
+        TypedQuery<KnowledgeBase> query = em.createQuery("SELECT p FROM KnowledgeBase p WHERE p.popularArticle = true", KnowledgeBase.class);
         List<KnowledgeBase> recordset = query.getResultList();
         if (recordset.isEmpty()) {
             return null;
@@ -1511,7 +1558,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<KnowledgeBase> getKnowledgeBaseLatestArticle() {
-        TypedQuery<KnowledgeBase> query = em.createQuery("SELECT p FROM KnowledgeBase p WHERE p.latestArticle = 1", KnowledgeBase.class);
+        TypedQuery<KnowledgeBase> query = em.createQuery("SELECT p FROM KnowledgeBase p WHERE p.latestArticle = true", KnowledgeBase.class);
         List<KnowledgeBase> recordset = query.getResultList();
         if (recordset.isEmpty()) {
             return null;
@@ -1571,6 +1618,13 @@ public class XTicketRepositoryImpl implements XTicketRepository {
             return null;
         }
         return recordset;
+    }
+
+    @Override
+    public ContactUs createContactUs(ContactUs contactUs) {
+        em.persist(contactUs);
+        em.flush();
+        return contactUs;
     }
 
 }

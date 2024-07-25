@@ -261,7 +261,7 @@ public class ReportController {
     }
 
     @GetMapping("/ticket/service-unit")
-    @Secured("ROLE_REPORT")
+    @Secured("ROLE_MANAGEMENT_REPORT")
     public String serviceUnit(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
@@ -290,7 +290,7 @@ public class ReportController {
     }
 
     @GetMapping("/ticket/service-unit-entity")
-    @Secured("ROLE_REPORT")
+    @Secured("ROLE_MANAGEMENT_REPORT")
     public String serviceUnitToEntity(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
@@ -316,7 +316,7 @@ public class ReportController {
     }
 
     @GetMapping("/ticket/service-rating")
-    @Secured("ROLE_REPORT")
+    @Secured("ROLE_MANAGEMENT_REPORT")
     public String serviceRating(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
@@ -342,7 +342,7 @@ public class ReportController {
     }
 
     @GetMapping("/ticket/entity")
-    @Secured("ROLE_REPORT")
+    @Secured("ROLE_MANAGEMENT_REPORT")
     public String entityToEntity(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("entityList", xticketService.fetchEntity().getData());
@@ -365,7 +365,7 @@ public class ReportController {
     }
 
     @GetMapping("/audit-log")
-    @Secured("ROLE_REPORT")
+    @Secured("ROLE_MANAGEMENT_REPORT")
     public String auditLog(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("entityList", xticketService.fetchEntity().getData());

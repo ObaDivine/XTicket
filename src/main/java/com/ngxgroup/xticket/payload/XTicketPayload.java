@@ -134,4 +134,5 @@ public class XTicketPayload {
     String oldValue;
     boolean popularArticle;
     boolean latestArticle;
+    String keyword;
 }

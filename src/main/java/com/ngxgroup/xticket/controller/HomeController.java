@@ -35,6 +35,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -305,7 +306,7 @@ public class HomeController implements ErrorController {
 
     @GetMapping("/knowledge-base")
     @Secured("ROLE_KNOWLEDGE_BASE")
-    public String knowledgebase(HttpServletRequest httpRequest, HttpServletResponse httpResponse, Principal principal, Model model) {
+    public String knowledgeBase(HttpServletRequest httpRequest, HttpServletResponse httpResponse, Principal principal, Model model) {
         XTicketPayload requestPayload = new XTicketPayload();
         requestPayload.setEmail(principal.getName());
         model.addAttribute("dataList", xticketService.fetchKnowledgeBase());
@@ -317,6 +318,38 @@ public class HomeController implements ErrorController {
         model.addAttribute("alertMessage", alertMessage);
         resetAlertMessage();
         return "knowledgebase";
+    }
+
+    @GetMapping("/knowledge-base/list")
+    @Secured("ROLE_KNOWLEDGE_BASE")
+    public String knowledgeBase(@RequestParam("seid") String seid, HttpServletRequest httpRequest, HttpServletResponse httpResponse, Principal principal, Model model) {
+        XTicketPayload requestPayload = new XTicketPayload();
+        requestPayload.setEmail(principal.getName());
+        model.addAttribute("dataList", xticketService.fetchKnowledgeBaseContentUsingCategory(seid));
+        model.addAttribute("popularArticleList", xticketService.fetchKnowledgeBasePopularArticle().getData());
+        model.addAttribute("latestArticleList", xticketService.fetchKnowledgeBaseLatestArticle().getData());
+        model.addAttribute("popularTagList", xticketService.fetchKnowledgeBasePopularTag().getData());
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
+        model.addAttribute("alertMessage", alertMessage);
+        resetAlertMessage();
+        return "knowledgebaselist";
+    }
+
+    @GetMapping("/knowledge-base/list/category")
+    @Secured("ROLE_KNOWLEDGE_BASE")
+    public String knowledgeBaseContent(@RequestParam("seid") String seid, HttpServletRequest httpRequest, HttpServletResponse httpResponse, Principal principal, Model model) {
+        XTicketPayload requestPayload = new XTicketPayload();
+        requestPayload.setEmail(principal.getName());
+        model.addAttribute("dataList", xticketService.fetchKnowledgeBaseContent(seid));
+        model.addAttribute("popularArticleList", xticketService.fetchKnowledgeBasePopularArticle().getData());
+        model.addAttribute("latestArticleList", xticketService.fetchKnowledgeBaseLatestArticle().getData());
+        model.addAttribute("popularTagList", xticketService.fetchKnowledgeBasePopularTag().getData());
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
+        model.addAttribute("alertMessage", alertMessage);
+        resetAlertMessage();
+        return "knowledgebasefullcontent";
     }
 
     @GetMapping("/knowledge-base/category")
@@ -483,6 +516,37 @@ public class HomeController implements ErrorController {
         return SecurityContextHolder.getContext().getAuthentication() != null
                 && SecurityContextHolder.getContext().getAuthentication().isAuthenticated()
                 && !(SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken);
+    }
+
+    @GetMapping("/contact-us")
+    public String contactUs(Model model, Principal principal) {
+        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
+        resetAlertMessage();
+        return "contactus";
+    }
+
+    @PostMapping("/contact-us/create")
+    public String contactUs(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession session, Principal principal, Model model) {
+        XTicketPayload response = xticketService.createContactUs(requestPayload);
+        alertMessage = response.getResponseMessage();
+        alertMessageType = response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error";
+        return "redirect:/contact-us";
+    }
+    
+    @PostMapping("/knowledge-base/search")
+    public String searchKnowledgeBase(@ModelAttribute("xticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
+        XTicketPayload response = xticketService.searchKnowledgeBaseContent(requestPayload.getKeyword());
+        model.addAttribute("dataList", response.getData());
+        model.addAttribute("popularArticleList", xticketService.fetchKnowledgeBasePopularArticle().getData());
+        model.addAttribute("latestArticleList", xticketService.fetchKnowledgeBaseLatestArticle().getData());
+        model.addAttribute("popularTagList", xticketService.fetchKnowledgeBasePopularTag().getData());
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
+        model.addAttribute("alertMessage", alertMessage);
+        resetAlertMessage();
+        return "knowledgebasesearch";
     }
 
     private void resetAlertMessage() {
