@@ -132,7 +132,13 @@
                                         <div class="dropdown-item-wrapper"><span class="me-2 fas fa-tachometer" data-feather="dashboard-outlined"></span>Dashboard
                                         </div>
                                     </a>
-                                </li>                               
+                                </li>
+                                <li sec:authorize="hasRole('DASHBOARD')">
+                                    <a class="dropdown-item" href="" th:href="@{/contact-us}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 fas fa-phone-square-alt" data-feather="dashboard-outlined"></span>Contact Us
+                                        </div>
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -207,25 +213,25 @@
                                         </div>
                                     </a>
                                 </li>
-                                <li sec:authorize="hasRole('REPORT')">
+                                <li sec:authorize="hasRole('MANAGEMENT_REPORT')">
                                     <a class="dropdown-item" href="" th:href="@{/report/ticket/service-unit}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Tickets By Service Unit
                                         </div>
                                     </a>
                                 </li>
-                                <li sec:authorize="hasRole('REPORT')">
+                                <li sec:authorize="hasRole('MANAGEMENT_REPORT')">
                                     <a class="dropdown-item" href="" th:href="@{/report/ticket/service-unit-entity}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Service Unit To Entity
                                         </div>
                                     </a>
                                 </li>
-                                <li sec:authorize="hasRole('REPORT')">
+                                <li sec:authorize="hasRole('MANAGEMENT_REPORT')">
                                     <a class="dropdown-item" href="" th:href="@{/report/ticket/service-rating}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Service Rating
                                         </div>
                                     </a>
                                 </li>
-                                <li sec:authorize="hasRole('REPORT')">
+                                <li sec:authorize="hasRole('MANAGEMENT_REPORT')">
                                     <a class="dropdown-item" href="" th:href="@{/report/ticket/entity}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Entity To Entity
                                         </div>
@@ -240,6 +246,12 @@
                                 <li sec:authorize="hasRole('REPORT')">
                                     <a class="dropdown-item" href="" th:href="@{/report/app-user}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Application Users
+                                        </div>
+                                    </a>
+                                </li>
+                                <li sec:authorize="hasRole('MANAGEMENT_REPORT')">
+                                    <a class="dropdown-item" href="" th:href="@{/report/audit-log}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Audit Log Report
                                         </div>
                                     </a>
                                 </li>
@@ -436,6 +448,11 @@
                                         <li class="nav-item">
                                             <a class="nav-link px-3" th:href="@{/knowledge-base}"> 
                                                 <span class="me-2 text-900 fa fa-question-circle"></span>Knowledge Base
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link px-3" th:href="@{/contact-us}"> 
+                                                <span class="me-2 text-900 fa fa-phone-square-alt"></span>Contact Us
                                             </a>
                                         </li>
                                     </ul>

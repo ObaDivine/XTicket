@@ -34,6 +34,7 @@ appMessages:
     password: Password change successful
     forgotpassword: Kindly check the email {0} for password reset instruction
     ticket: A {0} {1} successfully
+    contact: Message sent successfully
   invalid:
     totp: The OTP is invalid
     newvalue: No new value was provided or the value is invalid

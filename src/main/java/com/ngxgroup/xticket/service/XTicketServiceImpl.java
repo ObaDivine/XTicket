@@ -6,6 +6,7 @@ import com.ngxgroup.xticket.constant.ResponseCodes;
 import com.ngxgroup.xticket.model.AppRoles;
 import com.ngxgroup.xticket.model.AppUser;
 import com.ngxgroup.xticket.model.AuditLog;
+import com.ngxgroup.xticket.model.ContactUs;
 import com.ngxgroup.xticket.model.DocumentUpload;
 import com.ngxgroup.xticket.model.Entities;
 import com.ngxgroup.xticket.model.GroupRoles;
@@ -48,6 +49,7 @@ import java.time.Duration;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -111,6 +113,8 @@ public class XTicketServiceImpl implements XTicketService {
     private int officeCloseHour;
     @Value("${xticket.slaexpiry.timeleft}")
     private int slaExpiryTimeLeft;
+    @Value("${xticket.email.contactus}")
+    private String contactUsEmail;
 
     @Override
     public XTicketPayload signin(XTicketPayload requestPayload) {
@@ -191,7 +195,13 @@ public class XTicketServiceImpl implements XTicketService {
                     appUser.setLoginFailCount(appUser.getLoginFailCount() + 1);
                     xticketRepository.updateAppUser(appUser);
 
-                    String message = messageSource.getMessage("appMessages.login.failed", new Object[0], Locale.ENGLISH);
+                    //Determine the error from the AD. Error code 49 is invalid credentials
+                    String message = "";
+                    if (adResponse.contains("error code 49")) {
+                        message = messageSource.getMessage("appMessages.login.failed", new Object[0], Locale.ENGLISH);
+                    } else {
+                        message = messageSource.getMessage("appMessages.connection.failed", new Object[]{adResponse}, Locale.ENGLISH);
+                    }
                     response.setResponseCode(ResponseCodes.FAILED_LOGIN.getResponseCode());
                     response.setResponseMessage(message);
 
@@ -1889,22 +1899,39 @@ public class XTicketServiceImpl implements XTicketService {
                 return response;
             }
 
-            String[] roles = requestPayload.getRolesToUpdate().split(",");
-            if (roles.length > 0) {
+            List<String> roles = Arrays.asList(requestPayload.getRolesToUpdate().split(","));
+            if (!roles.isEmpty()) {
                 List<TicketAgent> currentRoles = xticketRepository.getTicketAgent(userAgent);
                 if (currentRoles != null) {
                     for (TicketAgent rol : currentRoles) {
-                        xticketRepository.deleteTicketAgent(rol);
+                        //Check if the current role is found in the new roles
+                        if (!roles.contains(rol.getTicketType().getTicketTypeName())) {
+                            //Check if a ticket has been created with this agent id
+                            Tickets agentTicket = xticketRepository.getTicketUsingAgent(rol);
+                            if (agentTicket == null) {
+                                xticketRepository.deleteTicketAgent(rol);
+                            } else {
+                                rol.setInUse(false);
+                                xticketRepository.updateTicketAgent(rol);
+                            }
+                        }
                     }
                 }
                 for (String rol : roles) {
-                    TicketAgent newTicket = new TicketAgent();
-                    newTicket.setCreatedAt(LocalDateTime.now());
-                    newTicket.setAgent(userAgent);
-                    newTicket.setCreatedBy(principal);
-                    TicketType ticketType = xticketRepository.getTicketTypeUsingName(rol);
-                    newTicket.setTicketType(ticketType);
-                    xticketRepository.createTicketAgent(newTicket);
+                    //Check if the roles exist in the db or not
+                    TicketType newTicketType = xticketRepository.getTicketTypeUsingName(rol);
+                    List<TicketAgent> agentTicket = xticketRepository.getTicketAgentUsingTicketType(userAgent, newTicketType);
+
+                    if (agentTicket == null) {
+                        TicketAgent newTicket = new TicketAgent();
+                        newTicket.setCreatedAt(LocalDateTime.now());
+                        newTicket.setAgent(userAgent);
+                        newTicket.setCreatedBy(principal);
+                        newTicket.setInUse(true);
+                        TicketType ticketType = xticketRepository.getTicketTypeUsingName(rol);
+                        newTicket.setTicketType(ticketType);
+                        xticketRepository.createTicketAgent(newTicket);
+                    }
                 }
 
                 //Update the user as agent if not already
@@ -1915,7 +1942,7 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
-            response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
+            response.setResponseMessage(messageSource.getMessage("appMessages.success.roles", new Object[0], Locale.ENGLISH));
             response.setData(null);
             return response;
         } catch (Exception ex) {
@@ -5673,6 +5700,51 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    public XTicketPayload fetchKnowledgeBaseContentUsingCategory(String id) {
+        var response = new XTicketPayload();
+        try {
+            KnowledgeBaseCategory knowledgeBaseCategory = xticketRepository.getKnowledgeBaseCategoryUsingId(Long.parseLong(id));
+            if (knowledgeBaseCategory == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{id}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            List<KnowledgeBase> knowledgeBaseList = xticketRepository.getKnowledgeBaseUsingCategory(knowledgeBaseCategory);
+            if (knowledgeBaseList == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{id}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            List<XTicketPayload> data = new ArrayList<>();
+            for (KnowledgeBase k : knowledgeBaseList) {
+                XTicketPayload knowledgeBasePayload = new XTicketPayload();
+                knowledgeBasePayload.setId(k.getId().intValue());
+                knowledgeBasePayload.setTag(k.getTag());
+                knowledgeBasePayload.setKnowledgeBaseHeader(k.getHeader());
+                knowledgeBasePayload.setKnowledgeBaseContent(k.getBody().substring(0, k.getBody().length() >= 251 ? 250 : k.getBody().length()));
+                knowledgeBasePayload.setDocumentLink(k.getVideoLink());
+                data.add(knowledgeBasePayload);
+            }
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
+            response.setCategoryName(knowledgeBaseCategory.getCategoryName());
+            response.setValue(knowledgeBaseList.size());
+            response.setData(data);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
     public XTicketPayload fetchKnowledgeBaseContent(String id) {
         var response = new XTicketPayload();
         try {
@@ -5691,6 +5763,7 @@ public class XTicketServiceImpl implements XTicketService {
             response.setKnowledgeBaseHeader(knowledgeBase.getHeader());
             response.setDocumentLink(knowledgeBase.getVideoLink());
             response.setCategoryCode(knowledgeBase.getKnowledgeBaseCategory().getCategoryCode());
+            response.setCategoryName(knowledgeBase.getKnowledgeBaseCategory().getCategoryName());
             response.setLatestArticle(knowledgeBase.isLatestArticle());
             response.setPopularArticle(knowledgeBase.isPopularArticle());
 
@@ -5868,6 +5941,7 @@ public class XTicketServiceImpl implements XTicketService {
                 for (KnowledgeBaseCategory t : knowledgeBaseCategory) {
                     XTicketPayload payload = new XTicketPayload();
                     payload.setCategoryName(t.getCategoryName());
+                    payload.setId(t.getId().intValue());
 
                     //Get the contents in this category
                     List<KnowledgeBase> knowledgeBaseList = xticketRepository.getKnowledgeBaseUsingCategory(t);
@@ -6014,7 +6088,7 @@ public class XTicketServiceImpl implements XTicketService {
 
                 //Check if audit category is set in the filter
                 if (!requestPayload.getAuditCategory().equalsIgnoreCase("")) {
-                    auditLog = auditLog.stream().filter(t -> t.getAuditCategory().equalsIgnoreCase(requestPayload.getAuditClass())).collect(Collectors.toList());
+                    auditLog = auditLog.stream().filter(t -> t.getAuditCategory().equalsIgnoreCase(requestPayload.getAuditCategory())).collect(Collectors.toList());
 
                 }
 
@@ -6047,6 +6121,80 @@ public class XTicketServiceImpl implements XTicketService {
             response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
             response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{" selected"}, Locale.ENGLISH));
             response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload createContactUs(XTicketPayload requestPayload) {
+        var response = new XTicketPayload();
+        try {
+            ContactUs newContact = new ContactUs();
+            newContact.setCreatedAt(LocalDateTime.now());
+            newContact.setEmail(requestPayload.getEmail());
+            newContact.setFullName(requestPayload.getName());
+            newContact.setMessage(requestPayload.getMessage());
+            newContact.setMobileNumber(requestPayload.getMobileNumber());
+            xticketRepository.createContactUs(newContact);
+
+            //Send email to the contact us mail group
+            XTicketPayload mailPayload = new XTicketPayload();
+            mailPayload.setRecipientEmail(contactUsEmail);
+            mailPayload.setEmailSubject("Contact Us");
+            mailPayload.setCarbonCopyEmail("");
+            String message = "<h4>To Whom It May Concern,</h4>\n"
+                    + "<p>" + requestPayload.getName() + " sent a message \"" + requestPayload.getMessage() + "\"</p>"
+                    + "<p>For feedback, kindly use the email  " + requestPayload.getEmail() + "  or call the mobile " + requestPayload.getMobileNumber() + "</p>"
+                    + "<p>Best wishes,</p>"
+                    + "<p>" + companyName + "</p>";
+
+            mailPayload.setEmailBody(message);
+            genericService.sendEmail(mailPayload, contactUsEmail);
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.success.contact", new Object[0], Locale.ENGLISH));
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload searchKnowledgeBaseContent(String searchKeyWord) {
+        var response = new XTicketPayload();
+        try {
+
+            List<KnowledgeBase> knowledgeBaseList = xticketRepository.getKnowledgeBaseUsingTags(searchKeyWord);
+            if (knowledgeBaseList == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{searchKeyWord}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            List<XTicketPayload> data = new ArrayList<>();
+            for (KnowledgeBase k : knowledgeBaseList) {
+                XTicketPayload knowledgeBasePayload = new XTicketPayload();
+                knowledgeBasePayload.setId(k.getId().intValue());
+                knowledgeBasePayload.setTag(k.getTag());
+                knowledgeBasePayload.setKnowledgeBaseHeader(k.getHeader());
+                knowledgeBasePayload.setKnowledgeBaseContent(k.getBody().substring(0, k.getBody().length() >= 251 ? 250 : k.getBody().length()));
+                knowledgeBasePayload.setDocumentLink(k.getVideoLink());
+                knowledgeBasePayload.setCategoryName(k.getKnowledgeBaseCategory().getCategoryName());
+                data.add(knowledgeBasePayload);
+            }
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
+            response.setValue(knowledgeBaseList.size());
+            response.setData(data);
             return response;
         } catch (Exception ex) {
             response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
