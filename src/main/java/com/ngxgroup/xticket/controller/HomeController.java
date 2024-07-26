@@ -534,7 +534,7 @@ public class HomeController implements ErrorController {
         alertMessageType = response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error";
         return "redirect:/contact-us";
     }
-    
+
     @PostMapping("/knowledge-base/search")
     public String searchKnowledgeBase(@ModelAttribute("xticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
         XTicketPayload response = xticketService.searchKnowledgeBaseContent(requestPayload.getKeyword());

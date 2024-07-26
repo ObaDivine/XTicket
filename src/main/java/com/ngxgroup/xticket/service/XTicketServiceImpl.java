@@ -2512,7 +2512,6 @@ public class XTicketServiceImpl implements XTicketService {
             TicketStatus closedStatus = xticketRepository.getTicketStatusUsingCode("CLOSED");
             List<Tickets> tickets = xticketRepository.getTicketsByUserStatus(appUser, closedStatus);
             if (tickets != null) {
-
                 if (!transType.equalsIgnoreCase("all") && !transType.equalsIgnoreCase("")) {
                     tickets = tickets.stream().filter(t -> t.getTicketGroup().getTicketGroupName().equalsIgnoreCase(transType)).collect(Collectors.toList());
                 }
@@ -5832,6 +5831,8 @@ public class XTicketServiceImpl implements XTicketService {
                 newKnowledgeBase.setKnowledgeBaseCategory(knowledgeBaseCategory);
                 newKnowledgeBase.setTag(requestPayload.getTag());
                 newKnowledgeBase.setVideoLink(path);
+                newKnowledgeBase.setLatestArticle(requestPayload.isLatestArticle());
+                newKnowledgeBase.setPopularArticle(requestPayload.isPopularArticle());
                 xticketRepository.createKnowledgeBase(newKnowledgeBase);
 
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
@@ -5882,6 +5883,8 @@ public class XTicketServiceImpl implements XTicketService {
             knowledgeBase.setKnowledgeBaseCategory(knowledgeBaseCategory);
             knowledgeBase.setTag(requestPayload.getTag());
             knowledgeBase.setVideoLink(requestPayload.getDocumentLink());
+            knowledgeBase.setLatestArticle(requestPayload.isLatestArticle());
+            knowledgeBase.setPopularArticle(requestPayload.isPopularArticle());
             xticketRepository.updateKnowledgeBase(knowledgeBase);
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());

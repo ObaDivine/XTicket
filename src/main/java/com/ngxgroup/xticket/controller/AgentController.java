@@ -105,7 +105,7 @@ public class AgentController {
         XTicketPayload response = xticketService.closeTicket(requestPayload, principal.getName());
         alertMessage = response.getResponseMessage();
         alertMessageType = response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error";
-        return "redirect:/agent/ticket/open";
+        return "redirect:/agent/ticket/open?tr=all";
     }
 
     private void resetAlertMessage() {

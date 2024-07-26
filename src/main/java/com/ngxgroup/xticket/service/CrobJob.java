@@ -35,6 +35,10 @@ public class CrobJob {
     private int escalationInterval;
     @Value("${xticket.slaexpiry.notification}")
     private int slaExpiryNotificationInterval;
+    @Value("${xticket.escalation.wait.time}")
+    private long escalationWaitTime;
+    @Value("${xticket.escalation.wait.unit}")
+    private String escalationWaitUnit;
     DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern("HH:mm:ss");
 
     @Scheduled(cron = "${xticket.cron.job}")
@@ -45,7 +49,14 @@ public class CrobJob {
         if (openTickets != null) {
             for (Tickets t : openTickets) {
                 //Check if the SLA expiry is exceeded
-                if (LocalDateTime.now().isAfter(t.getSlaExpiry())) {
+                long timeElapsedAfterSlaExpiry = 0;
+                if (escalationWaitUnit.equalsIgnoreCase("minutes")) {
+                    timeElapsedAfterSlaExpiry = Duration.between(t.getSlaExpiry(), LocalDateTime.now()).toMinutes();
+                } else {
+                    timeElapsedAfterSlaExpiry = Duration.between(t.getSlaExpiry(), LocalDateTime.now()).toHours();
+                }
+
+                if (LocalDateTime.now().isAfter(t.getSlaExpiry()) && timeElapsedAfterSlaExpiry >= escalationWaitTime) {
                     //Fetch emails for escalation
                     String[] escalationEmails = t.getTicketType().getEscalationEmails().split(",");
                     if (escalationEmails.length > 0) {
