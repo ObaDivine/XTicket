@@ -18,7 +18,6 @@
                         <div class="col-md-5 col-auto">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb mb-0">
-                                    <li class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Home</a></li>
                                     <li class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
                                     <li class="breadcrumb-item"><a href="#" th:href="@{/knowledge-base/content}">Knowledge Base Content</a></li>
                                     <li class="breadcrumb-item active">Knowledge Base Content Listing</li>
@@ -61,8 +60,10 @@
                                             <td th:text="${rec.createdAt}" class="date align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.knowledgeBaseHeader}" class="subject align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.tag}" class="name align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.knowledgeBaseContent}" class="message align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.documentLink}" class="link align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.knowledgeBaseContent}" class="message align-middle white-space-nowrap text-truncate" style="max-width: 200px;"></td>
+                                            <td>
+                                                <a th:href="@{${rec.documentLink}}" th"text="Video link" class="link align-middle white-space-nowrap start ps-3"></a>
+                                            </td>
                                             <td th:text="${rec.createdBy}" class="createdBy align-middle white-space-nowrap start ps-3"></td>
                                             <td class="align-middle white-space-nowrap start ps-3 btn-reveal-trigger">
                                                 <a sec:authorize="hasRole('KNOWLEDGE_BASE_SETUP')" class="text-success" href="#!" th:href="@{'/knowledge-base/content/edit?seid=' + ${rec.id}}">

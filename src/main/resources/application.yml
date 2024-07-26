@@ -44,15 +44,10 @@ spring:
         username: entityscdbuser
         driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
         url: jdbc:sqlserver://localhost;databaseName=NGX;encrypt=true;trustServerCertificate=true
-#        password: F3bru@ry02mth
-#        username: ngxadmin@nxgroup01-mysqldbserver
-#        driverClassName: com.mysql.jdbc.Driver  
-#        url: jdbc:mysql://nxgroup01-mysqldbserver.mysql.database.azure.com:3306/xticket?useSSL=true
     jpa:
         hibernate:
             ddl-auto: update
             dialect: org.hibernate.dialect.SQLServerDialect
-#            dialect: org.hibernate.dialect.MySQL5InnoDBDialect
         show-sql: false
 
 email:
@@ -65,6 +60,10 @@ email:
     password: Password10$
     
 xticket:
+  escalation:
+    wait:
+      time: 24
+      unit: hour #This should be either hours or minutes
   slaexpiry:
     notification: 5 #Notification sent 5 mins or less to SLA expiry
     timeleft: 5 #Time left before ticket SLA is violated

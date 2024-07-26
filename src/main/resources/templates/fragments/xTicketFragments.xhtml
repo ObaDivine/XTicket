@@ -108,7 +108,14 @@
                     <button class="btn navbar-toggler navbar-toggler-humburger-icon hover-bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#navbarVerticalCollapse" aria-controls="navbarVerticalCollapse" aria-expanded="false" aria-label="Toggle Navigation">
                         <span class="navbar-toggle-icon"><span class="toggle-line"></span></span>
                     </button>
-                    <a class="navbar-brand me-1 me-sm-3" th:href="@{/}">
+                    <a th:if="!${session.isAgent}" class="navbar-brand me-1 me-sm-3" th:href="@{/dashboard}">
+                        <div class="d-flex align-items-center">
+                            <div class="d-flex align-items-center"><img th:src="@{/images/logo_nobg.png}" alt="NGX" width="96" height="32" />
+                                <p class="logo-text ms-2 d-none d-sm-block text-primary">X-Ticket</p>
+                            </div>
+                        </div>
+                    </a>
+                    <a th:if="${session.isAgent}" class="navbar-brand me-1 me-sm-3" th:href="@{/agent/dashboard}">
                         <div class="d-flex align-items-center">
                             <div class="d-flex align-items-center"><img th:src="@{/images/logo_nobg.png}" alt="NGX" width="96" height="32" />
                                 <p class="logo-text ms-2 d-none d-sm-block text-primary">X-Ticket</p>
@@ -133,12 +140,6 @@
                                         </div>
                                     </a>
                                 </li>
-                                <li sec:authorize="hasRole('DASHBOARD')">
-                                    <a class="dropdown-item" href="" th:href="@{/contact-us}">
-                                        <div class="dropdown-item-wrapper"><span class="me-2 fas fa-phone-square-alt" data-feather="dashboard-outlined"></span>Contact Us
-                                        </div>
-                                    </a>
-                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -153,13 +154,19 @@
                                     </a>
                                 </li>
                                 <li sec:authorize="hasRole('RAISE_TICKET')">
-                                    <a class="dropdown-item" href="" th:href="@{/ticket/closed}">
+                                    <a class="dropdown-item" href="" th:href="@{/ticket/closed?tr=all}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Closed Tickets
                                         </div>
                                     </a>
                                 </li>
-                                <li sec:authorize="hasRole('RAISE_TICKET')">
+                                <li th:if="!${session.isAgent}" sec:authorize="hasRole('RAISE_TICKET')">
                                     <a class="dropdown-item" href="" th:href="@{/ticket/open}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Open Tickets
+                                        </div>
+                                    </a>
+                                </li>
+                                <li th:if="${session.isAgent}" sec:authorize="hasRole('TICKET_AGENT')">
+                                    <a class="dropdown-item" href="" th:href="@{/agent/ticket/open?tr=all}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Open Tickets
                                         </div>
                                     </a>
@@ -344,7 +351,14 @@
                                     </a>
                                 </li>
                             </ul>
-                        </li>                        
+                        </li> 
+                        <li class="nav-item mt-2 ml-2">
+                            <a href="" th:href="@{/contact-us}">
+                                <div class="dropdown-item-wrapper">
+                                    <span class="uil fs-0 me-2 uil-phone" data-feather="dashboard-outlined"></span>Contact Us
+                                </div>
+                            </a>
+                        </li>
                     </ul>
                 </div>
                 <ul class="navbar-nav navbar-nav-icons flex-row">
