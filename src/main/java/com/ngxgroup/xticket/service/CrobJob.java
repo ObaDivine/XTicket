@@ -55,26 +55,23 @@ public class CrobJob {
                 } else {
                     timeElapsedAfterSlaExpiry = Duration.between(t.getSlaExpiry(), LocalDateTime.now()).toHours();
                 }
-
                 if (LocalDateTime.now().isAfter(t.getSlaExpiry()) && timeElapsedAfterSlaExpiry >= escalationWaitTime) {
                     //Fetch emails for escalation
                     String[] escalationEmails = t.getTicketType().getEscalationEmails().split(",");
+                    String carbonCopyEmail = "";
                     if (escalationEmails.length > 0) {
-                        //Check if time to run the next escalation
-                        long timeElapsed = Duration.between(t.getEscalatedAt() == null ? LocalDateTime.now() : t.getEscalatedAt().toLocalTime(), LocalDateTime.now()).toMinutes();
-                        if (timeElapsed >= escalationInterval && (t.getEscalationIndex() + 1) <= escalationEmails.length) {
-                            String carbonCopyEmail = "";
-                            //Determine the carbon copy recipient
-                            if (t.getEscalationIndex() == 0) {
-                                carbonCopyEmail = t.getTicketAgent().getAgent().getEmail();
-                            } else {
-                                carbonCopyEmail = escalationEmails[t.getEscalationIndex() - 1];
-                            }
+                        //Check if this first escalation
+                        if (t.getEscalationIndex() == 0) {
+                            carbonCopyEmail = t.getTicketAgent().getAgent().getEmail();
                             //Escalate the email and push email notification
                             sendEmail(escalationEmails[t.getEscalationIndex()], carbonCopyEmail, t);
 
                             //Update the escalation index
                             t.setEscalationIndex(t.getEscalationIndex() + 1);
+                            t.setEscalated(true);
+                            t.setEscalatedAt(LocalDateTime.now());
+                            t.setSlaViolated(true);
+                            t.setSlaViolatedAt(LocalDateTime.now());
                             xticketRepository.updateTicket(t);
 
                             //Add to the ticket escalations
@@ -84,8 +81,29 @@ public class CrobJob {
                             newEscalation.setSlaExpiresAt(t.getSlaExpiry());
                             newEscalation.setTicket(t);
                             xticketRepository.createTicketEscalation(newEscalation);
+                        } else {
+                            //Check if time to run the next escalation
+                            long timeElapsed = Duration.between(t.getEscalatedAt(), LocalDateTime.now()).toMinutes();
+                            if (timeElapsed >= escalationInterval && (t.getEscalationIndex() + 1) <= escalationEmails.length) {
+                                carbonCopyEmail = escalationEmails[t.getEscalationIndex() - 1];
+                                //Escalate the email and push email notification
+                                sendEmail(escalationEmails[t.getEscalationIndex()], carbonCopyEmail, t);
+
+                                //Update the escalation index
+                                t.setEscalationIndex(t.getEscalationIndex() + 1);
+                                xticketRepository.updateTicket(t);
+
+                                //Add to the ticket escalations
+                                TicketEscalations newEscalation = new TicketEscalations();
+                                newEscalation.setCreatedAt(LocalDateTime.now());
+                                newEscalation.setEscalatedTo(escalationEmails[t.getEscalationIndex()]);
+                                newEscalation.setSlaExpiresAt(t.getSlaExpiry());
+                                newEscalation.setTicket(t);
+                                xticketRepository.createTicketEscalation(newEscalation);
+                            }
                         }
                     }
+
                     //Update the ticket escalation 
                     if (!t.isEscalated()) {
                         t.setEscalated(true);
