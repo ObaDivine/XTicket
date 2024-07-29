@@ -1,5 +1,6 @@
 package com.ngxgroup.xticket.service;
 
+import com.ngxgroup.xticket.model.AppUser;
 import com.ngxgroup.xticket.model.TicketEscalations;
 import com.ngxgroup.xticket.model.TicketStatus;
 import com.ngxgroup.xticket.model.Tickets;
@@ -55,26 +56,24 @@ public class CrobJob {
                 } else {
                     timeElapsedAfterSlaExpiry = Duration.between(t.getSlaExpiry(), LocalDateTime.now()).toHours();
                 }
-
                 if (LocalDateTime.now().isAfter(t.getSlaExpiry()) && timeElapsedAfterSlaExpiry >= escalationWaitTime) {
                     //Fetch emails for escalation
                     String[] escalationEmails = t.getTicketType().getEscalationEmails().split(",");
+                    String carbonCopyEmail = "";
                     if (escalationEmails.length > 0) {
-                        //Check if time to run the next escalation
-                        long timeElapsed = Duration.between(t.getEscalatedAt() == null ? LocalDateTime.now() : t.getEscalatedAt().toLocalTime(), LocalDateTime.now()).toMinutes();
-                        if (timeElapsed >= escalationInterval && (t.getEscalationIndex() + 1) <= escalationEmails.length) {
-                            String carbonCopyEmail = "";
-                            //Determine the carbon copy recipient
-                            if (t.getEscalationIndex() == 0) {
-                                carbonCopyEmail = t.getTicketAgent().getAgent().getEmail();
-                            } else {
-                                carbonCopyEmail = escalationEmails[t.getEscalationIndex() - 1];
-                            }
+                        //Check if this first escalation
+                        if (t.getEscalationIndex() == 0) {
+                            carbonCopyEmail = t.getTicketAgent().getAgent().getEmail();
                             //Escalate the email and push email notification
                             sendEmail(escalationEmails[t.getEscalationIndex()], carbonCopyEmail, t);
 
                             //Update the escalation index
                             t.setEscalationIndex(t.getEscalationIndex() + 1);
+                            t.setEscalated(true);
+                            t.setEscalatedAt(LocalDateTime.now());
+                            t.setSlaViolated(true);
+                            t.setSlaViolatedAt(LocalDateTime.now());
+                            t.setTicketAgentViolated(t.getTicketAgent());
                             xticketRepository.updateTicket(t);
 
                             //Add to the ticket escalations
@@ -84,14 +83,37 @@ public class CrobJob {
                             newEscalation.setSlaExpiresAt(t.getSlaExpiry());
                             newEscalation.setTicket(t);
                             xticketRepository.createTicketEscalation(newEscalation);
+                        } else {
+                            //Check if time to run the next escalation
+                            long timeElapsed = Duration.between(t.getEscalatedAt(), LocalDateTime.now()).toMinutes();
+                            if (timeElapsed >= escalationInterval && (t.getEscalationIndex() + 1) <= escalationEmails.length) {
+                                carbonCopyEmail = escalationEmails[t.getEscalationIndex() - 1];
+
+                                //Escalate the email and push email notification
+                                sendEmail(escalationEmails[t.getEscalationIndex()], carbonCopyEmail, t);
+
+                                //Update the escalation index
+                                t.setEscalationIndex(t.getEscalationIndex() + 1);
+                                xticketRepository.updateTicket(t);
+
+                                //Add to the ticket escalations
+                                TicketEscalations newEscalation = new TicketEscalations();
+                                newEscalation.setCreatedAt(LocalDateTime.now());
+                                newEscalation.setEscalatedTo(escalationEmails[t.getEscalationIndex()]);
+                                newEscalation.setSlaExpiresAt(t.getSlaExpiry());
+                                newEscalation.setTicket(t);
+                                xticketRepository.createTicketEscalation(newEscalation);
+                            }
                         }
                     }
+
                     //Update the ticket escalation 
                     if (!t.isEscalated()) {
                         t.setEscalated(true);
                         t.setEscalatedAt(LocalDateTime.now());
                         t.setSlaViolated(true);
                         t.setSlaViolatedAt(LocalDateTime.now());
+                        t.setTicketAgentViolated(t.getTicketAgent());
                         xticketRepository.updateTicket(t);
                     }
                 }
@@ -115,7 +137,16 @@ public class CrobJob {
         mailPayload.setEmailSubject("Ticket SLA Violation Notification");
         String slaTime = timeDtf.format(ticket.getSlaExpiry().toLocalTime());
         String slaDate = ticket.getSlaExpiry().getMonth().toString() + " " + ticket.getSlaExpiry().getDayOfMonth() + ", " + ticket.getSlaExpiry().getYear();
-        String message = "<h4>To Whom It May Concern,</h4>\n"
+
+        //Determine who to address the email to
+        String recipient = "";
+        AppUser carbonCopyUser = xticketRepository.getAppUserUsingEmail(carbonCopy);
+        if (carbonCopyUser != null) {
+            recipient = "Dear " + carbonCopyUser.getLastName() + ", " + carbonCopyUser.getOtherName() + ",";
+        } else {
+            recipient = "Dear Sir/Madam,";
+        }
+        String message = "<h4>" + recipient + "</h4>\n"
                 + "<p>An SLA for <b>" + ticket.getTicketType().getTicketTypeName() + "</b> ticket with an ID <b>" + ticket.getTicketId()
                 + "</b> and priority <b>" + ticket.getTicketType().getSla().getPriority() + "</b> has been violated by <b>" + ticket.getTicketAgent().getAgent().getLastName() + ", " + ticket.getTicketAgent().getAgent().getOtherName()
                 + "</b> in <b>" + ticket.getTicketType().getServiceUnit().getServiceUnitName() + ".</b></p>"

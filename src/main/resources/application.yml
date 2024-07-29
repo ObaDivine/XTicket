@@ -62,8 +62,8 @@ email:
 xticket:
   escalation:
     wait:
-      time: 24
-      unit: hour #This should be either hours or minutes
+      time: 2
+      unit: minutes #This should be either hours or minutes
   slaexpiry:
     notification: 5 #Notification sent 5 mins or less to SLA expiry
     timeleft: 5 #Time left before ticket SLA is violated
@@ -85,7 +85,7 @@ xticket:
   email:
     contactus: bokon@ngxgroup.com
     escalation:
-      interval: 20 #This is 5 minutes between escalation
+      interval: 2 #This is 5 minutes between escalation
     notification: bokon@ngxgroup.com
   expiry:
     days: 3
