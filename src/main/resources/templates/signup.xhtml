@@ -36,7 +36,7 @@
                                         </div>
                                         <div class="col mx-auto">
                                             <div class="auth-form-box">
-                                                 <h4 class="text-primary text-center mb-3">X-Ticket :: Sign Up</h4>
+                                                <h4 class="text-primary text-center mb-3">X-Ticket :: Sign Up</h4>
                                                 <form th:object="${signupPayload}" th:action="@{/signup/}" method="POST">
                                                     <div class="form-icon-container">
                                                         <input class="form-control form-icon-input" th:field="*{lastName}" type="text" placeholder="Last name" required="required" />
@@ -93,7 +93,8 @@
                                                     <button class="btn btn-primary w-100 mb-3 mt-3" type="button" data-bs-target="#confirmModal" data-bs-toggle="modal" id="signup">Sign Up</button>
                                                     <div class="text-center">
                                                         <p class="text-secondary pb-1 mb-1">Already registered?</p>
-                                                        <a class="fs--1 fw-bold text-primary" href="" th:href="@{/}">Click here to sign in</a>                                                        
+                                                        <a class="fs--1 fw-bold text-primary" href="" th:href="@{/}">Click here to sign in</a>
+                                                        <a class="fs--1 fw-bold text-primary" href="" th:href="@{/contact-us}">Contact us if you have any concern</a>                                                        
                                                     </div>
                                                     <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModal" aria-hidden="true">
                                                         <div class="modal-dialog">
@@ -109,8 +110,6 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <br/>
-                                                    <a class="fs--1 fw-bold text-primary" href="" th:href="@{/contact-us}">Contact us if you have any concern</a>
                                                 </form>
                                             </div>                                             
                                         </div>

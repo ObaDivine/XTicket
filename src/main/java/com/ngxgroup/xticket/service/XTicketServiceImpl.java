@@ -3919,7 +3919,7 @@ public class XTicketServiceImpl implements XTicketService {
                         List<Tickets> ticketsByAgent = xticketRepository.getTicketClosedByAgent(t.getAgent(), closedStatus);
                         payload.setCreatedAt(dtf.format(t.getCreatedAt()));
                         payload.setCreatedBy(t.getCreatedBy());
-                        payload.setLastLogin(t.getAgent().getLastLogin().format(dtf));
+                        payload.setLastLogin(t.getAgent().getLastLogin() == null ? "" : t.getAgent().getLastLogin().format(dtf));
                         payload.setTicketTypeName(t.getTicketType().getTicketTypeName());
                         payload.setTicketCount(ticketsByAgent == null ? 0 : ticketsByAgent.size());
                         data.add(payload);
@@ -3948,7 +3948,7 @@ public class XTicketServiceImpl implements XTicketService {
                     List<Tickets> ticketsByAgent = xticketRepository.getTicketClosedByAgent(t, closedStatus);
                     payload.setCreatedAt(dtf.format(t.getCreatedAt()));
                     payload.setCreatedBy(t.getLastName() + " " + t.getOtherName());
-                    payload.setLastLogin(t.getLastLogin().format(dtf));
+                    payload.setLastLogin(t.getLastLogin() == null ? "" : t.getLastLogin().format(dtf));
                     payload.setTicketCount(ticketsByAgent == null ? 0 : ticketsByAgent.size());
                     payload.setTicketTypeName(strBuilder.toString());
                     data.add(payload);

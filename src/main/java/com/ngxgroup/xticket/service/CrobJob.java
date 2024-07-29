@@ -1,5 +1,6 @@
 package com.ngxgroup.xticket.service;
 
+import com.ngxgroup.xticket.model.AppUser;
 import com.ngxgroup.xticket.model.TicketEscalations;
 import com.ngxgroup.xticket.model.TicketStatus;
 import com.ngxgroup.xticket.model.Tickets;
@@ -72,6 +73,7 @@ public class CrobJob {
                             t.setEscalatedAt(LocalDateTime.now());
                             t.setSlaViolated(true);
                             t.setSlaViolatedAt(LocalDateTime.now());
+                            t.setTicketAgentViolated(t.getTicketAgent());
                             xticketRepository.updateTicket(t);
 
                             //Add to the ticket escalations
@@ -86,6 +88,7 @@ public class CrobJob {
                             long timeElapsed = Duration.between(t.getEscalatedAt(), LocalDateTime.now()).toMinutes();
                             if (timeElapsed >= escalationInterval && (t.getEscalationIndex() + 1) <= escalationEmails.length) {
                                 carbonCopyEmail = escalationEmails[t.getEscalationIndex() - 1];
+
                                 //Escalate the email and push email notification
                                 sendEmail(escalationEmails[t.getEscalationIndex()], carbonCopyEmail, t);
 
@@ -110,6 +113,7 @@ public class CrobJob {
                         t.setEscalatedAt(LocalDateTime.now());
                         t.setSlaViolated(true);
                         t.setSlaViolatedAt(LocalDateTime.now());
+                        t.setTicketAgentViolated(t.getTicketAgent());
                         xticketRepository.updateTicket(t);
                     }
                 }
@@ -133,7 +137,16 @@ public class CrobJob {
         mailPayload.setEmailSubject("Ticket SLA Violation Notification");
         String slaTime = timeDtf.format(ticket.getSlaExpiry().toLocalTime());
         String slaDate = ticket.getSlaExpiry().getMonth().toString() + " " + ticket.getSlaExpiry().getDayOfMonth() + ", " + ticket.getSlaExpiry().getYear();
-        String message = "<h4>To Whom It May Concern,</h4>\n"
+
+        //Determine who to address the email to
+        String recipient = "";
+        AppUser carbonCopyUser = xticketRepository.getAppUserUsingEmail(carbonCopy);
+        if (carbonCopyUser != null) {
+            recipient = "Dear " + carbonCopyUser.getLastName() + ", " + carbonCopyUser.getOtherName() + ",";
+        } else {
+            recipient = "Dear Sir/Madam,";
+        }
+        String message = "<h4>" + recipient + "</h4>\n"
                 + "<p>An SLA for <b>" + ticket.getTicketType().getTicketTypeName() + "</b> ticket with an ID <b>" + ticket.getTicketId()
                 + "</b> and priority <b>" + ticket.getTicketType().getSla().getPriority() + "</b> has been violated by <b>" + ticket.getTicketAgent().getAgent().getLastName() + ", " + ticket.getTicketAgent().getAgent().getOtherName()
                 + "</b> in <b>" + ticket.getTicketType().getServiceUnit().getServiceUnitName() + ".</b></p>"
