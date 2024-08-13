@@ -50,12 +50,8 @@ public class Tickets implements Serializable {
     private boolean ticketLocked = false;
     @Column(name = "ticket_reopened")
     private boolean ticketReopen = false;
-    @ManyToOne
-    private TicketReopened ticketReopened;
     @Column(name = "ticket_reassigned")
     private boolean ticketReassign = false;
-    @ManyToOne
-    private TicketReassign ticketReassigned;
     @Column(name = "internal")
     private boolean internal = true;
     @ManyToOne

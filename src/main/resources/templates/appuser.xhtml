@@ -18,7 +18,8 @@
                         <div class="col-md-5 col-auto">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb mb-0">
-                                    <li class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
+                                    <li th:if="!${session.isAgent}" class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
+                                    <li th:if="${session.isAgent}"class="breadcrumb-item"><a href="#" th:href="@{/agent/dashboard}">Dashboard</a></li>
                                     <li class="breadcrumb-item active">Update System User</li>
                                 </ol>
                             </nav>
@@ -65,7 +66,7 @@
                                     </select>
                                     <span class="fas fa-cogs text-900 fs--1 form-icon text-primary"></span>
                                 </div>
-                                 <div class="form-icon-container">
+                                <div class="form-icon-container">
                                     <input type="text" class="form-control form-control-sm form-icon-input" th:field="*{newValue}" placeholder="Enter new value"/>
                                     <span class="fas fa-tenge text-900 fs--1 form-icon text-primary"></span>
                                 </div>
@@ -74,7 +75,7 @@
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h6 class="modal-title text-primary">Nigerian Exchange Group - <span class="text-secondary">X-Ticket</span></h6>
+                                                <h6 class="modal-title text-primary">X-Ticket</h6>
                                             </div>
                                             <div class="modal-body">
                                                 <p>Confirm user information update</p>

@@ -69,7 +69,7 @@ xticket:
     timeleft: 5 #Time left before ticket SLA is violated
   office:
     open: 8
-    close: 15
+    close: 17
   adauth:
     domains: ngxgroup.com, brokers.ngxgroup.com  
   host: 'http://localhost:8080'
@@ -85,7 +85,7 @@ xticket:
   email:
     contactus: bokon@ngxgroup.com
     escalation:
-      interval: 2 #This is 5 minutes between escalation
+      interval: 5 #This is 5 minutes between escalation
     notification: bokon@ngxgroup.com
   expiry:
     days: 3

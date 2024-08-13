@@ -414,7 +414,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<Tickets> getOpenAgentTickets(AppUser appUser, TicketStatus ticketStatus) {
-        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketAgent.agent = :appUser AND p.ticketStatus = :ticketStatus", Tickets.class)
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketAgent.agent = :appUser AND p.ticketStatus != :ticketStatus", Tickets.class)
                 .setParameter("appUser", appUser)
                 .setParameter("ticketStatus", ticketStatus);
         List<Tickets> recordset = query.getResultList();
@@ -633,6 +633,17 @@ public class XTicketRepositoryImpl implements XTicketRepository {
     public TicketReopened getTicketReopenedUsingId(long id) {
         TypedQuery<TicketReopened> query = em.createQuery("SELECT p FROM TicketReopened p WHERE p.id = :id", TicketReopened.class)
                 .setParameter("id", id);
+        List<TicketReopened> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset.get(0);
+    }
+
+    @Override
+    public TicketReopened getMostRecentTicketReopenedUsingTicket(Tickets ticket) {
+        TypedQuery<TicketReopened> query = em.createQuery("SELECT p FROM TicketReopened p WHERE p.ticket = :ticket ORDER BY p.id DESC", TicketReopened.class)
+                .setParameter("ticket", ticket).setMaxResults(1);
         List<TicketReopened> recordset = query.getResultList();
         if (recordset.isEmpty()) {
             return null;
@@ -928,8 +939,8 @@ public class XTicketRepositoryImpl implements XTicketRepository {
         }
         return recordset;
     }
-    
-        @Override
+
+    @Override
     public List<TicketAgent> getTicketAgentUsingTicketType(AppUser appUser, TicketType ticketType) {
         TypedQuery<TicketAgent> query = em.createQuery("SELECT p FROM TicketAgent p WHERE p.ticketType = :ticketType AND p.agent = :appUser AND p.inUse = true", TicketAgent.class)
                 .setParameter("ticketType", ticketType)
