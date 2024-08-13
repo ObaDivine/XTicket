@@ -18,7 +18,8 @@
                         <div class="col-md-5 col-auto">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb mb-0">
-                                    <li class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
+                                    <li th:if="!${session.isAgent}" class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
+                                    <li th:if="${session.isAgent}"class="breadcrumb-item"><a href="#" th:href="@{/agent/dashboard}">Dashboard</a></li>
                                     <li class="breadcrumb-item"><a href="#" th:href="@{/ticket/open}">Open Ticket</a></li>
                                     <li class="breadcrumb-item active">Ticket Details</li>
                                 </ol>
@@ -86,7 +87,7 @@
                                                 <div class="modal-dialog">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
-                                                            <h6 class="modal-title text-primary">Nigerian Exchange Group - <span class="text-secondary">X-Ticket</span></h6>
+                                                            <h6 class="modal-title text-primary">X-Ticket</h6>
                                                         </div>
                                                         <div class="modal-body">
                                                             <form th:object="${ticketPayload}" th:action="@{/ticket/close}" method="POST">
@@ -180,6 +181,7 @@
                                             <div class="offset-lg-2 col-lg-8 col-md-12 col-sm-12">
                                                 <form th:object="${ticketReplyPayload}" th:action="@{/ticket/reply}" method="POST" enctype="multipart/form-data">
                                                     <input type="hidden" th:field="*{ticketId}" />
+                                                    <input type="hidden" th:field="*{ticketStatusCode}" />
                                                     <div class="form-icon-container">
                                                         <textarea class="form-control form-control-sm form-icon-input" th:field="*{message}" placeholder="Your message" row="10" required="required"></textarea>
                                                         <span class="text-danger asterisk">*</span>
@@ -194,7 +196,7 @@
                                                         <div class="modal-dialog">
                                                             <div class="modal-content">
                                                                 <div class="modal-header">
-                                                                    <h6 class="modal-title text-primary">Nigerian Exchange Group - <span class="text-secondary">X-Ticket</span></h6>
+                                                                    <h6 class="modal-title text-primary">X-Ticket</h6>
                                                                 </div>
                                                                 <div class="modal-body">
                                                                     <p>Confirm your reply</p>

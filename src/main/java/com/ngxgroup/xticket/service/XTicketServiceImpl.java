@@ -2084,9 +2084,7 @@ public class XTicketServiceImpl implements XTicketService {
             newTicket.setTicketStatus(ticketStatus);
             newTicket.setTicketId(ticketId);
             newTicket.setTicketReopen(false);
-            newTicket.setTicketReopened(null);
             newTicket.setTicketReassign(false);
-            newTicket.setTicketReassigned(null);
             newTicket.setTicketType(ticketType);
             newTicket.setSla(String.valueOf(ticketType.getSla().getTicketSla()) + String.valueOf(ticketType.getSla().getTicketSlaPeriod()));
             newTicket.setSlaExpiry(getSlaExpiryDate(ticketType));
@@ -2196,6 +2194,14 @@ public class XTicketServiceImpl implements XTicketService {
                 String newFileName = ticket.getTicketId().replace("-", "");
                 for (MultipartFile f : requestPayload.getUploadedFiles()) {
                     String fileExt = FilenameUtils.getExtension(f.getOriginalFilename());
+                    DocumentUpload newDoc = new DocumentUpload();
+                    newDoc.setCreatedAt(LocalDateTime.now());
+                    newDoc.setDocLink(host + "/xticket/document" + "/" + newFileName + fileIndex + "." + fileExt);
+                    newDoc.setTicket(ticket);
+                    newDoc.setNewFileName(newFileName + "." + fileExt);
+                    newDoc.setOriginalFileName(f.getOriginalFilename());
+                    newDoc.setUploadBy(appUser);
+                    xticketRepository.createDocumentUpload(newDoc);
                     //Copy the file to destination
                     String path = servletContext.getRealPath("/") + "WEB-INF/classes/document" + "/" + newFileName + fileIndex + "." + fileExt;
                     File newFile = new File(path);
@@ -2264,7 +2270,7 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
-            response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{ticket.getTicketType().getTicketTypeName() + " Ticket", "Created"}, Locale.ENGLISH));
+            response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{ticket.getTicketType().getTicketTypeName() + " Ticket", "Replied"}, Locale.ENGLISH));
             response.setData(null);
 
             //Log the response
@@ -2305,6 +2311,15 @@ public class XTicketServiceImpl implements XTicketService {
                 String newFileName = ticket.getTicketId().replace("-", "");
                 for (MultipartFile f : requestPayload.getUploadedFiles()) {
                     String fileExt = FilenameUtils.getExtension(f.getOriginalFilename());
+                    DocumentUpload newDoc = new DocumentUpload();
+                    newDoc.setCreatedAt(LocalDateTime.now());
+                    newDoc.setDocLink(host + "/xticket/document" + "/" + newFileName + fileIndex + "." + fileExt);
+                    newDoc.setTicket(ticket);
+                    newDoc.setNewFileName(newFileName + "." + fileExt);
+                    newDoc.setOriginalFileName(f.getOriginalFilename());
+                    newDoc.setUploadBy(appUser);
+                    xticketRepository.createDocumentUpload(newDoc);
+                    //Copy the file to destination
                     //Copy the file to destination
                     String path = servletContext.getRealPath("/") + "WEB-INF/classes/document" + "/" + newFileName + fileIndex + "." + fileExt;
                     File newFile = new File(path);
@@ -2373,7 +2388,7 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
-            response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{ticket.getTicketType().getTicketTypeName() + " Ticket", "Created"}, Locale.ENGLISH));
+            response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{ticket.getTicketType().getTicketTypeName() + " Ticket", "Replied"}, Locale.ENGLISH));
             response.setData(null);
 
             //Log the response
@@ -2413,7 +2428,8 @@ public class XTicketServiceImpl implements XTicketService {
                     newTicket.setTicketGroupName(t.getTicketGroup().getTicketGroupName());
                     newTicket.setTicketTypeName(t.getTicketType().getTicketTypeName());
                     newTicket.setPriority(t.getPriority());
-                    newTicket.setReopenedId(t.getTicketReopened() == null ? 0 : t.getTicketReopened().getId().intValue());
+                    TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
+                    newTicket.setReopenedId(reopenedTicket == null ? 0 : reopenedTicket.getId().intValue());
                     newTicket.setEmail(t.getCreatedBy().getEmail());
                     ticketList.add(newTicket);
                 }
@@ -2462,7 +2478,7 @@ public class XTicketServiceImpl implements XTicketService {
                     String closedBy;
                     if (t.isTicketReopen()) {
                         //Get the last reopened record
-                        TicketReopened reopenedTicket = xticketRepository.getTicketReopenedUsingId(t.getTicketReopened().getId());
+                        TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
                         closedDate = reopenedTicket.getClosedAt();
                         closedBy = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
                     } else {
@@ -2526,7 +2542,7 @@ public class XTicketServiceImpl implements XTicketService {
                     String closedBy;
                     if (t.isTicketReopen()) {
                         //Get the last reopened record
-                        TicketReopened reopenedTicket = xticketRepository.getTicketReopenedUsingId(t.getTicketReopened().getId());
+                        TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
                         closedDate = reopenedTicket.getClosedAt();
                         closedBy = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
                     } else {
@@ -2578,7 +2594,8 @@ public class XTicketServiceImpl implements XTicketService {
             response.setTicketTypeName(ticket.getTicketType().getTicketTypeName());
             response.setPriority(ticket.getPriority());
             response.setSlaExpiry(dtf.format(ticket.getSlaExpiry()));
-            response.setReopenedId(ticket.getTicketReopened() == null ? 0 : ticket.getTicketReopened().getId().intValue());
+            TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(ticket);
+            response.setReopenedId(!ticket.isTicketReopen() || reopenedTicket == null ? 0 : reopenedTicket.getId().intValue());
             response.setStatus(ticket.getTicketStatus().getTicketStatusName());
 
             //Fetch ticket responses
@@ -2799,7 +2816,7 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             //Fetch the ticket for the user
-            TicketStatus openStatus = xticketRepository.getTicketStatusUsingCode("OPEN");
+            TicketStatus openStatus = xticketRepository.getTicketStatusUsingCode("CLOSED");
             List<Tickets> openTickets = xticketRepository.getOpenAgentTickets(appUser, openStatus);
 
             if (openTickets != null) {
@@ -2839,7 +2856,7 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             //Fetch the ticket for the user
-            TicketStatus openStatus = xticketRepository.getTicketStatusUsingCode("OPEN");
+            TicketStatus openStatus = xticketRepository.getTicketStatusUsingCode("CLOSED");
             List<Tickets> openTickets = xticketRepository.getOpenAgentTickets(appUser, openStatus);
 
             if (openTickets != null) {
@@ -2900,7 +2917,7 @@ public class XTicketServiceImpl implements XTicketService {
                 xticketRepository.updateTicket(ticket);
 
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
-                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
+                response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{" ticket is ", "closed "}, Locale.ENGLISH));
                 response.setData(null);
                 return response;
             }
@@ -2990,7 +3007,6 @@ public class XTicketServiceImpl implements XTicketService {
             TicketStatus openStatus = xticketRepository.getTicketStatusUsingCode("OPEN");
             ticket.setTicketStatus(openStatus);
             ticket.setTicketReopen(true);
-            ticket.setTicketReopened(newReopenTicket);
             xticketRepository.updateTicket(ticket);
 
             //Persist Ticket Comment
@@ -3056,7 +3072,8 @@ public class XTicketServiceImpl implements XTicketService {
                     newTicket.setServiceUnitName(t.getTicketType().getServiceUnit().getServiceUnitName());
                     newTicket.setPriority(t.getPriority());
                     newTicket.setSlaExpiry(dtf.format(t.getSlaExpiry()));
-                    newTicket.setReopenedId(t.getTicketReopened() == null ? 0 : t.getTicketReopened().getId().intValue());
+                    TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
+                    newTicket.setReopenedId(reopenedTicket == null ? 0 : reopenedTicket.getId().intValue());
                     ticketList.add(newTicket);
                 }
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
@@ -3091,7 +3108,7 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             //Fetch all the open tickets assigned to the agent
-            TicketStatus openStatus = xticketRepository.getTicketStatusUsingCode("OPEN");
+            TicketStatus openStatus = xticketRepository.getTicketStatusUsingCode("CLOSED");
             List<Tickets> agentTickets = xticketRepository.getOpenAgentTickets(appUser, openStatus);
             if (agentTickets != null) {
                 //Check the trans type
@@ -3121,7 +3138,9 @@ public class XTicketServiceImpl implements XTicketService {
                     newTicket.setServiceUnitName(t.getTicketType().getServiceUnit().getServiceUnitName());
                     newTicket.setPriority(t.getPriority());
                     newTicket.setSlaExpiry(dtf.format(t.getSlaExpiry()));
-                    newTicket.setReopenedId(t.getTicketReopened() == null ? 0 : t.getTicketReopened().getId().intValue());
+                    TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
+                    newTicket.setReopenedId(reopenedTicket == null ? 0 : reopenedTicket.getId().intValue());
+                    newTicket.setEmail(t.getCreatedBy().getEmail());
                     data.add(newTicket);
                 }
 
@@ -3163,7 +3182,7 @@ public class XTicketServiceImpl implements XTicketService {
                     String closedBy;
                     if (t.isTicketReopen()) {
                         //Get the last reopened record
-                        TicketReopened reopenedTicket = xticketRepository.getTicketReopenedUsingId(t.getTicketReopened().getId());
+                        TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
                         closedDate = reopenedTicket.getClosedAt();
                         closedBy = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
                     } else {
@@ -3208,7 +3227,7 @@ public class XTicketServiceImpl implements XTicketService {
                 //Check if the agent is active
                 if (!t.getAgent().isLocked() && t.getAgent().isAgent()) {
                     //Get the jobs currently assigned to the agent
-                    TicketStatus openStatus = xticketRepository.getTicketStatusUsingCode("OPEN");
+                    TicketStatus openStatus = xticketRepository.getTicketStatusUsingCode("CLOSED");
                     List<Tickets> ticketsByAgent = xticketRepository.getOpenAgentTickets(t.getAgent(), openStatus);
                     jobStats[i] = String.valueOf(ticketsByAgent == null ? 0 : ticketsByAgent.size()) + "*" + String.valueOf(t.getId());
                     i++;
@@ -3328,7 +3347,6 @@ public class XTicketServiceImpl implements XTicketService {
             TicketStatus openStatus = xticketRepository.getTicketStatusUsingCode("OPEN");
             ticket.setTicketStatus(openStatus);
             ticket.setTicketReassign(true);
-            ticket.setTicketReassigned(ticketReassign);
             ticket.setSlaExpiry(slaExpiryTime);
             ticket.setTicketAgent(ticketAgent);
             xticketRepository.updateTicket(ticket);
@@ -3367,7 +3385,7 @@ public class XTicketServiceImpl implements XTicketService {
             TicketStatus openTicketStatus = xticketRepository.getTicketStatusUsingCode("OPEN");
             if (ticket.isTicketReopen()) {
                 //Get the last reopened record
-                TicketReopened reopenedTicket = xticketRepository.getTicketReopenedUsingId(ticket.getTicketReopened().getId());
+                TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(ticket);
                 closedDate = reopenedTicket.getClosedAt();
                 closedBy = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
             } else if (Objects.equals(ticket.getTicketStatus(), openTicketStatus)) {
@@ -3643,7 +3661,7 @@ public class XTicketServiceImpl implements XTicketService {
                     String closedBy;
                     if (t.isTicketReopen()) {
                         //Get the last reopened record
-                        TicketReopened reopenedTicket = xticketRepository.getTicketReopenedUsingId(t.getTicketReopened().getId());
+                        TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
                         closedDate = reopenedTicket.getClosedAt();
                         closedBy = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
                     } else {
@@ -3993,7 +4011,7 @@ public class XTicketServiceImpl implements XTicketService {
                         String closedBy;
                         if (t.isTicketReopen()) {
                             //Get the last reopened record
-                            TicketReopened reopenedTicket = xticketRepository.getTicketReopenedUsingId(t.getTicketReopened().getId());
+                            TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
                             closedDate = reopenedTicket.getClosedAt();
                             closedBy = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
                         } else {
@@ -4292,7 +4310,7 @@ public class XTicketServiceImpl implements XTicketService {
                     String closedBy;
                     if (t.isTicketReopen()) {
                         //Get the last reopened record
-                        TicketReopened reopenedTicket = xticketRepository.getTicketReopenedUsingId(t.getTicketReopened().getId());
+                        TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
                         closedDate = reopenedTicket.getClosedAt();
                         closedBy = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
                     } else {
@@ -4694,7 +4712,7 @@ public class XTicketServiceImpl implements XTicketService {
                     String closedBy;
                     if (t.isTicketReopen()) {
                         //Get the last reopened record
-                        TicketReopened reopenedTicket = xticketRepository.getTicketReopenedUsingId(t.getTicketReopened().getId());
+                        TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
                         closedDate = reopenedTicket.getClosedAt();
                         closedBy = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
                     } else {
@@ -5112,7 +5130,7 @@ public class XTicketServiceImpl implements XTicketService {
             List<TicketStatus> ticketStatus = xticketRepository.getTicketStatus();
             if (ticketStatus != null) {
                 for (TicketStatus t : ticketStatus) {
-                    if (!t.getTicketStatusCode().equalsIgnoreCase("CLOSED")) {
+                    if (!t.getTicketStatusCode().equalsIgnoreCase("OPEN") && !t.getTicketStatusCode().equalsIgnoreCase("CLOSED")) {
                         XTicketPayload payload = new XTicketPayload();
                         BeanUtils.copyProperties(t, payload);
                         payload.setCreatedAt(dtf.format(t.getCreatedAt()));

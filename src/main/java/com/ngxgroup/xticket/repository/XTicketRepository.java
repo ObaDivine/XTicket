@@ -173,6 +173,8 @@ public interface XTicketRepository {
 
     TicketReopened getTicketReopenedUsingId(long id);
 
+    TicketReopened getMostRecentTicketReopenedUsingTicket(Tickets ticket);
+
     /**
      * Ticket Group
      *
