@@ -34,7 +34,7 @@ import org.thymeleaf.templatemode.TemplateMode;
 
 /**
  *
- * @author Brian A. Okon - okon.brian@gmail.com
+ * @author Brian Okon
  */
 @Configuration
 @EnableWebMvc
