@@ -41,6 +41,7 @@ appMessages:
   login:
     failed: Login failed. Invalid username and or password
   user:
+    updated: User profile updated successfully
     activated: Your profile is activated already
     password:
       mismatch: Password and confirm password mismatch

@@ -62,7 +62,9 @@
                                             <td th:text="${rec.createdAt}" class="date align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.closedAt}" class="dateClosed align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.closedBy}" class="closedBy align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.ticketId}" class="ticketId align-middle white-space-nowrap start ps-3"></td>
+                                            <td class="ticketId align-middle white-space-nowrap start ps-3">
+                                                <a th:href="@{'/ticket/view/details?seid=' + ${rec.ticketId}}" th:text="${rec.ticketId}"></a>
+                                            </td>
                                             <td th:text="${rec.ticketGroupName}" class="ticketGroup align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.ticketTypeName}" class="ticketType align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.priority}" class="priority align-middle white-space-nowrap start ps-3"></td>
