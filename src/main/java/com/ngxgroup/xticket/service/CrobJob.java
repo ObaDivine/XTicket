@@ -94,6 +94,7 @@ public class CrobJob {
 
                                 //Update the escalation index
                                 t.setEscalationIndex(t.getEscalationIndex() + 1);
+                                t.setEscalatedAt(LocalDateTime.now());
                                 xticketRepository.updateTicket(t);
 
                                 //Add to the ticket escalations
