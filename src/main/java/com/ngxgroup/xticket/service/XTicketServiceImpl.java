@@ -816,7 +816,7 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
-            response.setResponseMessage(messageSource.getMessage("appMessages.success.user", new Object[0], Locale.ENGLISH));
+            response.setResponseMessage(messageSource.getMessage("appMessages.user.updated", new Object[0], Locale.ENGLISH));
             response.setData(null);
 
             //Log the response
@@ -1638,17 +1638,23 @@ public class XTicketServiceImpl implements XTicketService {
 
     @Override
     public List<TicketType> fetchTicketTypeUsingGroup(String ticketGroupCode, String principal) {
-        boolean userType = false;
         var appUser = xticketRepository.getAppUserUsingEmail(principal);
-        if (appUser != null) {
-            userType = appUser.isInternal();
+        if (appUser == null) {
+            return new ArrayList<>();
         }
 
         TicketGroup ticketGroup = xticketRepository.getTicketGroupUsingCode(ticketGroupCode);
         if (ticketGroup == null) {
             return new ArrayList<>();
         } else {
-            List<TicketType> ticketTypes = xticketRepository.getTicketTypeUsingTicketGroup(ticketGroup, userType);
+            List<TicketType> ticketTypes = new ArrayList<>();
+            //Check if the user is an agent
+            if (appUser.isAgent()) {
+                ticketTypes = xticketRepository.getTicketTypeUsingTicketGroup(ticketGroup);
+            } else {
+                ticketTypes = xticketRepository.getTicketTypeUsingTicketGroup(ticketGroup, appUser.isInternal());
+            }
+
             if (ticketTypes == null) {
                 return new ArrayList<>();
             }
@@ -3399,7 +3405,7 @@ public class XTicketServiceImpl implements XTicketService {
             //Add details of the ticket
             response.setClosedAt(closedDate == null ? null : dtf.format(closedDate));
             response.setClosedBy(closedBy);
-            response.setCreatedBy(ticket.getClosedBy().getLastName() + ", " + ticket.getClosedBy().getOtherName());
+            response.setCreatedBy(ticket.getCreatedBy().getLastName() + ", " + ticket.getCreatedBy().getOtherName());
             response.setCreatedAt(ticket.getCreatedAt() == null ? null : dtf.format(ticket.getCreatedAt()));
             response.setEscalated(ticket.isEscalated());
             response.setInternal(ticket.isInternal());
@@ -3687,7 +3693,7 @@ public class XTicketServiceImpl implements XTicketService {
                 return response;
             }
             response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
-            response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{"Open Ticket"}, Locale.ENGLISH));
+            response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{"Closed Ticket"}, Locale.ENGLISH));
             response.setData(null);
             return response;
         } catch (Exception ex) {
@@ -3859,9 +3865,9 @@ public class XTicketServiceImpl implements XTicketService {
                 //Check if user type is set 
                 if (!requestPayload.getSource().equalsIgnoreCase("")) {
                     if (requestPayload.getSource().equalsIgnoreCase("Internal")) {
-                        tickets = tickets.stream().filter(t -> t.isInternal() == true).collect(Collectors.toList());
+                        tickets = tickets.stream().filter(t -> t.isInternal()).collect(Collectors.toList());
                     } else {
-                        tickets = tickets.stream().filter(t -> t.isInternal() == false).collect(Collectors.toList());
+                        tickets = tickets.stream().filter(t -> !t.isInternal()).collect(Collectors.toList());
                     }
                 }
 

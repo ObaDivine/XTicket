@@ -87,13 +87,14 @@ public class CrobJob {
                             //Check if time to run the next escalation
                             long timeElapsed = Duration.between(t.getEscalatedAt(), LocalDateTime.now()).toMinutes();
                             if (timeElapsed >= escalationInterval && (t.getEscalationIndex() + 1) <= escalationEmails.length) {
-                                carbonCopyEmail = escalationEmails[t.getEscalationIndex()];
+                                carbonCopyEmail = escalationEmails[t.getEscalationIndex() - 1];
 
                                 //Escalate the email and push email notification
                                 sendEmail(escalationEmails[t.getEscalationIndex()], carbonCopyEmail, t);
 
                                 //Update the escalation index
                                 t.setEscalationIndex(t.getEscalationIndex() + 1);
+                                t.setEscalatedAt(LocalDateTime.now());
                                 xticketRepository.updateTicket(t);
 
                                 //Add to the ticket escalations
