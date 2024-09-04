@@ -2373,7 +2373,7 @@ public class XTicketServiceImpl implements XTicketService {
                     ticket.setTicketPause(LocalDateTime.now());
                 } else {
                     //Check time elapsed between when it was paused and now
-                    int timeElapsed = Duration.between(ticket.getTicketPause(), LocalDate.now()).toMinutesPart();
+                    int timeElapsed = Duration.between(ticket.getTicketPause(), LocalDateTime.now()).toMinutesPart();
                     ticket.setSlaExpiry(ticket.getSlaExpiry().plusMinutes(timeElapsed));
                     ticket.setTicketPause(null);
                 }
