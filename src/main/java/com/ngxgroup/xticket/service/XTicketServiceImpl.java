@@ -1941,16 +1941,16 @@ public class XTicketServiceImpl implements XTicketService {
                 }
 
                 //Update the user as agent if not already
-                if (!appUser.isAgent()) {
-                    appUser.setAgent(true);
-                    xticketRepository.updateAppUser(appUser);
+                if (!userAgent.isAgent()) {
+                    userAgent.setAgent(true);
+                    xticketRepository.updateAppUser(userAgent);
                 }
 
                 //Update the user role to that of an agent
                 RoleGroups agentGroup = xticketRepository.getRoleGroupUsingGroupName("AGENT");
                 if (agentGroup != null) {
-                    appUser.setRole(agentGroup);
-                    xticketRepository.updateAppUser(appUser);
+                    userAgent.setRole(agentGroup);
+                    xticketRepository.updateAppUser(userAgent);
                 }
             }
 
