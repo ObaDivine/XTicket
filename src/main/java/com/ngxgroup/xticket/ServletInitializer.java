@@ -310,7 +310,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
                 newGroupRole.setRoleGroup(saGroup);
                 xticketRepository.createGroupRoles(newGroupRole);
             }
-            
+
             AppRoles managementReport = xticketRepository.getRoleUsingRoleName("MANAGEMENT_REPORT");
             if (managementReport != null) {
                 GroupRoles newGroupRole = new GroupRoles();
@@ -467,7 +467,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
                 newGroupRole.setRoleGroup(defaultGroup);
                 xticketRepository.createGroupRoles(newGroupRole);
             }
-            
+
             AppRoles knowledgeBase = xticketRepository.getRoleUsingRoleName("KNOWLEDGE_BASE_SETUP");
             if (knowledgeBase != null) {
                 GroupRoles newGroupRole = new GroupRoles();
@@ -483,6 +483,73 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
                 newGroupRole.setAppRole(ticket);
                 newGroupRole.setCreatedAt(LocalDateTime.now());
                 newGroupRole.setRoleGroup(defaultGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+        }
+
+        //Create the agent role group
+        RoleGroups agentGroup = xticketRepository.getRoleGroupUsingGroupName("AGENT");
+        if (agentGroup == null) {
+            RoleGroups newGroup = new RoleGroups();
+            newGroup.setCreatedAt(LocalDateTime.now());
+            newGroup.setGroupName("AGENT");
+            agentGroup = xticketRepository.createRoleGroup(newGroup);
+        }
+
+        //Check the group roles
+        List<GroupRoles> agentGroupRoles = xticketRepository.getGroupRolesUsingRoleGroup(agentGroup);
+        if (agentGroupRoles == null) {
+            AppRoles dashboard = xticketRepository.getRoleUsingRoleName("DASHBOARD");
+            if (dashboard != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(dashboard);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(agentGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles knowledge = xticketRepository.getRoleUsingRoleName("KNOWLEDGE_BASE");
+            if (knowledge != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(knowledge);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(agentGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles knowledgeBase = xticketRepository.getRoleUsingRoleName("KNOWLEDGE_BASE_SETUP");
+            if (knowledgeBase != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(knowledgeBase);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(agentGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles ticket = xticketRepository.getRoleUsingRoleName("RAISE_TICKET");
+            if (ticket != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(ticket);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(agentGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles ticketAgent = xticketRepository.getRoleUsingRoleName("TICKET_AGENT");
+            if (ticketAgent != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(ticketAgent);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(agentGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles report = xticketRepository.getRoleUsingRoleName("REPORT");
+            if (report != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(report);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(agentGroup);
                 xticketRepository.createGroupRoles(newGroupRole);
             }
         }

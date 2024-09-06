@@ -1945,6 +1945,13 @@ public class XTicketServiceImpl implements XTicketService {
                     appUser.setAgent(true);
                     xticketRepository.updateAppUser(appUser);
                 }
+
+                //Update the user role to that of an agent
+                RoleGroups agentGroup = xticketRepository.getRoleGroupUsingGroupName("AGENT");
+                if (agentGroup != null) {
+                    appUser.setRole(agentGroup);
+                    xticketRepository.updateAppUser(appUser);
+                }
             }
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
@@ -3506,12 +3513,6 @@ public class XTicketServiceImpl implements XTicketService {
 
     @Override
     public List<TicketAgent> fetchTicketAgentUsingType(String ticketTypeCode, String principal) {
-        boolean userType = false;
-        var appUser = xticketRepository.getAppUserUsingEmail(principal);
-        if (appUser != null) {
-            userType = appUser.isInternal();
-        }
-
         TicketType ticketType = xticketRepository.getTicketTypeUsingCode(ticketTypeCode);
         if (ticketType == null) {
             return new ArrayList<>();
