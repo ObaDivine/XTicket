@@ -72,7 +72,7 @@ xticket:
     close: 17
   adauth:
     domains: ngxgroup.com, brokers.ngxgroup.com  
-  host: 'http://localhost:8080'
+  host: 'https://testapp.ngxgroup.com:8080'
   company:
     name: Nigerian Exchange Group
     address: 2 Custom Street, Marina, Lagos
@@ -83,7 +83,7 @@ xticket:
   cron:
     job: '*/2 * * * * ?' #This cron job runs every 2 minutes
   email:
-    contactus: bokon@ngxgroup.com
+    contactus: coordination@ngxgroup.com
     escalation:
       interval: 5 #This is 5 minutes between escalation
     notification: bokon@ngxgroup.com
