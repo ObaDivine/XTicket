@@ -21,11 +21,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import com.ngxgroup.xticket.service.XTicketService;
+import com.sun.management.OperatingSystemMXBean;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.lang.management.ManagementFactory;
+//import java.lang.management.OperatingSystemMXBean;
 import java.util.Locale;
+import java.util.logging.Level;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
@@ -66,6 +70,22 @@ public class HomeController implements ErrorController {
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
+
+        OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
+        osBean.getArch();
+        LOGGER.log(Level.INFO, osBean.getArch());
+        LOGGER.log(Level.INFO, osBean.getName());
+        LOGGER.log(Level.INFO, osBean.getVersion());
+        LOGGER.log(Level.INFO, String.valueOf(osBean.getAvailableProcessors()));
+
+        LOGGER.log(Level.INFO, "Virtual Memory -- " + String.valueOf(osBean.getCommittedVirtualMemorySize()));
+        LOGGER.log(Level.INFO, "CPU Load -- " + String.valueOf(osBean.getCpuLoad()));
+        LOGGER.log(Level.INFO, "Free Memory Size -- " + String.valueOf(osBean.getFreeMemorySize()));
+        LOGGER.log(Level.INFO, "Free Swap Space -- " + String.valueOf(osBean.getFreeSwapSpaceSize()));
+        LOGGER.log(Level.INFO, "CPU Load -- " + String.valueOf(osBean.getProcessCpuLoad()));
+        LOGGER.log(Level.INFO, "CPU Time -- " + String.valueOf(osBean.getProcessCpuTime()));
+        LOGGER.log(Level.INFO, "Total Memory -- " + String.valueOf(osBean.getTotalMemorySize()));
+        LOGGER.log(Level.INFO, "Swap Space -- " + String.valueOf(osBean.getTotalSwapSpaceSize()));
         return "signin";
     }
 

@@ -68,7 +68,7 @@
                                                 <tr class="hover-actions-trigger btn-reveal-trigger position-static"
                                                     th:each="rec : ${roleList}">
                                                     <td class="role align-middle white-space-nowrap fw-semi-bold text-1000 ps-4 border-end"  th:text="${rec.groupName}">Role Name</td>
-                                                    <td th:if="${rec.groupName != 'SA' && rec.groupName != 'DEFAULT'}" class="align-middle white-space-nowrap align-middle pe-0 ps-4">
+                                                    <td th:if="${rec.groupName != 'SA' && rec.groupName != 'DEFAULT' && rec.groupName != 'AGENT'}" class="align-middle white-space-nowrap align-middle pe-0 ps-4">
                                                         <div class="font-sans-serif btn-reveal-trigger position-static">
                                                             <button
                                                                 class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs--2"  type="button" data-bs-toggle="dropdown" data-boundary="window"
