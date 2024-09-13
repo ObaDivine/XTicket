@@ -277,7 +277,7 @@
                         </li>
                         <li class="nav-item dropdown" sec:authorize="hasRole('MANAGE_USER') || hasRole('ADD_ROLES') || hasRole('LIST_ENTITY') 
                             || hasRole('LIST_SERVICE_UNIT') || hasRole('LIST_TICKET_GROUP') || hasRole('LIST_TICKET_TYPE') || hasRole('LIST_TICKET_SLA')
-                            || hasRole('LIST_TICKET_AGENT') || hasRole('LIST_TICKET_STATUS')">
+                            || hasRole('LIST_TICKET_AGENT') || hasRole('LIST_TICKET_STATUS') || hasRole('AUTOMATED_TICKET')">
                             <a class="nav-link dropdown-toggle lh-1  text-primary" href="#!" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
                                 <span class="uil fs-0 me-2 uil-document-layout-right text-primary"></span>System
                             </a>
@@ -297,6 +297,12 @@
                                 <li sec:authorize="hasRole('LIST_ENTITY')">
                                     <a class="dropdown-item" href="" th:href="@{/setup/entity/list}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Entity
+                                        </div>
+                                    </a>
+                                </li>
+                                <li sec:authorize="hasRole('LIST_DEPARTMENT')">
+                                    <a class="dropdown-item" href="" th:href="@{/setup/department/list}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Department 
                                         </div>
                                     </a>
                                 </li>
@@ -333,6 +339,12 @@
                                 <li sec:authorize="hasRole('LIST_TICKET_STATUS')">
                                     <a class="dropdown-item" href="" th:href="@{/setup/ticket/status/list}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Ticket Status
+                                        </div>
+                                    </a>
+                                </li>
+                                <li sec:authorize="hasRole('LIST_AUTOMATED_TICKET')">
+                                    <a class="dropdown-item" href="" th:href="@{/setup/ticket/automation/list}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Automated Ticket 
                                         </div>
                                     </a>
                                 </li>

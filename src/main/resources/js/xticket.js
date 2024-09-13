@@ -2,7 +2,7 @@ var options = new List('listTable', {
     valueNames: ['date', 'requestBy', 'ticketId', 'ticketGroup', 'ticketType', 'ticketCount', 'priority', 'slaExpiry', 'sla', 'slaViolated', 'reopened', 'subject',
         'dateClosed', 'closedBy', 'createdBy', 'name', 'email', 'mobile', 'gender', 'internal', 'agent', 'locked', 'role', 'lastLogin', 'timeElapsed', 'reassigned',
         'reassignedAt', 'reassignedBy', 'reassignedTo', 'initialSla', 'newSla', 'escalation', 'escalated', 'status', 'group', 'code', 'requireCR', 'requireSR',
-        'serviceUnit', 'entityName', 'escalation', 'rating', 'link'
+        'serviceUnit', 'entityName', 'escalation', 'rating', 'link', 'frequency', 'message'
     ],
     page: 10,
     pagination: true
@@ -130,10 +130,10 @@ function emailValidation() {
         $('#pwd').hide();
         $('#password').val('w6W;;%LYcwUjfh');
         $('#confirmPassword').val('w6W;;%LYcwUjfh');
-        $('#serviceUnit').show();
+        $('#department').show();
     } else {
         $('#pwd').show();
-        $('#serviceUnit').hide();
+        $('#department').hide();
     }
     ;
 }

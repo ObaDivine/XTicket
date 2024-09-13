@@ -294,7 +294,7 @@ public class SetupController {
     public String serviceUnit(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("recordCount", xticketService.fetchServiceUnit().getData().size());
-        model.addAttribute("entityList", xticketService.fetchEntity().getData());
+        model.addAttribute("departmentList", xticketService.fetchDepartment().getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -310,7 +310,7 @@ public class SetupController {
             return "redirect:/setup/service-unit";
         }
         model.addAttribute("ticketPayload", requestPayload);
-        model.addAttribute("entityList", xticketService.fetchEntity().getData());
+        model.addAttribute("departmentList", xticketService.fetchDepartment().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "error");
         resetAlertMessage();
@@ -328,7 +328,7 @@ public class SetupController {
         }
         model.addAttribute("ticketPayload", response);
         model.addAttribute("recordCount", xticketService.fetchServiceUnit().getData().size());
-        model.addAttribute("entityList", xticketService.fetchEntity().getData());
+        model.addAttribute("departmentList", xticketService.fetchDepartment().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "success");
         resetAlertMessage();
@@ -479,6 +479,135 @@ public class SetupController {
         alertMessage = response.getResponseMessage();
         alertMessageType = response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error";
         return "redirect:/setup/entity/list";
+    }
+
+    @GetMapping("/department")
+    @Secured("ROLE_ADD_DEPARTMENT")
+    public String department(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
+        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("recordCount", xticketService.fetchDepartment().getData().size());
+        model.addAttribute("entityList", xticketService.fetchEntity().getData());
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
+        resetAlertMessage();
+        return "department";
+    }
+
+    @PostMapping("/department/create")
+    public String department(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession session, Principal principal, Model model) {
+        XTicketPayload response = xticketService.createDepartment(requestPayload, principal.getName());
+        if (response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
+            alertMessage = response.getResponseMessage();
+            alertMessageType = "success";
+            return "redirect:/setup/department";
+        }
+        model.addAttribute("ticketPayload", requestPayload);
+        model.addAttribute("entityList", xticketService.fetchEntity().getData());
+        model.addAttribute("alertMessage", response.getResponseMessage());
+        model.addAttribute("alertMessageType", "error");
+        resetAlertMessage();
+        return "department";
+    }
+
+    @GetMapping("/department/edit")
+    @Secured("ROLE_UPDATE_DEPARTMENT")
+    public String department(@RequestParam("seid") String id, Model model, Principal principal) {
+        XTicketPayload response = xticketService.fetchDepartment(id);
+        if (!response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
+            alertMessage = response.getResponseMessage();
+            alertMessageType = "error";
+            return "redirect:/setup/department/list";
+        }
+        model.addAttribute("ticketPayload", response);
+        model.addAttribute("recordCount", xticketService.fetchDepartment().getData().size());
+        model.addAttribute("entityList", xticketService.fetchEntity().getData());
+        model.addAttribute("alertMessage", response.getResponseMessage());
+        model.addAttribute("alertMessageType", "success");
+        resetAlertMessage();
+        return "department";
+    }
+
+    @GetMapping("/department/list")
+    @Secured("ROLE_LIST_DEPARTMENT")
+    public String department(Model model, Principal principal) {
+        XTicketPayload response = xticketService.fetchDepartment();
+        model.addAttribute("dataList", response.getData());
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
+        resetAlertMessage();
+        return "departmentlist";
+    }
+
+    @GetMapping("/department/delete")
+    @Secured("ROLE_DELETE_DEPARTMENT")
+    public String deleteDepartment(@RequestParam("seid") String seid, Model model, Principal principal) {
+        XTicketPayload response = xticketService.deleteDepartment(seid, principal.getName());
+        alertMessage = response.getResponseMessage();
+        alertMessageType = response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error";
+        return "redirect:/setup/department/list";
+    }
+
+    @GetMapping("/ticket/autmation")
+    @Secured("ROLE_ADD_AUTOMATED_TICKET")
+    public String automatedTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
+        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("recordCount", xticketService.fetchAutomatedTicket().getData().size());
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
+        resetAlertMessage();
+        return "automatedticket";
+    }
+
+    @PostMapping("/ticket/automation/create")
+    public String automatedTicket(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession session, Principal principal, Model model) {
+        XTicketPayload response = xticketService.createAutomatedTicket(requestPayload, principal.getName());
+        if (response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
+            alertMessage = response.getResponseMessage();
+            alertMessageType = "success";
+            return "redirect:/setup/ticket/automation";
+        }
+        model.addAttribute("ticketPayload", requestPayload);
+        model.addAttribute("alertMessage", response.getResponseMessage());
+        model.addAttribute("alertMessageType", "error");
+        resetAlertMessage();
+        return "automatedticket";
+    }
+
+    @GetMapping("/ticket/automation/edit")
+    @Secured("ROLE_UPDATE_AUTOMATED_TICKET")
+    public String automatedTicket(@RequestParam("seid") String id, Model model, Principal principal) {
+        XTicketPayload response = xticketService.fetchAutomatedTicket(id);
+        if (!response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
+            alertMessage = response.getResponseMessage();
+            alertMessageType = "error";
+            return "redirect:/setup/ticket/automation/list";
+        }
+        model.addAttribute("ticketPayload", response);
+        model.addAttribute("recordCount", xticketService.fetchAutomatedTicket().getData().size());
+        model.addAttribute("alertMessage", response.getResponseMessage());
+        model.addAttribute("alertMessageType", "success");
+        resetAlertMessage();
+        return "utomatedticket";
+    }
+
+    @GetMapping("/ticket/automation/list")
+    @Secured("ROLE_LIST_AUTOMATED_TICKET")
+    public String automatedTicket(Model model, Principal principal) {
+        XTicketPayload response = xticketService.fetchAutomatedTicket();
+        model.addAttribute("dataList", response.getData());
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
+        resetAlertMessage();
+        return "automatedticketlist";
+    }
+
+    @GetMapping("/ticket/automation/delete")
+    @Secured("ROLE_DELETE_AUTOMATED_TICKET")
+    public String deleteAutomatedTicket(@RequestParam("seid") String seid, Model model, Principal principal) {
+        XTicketPayload response = xticketService.deleteAutomatedTicket(seid, principal.getName());
+        alertMessage = response.getResponseMessage();
+        alertMessageType = response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error";
+        return "redirect:/setup/ticket/automation/list";
     }
 
     private void resetAlertMessage() {

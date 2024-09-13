@@ -196,6 +196,25 @@ public interface XTicketService {
     XTicketPayload deleteEntity(String id, String principal);
 
     /**
+     * Department Transactions
+     *
+     *
+     * @param requestPayload
+     * @return
+     */
+    XTicketPayload fetchTicketByDepartment(XTicketPayload requestPayload);
+
+    XTicketPayload fetchTicketByDepartmentToEntity(XTicketPayload requestPayload);
+
+    XTicketPayload fetchDepartment();
+
+    XTicketPayload fetchDepartment(String id);
+
+    XTicketPayload createDepartment(XTicketPayload requestPayload, String principal);
+
+    XTicketPayload deleteDepartment(String id, String principal);
+
+    /**
      * Service Unit Transactions
      *
      *
@@ -233,7 +252,21 @@ public interface XTicketService {
     XTicketPayload deleteTicketStatus(String id, String principal);
 
     /**
-     * Ticket Status Transactions
+     * Ticket Automation Transactions
+     *
+     *
+     * @return
+     */
+    XTicketPayload fetchAutomatedTicket();
+
+    XTicketPayload fetchAutomatedTicket(String id);
+
+    XTicketPayload createAutomatedTicket(XTicketPayload requestPayload, String principal);
+
+    XTicketPayload deleteAutomatedTicket(String id, String principal);
+
+    /**
+     * Knowledge Base
      *
      *
      * @return
@@ -247,19 +280,19 @@ public interface XTicketService {
     XTicketPayload deleteKnowledgeBaseCategory(String id, String principal);
 
     XTicketPayload fetchKnowledgeBaseContent();
-    
+
     XTicketPayload fetchKnowledgeBaseContentUsingCategory(String id);
 
     XTicketPayload fetchKnowledgeBase();
-    
+
     XTicketPayload fetchKnowledgeBasePopularArticle();
-    
+
     XTicketPayload fetchKnowledgeBaseLatestArticle();
-    
+
     XTicketPayload fetchKnowledgeBasePopularTag();
 
     XTicketPayload fetchKnowledgeBaseContent(String id);
-    
+
     XTicketPayload searchKnowledgeBaseContent(String searchKeyWord);
 
     XTicketPayload createKnowledgeBaseContent(XTicketPayload requestPayload, String principal);
@@ -274,7 +307,7 @@ public interface XTicketService {
      * @return
      */
     XTicketPayload fetchAuditLog(XTicketPayload requestPayload);
-    
+
     XTicketPayload createContactUs(XTicketPayload requestPayload);
 
 }

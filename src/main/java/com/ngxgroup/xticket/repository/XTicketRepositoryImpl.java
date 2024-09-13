@@ -3,7 +3,9 @@ package com.ngxgroup.xticket.repository;
 import com.ngxgroup.xticket.model.AppRoles;
 import com.ngxgroup.xticket.model.AppUser;
 import com.ngxgroup.xticket.model.AuditLog;
+import com.ngxgroup.xticket.model.AutomatedTicket;
 import com.ngxgroup.xticket.model.ContactUs;
+import com.ngxgroup.xticket.model.Department;
 import com.ngxgroup.xticket.model.DocumentUpload;
 import com.ngxgroup.xticket.model.Entities;
 import com.ngxgroup.xticket.model.GroupRoles;
@@ -1429,6 +1431,81 @@ public class XTicketRepositoryImpl implements XTicketRepository {
         em.flush();
         return entity;
     }
+    
+    @Override
+    public List<Department> getDepartment() {
+        TypedQuery<Department> query = em.createQuery("SELECT p FROM Department p", Department.class);
+        List<Department> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset;
+    }
+
+    @Override
+    public Department getDepartmentUsingId(long id) {
+        TypedQuery<Department> query = em.createQuery("SELECT p FROM Department p  WHERE p.id = :id", Department.class)
+                .setParameter("id", id);
+        List<Department> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset.get(0);
+    }
+
+    @Override
+    public Department getDepartmentUsingCode(String entityCode) {
+        TypedQuery<Department> query = em.createQuery("SELECT p FROM Department p  WHERE p.departmentCode = :departmentCode", Department.class)
+                .setParameter("depatmentCode", entityCode);
+        List<Department> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset.get(0);
+    }
+
+    @Override
+    public Department getDepartmentUsingName(String departmentName) {
+        TypedQuery<Department> query = em.createQuery("SELECT p FROM Department p  WHERE p.departmentName = :departmentName", Department.class)
+                .setParameter("departmentName", departmentName);
+        List<Department> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset.get(0);
+    }
+
+    @Override
+    public Department createDepartment(Department department) {
+        em.persist(department);
+        em.flush();
+        return department;
+    }
+
+    @Override
+    public Department updateDepartment(Department department) {
+        em.merge(department);
+        em.flush();
+        return department;
+    }
+
+    @Override
+    public Department deleteDepartment(Department department) {
+        em.remove(em.contains(department) ? department : em.merge(department));
+        em.flush();
+        return department;
+    }
+
+    @Override
+    public List<ServiceUnit> getServiceUnitUsingDepartment(Department department) {
+        TypedQuery<ServiceUnit> query = em.createQuery("SELECT p FROM ServiceUnit p WHERE p.department = :department", ServiceUnit.class)
+                .setParameter("department", department);
+        List<ServiceUnit> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset;
+    }
 
     @Override
     public List<DocumentUpload> getDocumentUploadUsingTicket(Tickets ticket) {
@@ -1636,6 +1713,59 @@ public class XTicketRepositoryImpl implements XTicketRepository {
         em.persist(contactUs);
         em.flush();
         return contactUs;
+    }
+
+    @Override
+    public List<AutomatedTicket> getAutomatedTicket() {
+        TypedQuery<AutomatedTicket> query = em.createQuery("SELECT p FROM AutomatedTicket p", AutomatedTicket.class);
+        List<AutomatedTicket> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset;
+    }
+
+    @Override
+    public AutomatedTicket getAutomatedTicketUsingId(long id) {
+        TypedQuery<AutomatedTicket> query = em.createQuery("SELECT p FROM AutomatedTicket p WHERE p.id = :id", AutomatedTicket.class)
+                .setParameter("id", id);
+        List<AutomatedTicket> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset.get(0);
+    }
+
+    @Override
+    public Tickets getAutomatedTicketUsingTicketType(TicketType ticketType) {
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM AutomatedTicket p WHERE p.ticketType = :ticketType", Tickets.class)
+                .setParameter("ticketType", ticketType);
+        List<Tickets> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset.get(0);
+    }
+
+    @Override
+    public AutomatedTicket createAutomatedTicket(AutomatedTicket automatedTicket) {
+        em.persist(automatedTicket);
+        em.flush();
+        return automatedTicket;
+    }
+
+    @Override
+    public AutomatedTicket updateAutomatedTicket(AutomatedTicket automatedTicket) {
+        em.merge(automatedTicket);
+        em.flush();
+        return automatedTicket;
+    }
+
+    @Override
+    public AutomatedTicket deleteAutomatedTicket(AutomatedTicket automatedTicket) {
+        em.remove(em.contains(automatedTicket) ? automatedTicket : em.merge(automatedTicket));
+        em.flush();
+        return automatedTicket;
     }
 
 }

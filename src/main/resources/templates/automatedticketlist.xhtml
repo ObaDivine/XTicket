@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
-        <title>X-Ticket - Ticket Status</title>
+        <title>X-Ticket - Automated Ticket</title>
         <th:block th:insert="~{fragments/xTicketFragments :: headerfiles}"></th:block>
     </head>
     <body onload="preloaderFunction()" style="margin: 0;">
@@ -13,7 +13,7 @@
                 <div class="content">
                     <div class="row gy-3 mb-3 justify-content-between">
                         <div class="col-md-4 col-auto">
-                            <h5 class="text-1100 text-primary">Ticket Status List</h5>
+                            <h5 class="text-1100 text-primary">Automated Ticket List</h5>
                         </div>
                         <div class="col-md-5 col-auto">
                             <nav aria-label="breadcrumb">
@@ -21,7 +21,7 @@
                                     <li th:if="!${session.isAgent}" class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
                                     <li th:if="${session.isAgent}"class="breadcrumb-item"><a href="#" th:href="@{/agent/dashboard}">Dashboard</a></li>
                                     <li class="breadcrumb-item"><a href="#" th:href="@{/setup/ticket/status}">Ticket Status</a></li>
-                                    <li class="breadcrumb-item active">Ticket Status Listing</li>
+                                    <li class="breadcrumb-item active">Automated Ticket Listing</li>
                                 </ol>
                             </nav>
                         </div>
@@ -48,9 +48,16 @@
                                     <thead>
                                         <tr>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">Date</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketGroup">Ticket Status Code</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="name">Ticket Status Name</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="sla">Pause SLA</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="requestBy">Service Requester</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="agent">Service Provider</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketType">Ticket Type</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="sla">Ticket SLA</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">Start Date</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">End Date</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="frequency">Frequency</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="escalation">Escalation</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="subject">Subject</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="message">Message</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="cretedBy">Created By</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="status">Status</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col">Action</th>
@@ -59,16 +66,23 @@
                                     <tbody class="list" id="deal-tables-body" th:if="${dataList != null}">
                                         <tr th:each="rec : ${dataList}" class="position-static">
                                             <td th:text="${rec.createdAt}" class="date align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.ticketStatusCode}" class="ticketGroup align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.ticketStatusName}" class="name align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.pauseSLA}" class="sla align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.createdBy}" class="requestBy align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.ticketAgent}" class="agent align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.ticketTypeName}" class="ticketType align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.ticketSLA}" class="sla align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.startDate}" class="date align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.endDate}" class="date align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.frequency}" class="frequency align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.escalationEmails}" class="escalation align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.subject}" class="subject align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.message}" class="message align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.createdBy}" class="createdBy align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.status}" class="status align-middle white-space-nowrap start ps-3"></td>
                                             <td class="align-middle white-space-nowrap start ps-3 btn-reveal-trigger">
-                                                <a sec:authorize="hasRole('UPDATE_TICKET_STATUS')" class="text-success" href="#!" th:href="@{'/setup/ticket/status/edit?seid=' + ${rec.id}}" th:if="${rec.ticketStatusCode != 'OPEN' && rec.ticketStatusCode != 'CLOSED'}">
+                                                <a sec:authorize="hasRole('UPDATE_AUTOMATED_TICKET')" class="text-success" href="#!" th:href="@{'/setup/ticket/automation/edit?seid=' + ${rec.id}}">
                                                     <span class="fas fa-edit" data-bs-toggle="tooltip" data-bs-placement="right" title="Update Ticket Status"></span>
                                                 </a>
-                                                <a sec:authorize="hasRole('DELETE_TICKET_STATUS')" class="text-danger" th:data-bs-target="'#a' + ${rec.id}" data-bs-toggle="modal" th:if="${rec.ticketStatusCode != 'OPEN' && rec.ticketStatusCode != 'CLOSED'}">
+                                                <a sec:authorize="hasRole('DELETE_AUTOMATED_TICKET')" class="text-danger" th:data-bs-target="'#a' + ${rec.id}" data-bs-toggle="modal">
                                                     <span class="fas fa-trash" data-bs-toggle="tooltip" data-bs-placement="right" title="Delete Ticket Status"></span>
                                                 </a>
                                                 <div class="modal fade" th:id="'a' + ${rec.id}" tabindex="-1" role="dialog" aria-labelledby="${rec.id}" aria-hidden="true">
@@ -79,7 +93,7 @@
                                                             </div>
                                                             <div class="modal-body">
                                                                 <p>Confirm you ticket status delete</p>
-                                                                <a class="btn btn-sm btn-danger" href="#!" th:href="@{'/setup/ticket/status/delete?seid=' + ${rec.id}}">Delete</a>
+                                                                <a class="btn btn-sm btn-danger" href="#!" th:href="@{'/setup/ticket/automation/delete?seid=' + ${rec.id}}">Delete</a>
                                                                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
                                                             </div>
                                                         </div>
@@ -109,7 +123,7 @@
             </div>
             <th:block th:insert="~{fragments/xTicketFragments :: scriptfiles}"></th:block>   
         </main>
-         <script th:src="@{/js/jspdf.min.js}"></script>
+        <script th:src="@{/js/jspdf.min.js}"></script>
         <script th:src="@{/js/jspdf.plugin.autotable.min.js}"></script>
         <script th:src="@{/js/tableHTMLExport.js}"></script>
         <script>

@@ -77,4 +77,6 @@ public class AppUser implements Serializable {
     private String activationId;
     @ManyToOne
     private Entities entity;
+    @ManyToOne
+    private Department department;
 }

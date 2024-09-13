@@ -42,6 +42,8 @@ public class UserController {
         model.addAttribute("userPayload", new XTicketPayload());
         model.addAttribute("userList", xticketService.fetchAppUsers());
         model.addAttribute("roleList", xticketService.fetchRoleGroup());
+        model.addAttribute("departmentList", xticketService.fetchDepartment());
+        model.addAttribute("entityList", xticketService.fetchEntity());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();

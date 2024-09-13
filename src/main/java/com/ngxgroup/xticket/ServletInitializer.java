@@ -83,12 +83,20 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
         appRoles.put("DELETE_ENTITY", "Delete Entity");
         appRoles.put("UPDATE_ENTITY", "Update Entity");
         appRoles.put("LIST_ENTITY", "List Entity");
+        appRoles.put("ADD_DEPARTMENT", "Add Department");
+        appRoles.put("DELETE_DEPARTMENT", "Delete Department");
+        appRoles.put("UPDATE_DEPARTMENT", "Update Department");
+        appRoles.put("LIST_DEPARTMENT", "List Department");
         appRoles.put("KNOWLEDGE_BASE", "View Knowledge Base Documentation");
         appRoles.put("KNOWLEDGE_BASE_SETUP", "Setup Knowledge Base Documentation");
         appRoles.put("RAISE_TICKET", "Raise Tickets");
         appRoles.put("REPORT", "View Reports accross entities");
         appRoles.put("MANAGEMENT_REPORT", "View Management Reports");
         appRoles.put("TICKET_AGENT", "Set user as a ticket agent");
+        appRoles.put("ADD_AUTOMATED_TICKET", "Add Automated Tickets");
+        appRoles.put("DELETE_AUTOMATED_TICKET", "Delete Automated Tickets");
+        appRoles.put("UPDATE_AUTOMATED_TICKET", "Update Automated Tickets");
+        appRoles.put("LIST_AUTOMATED_TICKET", "List Automated Tickets");
 
         for (Map.Entry<String, String> role : appRoles.entrySet()) {
             //Check if the role exist already
@@ -332,7 +340,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
             AppRoles addTicketStatus = xticketRepository.getRoleUsingRoleName("ADD_TICKET_STATUS");
             if (addTicketStatus != null) {
                 GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(addTicketAgent);
+                newGroupRole.setAppRole(addTicketStatus);
                 newGroupRole.setCreatedAt(LocalDateTime.now());
                 newGroupRole.setRoleGroup(saGroup);
                 xticketRepository.createGroupRoles(newGroupRole);
@@ -341,7 +349,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
             AppRoles updateTicketStatus = xticketRepository.getRoleUsingRoleName("UPDATE_TICKET_STATUS");
             if (updateTicketStatus != null) {
                 GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(updateTicketAgent);
+                newGroupRole.setAppRole(updateTicketStatus);
                 newGroupRole.setCreatedAt(LocalDateTime.now());
                 newGroupRole.setRoleGroup(saGroup);
                 xticketRepository.createGroupRoles(newGroupRole);
@@ -350,7 +358,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
             AppRoles deleteTicketStatus = xticketRepository.getRoleUsingRoleName("DELETE_TICKET_STATUS");
             if (deleteTicketStatus != null) {
                 GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(deleteTicketAgent);
+                newGroupRole.setAppRole(deleteTicketStatus);
                 newGroupRole.setCreatedAt(LocalDateTime.now());
                 newGroupRole.setRoleGroup(saGroup);
                 xticketRepository.createGroupRoles(newGroupRole);
@@ -359,7 +367,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
             AppRoles listTicketStatus = xticketRepository.getRoleUsingRoleName("LIST_TICKET_STATUS");
             if (listTicketStatus != null) {
                 GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(listTicketAgent);
+                newGroupRole.setAppRole(listTicketStatus);
                 newGroupRole.setCreatedAt(LocalDateTime.now());
                 newGroupRole.setRoleGroup(saGroup);
                 xticketRepository.createGroupRoles(newGroupRole);
@@ -368,7 +376,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
             AppRoles addServiceUnit = xticketRepository.getRoleUsingRoleName("ADD_SERVICE_UNIT");
             if (addServiceUnit != null) {
                 GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(addTicketAgent);
+                newGroupRole.setAppRole(addServiceUnit);
                 newGroupRole.setCreatedAt(LocalDateTime.now());
                 newGroupRole.setRoleGroup(saGroup);
                 xticketRepository.createGroupRoles(newGroupRole);
@@ -377,7 +385,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
             AppRoles updateServiceUnit = xticketRepository.getRoleUsingRoleName("UPDATE_SERVICE_UNIT");
             if (updateServiceUnit != null) {
                 GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(updateTicketAgent);
+                newGroupRole.setAppRole(updateServiceUnit);
                 newGroupRole.setCreatedAt(LocalDateTime.now());
                 newGroupRole.setRoleGroup(saGroup);
                 xticketRepository.createGroupRoles(newGroupRole);
@@ -386,7 +394,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
             AppRoles deleteServiceUnit = xticketRepository.getRoleUsingRoleName("DELETE_SERVICE_UNIT");
             if (deleteServiceUnit != null) {
                 GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(deleteTicketAgent);
+                newGroupRole.setAppRole(deleteServiceUnit);
                 newGroupRole.setCreatedAt(LocalDateTime.now());
                 newGroupRole.setRoleGroup(saGroup);
                 xticketRepository.createGroupRoles(newGroupRole);
@@ -395,7 +403,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
             AppRoles listServiceUnit = xticketRepository.getRoleUsingRoleName("LIST_SERVICE_UNIT");
             if (listServiceUnit != null) {
                 GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(listTicketAgent);
+                newGroupRole.setAppRole(listServiceUnit);
                 newGroupRole.setCreatedAt(LocalDateTime.now());
                 newGroupRole.setRoleGroup(saGroup);
                 xticketRepository.createGroupRoles(newGroupRole);
@@ -404,7 +412,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
             AppRoles addEntity = xticketRepository.getRoleUsingRoleName("ADD_ENTITY");
             if (addEntity != null) {
                 GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(addTicketAgent);
+                newGroupRole.setAppRole(addEntity);
                 newGroupRole.setCreatedAt(LocalDateTime.now());
                 newGroupRole.setRoleGroup(saGroup);
                 xticketRepository.createGroupRoles(newGroupRole);
@@ -413,7 +421,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
             AppRoles updateEntity = xticketRepository.getRoleUsingRoleName("UPDATE_ENTITY");
             if (updateEntity != null) {
                 GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(updateTicketAgent);
+                newGroupRole.setAppRole(updateEntity);
                 newGroupRole.setCreatedAt(LocalDateTime.now());
                 newGroupRole.setRoleGroup(saGroup);
                 xticketRepository.createGroupRoles(newGroupRole);
@@ -422,7 +430,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
             AppRoles deleteEntity = xticketRepository.getRoleUsingRoleName("DELETE_ENTITY");
             if (deleteEntity != null) {
                 GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(deleteTicketAgent);
+                newGroupRole.setAppRole(deleteEntity);
                 newGroupRole.setCreatedAt(LocalDateTime.now());
                 newGroupRole.setRoleGroup(saGroup);
                 xticketRepository.createGroupRoles(newGroupRole);
@@ -431,7 +439,80 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
             AppRoles listEntity = xticketRepository.getRoleUsingRoleName("LIST_ENTITY");
             if (listEntity != null) {
                 GroupRoles newGroupRole = new GroupRoles();
-                newGroupRole.setAppRole(listTicketAgent);
+                newGroupRole.setAppRole(listEntity);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles addDepartment = xticketRepository.getRoleUsingRoleName("ADD_DEPARTMENT");
+            if (addDepartment != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(addDepartment);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles updateDepartment = xticketRepository.getRoleUsingRoleName("UPDATE_DEPARTMENT");
+            if (updateDepartment != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(updateDepartment);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles deleteDepartment = xticketRepository.getRoleUsingRoleName("DELETE_DEPARTMENT");
+            if (deleteDepartment != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(deleteDepartment);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles listDepartment = xticketRepository.getRoleUsingRoleName("LIST_DEPARTMENT");
+            if (listDepartment != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(listDepartment);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            
+            AppRoles addAutomatedTicket = xticketRepository.getRoleUsingRoleName("ADD_AUTOMATED_TICKET");
+            if (addAutomatedTicket != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(addAutomatedTicket);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles updateAutomatedTicket = xticketRepository.getRoleUsingRoleName("UPDATE_AUTOMATED_TICKET");
+            if (updateAutomatedTicket != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(updateAutomatedTicket);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles deleteAutomatedTicket = xticketRepository.getRoleUsingRoleName("DELETE_AUTOMATED_TICKET");
+            if (deleteAutomatedTicket != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(deleteAutomatedTicket);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles listAutomatedTicket = xticketRepository.getRoleUsingRoleName("LIST_AUTOMATED_TICKET");
+            if (listAutomatedTicket != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(listAutomatedTicket);
                 newGroupRole.setCreatedAt(LocalDateTime.now());
                 newGroupRole.setRoleGroup(saGroup);
                 xticketRepository.createGroupRoles(newGroupRole);

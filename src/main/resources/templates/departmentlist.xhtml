@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
-        <title>X-Ticket - Ticket Status</title>
+        <title>X-Ticket - Service Unit</title>
         <th:block th:insert="~{fragments/xTicketFragments :: headerfiles}"></th:block>
     </head>
     <body onload="preloaderFunction()" style="margin: 0;">
@@ -13,15 +13,15 @@
                 <div class="content">
                     <div class="row gy-3 mb-3 justify-content-between">
                         <div class="col-md-4 col-auto">
-                            <h5 class="text-1100 text-primary">Ticket Status List</h5>
+                            <h5 class="text-1100 text-primary">Service Unit List</h5>
                         </div>
                         <div class="col-md-5 col-auto">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb mb-0">
                                     <li th:if="!${session.isAgent}" class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
                                     <li th:if="${session.isAgent}"class="breadcrumb-item"><a href="#" th:href="@{/agent/dashboard}">Dashboard</a></li>
-                                    <li class="breadcrumb-item"><a href="#" th:href="@{/setup/ticket/status}">Ticket Status</a></li>
-                                    <li class="breadcrumb-item active">Ticket Status Listing</li>
+                                    <li class="breadcrumb-item"><a href="#" th:href="@{/setup/service-unit}">Service Unit</a></li>
+                                    <li class="breadcrumb-item active">Service Unit Listing</li>
                                 </ol>
                             </nav>
                         </div>
@@ -37,7 +37,7 @@
                                     <div class="input-group mb-3">
                                         <input class="form-control form-control-sm search-input search" type="search" placeholder="Search record" aria-label="Search" />
                                         <div class="input-group-append">
-                                            <a class="btn btn-sm btn-primary" th:href="@{/setup/ticket/status}">Add Ticket Status</a>
+                                            <a class="btn btn-sm btn-primary" th:href="@{/setup/service-unit}">Add Service Unit</a>
                                             <button id="csv" class="btn btn-sm btn-secondary">Export to CSV</button> 
                                             <button id="pdf" class="btn btn-sm btn-secondary">Export to PDF</button>
                                             <button id="json" class="btn btn-sm btn-secondary">Export to JSON</button>
@@ -48,9 +48,9 @@
                                     <thead>
                                         <tr>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">Date</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketGroup">Ticket Status Code</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="name">Ticket Status Name</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="sla">Pause SLA</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="entityName">Entity</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketGroup">Service Unit Code</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="name">Service Unit Name</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="cretedBy">Created By</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="status">Status</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col">Action</th>
@@ -59,18 +59,14 @@
                                     <tbody class="list" id="deal-tables-body" th:if="${dataList != null}">
                                         <tr th:each="rec : ${dataList}" class="position-static">
                                             <td th:text="${rec.createdAt}" class="date align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.ticketStatusCode}" class="ticketGroup align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.ticketStatusName}" class="name align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.pauseSLA}" class="sla align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.entityName}" class="entityName align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.serviceUnitCode}" class="ticketGroup align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.serviceUnitName}" class="name align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.createdBy}" class="createdBy align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.status}" class="status align-middle white-space-nowrap start ps-3"></td>
                                             <td class="align-middle white-space-nowrap start ps-3 btn-reveal-trigger">
-                                                <a sec:authorize="hasRole('UPDATE_TICKET_STATUS')" class="text-success" href="#!" th:href="@{'/setup/ticket/status/edit?seid=' + ${rec.id}}" th:if="${rec.ticketStatusCode != 'OPEN' && rec.ticketStatusCode != 'CLOSED'}">
-                                                    <span class="fas fa-edit" data-bs-toggle="tooltip" data-bs-placement="right" title="Update Ticket Status"></span>
-                                                </a>
-                                                <a sec:authorize="hasRole('DELETE_TICKET_STATUS')" class="text-danger" th:data-bs-target="'#a' + ${rec.id}" data-bs-toggle="modal" th:if="${rec.ticketStatusCode != 'OPEN' && rec.ticketStatusCode != 'CLOSED'}">
-                                                    <span class="fas fa-trash" data-bs-toggle="tooltip" data-bs-placement="right" title="Delete Ticket Status"></span>
-                                                </a>
+                                                <a sec:authorize="hasRole('UPDATE_SERVICE_UNIT')" class="text-success" href="#!" th:href="@{'/setup/service-unit/edit?seid=' + ${rec.id}}"><span class="fas fa-edit" data-bs-toggle="tooltip" data-bs-placement="right" title="Update Service Unit"></span></a>
+                                                <a sec:authorize="hasRole('DELETE_SERVICE_UNIT')" class="text-danger" th:data-bs-target="'#a' + ${rec.id}" data-bs-toggle="modal"><span class="fas fa-trash" data-bs-toggle="tooltip" data-bs-placement="right" title="Delete Service Unit"></span></a>
                                                 <div class="modal fade" th:id="'a' + ${rec.id}" tabindex="-1" role="dialog" aria-labelledby="${rec.id}" aria-hidden="true">
                                                     <div class="modal-dialog">
                                                         <div class="modal-content">
@@ -78,8 +74,8 @@
                                                                 <h6 class="modal-title text-primary">X-Ticket</h6>
                                                             </div>
                                                             <div class="modal-body">
-                                                                <p>Confirm you ticket status delete</p>
-                                                                <a class="btn btn-sm btn-danger" href="#!" th:href="@{'/setup/ticket/status/delete?seid=' + ${rec.id}}">Delete</a>
+                                                                <p>Confirm you ticket delete</p>
+                                                                <a class="btn btn-sm btn-danger" href="#!" th:href="@{'/setup/service-unit/delete?seid=' + ${rec.id}}">Delete</a>
                                                                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
                                                             </div>
                                                         </div>
@@ -114,13 +110,13 @@
         <script th:src="@{/js/tableHTMLExport.js}"></script>
         <script>
             $('#json').on('click', function () {
-                $("#xticketTable").tableHTMLExport({type: 'json', filename: 'XTicket_Status.json'});
+                $("#xticketTable").tableHTMLExport({type: 'json', filename: 'XTicket_Service_Unit.json'});
             });
             $('#csv').on('click', function () {
-                $("#xticketTable").tableHTMLExport({type: 'csv', filename: 'XTicket_Status.csv'});
+                $("#xticketTable").tableHTMLExport({type: 'csv', filename: 'XTicket_Service_Unit.csv'});
             });
             $('#pdf').on('click', function () {
-                $("#xticketTable").tableHTMLExport({type: 'pdf', filename: 'XTicket_Status.pdf'});
+                $("#xticketTable").tableHTMLExport({type: 'pdf', filename: 'XTicket_Service_Unit.pdf'});
             });
         </script>
     </body>

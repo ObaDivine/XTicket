@@ -96,4 +96,6 @@ public class Tickets implements Serializable {
     private int rating = 0;
     @Column(name = "rating_comment", length = 5000)
     private String ratingComment;
+    @Column(name = "resolution", length = 5000)
+    private String resolution;
 }

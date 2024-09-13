@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,8 +23,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "ticket_sla")
-public class TicketSla implements Serializable {
+@Table(name = "department")
+public class Department implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -34,12 +35,12 @@ public class TicketSla implements Serializable {
     private LocalDateTime createdAt;
     @Column(name = "created_by")
     private String createdBy;
-    @Column(name = "ticket_sla_name")
-    private String ticketSlaName;
-    @Column(name = "priority")
-    private String priority;
-    @Column(name = "ticket_sla")
-    private int ticketSla;
-    @Column(name = "ticket_sla_period")
-    private char ticketSlaPeriod;
+    @Column(name = "department_code")
+    private String departmentCode;
+    @Column(name = "edepartment_name")
+    private String departmentName;
+    @ManyToOne
+    private Entities entity;
+    @Column(name = "status")
+    private String status;
 }

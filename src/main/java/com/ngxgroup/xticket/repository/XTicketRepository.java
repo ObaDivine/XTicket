@@ -3,7 +3,9 @@ package com.ngxgroup.xticket.repository;
 import com.ngxgroup.xticket.model.AppRoles;
 import com.ngxgroup.xticket.model.AppUser;
 import com.ngxgroup.xticket.model.AuditLog;
+import com.ngxgroup.xticket.model.AutomatedTicket;
 import com.ngxgroup.xticket.model.ContactUs;
+import com.ngxgroup.xticket.model.Department;
 import com.ngxgroup.xticket.model.DocumentUpload;
 import com.ngxgroup.xticket.model.Entities;
 import com.ngxgroup.xticket.model.GroupRoles;
@@ -352,6 +354,28 @@ public interface XTicketRepository {
     Entities deleteEntities(Entities entity);
 
     /**
+     * Department
+     *
+     * @return *
+     */
+    List<Department> getDepartment();
+
+    Department getDepartmentUsingId(long id);
+
+    Department getDepartmentUsingCode(String entityCode);
+
+    Department getDepartmentUsingName(String departmentName);
+
+    Department createDepartment(Department department);
+
+    Department updateDepartment(Department department);
+
+    Department deleteDepartment(Department department);
+    
+    List<ServiceUnit> getServiceUnitUsingDepartment(Department department);
+
+    
+    /**
      * Service Unit
      *
      * @return *
@@ -443,5 +467,22 @@ public interface XTicketRepository {
     List<AuditLog> getAuditLog(LocalDate startDate, LocalDate endDate);
 
     ContactUs createContactUs(ContactUs contactUs);
+
+    /**
+     * Automated Ticket
+     *
+     * @return *
+     */
+    List<AutomatedTicket> getAutomatedTicket();
+
+    AutomatedTicket getAutomatedTicketUsingId(long id);
+
+    Tickets getAutomatedTicketUsingTicketType(TicketType ticketType);
+
+    AutomatedTicket createAutomatedTicket(AutomatedTicket automatedTicket);
+
+    AutomatedTicket updateAutomatedTicket(AutomatedTicket automatedTicket);
+
+    AutomatedTicket deleteAutomatedTicket(AutomatedTicket automatedTicket);
 
 }

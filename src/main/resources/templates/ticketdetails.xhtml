@@ -93,23 +93,23 @@
                                                             <form th:object="${ticketPayload}" th:action="@{/ticket/close}" method="POST">
                                                                 <p><i class="text-primary">Kindly rate our service</i></p>
                                                                 <div class="form-icon-container">
-                                                                    <div class="form-check form-check-inline">
+                                                                    <div class="form-check">
                                                                         <input class="form-check-input" id="highlySatisfactory" type="radio" name="rating" value="5" required="required"/>
                                                                         <label class="form-check-label" for="highlySatisfactory">Highly Satisfactory</label>
                                                                     </div>
-                                                                    <div class="form-check form-check-inline">
+                                                                    <div class="form-check">
                                                                         <input class="form-check-input" id="moderatelySatisfactory" type="radio" name="rating" value="4" required="required"/>
                                                                         <label class="form-check-label" for="moderatelySatisfactory">Moderately Satisfactory</label>
                                                                     </div>
-                                                                    <div class="form-check form-check-inline">
+                                                                    <div class="form-check">
                                                                         <input class="form-check-input" id="satisfacstory" type="radio" name="rating" value="3" required="required"/>
                                                                         <label class="form-check-label" for="satisfactory">Satisfactory</label>
                                                                     </div>
-                                                                    <div class="form-check form-check-inline">
+                                                                    <div class="form-check">
                                                                         <input class="form-check-input" id="fairlySatisfactory" type="radio" name="rating" value="2" required="required"/>
                                                                         <label class="form-check-label" for="fairlyatisfactory">Fairly Satisfactory</label>
                                                                     </div>
-                                                                    <div class="form-check form-check-inline">
+                                                                    <div class="form-check">
                                                                         <input class="form-check-input" id="notSatisfactory" type="radio" name="rating" value="1" required="required"/>
                                                                         <label class="form-check-label" for="notatisfactory">Not Satisfactory</label>
                                                                     </div>
@@ -120,6 +120,7 @@
                                                                 </div>
                                                                 <div class="form-icon-container">
                                                                     <input type="hidden" th:field="*{id}" th:value="${ticketPayload.id}" required="required"/>
+                                                                    <input type="hidden" th:field="*{resolution}" value="NA"/>
                                                                     <input type="hidden" th:field="*{reopenedId}" th:value="${ticketPayload.reopenedId}" required="required"/>
                                                                     <input th:if="${ticketPayload.reopenedId != 0}"  type="hidden" id="action" name="action" value="t" required="required"/>
                                                                     <input th:if="${ticketPayload.reopenedId == 0}"  type="hidden" id="action" name="action" value="f" required="required"/>

@@ -52,12 +52,28 @@
                                         <option value="FailedLogin">Reset Failed Login</option>
                                         <option value="LogoutTime">Reset Lockout Time</option>
                                         <option value="Unlock">Unlock User</option>
+                                        <option value="Department">Update Department</option>
                                         <option value="Email">Update Email</option>
+                                        <option value="Entity">Update Entity</option>
                                         <option value="Mobile">Update Mobile Number</option>
                                         <option value="PasswordChange">Update Password Change Date</option>
                                     </select>
                                     <span class="text-danger asterisk">*</span>
                                     <span class="fas fa-bars text-900 fs--1 form-icon text-primary"></span>
+                                </div>
+                                <div class="form-icon-container">
+                                    <select class="form-control form-control-sm form-icon-input" aria-label="entity" th:field="*{entityCode}">
+                                        <option value="">---Select Entity---</option>
+                                        <option th:each="fa : ${entityList}" th:value="${fa.id}" th:text="${fa.entityName}"></option>
+                                    </select>
+                                    <span class="fas fa-cogs text-900 fs--1 form-icon text-primary"></span>
+                                </div>
+                                <div class="form-icon-container">
+                                    <select class="form-control form-control-sm form-icon-input" aria-label="department" th:field="*{departmentCode}">
+                                        <option value="">---Select Department---</option>
+                                        <option th:each="fa : ${departmentList}" th:value="${fa.id}" th:text="${fa.departmentName}"></option>
+                                    </select>
+                                    <span class="fas fa-cogs text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <div class="form-icon-container">
                                     <select class="form-control form-control-sm form-icon-input" aria-label="email" th:field="*{rolesToUpdate}">

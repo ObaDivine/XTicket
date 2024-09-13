@@ -37,6 +37,8 @@ public class XTicketPayload {
     String ticketId;
     String entityCode;
     String entityName;
+    String departmentCode;
+    String departmentName;
     String fromEntity;
     String toEntity;
     String serviceUnitCode;
@@ -135,4 +137,7 @@ public class XTicketPayload {
     boolean popularArticle;
     boolean latestArticle;
     String keyword;
+    String frequency;
+    String resolution;
+
 }

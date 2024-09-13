@@ -40,7 +40,7 @@ public class ServiceUnit implements Serializable {
     @Column(name = "service_unit_name")
     private String serviceUnitName;
     @ManyToOne
-    private Entities entity;
+    private Department department;
     @Column(name = "status")
     private String status;
 }
