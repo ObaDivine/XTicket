@@ -4771,7 +4771,8 @@ public class XTicketServiceImpl implements XTicketService {
 
                     newTicket.setClosedAt(dtf.format(closedDate));
                     newTicket.setClosedBy(closedBy);
-                    newTicket.setFromEntity(t.getTicketAgent().getAgent().getEntity().getEntityName());
+                    newTicket.setDepartmentName(t.getTicketAgent().getAgent().getDepartment().getDepartmentName());
+                    newTicket.setEntityName(t.getCreatedBy().getEntity().getEntityName());
                     newTicket.setToEntity(t.getEntity().getEntityName());
                     newTicket.setId(t.getId().intValue());
                     newTicket.setTicketTypeName(t.getTicketType().getTicketTypeName());
@@ -5251,7 +5252,7 @@ public class XTicketServiceImpl implements XTicketService {
                             if (tickets != null) {
                                 XTicketPayload newTicket = new XTicketPayload();
                                 newTicket.setDepartmentName(d.getDepartmentName());
-                                newTicket.setServiceUnitName("NA");
+                                newTicket.setServiceUnitName("");
                                 newTicket.setTicketCount(tickets.size());
                                 newTicket.setFiveStar(tickets.stream().filter(f -> f.getRating() == 5).mapToInt(t -> t.getRating()).sum());
                                 newTicket.setFourStar(tickets.stream().filter(f -> f.getRating() == 4).mapToInt(t -> t.getRating()).sum());
@@ -5260,6 +5261,7 @@ public class XTicketServiceImpl implements XTicketService {
                                 newTicket.setOneStar(tickets.stream().filter(f -> f.getRating() == 1).mapToInt(t -> t.getRating()).sum());
                                 newTicket.setRating(tickets.stream().mapToInt(t -> t.getRating()).sum());
                                 newTicket.setRatingAverage(tickets.stream().mapToInt(t -> t.getRating()).sum() / tickets.size());
+                                newTicket.setTicketCount(tickets.size());
                                 newTicket.setEntityName(d.getEntity().getEntityName());
                                 data.add(newTicket);
                             }
@@ -5282,7 +5284,7 @@ public class XTicketServiceImpl implements XTicketService {
                 Department department = xticketRepository.getDepartmentUsingCode(requestPayload.getDepartmentCode());
                 if (department != null) {
                     //Get the service units in the department
-                    List<ServiceUnit> serviceUnits = xticketRepository.getServiceUnit();
+                    List<ServiceUnit> serviceUnits = xticketRepository.getServiceUnitUsingDepartment(department);
                     if (serviceUnits != null) {
                         for (ServiceUnit s : serviceUnits) {
                             List<Tickets> tickets = xticketRepository.getTicketsByServiceUnit(LocalDate.parse(requestPayload.getStartDate()), LocalDate.parse(requestPayload.getEndDate()), s, ticketStatus);
@@ -5298,6 +5300,7 @@ public class XTicketServiceImpl implements XTicketService {
                                 newTicket.setOneStar(tickets.stream().filter(f -> f.getRating() == 1).mapToInt(t -> t.getRating()).sum());
                                 newTicket.setRating(tickets.stream().mapToInt(t -> t.getRating()).sum());
                                 newTicket.setRatingAverage(tickets.stream().mapToInt(t -> t.getRating()).sum() / tickets.size());
+                                newTicket.setTicketCount(tickets.size());
                                 newTicket.setEntityName(s.getDepartment().getEntity().getEntityName());
                                 data.add(newTicket);
                             }
@@ -5315,9 +5318,38 @@ public class XTicketServiceImpl implements XTicketService {
                 return response;
             }
 
-            response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
-            response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{"Empty Parameter"}, Locale.ENGLISH));
-            response.setData(null);
+            //Default the search to all the entity
+            List<Entities> entities = xticketRepository.getEntities();
+            if (entities != null) {
+                for (Entities e : entities) {
+                    List<Department> departmentsInEntity = xticketRepository.getDepartmentUsingEntity(e);
+                    if (departmentsInEntity != null) {
+                        for (Department d : departmentsInEntity) {
+                            List<Tickets> tickets = xticketRepository.getClosedTickets(LocalDate.parse(requestPayload.getStartDate()), LocalDate.parse(requestPayload.getEndDate()), ticketStatus, d);
+                            if (tickets != null) {
+                                XTicketPayload newTicket = new XTicketPayload();
+                                newTicket.setDepartmentName(d.getDepartmentName());
+                                newTicket.setServiceUnitName("NA");
+                                newTicket.setTicketCount(tickets.size());
+                                newTicket.setFiveStar(tickets.stream().filter(f -> f.getRating() == 5).mapToInt(t -> t.getRating()).sum());
+                                newTicket.setFourStar(tickets.stream().filter(f -> f.getRating() == 4).mapToInt(t -> t.getRating()).sum());
+                                newTicket.setThreeStar(tickets.stream().filter(f -> f.getRating() == 3).mapToInt(t -> t.getRating()).sum());
+                                newTicket.setTwoStar(tickets.stream().filter(f -> f.getRating() == 2).mapToInt(t -> t.getRating()).sum());
+                                newTicket.setOneStar(tickets.stream().filter(f -> f.getRating() == 1).mapToInt(t -> t.getRating()).sum());
+                                newTicket.setRating(tickets.stream().mapToInt(t -> t.getRating()).sum());
+                                newTicket.setRatingAverage(tickets.stream().mapToInt(t -> t.getRating()).sum() / tickets.size());
+                                newTicket.setTicketCount(tickets.size());
+                                newTicket.setEntityName(d.getEntity().getEntityName());
+                                data.add(newTicket);
+                            }
+                        }
+                    }
+                }
+            }
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{data.size()}, Locale.ENGLISH));
+            response.setData(data);
             return response;
         } catch (Exception ex) {
             response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
