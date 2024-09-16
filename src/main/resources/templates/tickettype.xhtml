@@ -72,7 +72,7 @@
                                         <option th:each="fa : ${ticketSla}" th:value="${fa.ticketSlaName}" th:text="${fa.ticketSlaName}"></option>
                                     </select>
                                     <span class="text-danger asterisk">*</span>
-                                    <span class="fas fa-layer-group text-900 fs--1 form-icon text-primary"></span>
+                                    <span class="fas fa-clock text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <div class="form-icon-container">
                                     <select class="form-select form-control-sm form-icon-input" aria-label="status" th:field="*{status}" required="required">
@@ -92,6 +92,10 @@
                                 <div class="form-icon-container">
                                     <input class="form-check-input" type="checkbox"  th:field="*{requireServiceRequestForm}" value="True" th:attr="checked=${requireServiceRequestForm == 'True'}"/>
                                     <label class="form-check-label">Require IT Service Request Form Completed</label>
+                                </div>
+                                <div class="form-icon-container">
+                                    <input class="form-check-input" type="checkbox"  th:field="*{automated}" value="True" th:attr="checked=${automated == 'True'}"/>
+                                    <label class="form-check-label">Automated Ticket</label>
                                 </div>
                                 <button class="btn btn-primary btn-sm w-40 mb-3 mt-2" type="button" data-bs-target="#confirmModal" data-bs-toggle="modal">Submit</button>
                                 <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModal" aria-hidden="true">

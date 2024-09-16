@@ -160,7 +160,7 @@ public class HomeController implements ErrorController {
         requestPayload.setAdAuthDomains(adAuthDomains);
         model.addAttribute("signupPayload", requestPayload);
         model.addAttribute("profilePayload", new XTicketPayload());
-        model.addAttribute("serviceUnit", xticketService.fetchServiceUnit().getData());
+        model.addAttribute("department", xticketService.fetchDepartment().getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -176,7 +176,7 @@ public class HomeController implements ErrorController {
             return "redirect:/";
         }
         model.addAttribute("signupPayload", requestPayload);
-        model.addAttribute("serviceUnit", xticketService.fetchServiceUnit().getData());
+        model.addAttribute("department", xticketService.fetchDepartment().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "error");
         resetAlertMessage();

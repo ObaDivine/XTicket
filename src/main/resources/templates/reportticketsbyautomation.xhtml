@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
-        <title>X-Ticket - Service Rating</title>
+        <title>X-Ticket - Ticket By Automation</title>
         <th:block th:insert="~{fragments/xTicketFragments :: headerfiles}"></th:block>
     </head>
     <body onload="preloaderFunction()" style="margin: 0;">
@@ -13,14 +13,14 @@
                 <div class="content">
                     <div class="row gy-3 mb-3 justify-content-between">
                         <div class="col-md-4 col-auto">
-                            <h5 class="text-1100 text-primary">Service Rating</h5>
+                            <h5 class="text-1100 text-primary">Tickets By Automation</h5>
                         </div>
                         <div class="col-md-5 col-auto">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb mb-0">
                                     <li  th:if="!${session.isAgent}" class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
                                     <li  th:if="${session.isAgent}" class="breadcrumb-item"><a href="#" th:href="@{/agent/dashboard}">Dashboard</a></li>
-                                    <li class="breadcrumb-item active">Service Rating</li>
+                                    <li class="breadcrumb-item active">Tickets By Automation</li>
                                 </ol>
                             </nav>
                         </div>
@@ -31,7 +31,7 @@
                     </div>
                     <div class="row g-3 mb-6">
                         <div class="offset-lg-3 col-lg-6 col-sm-12 col-md-12">
-                            <form th:object="${ticketPayload}" th:action="@{/report/ticket/service-rating/process}" method="POST">
+                            <form th:object="${ticketPayload}" th:action="@{/report/ticket/automation/process}" method="POST">
                                 <div class="input-group input-group-sm">
                                     <span class="input-group-text" id="startDate">Start Date</span>
                                     <input class="form-control" type="date" aria-label="StartDate" aria-describedby="startDate" th:field="*{startDate}" required="required" />
@@ -39,19 +39,18 @@
                                     <input class="form-control" type="date" aria-label="endDate" aria-describedby="endDate" th:field="*{endDate}" required="required"/>
                                 </div>
                                 <div class="form-icon-container">
-                                    <select class="form-select form-control-sm form-icon-input" aria-label="entityCode" th:field="*{entityCode}">
-                                        <option value="">---Select entity---</option>
-                                        <option th:each="fa : ${entityList}" th:value="${fa.entityCode}" th:text="${fa.entityName}"></option>
+                                    <select class="form-select form-control-sm form-icon-input" aria-label="serviceUnitCode" th:field="*{serviceUnitCode}" required="required">
+                                        <option value="">---Select Service Unit---</option>
+                                        <option th:each="fa : ${serviceUnitList}" th:value="${fa.serviceUnitCode}" th:text="${fa.serviceUnitName}"></option>
                                     </select>
                                     <span class="text-danger asterisk">*</span>
-                                    <span class="fas fa-layer-group text-900 fs--1 form-icon text-primary"></span>
+                                    <span class="fas fa-stream text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <div class="form-icon-container">
-                                    <select class="form-select form-control-sm form-icon-input" aria-label="departmentCode" th:field="*{departmentCode}">
-                                        <option value="">---Select department---</option>
-                                        <option th:each="fa : ${departmentList}" th:value="${fa.departmentCode}" th:text="${fa.departmentName}"></option>
+                                    <select class="form-select form-control-sm form-icon-input" aria-label="toEntity" th:field="*{toEntity}">
+                                        <option value="">---Select Entity---</option>
+                                        <option th:each="fa : ${entityList}" th:value="${fa.entityCode}" th:text="${fa.entityName}"></option>
                                     </select>
-                                    <span class="text-danger asterisk">*</span>
                                     <span class="fas fa-layer-group text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <button class="btn btn-primary btn-sm w-40 mb-3 mt-2" type="submit">Submit</button>
@@ -67,37 +66,43 @@
                                         <div class="input-group-append">
                                             <button id="csv" class="btn btn-sm btn-secondary">Export to CSV</button> 
                                             <button id="pdf" class="btn btn-sm btn-secondary">Export to PDF</button>
-                                            <button id="json" class="btn btn-sm btn-secondary">Export to JSON</button>  
+                                            <button id="json" class="btn btn-sm btn-secondary">Export to JSON</button>
                                         </div>
                                     </div>
                                 </div>
                                 <table class="table table-responsive table-sm table-striped fs--1 mb-0 border-200" id="xticketTable">
                                     <thead>
                                         <tr>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="entity">Entity</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="department">Department</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">Request Date</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="serviceUnit">Service Unit</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="rating">Five Star</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="rating">Four Star</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="rating">Three Star</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="rating">Two Star</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="rating">1 Star</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="rating">Total Rating</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="rating">Average Rating</th>                                          
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="entityName">Entity</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketType">Service Type</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="dateClosed">Service Date</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="closedBy">Provided By</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketId">Ticket ID</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="sla">SLA</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="slaViolated">SLA Violated</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="escalation">Escalations</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="reassigned">Reassigned</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="rating">Rating</th>
                                         </tr>
                                     </thead>
                                     <tbody class="list" id="deal-tables-body" th:if="${dataList != null}">
                                         <tr th:each="rec : ${dataList}" class="position-static">
-                                            <td th:text="${rec.entityName}" class="entity align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.departmentName}" class="entity align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.createdAt}" class="date align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.serviceUnitName}" class="serviceUnit align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.fiveStar}" class="rating align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.fourStar}" class="rating align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.threeStar}" class="rating align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.twoStar}" class="rating align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.oneStar}" class="rating align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.entityName}" class="entityName align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.ticketTypeName}" class="ticketType align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.closedAt}" class="dateClosed align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.closedBy}" class="closedBy align-middle white-space-nowrap start ps-3"></td>
+                                            <td class="ticketId align-middle white-space-nowrap start ps-3">
+                                                <a th:href="@{'/ticket/view/details?seid=' + ${rec.ticketId}}" th:text="${rec.ticketId}"></a>
+                                            </td>
+                                            <td th:text="${rec.initialSla}" class="sla align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.slaViolated}" class="slaViolated align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.ticketEscalationCount}" class="escalation align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.ticketReassignedCount}" class="reassigned align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.rating}" class="rating align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.ratingAverage}" class="rating align-middle white-space-nowrap start ps-3"></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -126,13 +131,13 @@
         <script th:src="@{/js/tableHTMLExport.js}"></script>
         <script>
             $('#json').on('click', function () {
-                $("#xticketTable").tableHTMLExport({type: 'json', filename: 'XTicket_Service_Rating.json'});
+                $("#xticketTable").tableHTMLExport({type: 'json', filename: 'XTicket_Service_Unit_Entity.json'});
             });
             $('#csv').on('click', function () {
-                $("#xticketTable").tableHTMLExport({type: 'csv', filename: 'XTicket_Service_Rating.csv'});
+                $("#xticketTable").tableHTMLExport({type: 'csv', filename: 'XTicket_Service_Unit_Entity.csv'});
             });
             $('#pdf').on('click', function () {
-                $("#xticketTable").tableHTMLExport({type: 'pdf', filename: 'XTicket_Service_Rating.pdf'});
+                $("#xticketTable").tableHTMLExport({type: 'pdf', filename: 'XTicket_Service_Unit_Entity.pdf'});
             });
         </script>
     </body>

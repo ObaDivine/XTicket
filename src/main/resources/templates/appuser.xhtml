@@ -62,21 +62,21 @@
                                     <span class="fas fa-bars text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <div class="form-icon-container">
-                                    <select class="form-control form-control-sm form-icon-input" aria-label="entity" th:field="*{entityCode}">
+                                    <select class="form-control form-control-sm form-icon-input" aria-label="entityCode" th:field="*{entityCode}">
                                         <option value="">---Select Entity---</option>
                                         <option th:each="fa : ${entityList}" th:value="${fa.id}" th:text="${fa.entityName}"></option>
                                     </select>
-                                    <span class="fas fa-cogs text-900 fs--1 form-icon text-primary"></span>
+                                    <span class="fas fa-layer-group text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <div class="form-icon-container">
-                                    <select class="form-control form-control-sm form-icon-input" aria-label="department" th:field="*{departmentCode}">
+                                    <select class="form-control form-control-sm form-icon-input" aria-label="departmentCode" th:field="*{departmentCode}">
                                         <option value="">---Select Department---</option>
                                         <option th:each="fa : ${departmentList}" th:value="${fa.id}" th:text="${fa.departmentName}"></option>
                                     </select>
-                                    <span class="fas fa-cogs text-900 fs--1 form-icon text-primary"></span>
+                                    <span class="fas fa-th text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <div class="form-icon-container">
-                                    <select class="form-control form-control-sm form-icon-input" aria-label="email" th:field="*{rolesToUpdate}">
+                                    <select class="form-control form-control-sm form-icon-input" aria-label="rolesToUpdate" th:field="*{rolesToUpdate}">
                                         <option value="">---Select Role---</option>
                                         <option th:each="fa : ${roleList}" th:value="${fa.id}" th:text="${fa.groupName}"></option>
                                     </select>

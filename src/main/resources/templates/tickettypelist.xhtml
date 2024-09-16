@@ -57,6 +57,7 @@
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="sla">SLA Limit</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="requireCR">Require CR Form</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="requireSR">Require IT SR Form</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="automated">Automated</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="createdBy">Created By</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="status">Status</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col">Action</th>
@@ -74,6 +75,7 @@
                                             <td th:text="${rec.initialSla}" class="sla align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.requireChangeRequestForm}" class="requireCR align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.requireServiceRequestForm}" class="requireSR align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.automated}" class="automated align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.createdBy}" class="createdBy align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.status}" class="status align-middle white-space-nowrap start ps-3"></td>
                                             <td class="align-middle white-space-nowrap start ps-3 btn-reveal-trigger">
@@ -86,7 +88,7 @@
                                                                 <h6 class="modal-title text-primary">X-Ticket</h6>
                                                             </div>
                                                             <div class="modal-body">
-                                                                <p>Confirm delete ticket</p>
+                                                                <p>Confirm ticket type delete</p>
                                                                 <a class="btn btn-sm btn-danger" href="#!" th:href="@{'/setup/ticket/type/delete?seid=' + ${rec.id}}">Delete</a>
                                                                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
                                                             </div>
@@ -117,7 +119,7 @@
             </div>
             <th:block th:insert="~{fragments/xTicketFragments :: scriptfiles}"></th:block>   
         </main>
-         <script th:src="@{/js/jspdf.min.js}"></script>
+        <script th:src="@{/js/jspdf.min.js}"></script>
         <script th:src="@{/js/jspdf.plugin.autotable.min.js}"></script>
         <script th:src="@{/js/tableHTMLExport.js}"></script>
         <script>
@@ -128,7 +130,7 @@
                 $("#xticketTable").tableHTMLExport({type: 'csv', filename: 'XTicket_Type.csv'});
             });
             $('#pdf').on('click', function () {
-                $("#xticketTable").tableHTMLExport({type: 'pdf', filename: 'XTicket_Type.pdf', orientation:'p'});
+                $("#xticketTable").tableHTMLExport({type: 'pdf', filename: 'XTicket_Type.pdf', orientation: 'p'});
             });
         </script>
     </body>

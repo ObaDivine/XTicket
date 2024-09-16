@@ -33,6 +33,7 @@ public class XTicketPayload {
     boolean agent;
     boolean requireServiceRequestForm;
     boolean requireChangeRequestForm;
+    boolean automated;
     String termsService;
     String ticketId;
     String entityCode;
@@ -139,5 +140,10 @@ public class XTicketPayload {
     String keyword;
     String frequency;
     String resolution;
+    int fiveStar;
+    int fourStar;
+    int threeStar;
+    int twoStar;
+    int oneStar;
 
 }

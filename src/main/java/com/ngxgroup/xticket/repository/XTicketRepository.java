@@ -118,11 +118,17 @@ public interface XTicketRepository {
 
     List<Tickets> getTicketsByStatus(TicketStatus ticketStatus);
 
+    List<Tickets> getClosedTicketsByUser(AppUser appUser, TicketStatus ticketStatus);
+
     List<Tickets> getClosedTickets(LocalDate startDate, LocalDate endDate, TicketStatus ticketStatus);
 
     List<Tickets> getClosedTickets(LocalDate startDate, LocalDate endDate, TicketStatus ticketStatus, Entities entity);
 
+    List<Tickets> getClosedTickets(LocalDate startDate, LocalDate endDate, TicketStatus ticketStatus, Department department);
+
     List<Tickets> getTicketClosedByAgent(AppUser appUser, LocalDate startDate, LocalDate endDate, TicketStatus ticketStatus);
+
+    List<Tickets> getClosedAutomatedTickets(LocalDate startDate, LocalDate endDate, TicketStatus ticketStatus);
 
     List<Tickets> getTicketClosedByAgent(AppUser appUser, TicketStatus ticketStatus);
 
@@ -134,7 +140,7 @@ public interface XTicketRepository {
 
     List<Tickets> getTicketsByUser(AppUser appUser);
 
-    List<Tickets> getTicketsByUserStatus(AppUser appUser, TicketStatus ticketStatus);
+    List<Tickets> getOpenTicketsByUser(AppUser appUser, TicketStatus ticketStatus);
 
     List<Tickets> getOpenTicketsByType(TicketType ticketType, TicketStatus ticketStatus);
 
@@ -371,10 +377,11 @@ public interface XTicketRepository {
     Department updateDepartment(Department department);
 
     Department deleteDepartment(Department department);
-    
+
     List<ServiceUnit> getServiceUnitUsingDepartment(Department department);
 
-    
+    List<Department> getDepartmentUsingEntity(Entities entity);
+
     /**
      * Service Unit
      *
@@ -473,7 +480,11 @@ public interface XTicketRepository {
      *
      * @return *
      */
+    List<TicketType> getAutomatedTicketType();
+
     List<AutomatedTicket> getAutomatedTicket();
+
+    List<AutomatedTicket> getActiveAutomatedTicket();
 
     AutomatedTicket getAutomatedTicketUsingId(long id);
 

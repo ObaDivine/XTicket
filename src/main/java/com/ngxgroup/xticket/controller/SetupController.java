@@ -532,6 +532,7 @@ public class SetupController {
     public String department(Model model, Principal principal) {
         XTicketPayload response = xticketService.fetchDepartment();
         model.addAttribute("dataList", response.getData());
+        model.addAttribute("entityList", xticketService.fetchEntity().getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -547,11 +548,14 @@ public class SetupController {
         return "redirect:/setup/department/list";
     }
 
-    @GetMapping("/ticket/autmation")
+    @GetMapping("/ticket/automation")
     @Secured("ROLE_ADD_AUTOMATED_TICKET")
     public String automatedTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("recordCount", xticketService.fetchAutomatedTicket().getData().size());
+        model.addAttribute("userList", xticketService.fetchAppUsers());
+        model.addAttribute("ticketAgentList", xticketService.fetchTicketAgent().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchAutomatedTicketType().getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -567,6 +571,10 @@ public class SetupController {
             return "redirect:/setup/ticket/automation";
         }
         model.addAttribute("ticketPayload", requestPayload);
+        model.addAttribute("recordCount", xticketService.fetchAutomatedTicket().getData().size());
+        model.addAttribute("userList", xticketService.fetchAppUsers());
+        model.addAttribute("ticketAgentList", xticketService.fetchTicketAgent().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchAutomatedTicketType().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "error");
         resetAlertMessage();
@@ -584,10 +592,13 @@ public class SetupController {
         }
         model.addAttribute("ticketPayload", response);
         model.addAttribute("recordCount", xticketService.fetchAutomatedTicket().getData().size());
+        model.addAttribute("userList", xticketService.fetchAppUsers());
+        model.addAttribute("ticketAgentList", xticketService.fetchTicketAgent().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchAutomatedTicketType().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "success");
         resetAlertMessage();
-        return "utomatedticket";
+        return "automatedticket";
     }
 
     @GetMapping("/ticket/automation/list")

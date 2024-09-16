@@ -2,6 +2,7 @@ package com.ngxgroup.xticket;
 
 import com.ngxgroup.xticket.model.AppRoles;
 import com.ngxgroup.xticket.model.AppUser;
+import com.ngxgroup.xticket.model.Department;
 import com.ngxgroup.xticket.model.Entities;
 import com.ngxgroup.xticket.model.GroupRoles;
 import com.ngxgroup.xticket.model.PublicHolidays;
@@ -36,6 +37,14 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
     private String defaultPassword;
     @Value("${xticket.company.phone}")
     private String companyPhone;
+    @Value("${xticket.default.entitycode}")
+    private String defaultEntityCode;
+    @Value("${xticket.default.entityname}")
+    private String defaultEntityName;
+    @Value("${xticket.default.departmentcode}")
+    private String defaultDepartmentCode;
+    @Value("${xticket.default.departmentname}")
+    private String defaultDepartmentName;
     static final String SYSTEM_USER = "System";
     static final String ENABLE_STATUS = "Enabled";
 
@@ -481,7 +490,6 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
                 xticketRepository.createGroupRoles(newGroupRole);
             }
 
-            
             AppRoles addAutomatedTicket = xticketRepository.getRoleUsingRoleName("ADD_AUTOMATED_TICKET");
             if (addAutomatedTicket != null) {
                 GroupRoles newGroupRole = new GroupRoles();
@@ -798,48 +806,28 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
         }
 
         //Create the entities
-        Entities groupEntity = xticketRepository.getEntitiesUsingCode("NGX");
-        if (groupEntity == null) {
+        Entities defaultEntity = xticketRepository.getEntitiesUsingCode(defaultEntityCode);
+        if (defaultEntity == null) {
             Entities newEntity = new Entities();
             newEntity.setCreatedAt(LocalDateTime.now());
             newEntity.setCreatedBy(SYSTEM_USER);
-            newEntity.setEntityCode("NGX");
-            newEntity.setEntityName("Nigerian Exchange Group");
+            newEntity.setEntityCode(defaultEntityCode);
+            newEntity.setEntityName(defaultEntityName);
             newEntity.setStatus(ENABLE_STATUS);
             xticketRepository.createEntities(newEntity);
         }
 
-        Entities limitedEntity = xticketRepository.getEntitiesUsingCode("NGXL");
-        if (limitedEntity == null) {
-            Entities newEntity = new Entities();
-            newEntity.setCreatedAt(LocalDateTime.now());
-            newEntity.setCreatedBy(SYSTEM_USER);
-            newEntity.setEntityCode("NGXL");
-            newEntity.setEntityName("Nigerian Exchange Limited");
-            newEntity.setStatus(ENABLE_STATUS);
-            xticketRepository.createEntities(newEntity);
-        }
-
-        Entities regulationEntity = xticketRepository.getEntitiesUsingCode("NREG");
-        if (regulationEntity == null) {
-            Entities newEntity = new Entities();
-            newEntity.setCreatedAt(LocalDateTime.now());
-            newEntity.setCreatedBy(SYSTEM_USER);
-            newEntity.setEntityCode("NREG");
-            newEntity.setEntityName("Nigerian Exchange Regulation");
-            newEntity.setStatus(ENABLE_STATUS);
-            xticketRepository.createEntities(newEntity);
-        }
-
-        Entities realEstateEntity = xticketRepository.getEntitiesUsingCode("NREL");
-        if (realEstateEntity == null) {
-            Entities newEntity = new Entities();
-            newEntity.setCreatedAt(LocalDateTime.now());
-            newEntity.setCreatedBy(SYSTEM_USER);
-            newEntity.setEntityCode("NREL");
-            newEntity.setEntityName("Nigerian Exchange Real Estate");
-            newEntity.setStatus(ENABLE_STATUS);
-            xticketRepository.createEntities(newEntity);
+        //Create the department
+        Department department = xticketRepository.getDepartmentUsingCode(defaultDepartmentCode);
+        if (department == null) {
+            Department newDepartment = new Department();
+            newDepartment.setCreatedAt(LocalDateTime.now());
+            newDepartment.setCreatedBy(SYSTEM_USER);
+            newDepartment.setDepartmentCode(defaultDepartmentCode);
+            newDepartment.setDepartmentName(defaultDepartmentName);
+            newDepartment.setEntity(defaultEntity);
+            newDepartment.setStatus(ENABLE_STATUS);
+            xticketRepository.createDepartment(newDepartment);
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.ngxgroup.xticket.service;
 
 import com.ngxgroup.xticket.model.AppUser;
+import com.ngxgroup.xticket.model.AutomatedTicket;
 import com.ngxgroup.xticket.model.TicketEscalations;
 import com.ngxgroup.xticket.model.TicketStatus;
 import com.ngxgroup.xticket.model.Tickets;
@@ -10,6 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import com.ngxgroup.xticket.repository.XTicketRepository;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -26,6 +28,8 @@ public class CrobJob {
     GenericService genericService;
     @Autowired
     XTicketRepository xticketRepository;
+    @Autowired
+    XTicketService xticketService;
     @Value("${xticket.host}")
     private String host;
     @Value("${xticket.company.name}")
@@ -42,7 +46,7 @@ public class CrobJob {
     private String escalationWaitUnit;
     DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern("HH:mm:ss");
 
-    @Scheduled(cron = "${xticket.cron.job}")
+    @Scheduled(cron = "${xticket.cron.job.ticketrun}")
     public void setEscalateViolatedSLA() {
         //Ftech all the tickets that are open
         TicketStatus openStatus = xticketRepository.getTicketStatusUsingCode("OPEN");
@@ -178,4 +182,58 @@ public class CrobJob {
         mailPayload.setEmailBody(message);
         genericService.sendEmail(mailPayload, escalationEmail);
     }
+
+    @Scheduled(cron = "${xticket.cron.job.automatedticket}")
+    public void automatedTicket() {
+        //Fetch automated tickets
+        List<AutomatedTicket> automatedTickets = xticketRepository.getActiveAutomatedTicket();
+        if (automatedTickets != null) {
+            for (AutomatedTicket t : automatedTickets) {
+                //Check if the next run date is today
+                if (t.getNextRun().isEqual(LocalDate.now())) {
+                    //Trigger ticket push
+                    XTicketPayload requestPayload = new XTicketPayload();
+                    requestPayload.setTicketTypeCode(t.getTicketType().getTicketTypeCode());
+                    requestPayload.setInternal(t.getTicketType().isInternal());
+                    requestPayload.setMessage(t.getMessage());
+                    requestPayload.setSubject(t.getSubject());
+                    xticketService.createTicket(requestPayload, t.getServiceRequester());
+
+                    //Set the next run date
+                    LocalDate nextRun = null;
+                    switch (requestPayload.getFrequency()) {
+                        case "Daily" -> {
+                            nextRun = LocalDate.now().plusDays(1);
+                        }
+                        case "Weekly" -> {
+                            nextRun = LocalDate.now().plusWeeks(1);
+                        }
+                        case "Monthly" -> {
+                            nextRun = LocalDate.now().plusMonths(1);
+                        }
+                        case "Annual" -> {
+                            nextRun = LocalDate.now().plusYears(1);
+                        }
+                        case "BiAnnual" -> {
+                            nextRun = LocalDate.now().plusDays(183);
+                        }
+                        case "Quarterly" -> {
+                            nextRun = LocalDate.now().plusDays(90);
+                        }
+                    }
+
+                    if (t.getEndDate() == null || t.getEndDate().isAfter(nextRun)) {
+                        //No end date
+                        t.setNextRun(nextRun);
+                        xticketRepository.updateAutomatedTicket(t);
+                    } else {
+                        //Disable the auto ticket
+                        t.setStatus("Disabled");
+                        xticketRepository.updateAutomatedTicket(t);
+                    }
+                }
+            }
+        }
+    }
+
 }

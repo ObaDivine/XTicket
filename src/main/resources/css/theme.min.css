@@ -6489,7 +6489,7 @@ textarea.form-control.is-invalid {
     background-color: whitesmoke;
     border-top: var(--entitysc-card-border-width) solid var(--entitysc-card-border-color);
     max-height: auto !important;
-        
+
 }
 
 .card-footer:last-child {
@@ -34388,6 +34388,7 @@ html:not(.navbar-vertical-collapsed) .navbar-vertical .firefox .navbar-vibrant .
 }
 
 .auth-card {
+    padding-left: 20px !important;
     background-color: #fff
 }
 

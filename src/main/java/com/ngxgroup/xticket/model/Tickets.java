@@ -98,4 +98,6 @@ public class Tickets implements Serializable {
     private String ratingComment;
     @Column(name = "resolution", length = 5000)
     private String resolution;
+    @Column(name = "automated")
+    private boolean automated;
 }

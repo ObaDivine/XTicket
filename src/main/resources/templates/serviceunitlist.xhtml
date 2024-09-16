@@ -48,7 +48,7 @@
                                     <thead>
                                         <tr>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">Date</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="entityName">Entity</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="entityName">Department</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketGroup">Service Unit Code</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="name">Service Unit Name</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="cretedBy">Created By</th>
@@ -59,7 +59,7 @@
                                     <tbody class="list" id="deal-tables-body" th:if="${dataList != null}">
                                         <tr th:each="rec : ${dataList}" class="position-static">
                                             <td th:text="${rec.createdAt}" class="date align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.entityName}" class="entityName align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.departmentName}" class="entityName align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.serviceUnitCode}" class="ticketGroup align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.serviceUnitName}" class="name align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.createdBy}" class="createdBy align-middle white-space-nowrap start ps-3"></td>
@@ -74,7 +74,7 @@
                                                                 <h6 class="modal-title text-primary">X-Ticket</h6>
                                                             </div>
                                                             <div class="modal-body">
-                                                                <p>Confirm you ticket delete</p>
+                                                                <p>Confirm you service unit delete</p>
                                                                 <a class="btn btn-sm btn-danger" href="#!" th:href="@{'/setup/service-unit/delete?seid=' + ${rec.id}}">Delete</a>
                                                                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
                                                             </div>

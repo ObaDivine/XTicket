@@ -50,14 +50,12 @@ public class AutomatedTicket implements Serializable {
     private LocalDate startDate;
     @Column(name = "end_date")
     private LocalDate endDate;
-    @Column(name = "schedule", length = 5000)
-    private String schedule;
+    @Column(name = "next_run")
+    private LocalDate nextRun;
     @Column(name = "escalation_emails", length = 5000)
     private String escalationEmails;
     @ManyToOne
     private TicketType ticketType;
     @Column(name = "status")
     private String status;
-    @Column(name = "next_run_index")
-    private int nextRunIndex = 0;
 }

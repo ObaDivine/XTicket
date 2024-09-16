@@ -81,7 +81,9 @@ xticket:
     rc: 123454
     logo: kalis
   cron:
-    job: '*/2 * * * * ?' #This cron job runs every 2 minutes
+    job: 
+      ticketrun: '*/2 * * * * ?' #This cron job runs every 2 minutes
+      automatedticket: '0 9 * * * ?' #This cron job runs every 9am
   email:
     contactus: coordination@ngxgroup.com
     escalation:
@@ -94,6 +96,10 @@ xticket:
       base:
         dir: C:/NGX/XTicket
   default:
+    entitycode: NGX
+    entityname: Nigerian Exchange Group
+    departmentcode: IT
+    departmentname: Information Technology
     password: Password!23#
     email:
       domain: ngxgroup.com

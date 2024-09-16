@@ -31,11 +31,6 @@
                     </div>
                     <div class="chat d-flex entitysc-offcanvas-container pt-1 mt-n1 mb-9">
                         <div class="card p-3 p-xl-1 mt-xl-n1 chat-sidebar me-3 entitysc-offcanvas entitysc-offcanvas-start" id="chat-sidebar">
-                            <ul class="nav nav-entitysc-pills mb-5 d-sm-none d-xl-flex" id="contactListTab" data-chat-thread-tab="data-chat-thread-tab" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link cursor-pointer active" data-bs-toggle="tab" data-chat-thread-list="all" role="tab" aria-selected="true">Conversations</a>
-                                </li>
-                            </ul>
                             <div class="scrollbar">
                                 <div class="tab-content" id="contactListTabContent">
                                     <div data-chat-thread-tab-content="data-chat-thread-tab-content">
@@ -67,14 +62,25 @@
                                     <div class="card-header p-1 d-flex flex-between-center">
                                         <div class="d-flex align-items-center">
                                             <div class="d-flex flex-column flex-md-row align-items-md-center">
-                                                <p class="fs--1 mb-0 me-2">
-                                                    <span>Ticket ID: </span>
-                                                    <span class="text-primary" th:text="${ticketPayload.ticketId}"></span>
+                                                <p class="fs--1 mb-0 me-2" >
+                                                    <b><span>Ticket ID:</span></b>
+                                                    <b><span class="text-primary" th:text="${ticketPayload.ticketId}"></span></b>
                                                 </p>
-                                                <p class="fs--1 mb-0 me-2" th:text="'[' + ${ticketPayload.ticketTypeName} + ']'">Ticket Name</p>
+                                                <p class="fs--1 mb-0 me-2">
+                                                    <b><span>Ticket Type:</span></b>
+                                                    <b><span class="text-primary" th:text="${ticketPayload.ticketTypeName}"></span></b>
+                                                </p>
+                                                <p class="fs--1 mb-0 me-2">
+                                                    <b><span>Agent: </span></b>
+                                                    <b><span class="text-primary" th:text="${ticketPayload.ticketAgent}"></span></b>
+                                                </p>
                                                 <p class="fs--1 mb-0 me-2">
                                                     <b><span>SLA Expiry: </span></b>
                                                     <b><span class="text-primary" th:text="${ticketPayload.slaExpiry}"></span></b>
+                                                </p>
+                                                <p class="fs--1 mb-0 me-2">
+                                                    <b><span>Status: </span></b>
+                                                    <b><span class="text-primary" th:text="${ticketPayload.status}"></span></b>
                                                 </p>
                                             </div>
                                         </div>
@@ -97,7 +103,7 @@
                                                                     <input th:if="${ticketPayload.reopenedId == 0}"  type="hidden" id="action" name="action" value="f" required="required"/>
                                                                 </div>
                                                                 <div class="form-icon-container">
-                                                                    <textarea class="form-control form-control-sm form-icon-input" th:field="*{resolution}" placeholder="How did you resolve this?" row="10"></textarea>
+                                                                    <textarea class="form-control form-control-sm form-icon-input" th:field="*{resolution}" placeholder="How did you resolve this?" row="50"></textarea>
                                                                     <span class="fas fa-comments text-900 fs--1 form-icon text-primary"></span>
                                                                 </div>
                                                                 <p class="mt-3 mb-3">Confirm you want to close this ticket</p>
@@ -194,39 +200,20 @@
                                             </ul>
                                         </div>
                                     </div>
-                                    <div class="card-body p-3 p-sm-4 d-flex flex-column-reverse scrollbar">
-                                        <div th:each="rec : ${ticketPayload.data}">
-                                            <div class="d-flex chat-message" th:if="${rec.reply}">
-                                                <div class="d-flex mb-2 justify-content-end flex-1">
-                                                    <div class="w-100 w-xxl-75">
-                                                        <div class="d-flex flex-end-center hover-actions-trigger">                                                 
-                                                            <div class="chat-message-content me-2">
-                                                                <div class="mb-1 sent-message-content light bg-primary rounded-2 p-3 text-white">
-                                                                    <p class="mb-0" th:text="${rec.message}">This is a message from you</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="text-end">
-                                                            <p class="mb-0 fs--2 text-900 fw-semi-bold" th:text="${rec.messageFrom} + ' ' + ${rec.createdAt}">Yesterday, 10 AM</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="d-flex chat-message" th:if="!${rec.reply}">
-                                                <div class="d-flex mb-2 flex-1">
-                                                    <div class="w-100 w-xxl-75">
-                                                        <div class="d-flex hover-actions-trigger">
-                                                            <div class="avatar avatar-m me-3 flex-shrink-0"><img class="rounded-circle" th:src="@{/images/icons/avatar.png}" alt="" /></div>
-                                                            <div class="chat-message-content received me-2">
-                                                                <div class="mb-1 received-message-content border rounded-2 p-3">
-                                                                    <p class="mb-0" th:text="${rec.message}">Message</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <p class="mb-0 fs--2 text-900 fw-semi-bold ms-7" th:text="${rec.messageFrom} + ' ' + ${rec.createdAt}">Yesterday, 10 AM</p>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                    <div class="card-body scrollbar">
+                                        <div class="small" th:each="rec : ${ticketPayload.data}">
+                                            <p th:if="!${rec.reply}"><b class="text-primary">You&nbsp;&nbsp;</b> &nbsp; 
+                                                <span>[</span>
+                                                <span th:text="${rec.createdAt}"></span>
+                                                <span>]:&nbsp;</span>    
+                                                <span><i th:text="${rec.message}"></i></span> 
+                                            </p>
+                                            <p th:if="${rec.reply}"><b class="text-secondary">Agent</b>
+                                                <span>[</span>
+                                                <span th:text="${rec.createdAt}"></span>
+                                                <span>]:&nbsp;</span>    
+                                                <span><i th:text="${rec.message}"></i></span>  
+                                            </p>
                                         </div>
                                     </div>
                                     <div class="card-footer">

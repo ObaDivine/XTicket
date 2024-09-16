@@ -38,6 +38,7 @@ appMessages:
   invalid:
     totp: The OTP is invalid
     newvalue: No new value was provided or the value is invalid
+    date: The {0} {1}
   login:
     failed: Login failed. Invalid username and or password
   user:

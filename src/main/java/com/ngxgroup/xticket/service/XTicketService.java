@@ -261,6 +261,10 @@ public interface XTicketService {
 
     XTicketPayload fetchAutomatedTicket(String id);
 
+    XTicketPayload fetchAutomatedTicketType();
+    
+    XTicketPayload fetchTicketByAutomation(XTicketPayload requestPayload);
+
     XTicketPayload createAutomatedTicket(XTicketPayload requestPayload, String principal);
 
     XTicketPayload deleteAutomatedTicket(String id, String principal);
