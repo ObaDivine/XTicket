@@ -79,9 +79,10 @@ public interface XTicketService {
     /**
      * Ticket Type
      *
+     * @param includeAutomatedTicket
      * @return
      */
-    XTicketPayload fetchTicketType();
+    XTicketPayload fetchTicketType(boolean includeAutomatedTicket);
 
     XTicketPayload fetchTicketType(String id);
 

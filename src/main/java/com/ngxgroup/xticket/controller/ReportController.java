@@ -1,12 +1,16 @@
 package com.ngxgroup.xticket.controller;
 
+import com.google.gson.Gson;
 import com.ngxgroup.xticket.constant.ResponseCodes;
+import com.ngxgroup.xticket.payload.ChartPayload;
 import com.ngxgroup.xticket.payload.XTicketPayload;
 import com.ngxgroup.xticket.service.XTicketService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
@@ -26,6 +30,8 @@ public class ReportController {
 
     @Autowired
     XTicketService xticketService;
+    @Autowired
+    Gson gson;
     private String alertMessage = "";
     private String alertMessageType = "";
 
@@ -35,7 +41,7 @@ public class ReportController {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
-        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
         model.addAttribute("openTicketList", null);
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
@@ -46,10 +52,10 @@ public class ReportController {
     @PostMapping("/ticket/open/process")
     public String openTicket(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
         XTicketPayload response = xticketService.fetchOpenTicket(requestPayload);
-        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
-        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
         model.addAttribute("dataList", response.getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
@@ -64,7 +70,7 @@ public class ReportController {
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
-        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -74,10 +80,10 @@ public class ReportController {
     @PostMapping("/ticket/closed/process")
     public String closedTicket(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
         XTicketPayload response = xticketService.fetchClosedTicket(requestPayload);
-        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
-        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
         model.addAttribute("dataList", response.getData());
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
@@ -100,7 +106,7 @@ public class ReportController {
     @PostMapping("/ticket/reopened/process")
     public String reopenedTicket(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
         XTicketPayload response = xticketService.fetchReopenedTicket(requestPayload);
-        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
         model.addAttribute("dataList", response.getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
@@ -115,7 +121,7 @@ public class ReportController {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
-        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
@@ -126,10 +132,10 @@ public class ReportController {
     @PostMapping("/ticket/reassigned/process")
     public String reassignedTicket(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
         XTicketPayload response = xticketService.fetchReassignedTicket(requestPayload);
-        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
-        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
         model.addAttribute("dataList", response.getData());
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
@@ -153,7 +159,7 @@ public class ReportController {
     @PostMapping("/ticket/by-agents/process")
     public String byAgents(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
         XTicketPayload response = xticketService.fetchTicketClosedByAgent(requestPayload);
-        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
         model.addAttribute("dataList", response.getData());
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
@@ -170,7 +176,7 @@ public class ReportController {
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
-        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -180,11 +186,11 @@ public class ReportController {
     @PostMapping("/ticket/sla/process")
     public String sla(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
         XTicketPayload response = xticketService.fetchTicketByWithinSla(requestPayload);
-        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
-        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
         model.addAttribute("dataList", response.getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
@@ -199,7 +205,7 @@ public class ReportController {
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
-        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -209,11 +215,11 @@ public class ReportController {
     @PostMapping("/ticket/sla/violated/process")
     public String violatedSla(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
         XTicketPayload response = xticketService.fetchTicketByViolatedSla(requestPayload);
-        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
-        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
         model.addAttribute("dataList", response.getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
@@ -227,7 +233,7 @@ public class ReportController {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
-        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -237,10 +243,10 @@ public class ReportController {
     @PostMapping("/ticket/agents/process")
     public String agents(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
         XTicketPayload response = xticketService.fetchTicketAgent(requestPayload);
-        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
-        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
         model.addAttribute("dataList", response.getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
@@ -266,7 +272,7 @@ public class ReportController {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
-        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
@@ -277,10 +283,10 @@ public class ReportController {
     @PostMapping("/ticket/service-unit/process")
     public String serviceUnit(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
         XTicketPayload response = xticketService.fetchTicketByServiceUnit(requestPayload);
-        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
-        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
         model.addAttribute("dataList", response.getData());
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
@@ -288,8 +294,8 @@ public class ReportController {
         resetAlertMessage();
         return "reportticketsbyserviceunit";
     }
-    
-        @GetMapping("/ticket/service-unit-entity")
+
+    @GetMapping("/ticket/service-unit-entity")
     @Secured("ROLE_MANAGEMENT_REPORT")
     public String serviceUnitToEntity(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
@@ -305,7 +311,7 @@ public class ReportController {
     @PostMapping("/ticket/service-unit-entity/process")
     public String serviceUnitToEntity(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
         XTicketPayload response = xticketService.fetchTicketByServiceUnitToEntity(requestPayload);
-        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
         model.addAttribute("entityList", xticketService.fetchEntity().getData());
         model.addAttribute("dataList", response.getData());
@@ -331,7 +337,7 @@ public class ReportController {
     @PostMapping("/ticket/department-entity/process")
     public String departmentToEntity(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
         XTicketPayload response = xticketService.fetchTicketByDepartmentToEntity(requestPayload);
-        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("departmentList", xticketService.fetchDepartment().getData());
         model.addAttribute("entityList", xticketService.fetchEntity().getData());
         model.addAttribute("dataList", response.getData());
@@ -358,11 +364,12 @@ public class ReportController {
     @PostMapping("/ticket/service-rating/process")
     public String serviceRating(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
         XTicketPayload response = xticketService.fetchTicketByServiceRating(requestPayload);
-        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
         model.addAttribute("entityList", xticketService.fetchEntity().getData());
         model.addAttribute("departmentList", xticketService.fetchDepartment().getData());
         model.addAttribute("dataList", response.getData());
+        model.addAttribute("serviceRatingChartData", generateServiceRatingChart(response.getData()));
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         resetAlertMessage();
@@ -383,7 +390,7 @@ public class ReportController {
     @PostMapping("/ticket/entity/process")
     public String entityToEntity(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
         XTicketPayload response = xticketService.fetchTicketByEntityToEntity(requestPayload);
-        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("entityList", xticketService.fetchEntity().getData());
         model.addAttribute("dataList", response.getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
@@ -398,7 +405,7 @@ public class ReportController {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
-        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType(true).getData());
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
@@ -409,10 +416,10 @@ public class ReportController {
     @PostMapping("/ticket/automation/process")
     public String automatedTicket(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
         XTicketPayload response = xticketService.fetchTicketByAutomation(requestPayload);
-        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
-        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType(true).getData());
         model.addAttribute("dataList", response.getData());
         model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
@@ -435,12 +442,27 @@ public class ReportController {
     @PostMapping("/audit-log/process")
     public String auditLog(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
         XTicketPayload response = xticketService.fetchAuditLog(requestPayload);
-        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("dataList", response.getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         resetAlertMessage();
         return "auditlog";
+    }
+
+    private String generateServiceRatingChart(List<XTicketPayload> ticketList) {
+        List<ChartPayload> data = new ArrayList<>();
+        if (ticketList != null) {
+            for (XTicketPayload t : ticketList) {
+                ChartPayload chart = new ChartPayload();
+                int[] series = new int[]{t.getOneStar(), t.getTwoStar(), t.getThreeStar(), t.getFourStar(), t.getFiveStar()};
+                chart.setName(t.getDepartmentName());
+                chart.setType("bar");
+                chart.setData(series);
+                data.add(chart);
+            }
+        }
+        return gson.toJson(data);
     }
 
     private void resetAlertMessage() {

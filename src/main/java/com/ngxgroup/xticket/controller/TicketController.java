@@ -39,7 +39,7 @@ public class TicketController {
     @Secured("ROLE_RAISE_TICKET")
     public String newTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
-        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -55,7 +55,7 @@ public class TicketController {
             return "redirect:/ticket/new";
         }
         model.addAttribute("ticketPayload", requestPayload);
-        model.addAttribute("ticketTypeList", xticketService.fetchTicketType().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "error");
         return "newticket";

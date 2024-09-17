@@ -1383,14 +1383,17 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     /**
-     * Ticket Type *
+     * Ticket Type
+     *
+     *
+     * @param includeAutomatedTicket
      */
     @Override
-    public XTicketPayload fetchTicketType() {
+    public XTicketPayload fetchTicketType(boolean includeAutomatedTicket) {
         var response = new XTicketPayload();
         try {
             List<XTicketPayload> data = new ArrayList<>();
-            List<TicketType> ticketType = xticketRepository.getTicketType();
+            List<TicketType> ticketType = includeAutomatedTicket ? xticketRepository.getTicketType() : xticketRepository.getNonAutomatedTicketType();
             if (ticketType != null) {
                 for (TicketType t : ticketType) {
                     XTicketPayload payload = new XTicketPayload();
@@ -3416,6 +3419,34 @@ public class XTicketServiceImpl implements XTicketService {
             ticket.setTicketAgent(ticketAgent);
             xticketRepository.updateTicket(ticket);
 
+            //Persist Ticket Comment
+            TicketComment newComment = new TicketComment();
+            newComment.setComment(requestPayload.getMessage());
+            newComment.setCommentFrom(appUser);
+            newComment.setCreatedAt(LocalDateTime.now());
+            newComment.setTicket(ticket);
+            xticketRepository.createTicketComment(newComment);
+
+            //Send notification to ticket agents
+            XTicketPayload mailPayload = new XTicketPayload();
+            mailPayload.setRecipientEmail(newTicketAgent.getEmail());
+            mailPayload.setEmailSubject("Ticket Reassigned Notification");
+            mailPayload.setCarbonCopyEmail("");
+            LocalDateTime slaExpiry = getSlaExpiryDate(ticketType);
+            String slaTime = timeDtf.format(slaExpiry.toLocalTime());
+            String slaDate = slaExpiry.getMonth().toString() + " " + slaExpiry.getDayOfMonth() + ", " + slaExpiry.getYear();
+            String message = "<h4>Dear " + newTicketAgent.getLastName() + ",</h4>\n"
+                    + "<p>A <b>" + ticketType.getTicketTypeName() + "</b> ticket with an ID <b>" + ticket.getTicketId()
+                    + "</b> is reassigned to you by <b>" + appUser.getLastName() + ", " + appUser.getOtherName() + "</b> with a priority <b>"
+                    + ticketType.getSla().getPriority() + ".</b></p>"
+                    + "<p>The ticket is set to expire by <b>" + slaTime + "</b> on <b>" + slaDate + "</b></p>"
+                    + "<p>To view the ticket details or take action, kindly login into NGX X-Ticket by <a href=\"" + host + "/xticket" + "\">clicking here</a></p>"
+                    + "<p>For support and enquiries, email: " + companyEmail + ".</p>\n"
+                    + "<p>Best wishes,</p>"
+                    + "<p>" + companyName + "</p>";
+            mailPayload.setEmailBody(message);
+            genericService.sendEmail(mailPayload, principal);
+
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
             response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
             response.setData(null);
@@ -3485,6 +3516,8 @@ public class XTicketServiceImpl implements XTicketService {
             response.setFileIndex(ticket.getFileIndex());
             response.setRating(ticket.getRating());
             response.setComment(ticket.getRatingComment());
+            response.setTicketAgent(ticket.getTicketAgent().getAgent().getLastName() + ", " + ticket.getTicketAgent().getAgent().getOtherName());
+            response.setStatus(ticket.getTicketStatus().getTicketStatusName());
 
             //Fetch all the reopen record
             List<TicketReopened> reopenedTickets = xticketRepository.getTicketReopenedUsingTicket(ticket);
@@ -5329,7 +5362,7 @@ public class XTicketServiceImpl implements XTicketService {
                             if (tickets != null) {
                                 XTicketPayload newTicket = new XTicketPayload();
                                 newTicket.setDepartmentName(d.getDepartmentName());
-                                newTicket.setServiceUnitName("NA");
+                                newTicket.setServiceUnitName("");
                                 newTicket.setTicketCount(tickets.size());
                                 newTicket.setFiveStar(tickets.stream().filter(f -> f.getRating() == 5).mapToInt(t -> t.getRating()).sum());
                                 newTicket.setFourStar(tickets.stream().filter(f -> f.getRating() == 4).mapToInt(t -> t.getRating()).sum());
@@ -5834,7 +5867,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     /**
-     * Ticket Status *
+     * Automated Ticket *
      */
     @Override
     public XTicketPayload fetchAutomatedTicket() {
@@ -5844,14 +5877,16 @@ public class XTicketServiceImpl implements XTicketService {
             List<AutomatedTicket> automatedTicket = xticketRepository.getAutomatedTicket();
             if (automatedTicket != null) {
                 for (AutomatedTicket t : automatedTicket) {
+                    AppUser serviceRequester = xticketRepository.getAppUserUsingEmail(t.getServiceRequester());
+                    AppUser serviceProvider = xticketRepository.getAppUserUsingEmail(t.getServiceProvider());
                     XTicketPayload payload = new XTicketPayload();
                     BeanUtils.copyProperties(t, payload);
                     payload.setCreatedAt(dtf.format(t.getCreatedAt()));
-                    payload.setCreatedBy(t.getServiceRequester());
+                    payload.setCreatedBy(serviceRequester == null ? "" : serviceRequester.getLastName() + ", " + serviceRequester.getOtherName());
                     payload.setId(t.getId().intValue());
                     payload.setTicketTypeCode(t.getTicketType().getTicketTypeCode());
                     payload.setTicketTypeName(t.getTicketType().getTicketTypeName());
-                    payload.setTicketAgent(t.getServiceProvider());
+                    payload.setTicketAgent(serviceProvider == null ? "" : serviceProvider.getLastName() + ", " + serviceProvider.getOtherName());
                     payload.setTicketSlaName(String.valueOf(t.getTicketType().getSla().getTicketSla()) + " " + t.getTicketType().getSla().getTicketSlaPeriod());
                     payload.setStartDate(String.valueOf(t.getStartDate()));
                     payload.setEndDate(String.valueOf(t.getEndDate()));
@@ -5883,6 +5918,8 @@ public class XTicketServiceImpl implements XTicketService {
                 return response;
             }
 
+            AppUser serviceRequester = xticketRepository.getAppUserUsingEmail(automatedTicket.getServiceRequester());
+            AppUser serviceProvider = xticketRepository.getAppUserUsingEmail(automatedTicket.getServiceProvider());
             BeanUtils.copyProperties(automatedTicket, response);
             response.setCreatedAt(automatedTicket.getCreatedAt().toLocalDate().toString());
             response.setId(automatedTicket.getId().intValue());
@@ -5892,6 +5929,8 @@ public class XTicketServiceImpl implements XTicketService {
             response.setTicketSlaName(String.valueOf(automatedTicket.getTicketType().getSla().getTicketSla()) + " " + automatedTicket.getTicketType().getSla().getTicketSlaPeriod());
             response.setStartDate(String.valueOf(automatedTicket.getStartDate()));
             response.setEndDate(String.valueOf(automatedTicket.getEndDate()));
+            response.setCreatedBy(serviceRequester == null ? "" : serviceRequester.getLastName() + ", " + serviceRequester.getOtherName());
+            response.setTicketAgent(serviceProvider == null ? "" : serviceProvider.getLastName() + ", " + serviceProvider.getOtherName());
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
             response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
@@ -6072,7 +6111,6 @@ public class XTicketServiceImpl implements XTicketService {
                 }
 
                 LocalDate startDate = LocalDate.parse(requestPayload.getStartDate());
-                LocalDate nextRun = null;
 
                 //Check the start and end date
                 if (startDate.isBefore(LocalDate.now())) {
@@ -6092,27 +6130,6 @@ public class XTicketServiceImpl implements XTicketService {
                     }
                 }
 
-                switch (requestPayload.getFrequency()) {
-                    case "Daily" -> {
-                        nextRun = startDate.plusDays(1);
-                    }
-                    case "Weekly" -> {
-                        nextRun = startDate.plusWeeks(1);
-                    }
-                    case "Monthly" -> {
-                        nextRun = startDate.plusMonths(1);
-                    }
-                    case "Annual" -> {
-                        nextRun = startDate.plusYears(1);
-                    }
-                    case "BiAnnual" -> {
-                        nextRun = startDate.plusDays(183);
-                    }
-                    case "Quarterly" -> {
-                        nextRun = startDate.plusDays(90);
-                    }
-                }
-
                 AutomatedTicket newAutomatedTicket = new AutomatedTicket();
                 newAutomatedTicket.setCreatedAt(LocalDateTime.now());
                 newAutomatedTicket.setCreatedBy(principal);
@@ -6121,7 +6138,7 @@ public class XTicketServiceImpl implements XTicketService {
                 newAutomatedTicket.setEscalationEmails(requestPayload.getEscalationEmails());
                 newAutomatedTicket.setFrequency(requestPayload.getFrequency());
                 newAutomatedTicket.setMessage(requestPayload.getMessage());
-                newAutomatedTicket.setNextRun(nextRun);
+                newAutomatedTicket.setNextRun(startDate);
                 newAutomatedTicket.setServiceProvider(requestPayload.getTicketAgent());
                 newAutomatedTicket.setServiceRequester(requestPayload.getCreatedBy());
                 newAutomatedTicket.setStartDate(LocalDate.parse(requestPayload.getStartDate()));
@@ -6193,7 +6210,6 @@ public class XTicketServiceImpl implements XTicketService {
                     .append("Frequency:").append(requestPayload.getFrequency()).append(", ");
 
             LocalDate startDate = LocalDate.parse(requestPayload.getStartDate());
-            LocalDate nextRun = null;
 
             //Check the start and end date
             if (startDate.isBefore(LocalDate.now())) {
@@ -6213,27 +6229,6 @@ public class XTicketServiceImpl implements XTicketService {
                 }
             }
 
-            switch (requestPayload.getFrequency()) {
-                case "Daily" -> {
-                    nextRun = startDate.plusDays(1);
-                }
-                case "Weekly" -> {
-                    nextRun = startDate.plusWeeks(1);
-                }
-                case "Monthly" -> {
-                    nextRun = startDate.plusMonths(1);
-                }
-                case "Annual" -> {
-                    nextRun = startDate.plusYears(1);
-                }
-                case "BiAnnual" -> {
-                    nextRun = startDate.plusDays(183);
-                }
-                case "Quarterly" -> {
-                    nextRun = startDate.plusDays(90);
-                }
-            }
-
             automatedTicket.setCreatedAt(LocalDateTime.now());
             automatedTicket.setCreatedBy(principal);
             automatedTicket.setStatus(requestPayload.getStatus());
@@ -6241,7 +6236,7 @@ public class XTicketServiceImpl implements XTicketService {
             automatedTicket.setEscalationEmails(requestPayload.getEscalationEmails());
             automatedTicket.setFrequency(requestPayload.getFrequency());
             automatedTicket.setMessage(requestPayload.getMessage());
-            automatedTicket.setNextRun(nextRun);
+            automatedTicket.setNextRun(startDate);
             automatedTicket.setServiceProvider(requestPayload.getTicketAgent());
             automatedTicket.setServiceRequester(requestPayload.getCreatedBy());
             automatedTicket.setStartDate(LocalDate.parse(requestPayload.getStartDate()));

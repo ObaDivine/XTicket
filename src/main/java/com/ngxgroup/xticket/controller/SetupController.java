@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.security.Principal;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
@@ -30,6 +31,8 @@ public class SetupController {
     XTicketService xticketService;
     @Autowired
     MessageSource messageSource;
+    @Value("${xticket.default.departmentcode}")
+    private String defaultDepartmentCode;
     private String alertMessage = "";
     private String alertMessageType = "";
 
@@ -106,7 +109,7 @@ public class SetupController {
         model.addAttribute("serviceUnit", xticketService.fetchServiceUnit().getData());
         model.addAttribute("ticketGroup", xticketService.fetchTicketGroup().getData());
         model.addAttribute("ticketSla", xticketService.fetchTicketSla().getData());
-        model.addAttribute("recordCount", xticketService.fetchTicketType().getData().size());
+        model.addAttribute("recordCount", xticketService.fetchTicketType(true).getData().size());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -141,7 +144,7 @@ public class SetupController {
             return "redirect:/setup/ticket/type/list";
         }
         model.addAttribute("ticketPayload", response);
-        model.addAttribute("recordCount", xticketService.fetchTicketType().getData().size());
+        model.addAttribute("recordCount", xticketService.fetchTicketType(true).getData().size());
         model.addAttribute("serviceUnit", xticketService.fetchServiceUnit().getData());
         model.addAttribute("ticketGroup", xticketService.fetchTicketGroup().getData());
         model.addAttribute("ticketSla", xticketService.fetchTicketSla().getData());
@@ -154,7 +157,7 @@ public class SetupController {
     @GetMapping("/ticket/type/list")
     @Secured("ROLE_LIST_TICKET_TYPE")
     public String ticketTypeList(Model model, Principal principal) {
-        XTicketPayload response = xticketService.fetchTicketType();
+        XTicketPayload response = xticketService.fetchTicketType(true);
         model.addAttribute("dataList", response.getData());
         model.addAttribute("serviceUnit", xticketService.fetchServiceUnit().getData());
         model.addAttribute("ticketGroup", xticketService.fetchTicketGroup().getData());
@@ -487,6 +490,7 @@ public class SetupController {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("recordCount", xticketService.fetchDepartment().getData().size());
         model.addAttribute("entityList", xticketService.fetchEntity().getData());
+        model.addAttribute("defaultDepartmentCode", defaultDepartmentCode);
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -503,6 +507,7 @@ public class SetupController {
         }
         model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("entityList", xticketService.fetchEntity().getData());
+        model.addAttribute("defaultDepartmentCode", defaultDepartmentCode);
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "error");
         resetAlertMessage();

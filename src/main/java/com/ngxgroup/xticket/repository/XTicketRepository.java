@@ -209,6 +209,8 @@ public interface XTicketRepository {
      */
     List<TicketType> getTicketType();
 
+    List<TicketType> getNonAutomatedTicketType();
+
     TicketType getTicketTypeUsingId(long id);
 
     TicketType getTicketTypeUsingCode(String ticketTypeCode);
