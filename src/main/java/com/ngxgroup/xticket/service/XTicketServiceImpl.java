@@ -123,10 +123,8 @@ public class XTicketServiceImpl implements XTicketService {
     private String defaultEntityCode;
     @Value("${xticket.default.departmentcode}")
     private String defaultDepartmentCode;
-    @Value("${xticket.slaexpiry.met}")
-    private int slaMet;
     @Value("${xticket.slaexpiry.exceeded}")
-    private int slaExceeded;
+    private double slaExceeded;
 
     @Override
     public XTicketPayload signin(XTicketPayload requestPayload) {
@@ -4500,13 +4498,13 @@ public class XTicketServiceImpl implements XTicketService {
                     //Get all the tickets within SLA
                     entityTickets = entityTickets.stream().filter(t -> !t.isSlaViolated()).collect(Collectors.toList());
 
-                    if (entityTickets == null) {
+                    if (entityTickets.isEmpty()) {
                         metSLA = 0;
                         exceedSLA = 0;
                     } else {
                         for (Tickets t : entityTickets) {
-                            int exceedTimeInMins = 0;
-                            int sla = Integer.parseInt(t.getSla().substring(0));
+                            double exceedTimeInMins = 0.0;
+                            double sla = Double.parseDouble(t.getSla().substring(0,1));
                             if (t.getSla().endsWith("D")) {
                                 exceedTimeInMins = (slaExceeded / 100) * sla * 7 * 60;  //Multiply by 7 days and 60 to convert to minutes
                             } else if (t.getSla().endsWith("H")) {
