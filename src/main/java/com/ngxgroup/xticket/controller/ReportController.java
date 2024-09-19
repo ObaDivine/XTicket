@@ -2,6 +2,7 @@ package com.ngxgroup.xticket.controller;
 
 import com.google.gson.Gson;
 import com.ngxgroup.xticket.constant.ResponseCodes;
+import com.ngxgroup.xticket.model.Entities;
 import com.ngxgroup.xticket.payload.ChartPayload;
 import com.ngxgroup.xticket.payload.XTicketPayload;
 import com.ngxgroup.xticket.service.XTicketService;
@@ -393,6 +394,8 @@ public class ReportController {
         model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("entityList", xticketService.fetchEntity().getData());
         model.addAttribute("dataList", response.getData());
+        model.addAttribute("serviceEffectivenessChartData", generateServiceEffectivenessChart(requestPayload));
+        model.addAttribute("serviceHourChartData", generateServiceHoursChart(requestPayload));
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         resetAlertMessage();
@@ -455,10 +458,39 @@ public class ReportController {
         if (ticketList != null) {
             for (XTicketPayload t : ticketList) {
                 ChartPayload chart = new ChartPayload();
-                int[] series = new int[]{t.getOneStar(), t.getTwoStar(), t.getThreeStar(), t.getFourStar(), t.getFiveStar()};
+                long[] series = new long[]{t.getOneStar(), t.getTwoStar(), t.getThreeStar(), t.getFourStar(), t.getFiveStar()};
                 chart.setName(t.getServiceUnitName().equalsIgnoreCase("") ? t.getDepartmentName() : t.getServiceUnitName());
                 chart.setType("bar");
                 chart.setData(series);
+                data.add(chart);
+            }
+        }
+        return gson.toJson(data);
+    }
+
+    private String generateServiceEffectivenessChart(XTicketPayload requestPayload) {
+        XTicketPayload response = xticketService.fetchServiceEffectivenessByEntity(requestPayload);
+        List<ChartPayload> data = new ArrayList<>();
+        if (response != null) {
+            for (XTicketPayload t : response.getData()) {
+                ChartPayload chart = new ChartPayload();
+                chart.setName(t.getEntityName());
+                chart.setType("bar");
+                chart.setData(t.getSeries());
+                data.add(chart);
+            }
+        }
+        return gson.toJson(data);
+    }
+
+    private String generateServiceHoursChart(XTicketPayload requestPayload) {
+        XTicketPayload response = xticketService.fetchServiceHoursByEntity(requestPayload);
+        List<XTicketPayload> data = new ArrayList<>();
+        if (response != null) {
+            for (XTicketPayload t : response.getData()) {
+                XTicketPayload chart = new XTicketPayload();
+                chart.setValue(t.getValue());
+                chart.setName(t.getName());
                 data.add(chart);
             }
         }
