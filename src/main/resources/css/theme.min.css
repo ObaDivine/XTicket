@@ -4914,7 +4914,7 @@ textarea.form-control.is-invalid {
 
 .dropdown-menu {
     --entitysc-dropdown-zindex: 1000;
-    --entitysc-dropdown-min-width: 10rem;
+    --entitysc-dropdown-min-width: 12rem;
     --entitysc-dropdown-padding-x: 0;
     --entitysc-dropdown-padding-y: 1rem;
     --entitysc-dropdown-spacer: 0.125rem;

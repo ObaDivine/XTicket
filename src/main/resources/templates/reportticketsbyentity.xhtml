@@ -80,9 +80,9 @@
                             <a class="nav-link" id="record-tab" data-bs-toggle="tab" href="#tab-record" role="tab" aria-controls="tab-record" aria-selected="true">Entity Service Records</a>
                         </li>
                     </ul>
-                    <div class="tab-content pt-5 pb-3 pl-5 pr-5 bg-white border-10" id="myTabContent">
+                    <div class="tab-content pt-5 pb-3 pl-5 pr-5 bg-white border-10 border-lg" id="myTabContent" th:if="${dataList != null}">
                         <div class="tab-pane fade show active" id="tab-effectiveness" role="tabpanel" aria-labelledby="effectiveness-tab">
-                            <div id="serviceEffectiveness" class="bar-charts-ext"></div>
+                            <div id="serviceEffectiveness" class="bar-charts-ext mb-5"></div>
                         </div>
                         <div class="tab-pane fade" id="tab-hours" role="tabpanel" aria-labelledby="hours-tab">
                             <div id="serviceHours" class="bar-charts-ext"></div>

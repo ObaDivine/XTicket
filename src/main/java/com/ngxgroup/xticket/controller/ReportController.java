@@ -471,7 +471,7 @@ public class ReportController {
     private String generateServiceEffectivenessChart(XTicketPayload requestPayload) {
         XTicketPayload response = xticketService.fetchServiceEffectivenessByEntity(requestPayload);
         List<ChartPayload> data = new ArrayList<>();
-        if (response != null) {
+        if (response.getData() != null) {
             for (XTicketPayload t : response.getData()) {
                 ChartPayload chart = new ChartPayload();
                 chart.setName(t.getEntityName());
