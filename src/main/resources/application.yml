@@ -98,8 +98,8 @@ xticket:
   default:
     entitycode: NGX
     entityname: Nigerian Exchange Group
-    departmentcode: IT
-    departmentname: Information Technology
+    departmentcode: DEF
+    departmentname: Default Department
     password: Password!23#
     email:
       domain: ngxgroup.com

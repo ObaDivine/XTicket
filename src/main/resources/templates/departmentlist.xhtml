@@ -65,8 +65,8 @@
                                             <td th:text="${rec.createdBy}" class="createdBy align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.status}" class="status align-middle white-space-nowrap start ps-3"></td>
                                             <td class="align-middle white-space-nowrap start ps-3 btn-reveal-trigger">
-                                                <a sec:authorize="hasRole('UPDATE_DEPARTMENT')" class="text-success" href="#!" th:href="@{'/setup/department/edit?seid=' + ${rec.id}}"><span class="fas fa-edit" data-bs-toggle="tooltip" data-bs-placement="right" title="Update Department"></span></a>
-                                                <a sec:authorize="hasRole('DELETE_DEPARTMENT')" class="text-danger" th:data-bs-target="'#a' + ${rec.id}" data-bs-toggle="modal"><span class="fas fa-trash" data-bs-toggle="tooltip" data-bs-placement="right" title="Delete Department"></span></a>
+                                                <a sec:authorize="hasRole('UPDATE_DEPARTMENT')" class="text-success" href="#!" th:href="@{'/setup/department/edit?seid=' + ${rec.id}}" th:if="${rec.departmentCode} != ${defaultDepartmentCode}"><span class="fas fa-edit" data-bs-toggle="tooltip" data-bs-placement="right" title="Update Department"></span></a>
+                                                <a sec:authorize="hasRole('DELETE_DEPARTMENT')" class="text-danger" th:data-bs-target="'#a' + ${rec.id}" data-bs-toggle="modal" th:if="${rec.departmentCode} != ${defaultDepartmentCode}"><span class="fas fa-trash" data-bs-toggle="tooltip" data-bs-placement="right" title="Delete Department"></span></a>
                                                 <div class="modal fade" th:id="'a' + ${rec.id}" tabindex="-1" role="dialog" aria-labelledby="${rec.id}" aria-hidden="true">
                                                     <div class="modal-dialog">
                                                         <div class="modal-content">

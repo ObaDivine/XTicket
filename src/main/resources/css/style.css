@@ -171,6 +171,11 @@ text-secondary{
     width: 200px !important;
 }
 
+.bar-charts-ext{
+    height: 300px !important;
+    width: 800px !important;
+}
+
 .border-20{
     border-radius:20px !important;
 }
