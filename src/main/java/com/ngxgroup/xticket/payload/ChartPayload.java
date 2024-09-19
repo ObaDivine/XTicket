@@ -15,7 +15,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ChartPayload {
 
-    int[] data;
+    long[] data;
     String name;
     String type;
 }

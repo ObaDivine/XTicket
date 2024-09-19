@@ -140,10 +140,10 @@ public class XTicketPayload {
     String keyword;
     String frequency;
     String resolution;
-    int fiveStar;
-    int fourStar;
-    int threeStar;
-    int twoStar;
-    int oneStar;
-
+    long fiveStar;
+    long fourStar;
+    long threeStar;
+    long twoStar;
+    long oneStar;
+    long[] series;
 }

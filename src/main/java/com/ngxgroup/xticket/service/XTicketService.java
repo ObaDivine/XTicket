@@ -2,6 +2,7 @@ package com.ngxgroup.xticket.service;
 
 import com.ngxgroup.xticket.model.AppRoles;
 import com.ngxgroup.xticket.model.AppUser;
+import com.ngxgroup.xticket.model.Entities;
 import com.ngxgroup.xticket.model.GroupRoles;
 import com.ngxgroup.xticket.model.RoleGroups;
 import com.ngxgroup.xticket.model.TicketAgent;
@@ -195,6 +196,10 @@ public interface XTicketService {
     XTicketPayload createEntity(XTicketPayload requestPayload, String principal);
 
     XTicketPayload deleteEntity(String id, String principal);
+    
+    XTicketPayload fetchServiceEffectivenessByEntity(XTicketPayload requestPayload);
+    
+    XTicketPayload fetchServiceHoursByEntity(XTicketPayload requestPayload);
 
     /**
      * Department Transactions

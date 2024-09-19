@@ -67,12 +67,14 @@ xticket:
   slaexpiry:
     notification: 5 #Notification sent 5 mins or less to SLA expiry
     timeleft: 5 #Time left before ticket SLA is violated
+    met: 100 #Tickets closed in 100% of the alloted time
+    exceeded: 60  #Tickets closed in <= 60% of the alloted time
   office:
     open: 8
     close: 17
   adauth:
     domains: ngxgroup.com, brokers.ngxgroup.com  
-  host: 'https://testapp.ngxgroup.com:8080'
+  host: 'https://testapp.ngxgroup.com:8443'
   company:
     name: Nigerian Exchange Group
     address: 2 Custom Street, Marina, Lagos
