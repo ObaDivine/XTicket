@@ -180,6 +180,35 @@ public class TicketController {
         return "ticketfulldetails";
     }
 
+    @GetMapping("/reassign")
+    @Secured("ROLE_REASSIGN_TICKET")
+    public String reassignTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
+        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("dataList", xticketService.fetchOpenTicket().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
+        model.addAttribute("ticketAgentList", xticketService.fetchTicketAgent().getData());
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
+        resetAlertMessage();
+        return "reassignticket";
+    }
+
+    @PostMapping("/reassigned")
+    public String reassignTicket(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
+        XTicketPayload response = xticketService.createTicketReassignment(requestPayload, principal.getName());
+        if (response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
+            alertMessage = response.getResponseMessage();
+            alertMessageType = "success";
+            return "redirect:/ticket/reassign";
+        }
+        model.addAttribute("ticketPayload", requestPayload);
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
+        model.addAttribute("ticketAgentList", xticketService.fetchTicketAgent().getData());
+        model.addAttribute("alertMessage", response.getResponseMessage());
+        model.addAttribute("alertMessageType", "error");
+        return "reassignticket";
+    }
+
     private void resetAlertMessage() {
         alertMessage = "";
         alertMessageType = "";

@@ -3141,6 +3141,8 @@ public class XTicketServiceImpl implements XTicketService {
                     newTicket.setSlaExpiry(dtf.format(t.getSlaExpiry()));
                     TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
                     newTicket.setReopenedId(reopenedTicket == null ? 0 : reopenedTicket.getId().intValue());
+                    newTicket.setStatus(t.getTicketStatus().getTicketStatusName());
+                    newTicket.setTicketAgent(t.getTicketAgent().getAgent().getLastName() + ", " + t.getTicketAgent().getAgent().getOtherName());
                     ticketList.add(newTicket);
                 }
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
@@ -3377,7 +3379,7 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             //Determine the agent to assign the ticket to
-            TicketAgent ticketAgent = getAgentToAssignTicket(ticketType);
+            List<TicketAgent> ticketAgent = xticketRepository.getTicketAgentUsingTicketType(newTicketAgent, ticketType);
             if (ticketAgent == null) {
                 response.setResponseCode(ResponseCodes.INPUT_MISSING.getResponseCode());
                 response.setResponseMessage(messageSource.getMessage("appMessages.ticket.noagent", new Object[]{ticketType.getTicketTypeName()}, Locale.ENGLISH));
@@ -3386,7 +3388,7 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             //Check if reassigned to self
-            if (Objects.equals(ticketAgent, newTicketAgent)) {
+            if (Objects.equals(appUser, newTicketAgent)) {
                 response.setResponseCode(ResponseCodes.SAME_ACCOUNT.getResponseCode());
                 response.setResponseMessage(messageSource.getMessage("appMessages.ticket.sameagent", new Object[0], Locale.ENGLISH));
                 response.setData(null);
@@ -3398,6 +3400,10 @@ public class XTicketServiceImpl implements XTicketService {
                     : ticket.getTicketType().getSla().getTicketSlaPeriod() == 'H'
                     ? LocalDateTime.now().plusHours(ticket.getTicketType().getSla().getTicketSla())
                     : LocalDateTime.now().plusMinutes(ticket.getTicketType().getSla().getTicketSla());
+
+            //Update the ticket details
+            ticket.setTicketAgent(ticketAgent.get(0));
+            xticketRepository.updateTicket(ticket);
 
             //Reassign the ticket
             TicketReassign ticketReassign = new TicketReassign();
@@ -3415,7 +3421,7 @@ public class XTicketServiceImpl implements XTicketService {
             ticket.setTicketStatus(openStatus);
             ticket.setTicketReassign(true);
             ticket.setSlaExpiry(slaExpiryTime);
-            ticket.setTicketAgent(ticketAgent);
+            ticket.setTicketAgent(ticketAgent.get(0));
             xticketRepository.updateTicket(ticket);
 
             //Persist Ticket Comment
@@ -4504,7 +4510,7 @@ public class XTicketServiceImpl implements XTicketService {
                     } else {
                         for (Tickets t : entityTickets) {
                             double exceedTimeInMins = 0.0;
-                            double sla = Double.parseDouble(t.getSla().substring(0,1));
+                            double sla = Double.parseDouble(t.getSla().substring(0, 1));
                             if (t.getSla().endsWith("D")) {
                                 exceedTimeInMins = (slaExceeded / 100) * sla * 7 * 60;  //Multiply by 7 days and 60 to convert to minutes
                             } else if (t.getSla().endsWith("H")) {
@@ -4522,7 +4528,7 @@ public class XTicketServiceImpl implements XTicketService {
                             }
                         }
                     }
-                    
+
                     //Create the return payload
                     XTicketPayload ticket = new XTicketPayload();
                     ticket.setSeries(new long[]{violatedSLA, metSLA, exceedSLA, serviceProvided});
@@ -4568,25 +4574,30 @@ public class XTicketServiceImpl implements XTicketService {
             for (Entities e : entities) {
                 int cummulativeHourse = 0;
                 List<Tickets> tickets = xticketRepository.getClosedTickets(LocalDate.parse(requestPayload.getStartDate()), LocalDate.parse(requestPayload.getEndDate()), ticketStatus, e);
-                if (requestPayload.getAction().equalsIgnoreCase("includeVoilatedTickets")) {
-                    if (tickets != null) {
-                        for (Tickets t : tickets) {
-                            cummulativeHourse += Duration.between(t.getCreatedAt(), t.getClosedAt()).toHours();
-                        }
-                    }
+                if (tickets == null) {
+                    XTicketPayload ticket = new XTicketPayload();
+                    ticket.setValue(cummulativeHourse);
+                    ticket.setName(e.getEntityName());
+                    data.add(ticket);
                 } else {
-                    tickets = tickets.stream().filter(t -> !t.isSlaViolated()).collect(Collectors.toList());
-                    if (tickets != null) {
+                    if (requestPayload.getAction().equalsIgnoreCase("includeVoilatedTickets")) {
                         for (Tickets t : tickets) {
                             cummulativeHourse += Duration.between(t.getCreatedAt(), t.getClosedAt()).toHours();
                         }
+                    } else {
+                        tickets = tickets.stream().filter(t -> !t.isSlaViolated()).collect(Collectors.toList());
+                        if (tickets != null) {
+                            for (Tickets t : tickets) {
+                                cummulativeHourse += Duration.between(t.getCreatedAt(), t.getClosedAt()).toHours();
+                            }
+                        }
                     }
-                }
 
-                XTicketPayload ticket = new XTicketPayload();
-                ticket.setValue(cummulativeHourse);
-                ticket.setName(e.getEntityName());
-                data.add(ticket);
+                    XTicketPayload ticket = new XTicketPayload();
+                    ticket.setValue(cummulativeHourse);
+                    ticket.setName(e.getEntityName());
+                    data.add(ticket);
+                }
             }
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());

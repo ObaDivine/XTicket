@@ -127,16 +127,9 @@
                                                             <form th:object="${ticketReassignPayload}" th:action="@{/agent/ticket/reassigned}" method="POST">
                                                                 <input type="hidden" id="id" name="id" th:value="${ticketPayload.id}" />
                                                                 <div class="form-icon-container">
-                                                                    <select class="form-select form-control-sm form-icon-input" aria-label="ticketGroupCode" th:field="*{ticketGroupCode}" required="required" th:onchange="|fetchTicketType()|">
-                                                                        <option value="">---Select Ticket Group---</option>
-                                                                        <option th:each="fa : ${ticketGroupList}" th:value="${fa.ticketGroupCode}" th:text="${fa.ticketGroupName}"></option>
-                                                                    </select>
-                                                                    <span class="text-danger asterisk">*</span>
-                                                                    <span class="fas fa-layer-group text-900 fs--1 form-icon text-primary"></span>
-                                                                </div>
-                                                                <div class="form-icon-container">
                                                                     <select class="form-select form-control-sm form-icon-input" aria-label="ticketTypeCode" th:field="*{ticketTypeCode}" required="required" th:onchange="|fetchTicketAgent()|">
                                                                         <option value="">---Select Ticket Type---</option>
+                                                                        <option th:each="fa : ${ticketTypeList}" th:value="${fa.ticketTypeCode}" th:text="${fa.ticketTypeName}"></option>
                                                                     </select>
                                                                     <span class="text-danger asterisk">*</span>
                                                                     <span class="fas fa-ticket-alt text-900 fs--1 form-icon text-primary"></span>

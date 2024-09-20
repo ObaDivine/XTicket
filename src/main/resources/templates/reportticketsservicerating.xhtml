@@ -56,7 +56,7 @@
                             </form>
                         </div>     
                     </div>
-                    <ul class="nav nav-underline justify-content-center column-gap-3" id="myTab" role="tablist">
+                    <ul class="nav nav-underline justify-content-center column-gap-3" id="myTab" role="tablist" th:if="${dataList != null}">
                         <li class="nav-item">
                             <a class="nav-link active" id="chart-tab" data-bs-toggle="tab" href="#tab-chart" role="tab" aria-controls="tab-chart" aria-selected="false">Service Rating Chart</a>
                         </li>
@@ -148,7 +148,7 @@
                 $("#xticketTable").tableHTMLExport({type: 'csv', filename: 'XTicket_Service_Rating.csv'});
             });
             $('#pdf').on('click', function () {
-                $("#xticketTable").tableHTMLExport({type: 'pdf', filename: 'XTicket_Service_Rating.pdf'});
+                $("#xticketTable").tableHTMLExport({type: 'pdf', filename: 'XTicket_Entity.pdf', orientation:'l'});
             });
 
             /* -------------------------------------------------------------------------- */
@@ -159,6 +159,15 @@
             var ticketStatusOption = {
                 title: {
                     text: 'Service Rating'
+                },
+                toolbox: {
+                    show: true,
+                    feature: {
+                        mark: {show: true},
+                        dataView: {show: true, readOnly: false},
+                        restore: {show: true},
+                        saveAsImage: {show: true}
+                    }
                 },
                 tooltip: {
                     trigger: 'axis',

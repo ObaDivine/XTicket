@@ -35,7 +35,7 @@ public class AgentController {
     public String openTicket(@RequestParam("tr") String tr, Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("dataList", xticketService.fetchOpenTicketForAgent(principal.getName(), tr).getData());
-        model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
         model.addAttribute("userList", null);
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
@@ -53,7 +53,7 @@ public class AgentController {
         model.addAttribute("ticketReplyPayload", ticketPayload);
         model.addAttribute("ticketReassignPayload", ticketPayload);
         model.addAttribute("ticketList", xticketService.fetchTicketByUser(principal.getName()).getData());
-        model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
         model.addAttribute("ticketStatusList", xticketService.fetchTicketStatusForReply().getData());
         model.addAttribute("userList", null);
         model.addAttribute("documentList", response.getUploadDocuments());
@@ -73,7 +73,7 @@ public class AgentController {
         }
         model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("dataList", xticketService.fetchOpenTicketForAgent(principal.getName(), "all").getData());
-        model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
         model.addAttribute("userList", null);
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "error");
@@ -96,7 +96,7 @@ public class AgentController {
         model.addAttribute("ticketReplyPayload", ticketPayload);
         model.addAttribute("ticketReassignPayload", ticketPayload);
         model.addAttribute("ticketList", xticketService.fetchTicketByUser(principal.getName()).getData());
-        model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
         model.addAttribute("ticketStatusList", xticketService.fetchTicketStatusForReply().getData());
         model.addAttribute("userList", null);
         model.addAttribute("documentList", response.getUploadDocuments());
