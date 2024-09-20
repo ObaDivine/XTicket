@@ -394,12 +394,39 @@ public class ReportController {
         model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("entityList", xticketService.fetchEntity().getData());
         model.addAttribute("dataList", response.getData());
+        model.addAttribute("alertMessage", response.getResponseMessage());
+        model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
+        resetAlertMessage();
+        return "reportticketsbyentity";
+    }
+    
+    @GetMapping("/ticket/entity-performance")
+    @Secured("ROLE_MANAGEMENT_REPORT")
+    public String entityPerformance(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
+        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("entityList", xticketService.fetchEntity().getData());
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
+        resetAlertMessage();
+        return "reportticketsbyentityperformance";
+    }
+
+    @PostMapping("/ticket/entity-performance/process")
+    public String entityPerformance(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
+        requestPayload.setServiceUnitCode("");
+        requestPayload.setTicketGroupCode("");
+        requestPayload.setTicketTypeCode("");
+        requestPayload.setSource("");
+        requestPayload.setEmail("");
+        XTicketPayload response = xticketService.fetchClosedTicket(requestPayload);
+        model.addAttribute("ticketPayload", requestPayload);
+        model.addAttribute("dataList", response.getData());
         model.addAttribute("serviceEffectivenessChartData", generateServiceEffectivenessChart(requestPayload));
         model.addAttribute("serviceHourChartData", generateServiceHoursChart(requestPayload));
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         resetAlertMessage();
-        return "reportticketsbyentity";
+        return "reportticketsbyentityperformance";
     }
 
     @GetMapping("/ticket/automation")
