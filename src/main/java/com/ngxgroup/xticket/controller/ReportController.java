@@ -486,7 +486,7 @@ public class ReportController {
     private String generateServiceHoursChart(XTicketPayload requestPayload) {
         XTicketPayload response = xticketService.fetchServiceHoursByEntity(requestPayload);
         List<XTicketPayload> data = new ArrayList<>();
-        if (response != null) {
+        if (response.getData() != null) {
             for (XTicketPayload t : response.getData()) {
                 XTicketPayload chart = new XTicketPayload();
                 chart.setValue(t.getValue());

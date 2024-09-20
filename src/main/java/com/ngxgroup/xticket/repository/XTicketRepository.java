@@ -273,6 +273,7 @@ public interface XTicketRepository {
 
     TicketAgent getTicketAgentUsingId(long id);
 
+
     /**
      * Ticket Escalation
      *

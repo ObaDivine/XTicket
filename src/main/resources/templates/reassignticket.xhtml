@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head>
+        <title>X-Ticket - Reassign Ticket</title>
+        <th:block th:insert="~{fragments/xTicketFragments :: headerfiles}"></th:block>
+    </head>
+    <body onload="preloaderFunction()" style="margin: 0;">
+        <div id="loader"></div>
+        <main class="main animate-bottom" id="top" style="display:none;" >
+            <div class="container-fluid px-0">
+                <th:block th:insert="~{fragments/xTicketFragments :: topMenu}"></th:block>
+                <div class="content">
+                    <div class="row gy-3 mb-3 justify-content-between">
+                        <div class="col-md-4 col-auto">
+                            <h5 class="text-1100 text-primary">Reassign Ticket</h5>
+                        </div>
+                        <div class="col-md-5 col-auto">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb mb-0">
+                                    <li th:if="!${session.isAgent}" class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
+                                    <li th:if="${session.isAgent}"class="breadcrumb-item"><a href="#" th:href="@{/agent/dashboard}">Dashboard</a></li>
+                                    <li class="breadcrumb-item"><a href="#" th:href="@{/ticket/reassign}">Open Ticket</a></li>
+                                    <li class="breadcrumb-item active">Open Ticket Listing</li>
+                                </ol>
+                            </nav>
+                        </div>
+                        <div class="col-md-3 col-auto">
+                            <h5><span class="text-1100 text-primary" th:text="'Welcome ' + ${session.fullName} + ' :: '"></span><span th:text="${session.userType}" class="text-secondary"></span></h5>
+                        </div>
+                        <hr/>
+                    </div>
+                    <div class="row mb-6 justify-content-between">
+                        <div class="col-lg-12 col-md-12 col-sm-12" id="listTable" data-list='{"valueNames":[],"page":10,"pagination":true}'>
+                            <div class="table-responsive ms-n1 ps-1 scrollbar">
+                                <div class="offset-lg-8 col-lg-4 col-md-8 col-sm-12 mb-2">
+                                    <div class="search-box">
+                                        <input class="form-control search-input search" type="search" placeholder="Search record" aria-label="Search" />
+                                        <span class="fas fa-search search-box-icon"></span>
+                                    </div>
+                                </div>
+                                <table class="table table-responsive table-sm table-striped fs--1 mb-0 border-200">
+                                    <thead>
+                                        <tr>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">Date</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketId">Ticket ID</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketGroup">Ticket Group</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketType">Ticket Type</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="subject">Subject</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="sla">SLA Expiry</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="priority">Priority</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="agent">Agent</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="status">Status</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="list" id="deal-tables-body" th:if="${dataList != null}">
+                                        <tr th:each="rec : ${dataList}" class="position-static">
+                                            <td th:text="${rec.createdAt}" class="date align-middle white-space-nowrap start ps-3"></td>
+                                            <td class="ticketId align-middle white-space-nowrap start ps-3">
+                                                <a th:href="@{'/ticket/view/details?seid=' + ${rec.ticketId}}" th:text="${rec.ticketId}"></a>
+                                            </td>
+                                            <td th:text="${rec.ticketGroupName}" class="ticketGroup align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.ticketTypeName}" class="ticketType align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.subject}" class="subject align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.slaExpiry}" class="sla align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.priority}" class="subject align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.ticketAgent}" class="agent align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.status}" class="status align-middle white-space-nowrap start ps-3"></td>
+                                            <td class="align-middle white-space-nowrap start ps-3 btn-reveal-trigger">
+                                                <a class="btn btn-sm btn-info" href="#!" th:data-bs-target="'#a' + ${rec.id}" data-bs-toggle="modal">
+                                                    <span class="fas fa-forward" data-bs-toggle="tooltip" data-bs-placement="right" title="View Ticket"></span>
+                                                </a>
+                                                <div class="modal fade" th:id="'a' + ${rec.id}" tabindex="-1" role="dialog" aria-labelledby="${rec.id}" aria-hidden="true">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h6 class="modal-title text-primary">X-Ticket</h6>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <form th:object="${ticketPayload}" th:action="@{/ticket/reassigned}" method="POST">
+                                                                    <input type="hidden" id="id" name="id" th:value="${rec.id}" />
+                                                                    <div class="form-icon-container">
+                                                                        <select class="form-select form-control-sm form-icon-input" aria-label="ticketTypeCode" th:field="*{ticketTypeCode}" required="required">
+                                                                            <option value="">---Select Ticket Type---</option>
+                                                                            <option th:each="fa : ${ticketTypeList}" th:value="${fa.ticketTypeCode}" th:text="${fa.ticketTypeName}"></option>
+                                                                        </select>
+                                                                        <span class="text-danger asterisk">*</span>
+                                                                        <span class="fas fa-ticket-alt text-900 fs--1 form-icon text-primary"></span>
+                                                                    </div>
+                                                                    <div class="form-icon-container">
+                                                                        <select class="form-control form-control-sm form-icon-input" aria-label="email" th:field="*{email}" required="required">
+                                                                            <option value="">---Select Ticket Agent---</option>
+                                                                            <option th:each="fa : ${ticketAgentList}" th:value="${fa.email}" th:text="${fa.lastName + ', ' + fa.otherName}"></option>
+                                                                        </select>
+                                                                        <span class="text-danger asterisk">*</span>
+                                                                        <span class="fas fa-layer-group text-900 fs--1 form-icon text-primary"></span>
+                                                                    </div>
+                                                                    <div class="form-icon-container">
+                                                                        <textarea class="form-control form-control-sm form-icon-input" th:field="*{message}" placeholder="Your message" required="required" rows="5"></textarea>
+                                                                        <span class="text-danger asterisk">*</span>
+                                                                        <span class="fas fa-comments text-900 fs--1 form-icon text-primary"></span>
+                                                                    </div>
+                                                                    <button class="btn btn-primary btn-sm w-40 mb-3 mt-2" type="submit">Submit</button>
+                                                                    <button type="button" class="btn btn-secondary btn-sm w-40 mb-3 mt-2" data-bs-dismiss="modal">Close</button>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="row align-items-center justify-content-between py-2 pe-0 fs--1">
+                                <div class="col-auto d-flex">
+                                    <p class="mb-0 d-none d-sm-block me-3 fw-semi-bold text-900" data-list-info="data-list-info"></p>
+                                    <a class="fw-semi-bold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                                    <a class="fw-semi-bold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                                </div>
+                                <div class="col-auto d-flex">
+                                    <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                                    <ul class="mb-0 pagination"></ul>
+                                    <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>                  
+                    <th:block th:insert="~{fragments/xTicketFragments :: footer}"></th:block>
+                </div>
+            </div>
+            <th:block th:insert="~{fragments/xTicketFragments :: scriptfiles}"></th:block>   
+        </main>
+    </body>
+</html>

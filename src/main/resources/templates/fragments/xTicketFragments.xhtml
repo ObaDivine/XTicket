@@ -157,6 +157,12 @@
                                         </div>
                                     </a>
                                 </li>
+                                <li sec:authorize="hasRole('REASSIGN_TICKET')">
+                                    <a class="dropdown-item" href="" th:href="@{/ticket/reassign}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Reassign Ticket
+                                        </div>
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown" sec:authorize="hasRole('REPORT')">
