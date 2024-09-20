@@ -49,20 +49,6 @@
                         title: message
                     });
                 }
-
-//                var phoenixIsRTL = window.config.config.phoenixIsRTL;
-//                if (phoenixIsRTL) {
-//                    var linkDefault = document.getElementById('style-default');
-//                    var userLinkDefault = document.getElementById('user-style-default');
-//                    linkDefault.setAttribute('disabled', true);
-//                    userLinkDefault.setAttribute('disabled', true);
-//                    document.querySelector('html').setAttribute('dir', 'rtl');
-//                } else {
-//                    var linkRTL = document.getElementById('style-rtl');
-//                    var userLinkRTL = document.getElementById('user-style-rtl');
-//                    linkRTL.setAttribute('disabled', true);
-//                    userLinkRTL.setAttribute('disabled', true);
-//                }
             </script>
         </div>
 
@@ -214,7 +200,7 @@
                                 </li>
                                 <li sec:authorize="hasRole('MANAGEMENT_REPORT')">
                                     <a class="dropdown-item" href="" th:href="@{/report/ticket/service-unit}">
-                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>By Service Unit
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Tickets By Service Unit
                                         </div>
                                     </a>
                                 </li>
@@ -227,6 +213,12 @@
                                 <li sec:authorize="hasRole('MANAGEMENT_REPORT')">
                                     <a class="dropdown-item" href="" th:href="@{/report/ticket/entity}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Entity To Entity
+                                        </div>
+                                    </a>
+                                </li>
+                                 <li sec:authorize="hasRole('MANAGEMENT_REPORT')">
+                                    <a class="dropdown-item" href="" th:href="@{/report/ticket/entity-performance}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Entity Service Performance
                                         </div>
                                     </a>
                                 </li>

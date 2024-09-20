@@ -48,7 +48,6 @@ import jakarta.servlet.ServletContext;
 import java.io.File;
 import java.time.DayOfWeek;
 import java.time.Duration;
-import java.time.Period;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -60,7 +59,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.BeanUtils;
@@ -4531,7 +4529,8 @@ public class XTicketServiceImpl implements XTicketService {
 
                     //Create the return payload
                     XTicketPayload ticket = new XTicketPayload();
-                    ticket.setSeries(new long[]{violatedSLA, metSLA, exceedSLA, serviceProvided});
+                    ticket.setSeries(new long[]{requestPayload.getAction().equalsIgnoreCase("includeVoilatedTickets") ? violatedSLA : 0, 
+                        metSLA, exceedSLA, serviceProvided});
                     ticket.setEntityName(e.getEntityName());
                     data.add(ticket);
                 }
