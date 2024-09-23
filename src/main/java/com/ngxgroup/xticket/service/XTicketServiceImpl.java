@@ -3812,6 +3812,8 @@ public class XTicketServiceImpl implements XTicketService {
                     newTicket.setClosedAt(dtf.format(closedDate));
                     newTicket.setClosedBy(closedBy);
                     newTicket.setTicketId(t.getTicketId());
+                    newTicket.setEntityName(t.getEntity().getEntityName());
+                    newTicket.setDepartmentName(t.getTicketType().getServiceUnit().getDepartment().getDepartmentName());
                     newTicket.setTicketGroupName(t.getTicketGroup().getTicketGroupName());
                     newTicket.setTicketTypeName(t.getTicketType().getTicketTypeName());
                     newTicket.setServiceUnitName(t.getTicketType().getServiceUnit().getServiceUnitName());
