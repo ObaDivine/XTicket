@@ -70,22 +70,6 @@ public class HomeController implements ErrorController {
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
-
-        OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
-        osBean.getArch();
-        LOGGER.log(Level.INFO, osBean.getArch());
-        LOGGER.log(Level.INFO, osBean.getName());
-        LOGGER.log(Level.INFO, osBean.getVersion());
-        LOGGER.log(Level.INFO, String.valueOf(osBean.getAvailableProcessors()));
-
-        LOGGER.log(Level.INFO, "Virtual Memory -- " + String.valueOf(osBean.getCommittedVirtualMemorySize()));
-        LOGGER.log(Level.INFO, "CPU Load -- " + String.valueOf(osBean.getCpuLoad()));
-        LOGGER.log(Level.INFO, "Free Memory Size -- " + String.valueOf(osBean.getFreeMemorySize()));
-        LOGGER.log(Level.INFO, "Free Swap Space -- " + String.valueOf(osBean.getFreeSwapSpaceSize()));
-        LOGGER.log(Level.INFO, "CPU Load -- " + String.valueOf(osBean.getProcessCpuLoad()));
-        LOGGER.log(Level.INFO, "CPU Time -- " + String.valueOf(osBean.getProcessCpuTime()));
-        LOGGER.log(Level.INFO, "Total Memory -- " + String.valueOf(osBean.getTotalMemorySize()));
-        LOGGER.log(Level.INFO, "Swap Space -- " + String.valueOf(osBean.getTotalSwapSpaceSize()));
         return "signin";
     }
 

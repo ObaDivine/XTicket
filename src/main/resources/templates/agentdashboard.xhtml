@@ -12,9 +12,16 @@
                 <th:block th:insert="~{fragments/xTicketFragments :: topMenu}"></th:block>
                 <div class="content">
                     <div class="row gy-3 mb-6 justify-content-between">
-                        <div class="col-md-9 col-auto">
+                        <div class="col-md-4 col-auto">
                             <h5 class="mb-2 text-1100 text-primary">Dashboard</h5>
-                            <h5 class="text-700 fw-semi-bold">X-Ticket System</h5>
+                        </div>
+                        <div class="col-md-5 col-auto">
+                            <nav aria-label="breadcrumb" th:if="${session.isAgent}" >
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item active">Home</li>
+                                    <li class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">User Dashboard</a></li>
+                                </ol>
+                            </nav>
                         </div>
                         <div class="col-md-3 col-auto">
                             <h5><span class="text-1100 text-primary" th:text="'Welcome ' + ${session.fullName} + ' :: '"></span><span th:text="${session.userType}" class="text-secondary"></span></h5>

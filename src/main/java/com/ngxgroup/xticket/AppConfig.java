@@ -1,7 +1,11 @@
 package com.ngxgroup.xticket;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties;
 import jakarta.persistence.EntityManagerFactory;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Properties;
 import javax.sql.DataSource;
 import org.jasypt.encryption.StringEncryptor;
@@ -128,5 +132,15 @@ public class AppConfig implements WebMvcConfigurer {
 
         encryptor.setConfig(config);
         return encryptor;
+    }
+
+    @Bean
+    public Gson gson() {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(LocalDate.class, new LocalDateSerializer());
+        gsonBuilder.registerTypeAdapter(LocalDate.class, new LocalDateDeserializer());
+        gsonBuilder.registerTypeAdapter(LocalDateTime.class, new LocalDateTimeSerializer());
+        gsonBuilder.registerTypeAdapter(LocalDateTime.class, new LocalDateTimeDeserializer());
+        return gsonBuilder.create();
     }
 }

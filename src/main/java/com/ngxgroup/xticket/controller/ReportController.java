@@ -316,6 +316,8 @@ public class ReportController {
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
         model.addAttribute("entityList", xticketService.fetchEntity().getData());
         model.addAttribute("dataList", response.getData());
+        model.addAttribute("serviceEffectivenessChartData", generateServiceEffectivenessForServiceUnit(requestPayload));
+        model.addAttribute("serviceHourChartData", generateServiceHoursForServiceUnit(requestPayload));
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         resetAlertMessage();
@@ -342,6 +344,8 @@ public class ReportController {
         model.addAttribute("departmentList", xticketService.fetchDepartment().getData());
         model.addAttribute("entityList", xticketService.fetchEntity().getData());
         model.addAttribute("dataList", response.getData());
+        model.addAttribute("serviceEffectivenessChartData", generateServiceEffectivenessForDepartment(requestPayload));
+        model.addAttribute("serviceHourChartData", generateServiceHoursForDepartment(requestPayload));
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         resetAlertMessage();
@@ -399,7 +403,7 @@ public class ReportController {
         resetAlertMessage();
         return "reportticketsbyentity";
     }
-    
+
     @GetMapping("/ticket/entity-performance")
     @Secured("ROLE_MANAGEMENT_REPORT")
     public String entityPerformance(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
@@ -421,8 +425,8 @@ public class ReportController {
         XTicketPayload response = xticketService.fetchClosedTicket(requestPayload);
         model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("dataList", response.getData());
-        model.addAttribute("serviceEffectivenessChartData", generateServiceEffectivenessChart(requestPayload));
-        model.addAttribute("serviceHourChartData", generateServiceHoursChart(requestPayload));
+        model.addAttribute("serviceEffectivenessChartData", generateServiceEffectivenessForServicePerformance(requestPayload));
+        model.addAttribute("serviceHourChartData", generateServiceHoursForServicePerformance(requestPayload));
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         resetAlertMessage();
@@ -495,7 +499,7 @@ public class ReportController {
         return gson.toJson(data);
     }
 
-    private String generateServiceEffectivenessChart(XTicketPayload requestPayload) {
+    private String generateServiceEffectivenessForServicePerformance(XTicketPayload requestPayload) {
         XTicketPayload response = xticketService.fetchServiceEffectivenessByEntity(requestPayload);
         List<ChartPayload> data = new ArrayList<>();
         if (response.getData() != null) {
@@ -510,8 +514,66 @@ public class ReportController {
         return gson.toJson(data);
     }
 
-    private String generateServiceHoursChart(XTicketPayload requestPayload) {
+    private String generateServiceHoursForServicePerformance(XTicketPayload requestPayload) {
         XTicketPayload response = xticketService.fetchServiceHoursByEntity(requestPayload);
+        List<XTicketPayload> data = new ArrayList<>();
+        if (response.getData() != null) {
+            for (XTicketPayload t : response.getData()) {
+                XTicketPayload chart = new XTicketPayload();
+                chart.setValue(t.getValue());
+                chart.setName(t.getName());
+                data.add(chart);
+            }
+        }
+        return gson.toJson(data);
+    }
+    
+        private String generateServiceEffectivenessForDepartment(XTicketPayload requestPayload) {
+        XTicketPayload response = xticketService.fetchServiceEffectivenessByDepartment(requestPayload);
+        List<ChartPayload> data = new ArrayList<>();
+        if (response.getData() != null) {
+            for (XTicketPayload t : response.getData()) {
+                ChartPayload chart = new ChartPayload();
+                chart.setName(t.getEntityName());
+                chart.setType("bar");
+                chart.setData(t.getSeries());
+                data.add(chart);
+            }
+        }
+        return gson.toJson(data);
+    }
+
+    private String generateServiceHoursForDepartment(XTicketPayload requestPayload) {
+        XTicketPayload response = xticketService.fetchServiceHoursByDepartment(requestPayload);
+        List<XTicketPayload> data = new ArrayList<>();
+        if (response.getData() != null) {
+            for (XTicketPayload t : response.getData()) {
+                XTicketPayload chart = new XTicketPayload();
+                chart.setValue(t.getValue());
+                chart.setName(t.getName());
+                data.add(chart);
+            }
+        }
+        return gson.toJson(data);
+    }
+    
+        private String generateServiceEffectivenessForServiceUnit(XTicketPayload requestPayload) {
+        XTicketPayload response = xticketService.fetchServiceEffectivenessByServiceUnit(requestPayload);
+        List<ChartPayload> data = new ArrayList<>();
+        if (response.getData() != null) {
+            for (XTicketPayload t : response.getData()) {
+                ChartPayload chart = new ChartPayload();
+                chart.setName(t.getEntityName());
+                chart.setType("bar");
+                chart.setData(t.getSeries());
+                data.add(chart);
+            }
+        }
+        return gson.toJson(data);
+    }
+
+    private String generateServiceHoursForServiceUnit(XTicketPayload requestPayload) {
+        XTicketPayload response = xticketService.fetchServiceHoursByServiceUnit(requestPayload);
         List<XTicketPayload> data = new ArrayList<>();
         if (response.getData() != null) {
             for (XTicketPayload t : response.getData()) {

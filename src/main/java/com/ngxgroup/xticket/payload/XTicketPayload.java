@@ -1,5 +1,6 @@
 package com.ngxgroup.xticket.payload;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -61,6 +62,8 @@ public class XTicketPayload {
     int ticketReassignedCount;
     int ticketEscalationCount;
     char ticketSlaPeriod;
+    LocalDateTime ticketCreatedAt;
+    LocalDateTime ticketClosedAt;
     String initialSla;
     String newSla;
     boolean slaViolated;
