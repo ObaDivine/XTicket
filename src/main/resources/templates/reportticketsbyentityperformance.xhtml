@@ -90,8 +90,9 @@
                                             <thead>
                                                 <tr>
                                                     <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">Request Date</th>
-                                                    <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="fromEntity">From Entity</th>
-                                                    <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="toEntity">To Entity</th>
+                                                    <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="entityName">Entity</th>
+                                                    <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="department">Department</th>
+                                                    <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="serviceUnit">Service Unit</th>
                                                     <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketType">Service Type</th>
                                                     <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="dateClosed">Service Date</th>
                                                     <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="closedBy">Provided By</th>
@@ -106,8 +107,9 @@
                                             <tbody class="list" id="deal-tables-body" th:if="${dataList != null}">
                                                 <tr th:each="rec : ${dataList}" class="position-static">
                                                     <td th:text="${rec.createdAt}" class="date align-middle white-space-nowrap start ps-3"></td>
-                                                    <td th:text="${rec.fromEntity}" class="fromEntity align-middle white-space-nowrap start ps-3"></td>
-                                                    <td th:text="${rec.toEntity}" class="toEntity align-middle white-space-nowrap start ps-3"></td>
+                                                    <td th:text="${rec.entityName}" class="entityName align-middle white-space-nowrap start ps-3"></td>
+                                                    <td th:text="${rec.departmentName}" class="department align-middle white-space-nowrap start ps-3"></td>
+                                                    <td th:text="${rec.serviceUnitName}" class="serviceUnit align-middle white-space-nowrap start ps-3"></td>
                                                     <td th:text="${rec.ticketTypeName}" class="ticketType align-middle white-space-nowrap start ps-3"></td>
                                                     <td th:text="${rec.closedAt}" class="dateClosed align-middle white-space-nowrap start ps-3"></td>
                                                     <td th:text="${rec.closedBy}" class="closedBy align-middle white-space-nowrap start ps-3"></td>
