@@ -195,9 +195,9 @@ public interface XTicketService {
     XTicketPayload createEntity(XTicketPayload requestPayload, String principal);
 
     XTicketPayload deleteEntity(String id, String principal);
-    
+
     XTicketPayload fetchServiceEffectivenessByEntity(XTicketPayload requestPayload);
-    
+
     XTicketPayload fetchServiceHoursByEntity(XTicketPayload requestPayload);
 
     /**
@@ -219,6 +219,10 @@ public interface XTicketService {
 
     XTicketPayload deleteDepartment(String id, String principal);
 
+    XTicketPayload fetchServiceEffectivenessByDepartment(XTicketPayload requestPayload);
+
+    XTicketPayload fetchServiceHoursByDepartment(XTicketPayload requestPayload);
+
     /**
      * Service Unit Transactions
      *
@@ -239,6 +243,10 @@ public interface XTicketService {
     XTicketPayload createServiceUnit(XTicketPayload requestPayload, String principal);
 
     XTicketPayload deleteServiceUnit(String id, String principal);
+
+    XTicketPayload fetchServiceEffectivenessByServiceUnit(XTicketPayload requestPayload);
+
+    XTicketPayload fetchServiceHoursByServiceUnit(XTicketPayload requestPayload);
 
     /**
      * Ticket Status Transactions
@@ -267,7 +275,7 @@ public interface XTicketService {
     XTicketPayload fetchAutomatedTicket(String id);
 
     XTicketPayload fetchAutomatedTicketType();
-    
+
     XTicketPayload fetchTicketByAutomation(XTicketPayload requestPayload);
 
     XTicketPayload createAutomatedTicket(XTicketPayload requestPayload, String principal);
