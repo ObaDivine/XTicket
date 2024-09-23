@@ -40,10 +40,10 @@ spring:
             profile: dev
     datasource:
         initialization-mode: ALWAYS
-        password: Anaconda1521@ 
-        username: entityscdbuser
+        password: qwerty@1 
+        username: xcdev
         driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-        url: jdbc:sqlserver://localhost;databaseName=NGX;encrypt=true;trustServerCertificate=true
+        url: jdbc:sqlserver://NSE-XBR-DB-D1\XBRDB;databaseName=XTicket;encrypt=true;trustServerCertificate=true;
     jpa:
         hibernate:
             ddl-auto: update
