@@ -2,7 +2,6 @@ package com.ngxgroup.xticket.service;
 
 import com.ngxgroup.xticket.model.AppRoles;
 import com.ngxgroup.xticket.model.AppUser;
-import com.ngxgroup.xticket.model.Entities;
 import com.ngxgroup.xticket.model.GroupRoles;
 import com.ngxgroup.xticket.model.RoleGroups;
 import com.ngxgroup.xticket.model.TicketAgent;
