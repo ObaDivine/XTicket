@@ -316,8 +316,8 @@ public class ReportController {
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
         model.addAttribute("entityList", xticketService.fetchEntity().getData());
         model.addAttribute("dataList", response.getData());
-        model.addAttribute("serviceEffectivenessChartData", generateServiceEffectivenessForServiceUnit(requestPayload));
-        model.addAttribute("serviceHourChartData", generateServiceHoursForServiceUnit(requestPayload));
+        model.addAttribute("serviceEffectivenessChartData", generateServiceEffectivenessForServiceUnit(response, requestPayload));
+        model.addAttribute("serviceHourChartData", generateServiceHoursForServiceUnit(response, requestPayload));
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         resetAlertMessage();
@@ -344,8 +344,8 @@ public class ReportController {
         model.addAttribute("departmentList", xticketService.fetchDepartment().getData());
         model.addAttribute("entityList", xticketService.fetchEntity().getData());
         model.addAttribute("dataList", response.getData());
-        model.addAttribute("serviceEffectivenessChartData", generateServiceEffectivenessForDepartment(requestPayload));
-        model.addAttribute("serviceHourChartData", generateServiceHoursForDepartment(requestPayload));
+        model.addAttribute("serviceEffectivenessChartData", generateServiceEffectivenessForDepartment(response, requestPayload));
+        model.addAttribute("serviceHourChartData", generateServiceHoursForDepartment(response, requestPayload));
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         resetAlertMessage();
@@ -398,6 +398,8 @@ public class ReportController {
         model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("entityList", xticketService.fetchEntity().getData());
         model.addAttribute("dataList", response.getData());
+        model.addAttribute("serviceEffectivenessChartData", generateServiceEffectivenessForServicePerformance(response, requestPayload));
+        model.addAttribute("serviceHourChartData", generateServiceHoursForServicePerformance(response, requestPayload));
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         resetAlertMessage();
@@ -425,8 +427,8 @@ public class ReportController {
         XTicketPayload response = xticketService.fetchClosedTicket(requestPayload);
         model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("dataList", response.getData());
-        model.addAttribute("serviceEffectivenessChartData", generateServiceEffectivenessForServicePerformance(requestPayload));
-        model.addAttribute("serviceHourChartData", generateServiceHoursForServicePerformance(requestPayload));
+        model.addAttribute("serviceEffectivenessChartData", generateServiceEffectivenessForServicePerformance(response, requestPayload));
+        model.addAttribute("serviceHourChartData", generateServiceHoursForServicePerformance(response, requestPayload));
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         resetAlertMessage();
@@ -499,8 +501,8 @@ public class ReportController {
         return gson.toJson(data);
     }
 
-    private String generateServiceEffectivenessForServicePerformance(XTicketPayload requestPayload) {
-        XTicketPayload response = xticketService.fetchServiceEffectivenessByEntity(requestPayload);
+    private String generateServiceEffectivenessForServicePerformance(XTicketPayload responseData, XTicketPayload requestPayload) {
+        XTicketPayload response = xticketService.fetchServiceEffectivenessByEntity(responseData, requestPayload);
         List<ChartPayload> data = new ArrayList<>();
         if (response.getData() != null) {
             for (XTicketPayload t : response.getData()) {
@@ -514,8 +516,8 @@ public class ReportController {
         return gson.toJson(data);
     }
 
-    private String generateServiceHoursForServicePerformance(XTicketPayload requestPayload) {
-        XTicketPayload response = xticketService.fetchServiceHoursByEntity(requestPayload);
+    private String generateServiceHoursForServicePerformance(XTicketPayload responseData, XTicketPayload requestPayload) {
+        XTicketPayload response = xticketService.fetchServiceHoursByEntity(responseData, requestPayload);
         List<XTicketPayload> data = new ArrayList<>();
         if (response.getData() != null) {
             for (XTicketPayload t : response.getData()) {
@@ -527,9 +529,9 @@ public class ReportController {
         }
         return gson.toJson(data);
     }
-    
-        private String generateServiceEffectivenessForDepartment(XTicketPayload requestPayload) {
-        XTicketPayload response = xticketService.fetchServiceEffectivenessByDepartment(requestPayload);
+
+    private String generateServiceEffectivenessForDepartment(XTicketPayload responseData, XTicketPayload requestPayload) {
+        XTicketPayload response = xticketService.fetchServiceEffectivenessByDepartment(responseData, requestPayload);
         List<ChartPayload> data = new ArrayList<>();
         if (response.getData() != null) {
             for (XTicketPayload t : response.getData()) {
@@ -543,8 +545,8 @@ public class ReportController {
         return gson.toJson(data);
     }
 
-    private String generateServiceHoursForDepartment(XTicketPayload requestPayload) {
-        XTicketPayload response = xticketService.fetchServiceHoursByDepartment(requestPayload);
+    private String generateServiceHoursForDepartment(XTicketPayload responseData, XTicketPayload requestPayload) {
+        XTicketPayload response = xticketService.fetchServiceHoursByDepartment(responseData, requestPayload);
         List<XTicketPayload> data = new ArrayList<>();
         if (response.getData() != null) {
             for (XTicketPayload t : response.getData()) {
@@ -556,9 +558,9 @@ public class ReportController {
         }
         return gson.toJson(data);
     }
-    
-        private String generateServiceEffectivenessForServiceUnit(XTicketPayload requestPayload) {
-        XTicketPayload response = xticketService.fetchServiceEffectivenessByServiceUnit(requestPayload);
+
+    private String generateServiceEffectivenessForServiceUnit(XTicketPayload responseData, XTicketPayload requestPayload) {
+        XTicketPayload response = xticketService.fetchServiceEffectivenessByServiceUnit(responseData, requestPayload);
         List<ChartPayload> data = new ArrayList<>();
         if (response.getData() != null) {
             for (XTicketPayload t : response.getData()) {
@@ -572,8 +574,8 @@ public class ReportController {
         return gson.toJson(data);
     }
 
-    private String generateServiceHoursForServiceUnit(XTicketPayload requestPayload) {
-        XTicketPayload response = xticketService.fetchServiceHoursByServiceUnit(requestPayload);
+    private String generateServiceHoursForServiceUnit(XTicketPayload responseData, XTicketPayload requestPayload) {
+        XTicketPayload response = xticketService.fetchServiceHoursByServiceUnit(responseData, requestPayload);
         List<XTicketPayload> data = new ArrayList<>();
         if (response.getData() != null) {
             for (XTicketPayload t : response.getData()) {

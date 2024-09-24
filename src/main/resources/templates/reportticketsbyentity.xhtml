@@ -39,7 +39,7 @@
                                     <input class="form-control" type="date" aria-label="endDate" aria-describedby="endDate" th:field="*{endDate}" required="required"/>
                                 </div>
                                 <div class="form-icon-container">
-                                    <select class="form-select form-control-sm form-icon-input" aria-label="fromEntity" th:field="*{fromEntity}" required="required">
+                                    <select class="form-select form-control-sm form-icon-input" aria-label="fromEntity" th:field="*{fromEntity}">
                                         <option value="">---Select Entity Provider---</option>
                                         <option th:each="fa : ${entityList}" th:value="${fa.entityCode}" th:text="${fa.entityName}"></option>
                                     </select>
@@ -53,70 +53,100 @@
                                     </select>
                                     <span class="fas fa-users text-900 fs--1 form-icon text-primary"></span>
                                 </div>
+                                <div class="form-icon-container">
+                                    <select class="form-select form-control-sm form-icon-input" aria-label="aaction" th:field="*{action}">
+                                        <option value="includeVoilatedTickets">Include Violated Tickets</option>
+                                        <option value="excludeVoilatedTickets">Exclude Violated Tickets</option>
+                                    </select>
+                                    <span class="fas fa-object-group text-900 fs--1 form-icon text-primary"></span>
+                                </div>
                                 <button class="btn btn-primary btn-sm w-40 mb-3 mt-2" type="submit">Submit</button>
                             </form>
                         </div>     
                     </div>
-                    <div class="row g-3 mb-6" th:if="${dataList != null}">
-                        <div class="col-lg-12 col-sm-12 col-md-12" id="listTable" data-list='{"valueNames":[],"page":10,"pagination":true}'>
-                            <div class="table-responsive ms-n1 ps-1 scrollbar">
-                                <div class="offset-lg-4 col-lg-8 col-md-8 col-sm-12 mb-2">
-                                    <div class="input-group mb-3">
-                                        <input class="form-control form-control-sm search-input search" type="search" placeholder="Search record" aria-label="Search" />
-                                        <div class="input-group-append">
-                                            <button id="csv" class="btn btn-sm btn-secondary">Export to CSV</button> 
-                                            <button id="pdf" class="btn btn-sm btn-secondary">Export to PDF</button>
-                                            <button id="json" class="btn btn-sm btn-secondary">Export to JSON</button>
+                    <ul class="nav nav-underline justify-content-center column-gap-3" id="myTab" role="tablist" th:if="${dataList != null}">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="effectiveness-tab" data-bs-toggle="tab" href="#tab-effectiveness" role="tab" aria-controls="tab-effectiveness" aria-selected="false">Service Effectiveness Chart</a>
+                        </li>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <li class="nav-item">
+                            <a class="nav-link" id="hours-tab" data-bs-toggle="tab" href="#tab-hours" role="tab" aria-controls="tab-hours" aria-selected="false">Hours Utilized Chart</a>
+                        </li>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <li class="nav-item">
+                            <a class="nav-link" id="record-tab" data-bs-toggle="tab" href="#tab-record" role="tab" aria-controls="tab-record" aria-selected="true">Entity Service Records</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content p-5  bg-white border-10 border-lg scrollbar" id="myTabContent" th:if="${dataList != null}">
+                        <div class="tab-pane fade show active" id="tab-effectiveness" role="tabpanel" aria-labelledby="effectiveness-tab">
+                            <div id="serviceEffectiveness" class="bar-charts-ext mb-50 pb-50"></div>
+                        </div>
+                        <div class="tab-pane fade" id="tab-hours" role="tabpanel" aria-labelledby="hours-tab">
+                            <div id="serviceHours" class="bar-charts-ext"></div>
+                        </div>
+                        <div class="tab-pane fade" id="tab-record" role="tabpanel" aria-labelledby="record-tab">
+                            <div class="row g-3 mb-6" th:if="${dataList != null}">
+                                <div class="col-lg-12 col-sm-12 col-md-12" id="listTable" data-list='{"valueNames":[],"page":10,"pagination":true}'>
+                                    <div class="table-responsive ms-n1 ps-1 scrollbar">
+                                        <div class="offset-lg-4 col-lg-8 col-md-8 col-sm-12 mb-2">
+                                            <div class="input-group mb-3">
+                                                <input class="form-control form-control-sm search-input search" type="search" placeholder="Search record" aria-label="Search" />
+                                                <div class="input-group-append">
+                                                    <button id="csv" class="btn btn-sm btn-secondary">Export to CSV</button> 
+                                                    <button id="pdf" class="btn btn-sm btn-secondary">Export to PDF</button>
+                                                    <button id="json" class="btn btn-sm btn-secondary">Export to JSON</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <table class="table table-responsive table-sm table-striped fs--1 mb-0 border-200" id="xticketTable">
+                                            <thead>
+                                                <tr>
+                                                    <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">Request Date</th>
+                                                    <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="fromEntity">From Entity</th>
+                                                    <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="toEntity">To Entity</th>
+                                                    <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketType">Service Type</th>
+                                                    <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="dateClosed">Service Date</th>
+                                                    <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="closedBy">Provided By</th>
+                                                    <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketId">Ticket ID</th>
+                                                    <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="sla">SLA</th>
+                                                    <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="slaViolated">SLA Violated</th>
+                                                    <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="escalation">Escalations</th>
+                                                    <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="reassigned">Reassigned</th>
+                                                    <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="rating">Rating</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="list" id="deal-tables-body" th:if="${dataList != null}">
+                                                <tr th:each="rec : ${dataList}" class="position-static">
+                                                    <td th:text="${rec.createdAt}" class="date align-middle white-space-nowrap start ps-3"></td>
+                                                    <td th:text="${rec.fromEntity}" class="fromEntity align-middle white-space-nowrap start ps-3"></td>
+                                                    <td th:text="${rec.toEntity}" class="toEntity align-middle white-space-nowrap start ps-3"></td>
+                                                    <td th:text="${rec.ticketTypeName}" class="ticketType align-middle white-space-nowrap start ps-3"></td>
+                                                    <td th:text="${rec.closedAt}" class="dateClosed align-middle white-space-nowrap start ps-3"></td>
+                                                    <td th:text="${rec.closedBy}" class="closedBy align-middle white-space-nowrap start ps-3"></td>
+                                                    <td class="ticketId align-middle white-space-nowrap start ps-3">
+                                                        <a th:href="@{'/ticket/view/details?seid=' + ${rec.ticketId}}" th:text="${rec.ticketId}"></a>
+                                                    </td>
+                                                    <td th:text="${rec.initialSla}" class="sla align-middle white-space-nowrap start ps-3"></td>
+                                                    <td th:text="${rec.slaViolated}" class="slaViolated align-middle white-space-nowrap start ps-3"></td>
+                                                    <td th:text="${rec.ticketEscalationCount}" class="escalation align-middle white-space-nowrap start ps-3"></td>
+                                                    <td th:text="${rec.ticketReassignedCount}" class="reassigned align-middle white-space-nowrap start ps-3"></td>
+                                                    <td th:text="${rec.rating}" class="rating align-middle white-space-nowrap start ps-3"></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="row align-items-center justify-content-between py-2 pe-0 fs--1">
+                                        <div class="col-auto d-flex">
+                                            <p class="mb-0 d-none d-sm-block me-3 fw-semi-bold text-900" data-list-info="data-list-info"></p>
+                                            <a class="fw-semi-bold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                                            <a class="fw-semi-bold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                                        </div>
+                                        <div class="col-auto d-flex">
+                                            <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                                            <ul class="mb-0 pagination"></ul>
+                                            <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
                                         </div>
                                     </div>
-                                </div>
-                                <table class="table table-responsive table-sm table-striped fs--1 mb-0 border-200" id="xticketTable">
-                                    <thead>
-                                        <tr>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">Request Date</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="fromEntity">From Entity</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="toEntity">To Entity</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketType">Service Type</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="dateClosed">Service Date</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="closedBy">Provided By</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketId">Ticket ID</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="sla">SLA</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="slaViolated">SLA Violated</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="escalation">Escalations</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="reassigned">Reassigned</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="rating">Rating</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="list" id="deal-tables-body" th:if="${dataList != null}">
-                                        <tr th:each="rec : ${dataList}" class="position-static">
-                                            <td th:text="${rec.createdAt}" class="date align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.fromEntity}" class="fromEntity align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.toEntity}" class="toEntity align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.ticketTypeName}" class="ticketType align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.closedAt}" class="dateClosed align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.closedBy}" class="closedBy align-middle white-space-nowrap start ps-3"></td>
-                                            <td class="ticketId align-middle white-space-nowrap start ps-3">
-                                                <a th:href="@{'/ticket/view/details?seid=' + ${rec.ticketId}}" th:text="${rec.ticketId}"></a>
-                                            </td>
-                                            <td th:text="${rec.initialSla}" class="sla align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.slaViolated}" class="slaViolated align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.ticketEscalationCount}" class="escalation align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.ticketReassignedCount}" class="reassigned align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.rating}" class="rating align-middle white-space-nowrap start ps-3"></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="row align-items-center justify-content-between py-2 pe-0 fs--1">
-                                <div class="col-auto d-flex">
-                                    <p class="mb-0 d-none d-sm-block me-3 fw-semi-bold text-900" data-list-info="data-list-info"></p>
-                                    <a class="fw-semi-bold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
-                                    <a class="fw-semi-bold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
-                                </div>
-                                <div class="col-auto d-flex">
-                                    <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
-                                    <ul class="mb-0 pagination"></ul>
-                                    <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
                                 </div>
                             </div>
                         </div>
