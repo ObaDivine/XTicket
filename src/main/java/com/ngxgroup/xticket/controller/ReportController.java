@@ -398,41 +398,12 @@ public class ReportController {
         model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("entityList", xticketService.fetchEntity().getData());
         model.addAttribute("dataList", response.getData());
-        model.addAttribute("serviceEffectivenessChartData", generateServiceEffectivenessForServicePerformance(response, requestPayload));
-        model.addAttribute("serviceHourChartData", generateServiceHoursForServicePerformance(response, requestPayload));
+        model.addAttribute("serviceEffectivenessChartData", generateServiceEffectivenessForEntity(response, requestPayload));
+        model.addAttribute("serviceHourChartData", generateServiceHoursForEntity(response, requestPayload));
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         resetAlertMessage();
         return "reportticketsbyentity";
-    }
-
-    @GetMapping("/ticket/entity-performance")
-    @Secured("ROLE_MANAGEMENT_REPORT")
-    public String entityPerformance(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
-        model.addAttribute("ticketPayload", new XTicketPayload());
-        model.addAttribute("entityList", xticketService.fetchEntity().getData());
-        model.addAttribute("alertMessage", alertMessage);
-        model.addAttribute("alertMessageType", alertMessageType);
-        resetAlertMessage();
-        return "reportticketsbyentityperformance";
-    }
-
-    @PostMapping("/ticket/entity-performance/process")
-    public String entityPerformance(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
-        requestPayload.setServiceUnitCode("");
-        requestPayload.setTicketGroupCode("");
-        requestPayload.setTicketTypeCode("");
-        requestPayload.setSource("");
-        requestPayload.setEmail("");
-        XTicketPayload response = xticketService.fetchClosedTicket(requestPayload);
-        model.addAttribute("ticketPayload", requestPayload);
-        model.addAttribute("dataList", response.getData());
-        model.addAttribute("serviceEffectivenessChartData", generateServiceEffectivenessForServicePerformance(response, requestPayload));
-        model.addAttribute("serviceHourChartData", generateServiceHoursForServicePerformance(response, requestPayload));
-        model.addAttribute("alertMessage", response.getResponseMessage());
-        model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
-        resetAlertMessage();
-        return "reportticketsbyentityperformance";
     }
 
     @GetMapping("/ticket/automation")
@@ -501,7 +472,7 @@ public class ReportController {
         return gson.toJson(data);
     }
 
-    private String generateServiceEffectivenessForServicePerformance(XTicketPayload responseData, XTicketPayload requestPayload) {
+    private String generateServiceEffectivenessForEntity(XTicketPayload responseData, XTicketPayload requestPayload) {
         XTicketPayload response = xticketService.fetchServiceEffectivenessByEntity(responseData, requestPayload);
         List<ChartPayload> data = new ArrayList<>();
         if (response.getData() != null) {
@@ -516,7 +487,7 @@ public class ReportController {
         return gson.toJson(data);
     }
 
-    private String generateServiceHoursForServicePerformance(XTicketPayload responseData, XTicketPayload requestPayload) {
+    private String generateServiceHoursForEntity(XTicketPayload responseData, XTicketPayload requestPayload) {
         XTicketPayload response = xticketService.fetchServiceHoursByEntity(responseData, requestPayload);
         List<XTicketPayload> data = new ArrayList<>();
         if (response.getData() != null) {
