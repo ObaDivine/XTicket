@@ -4462,19 +4462,22 @@ public class XTicketServiceImpl implements XTicketService {
                             //Check if the ticket was reopened
                             LocalDateTime closedDate;
                             String closedBy;
+                            String closedbyEntity = "";
                             if (t.isTicketReopen()) {
                                 //Get the last reopened record
                                 TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
                                 closedDate = reopenedTicket.getClosedAt();
                                 closedBy = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
+                                closedbyEntity = reopenedTicket.getClosedBy().getEntity().getEntityName();
                             } else {
                                 closedDate = t.getClosedAt();
                                 closedBy = t.getClosedBy().getLastName() + ", " + t.getClosedBy().getOtherName();
+                                closedbyEntity = t.getClosedBy().getEntity().getEntityName();
                             }
 
                             newTicket.setClosedAt(dtf.format(closedDate));
                             newTicket.setClosedBy(closedBy);
-                            newTicket.setFromEntity(t.getClosedBy().getEntity().getEntityName());
+                            newTicket.setFromEntity(closedbyEntity);
                             newTicket.setToEntity(t.getCreatedBy().getEntity().getEntityName());
                             newTicket.setId(t.getId().intValue());
                             newTicket.setTicketTypeName(t.getTicketType().getTicketTypeName());
@@ -4533,19 +4536,22 @@ public class XTicketServiceImpl implements XTicketService {
                     //Check if the ticket was reopened
                     LocalDateTime closedDate;
                     String closedBy;
+                    String closedbyEntity = "";
                     if (t.isTicketReopen()) {
                         //Get the last reopened record
                         TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
                         closedDate = reopenedTicket.getClosedAt();
                         closedBy = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
+                        closedbyEntity = reopenedTicket.getClosedBy().getEntity().getEntityName();
                     } else {
                         closedDate = t.getClosedAt();
                         closedBy = t.getClosedBy().getLastName() + ", " + t.getClosedBy().getOtherName();
+                        closedbyEntity = t.getClosedBy().getEntity().getEntityName();
                     }
 
                     newTicket.setClosedAt(dtf.format(closedDate));
                     newTicket.setClosedBy(closedBy);
-                    newTicket.setFromEntity(t.getClosedBy().getEntity().getEntityName());
+                    newTicket.setFromEntity(closedbyEntity);
                     newTicket.setToEntity(t.getCreatedBy().getEntity().getEntityName());
                     newTicket.setId(t.getId().intValue());
                     newTicket.setTicketTypeName(t.getTicketType().getTicketTypeName());
@@ -4632,7 +4638,7 @@ public class XTicketServiceImpl implements XTicketService {
                                 double exceedTimeInMins = 0.0;
                                 double sla = Double.parseDouble(t.getNewSla().substring(0, 1));
                                 if (t.getNewSla().endsWith("D")) {
-                                    exceedTimeInMins = (slaExceeded / 100) * sla * 7 * 60;  //Multiply by 7 days and 60 to convert to minutes
+                                    exceedTimeInMins = (slaExceeded / 100) * sla * 1440;  //Multiply by 24 hours and 60 minutes (1440) to convert to minutes
                                 } else if (t.getNewSla().endsWith("H")) {
                                     exceedTimeInMins = (slaExceeded / 100) * sla * 60; //Multiply by 60 to convert to minues
                                 } else {
@@ -5073,20 +5079,23 @@ public class XTicketServiceImpl implements XTicketService {
                             //Check if the ticket was reopened
                             LocalDateTime closedDate;
                             String closedBy;
+                            String closedbyDepartment = "";
                             if (t.isTicketReopen()) {
                                 //Get the last reopened record
                                 TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
                                 closedDate = reopenedTicket.getClosedAt();
                                 closedBy = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
+                                closedbyDepartment = reopenedTicket.getClosedBy().getDepartment().getDepartmentName();
                             } else {
                                 closedDate = t.getClosedAt();
                                 closedBy = t.getClosedBy().getLastName() + ", " + t.getClosedBy().getOtherName();
+                                closedbyDepartment = t.getClosedBy().getDepartment().getDepartmentName();
                             }
 
                             newTicket.setClosedAt(dtf.format(closedDate));
                             newTicket.setClosedBy(closedBy);
-                            newTicket.setDepartmentName(t.getTicketAgent().getAgent().getDepartment().getDepartmentName());
-                            newTicket.setEntityName(t.getCreatedBy().getEntity().getEntityName());
+                            newTicket.setDepartmentName(closedbyDepartment);
+                            newTicket.setEntityName(t.getEntity().getEntityName());
                             newTicket.setToEntity(t.getEntity().getEntityName());
                             newTicket.setId(t.getId().intValue());
                             newTicket.setInitialSla(t.getSla().replace("D", " Day(s)").replace("M", " Minute(s)").replace("H", " Hour(s)"));
@@ -5145,20 +5154,23 @@ public class XTicketServiceImpl implements XTicketService {
                     //Check if the ticket was reopened
                     LocalDateTime closedDate;
                     String closedBy;
+                    String closedbyDepartment = "";
                     if (t.isTicketReopen()) {
                         //Get the last reopened record
                         TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
                         closedDate = reopenedTicket.getClosedAt();
                         closedBy = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
+                        closedbyDepartment = reopenedTicket.getClosedBy().getDepartment().getDepartmentName();
                     } else {
                         closedDate = t.getClosedAt();
                         closedBy = t.getClosedBy().getLastName() + ", " + t.getClosedBy().getOtherName();
+                        closedbyDepartment = t.getClosedBy().getDepartment().getDepartmentName();
                     }
 
                     newTicket.setClosedAt(dtf.format(closedDate));
                     newTicket.setClosedBy(closedBy);
-                    newTicket.setDepartmentName(t.getTicketAgent().getAgent().getDepartment().getDepartmentName());
-                    newTicket.setEntityName(t.getCreatedBy().getEntity().getEntityName());
+                    newTicket.setDepartmentName(closedbyDepartment);
+                    newTicket.setEntityName(t.getEntity().getEntityName());
                     newTicket.setToEntity(t.getEntity().getEntityName());
                     newTicket.setId(t.getId().intValue());
                     newTicket.setInitialSla(t.getSla().replace("D", " Day(s)").replace("M", " Minute(s)").replace("H", " Hour(s)"));
@@ -5473,7 +5485,7 @@ public class XTicketServiceImpl implements XTicketService {
                                 double exceedTimeInMins = 0.0;
                                 double sla = Double.parseDouble(t.getNewSla().substring(0, 1));
                                 if (t.getNewSla().endsWith("D")) {
-                                    exceedTimeInMins = (slaExceeded / 100) * sla * 7 * 60;  //Multiply by 7 days and 60 to convert to minutes
+                                    exceedTimeInMins = (slaExceeded / 100) * sla * 1440;  //Multiply by 24 hours and 60 minutes (1440) to convert to minutes
                                 } else if (t.getNewSla().endsWith("H")) {
                                     exceedTimeInMins = (slaExceeded / 100) * sla * 60; //Multiply by 60 to convert to minues
                                 } else {
@@ -5712,19 +5724,22 @@ public class XTicketServiceImpl implements XTicketService {
                             //Check if the ticket was reopened
                             LocalDateTime closedDate;
                             String closedBy;
+                            String closedbyServiceUnit = "";
                             if (t.isTicketReopen()) {
                                 //Get the last reopened record
                                 TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
                                 closedDate = reopenedTicket.getClosedAt();
                                 closedBy = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
+                                closedbyServiceUnit = reopenedTicket.getTicket().getTicketType().getServiceUnit().getServiceUnitName();
                             } else {
                                 closedDate = t.getClosedAt();
                                 closedBy = t.getClosedBy().getLastName() + ", " + t.getClosedBy().getOtherName();
+                                closedbyServiceUnit = t.getTicketType().getServiceUnit().getServiceUnitName();
                             }
 
                             newTicket.setClosedAt(dtf.format(closedDate));
                             newTicket.setClosedBy(closedBy);
-                            newTicket.setServiceUnitName(t.getTicketAgent().getTicketType().getServiceUnit().getServiceUnitName());
+                            newTicket.setServiceUnitName(closedbyServiceUnit);
                             newTicket.setEntityName(t.getEntity().getEntityName());
                             newTicket.setId(t.getId().intValue());
                             newTicket.setTicketTypeName(t.getTicketType().getTicketTypeName());
@@ -5783,19 +5798,22 @@ public class XTicketServiceImpl implements XTicketService {
                     //Check if the ticket was reopened
                     LocalDateTime closedDate;
                     String closedBy;
+                    String closedbyServiceUnit = "";
                     if (t.isTicketReopen()) {
                         //Get the last reopened record
                         TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
                         closedDate = reopenedTicket.getClosedAt();
                         closedBy = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
+                        closedbyServiceUnit = reopenedTicket.getTicket().getTicketType().getServiceUnit().getServiceUnitName();
                     } else {
                         closedDate = t.getClosedAt();
                         closedBy = t.getClosedBy().getLastName() + ", " + t.getClosedBy().getOtherName();
+                        closedbyServiceUnit = t.getTicketType().getServiceUnit().getServiceUnitName();
                     }
 
                     newTicket.setClosedAt(dtf.format(closedDate));
                     newTicket.setClosedBy(closedBy);
-                    newTicket.setServiceUnitName(t.getTicketAgent().getTicketType().getServiceUnit().getServiceUnitName());
+                    newTicket.setServiceUnitName(closedbyServiceUnit);
                     newTicket.setEntityName(t.getEntity().getEntityName());
                     newTicket.setId(t.getId().intValue());
                     newTicket.setTicketTypeName(t.getTicketType().getTicketTypeName());
@@ -6242,7 +6260,7 @@ public class XTicketServiceImpl implements XTicketService {
                                 double exceedTimeInMins = 0.0;
                                 double sla = Double.parseDouble(t.getNewSla().substring(0, 1));
                                 if (t.getNewSla().endsWith("D")) {
-                                    exceedTimeInMins = (slaExceeded / 100) * sla * 7 * 60;  //Multiply by 7 days and 60 to convert to minutes
+                                    exceedTimeInMins = (slaExceeded / 100) * sla * 1440;  //Multiply by 24 hours and 60 minutes (1440) to convert to minutes
                                 } else if (t.getNewSla().endsWith("H")) {
                                     exceedTimeInMins = (slaExceeded / 100) * sla * 60; //Multiply by 60 to convert to minues
                                 } else {
