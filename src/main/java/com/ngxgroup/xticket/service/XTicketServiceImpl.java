@@ -797,7 +797,7 @@ public class XTicketServiceImpl implements XTicketService {
 
             //Check if the request is to change entity
             Entities entity = null;
-            if (requestPayload.getAction().equalsIgnoreCase("Role")) {
+            if (requestPayload.getAction().equalsIgnoreCase("Entity")) {
                 entity = xticketRepository.getEntitiesUsingId(Long.parseLong(requestPayload.getEntityCode()));
                 if (roleGroup == null) {
                     response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
@@ -895,17 +895,17 @@ public class XTicketServiceImpl implements XTicketService {
                     break;
                 }
                 case "Department" -> {
-                    oldValue = String.valueOf(selectedUser.getDepartment());
+                    oldValue = String.valueOf(selectedUser.getDepartment().getDepartmentName());
                     selectedUser.setDepartment(department);
                     xticketRepository.updateAppUser(selectedUser);
-                    newValue = String.valueOf(LocalDate.now().plusDays(passwordChangeDays));
+                    newValue = String.valueOf(department.getDepartmentName());
                     break;
                 }
                 case "Entity" -> {
-                    oldValue = String.valueOf(selectedUser.getEntity());
+                    oldValue = String.valueOf(selectedUser.getEntity().getEntityName());
                     selectedUser.setEntity(entity);
                     xticketRepository.updateAppUser(selectedUser);
-                    newValue = String.valueOf(LocalDate.now().plusDays(passwordChangeDays));
+                    newValue = String.valueOf(entity.getEntityName());
                     break;
                 }
             }
