@@ -45,6 +45,8 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
     private String defaultDepartmentCode;
     @Value("${xticket.default.departmentname}")
     private String defaultDepartmentName;
+    @Value("${tipro.holiday}")
+    private String[] publicHolidays;
     static final String SYSTEM_USER = "System";
     static final String ENABLE_STATUS = "Enabled";
 
@@ -707,114 +709,18 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
         }
 
         //Add known public holidays
-        PublicHolidays newYear = xticketRepository.getPublicHoliday(LocalDate.parse("2024-01-01"));
-        if (newYear == null) {
-            PublicHolidays newHoliday = new PublicHolidays();
-            newHoliday.setCreatedAt(LocalDateTime.now());
-            newHoliday.setCreatedBy(SYSTEM_USER);
-            newHoliday.setHoliday(LocalDate.parse("2024-01-01"));
-            xticketRepository.createPublicHoliday(newHoliday);
+        if (publicHolidays.length != 0) {
+            for (String hols : publicHolidays) {
+                PublicHolidays holiday = xticketRepository.getPublicHoliday(LocalDate.parse(hols));
+                if (holiday == null) {
+                    PublicHolidays newHoliday = new PublicHolidays();
+                    newHoliday.setCreatedAt(LocalDateTime.now());
+                    newHoliday.setCreatedBy(SYSTEM_USER);
+                    newHoliday.setHoliday(LocalDate.parse(hols));
+                    xticketRepository.createPublicHoliday(newHoliday);
+                }
+            }
         }
-
-        PublicHolidays democracyDay = xticketRepository.getPublicHoliday(LocalDate.parse("2024-06-12"));
-        if (democracyDay == null) {
-            PublicHolidays newHoliday = new PublicHolidays();
-            newHoliday.setCreatedAt(LocalDateTime.now());
-            newHoliday.setCreatedBy(SYSTEM_USER);
-            newHoliday.setHoliday(LocalDate.parse("2024-06-12"));
-            xticketRepository.createPublicHoliday(newHoliday);
-        }
-
-        PublicHolidays independenceDay = xticketRepository.getPublicHoliday(LocalDate.parse("2024-10-10"));
-        if (independenceDay == null) {
-            PublicHolidays newHoliday = new PublicHolidays();
-            newHoliday.setCreatedAt(LocalDateTime.now());
-            newHoliday.setCreatedBy(SYSTEM_USER);
-            newHoliday.setHoliday(LocalDate.parse("2024-10-10"));
-            xticketRepository.createPublicHoliday(newHoliday);
-        }
-
-        PublicHolidays goodFriday = xticketRepository.getPublicHoliday(LocalDate.parse("2024-03-29"));
-        if (goodFriday == null) {
-            PublicHolidays newHoliday = new PublicHolidays();
-            newHoliday.setCreatedAt(LocalDateTime.now());
-            newHoliday.setCreatedBy(SYSTEM_USER);
-            newHoliday.setHoliday(LocalDate.parse("2024-03-29"));
-            xticketRepository.createPublicHoliday(newHoliday);
-        }
-
-        PublicHolidays easterMonday = xticketRepository.getPublicHoliday(LocalDate.parse("2024-04-01"));
-        if (easterMonday == null) {
-            PublicHolidays newHoliday = new PublicHolidays();
-            newHoliday.setCreatedAt(LocalDateTime.now());
-            newHoliday.setCreatedBy(SYSTEM_USER);
-            newHoliday.setHoliday(LocalDate.parse("2024-04-01"));
-            xticketRepository.createPublicHoliday(newHoliday);
-        }
-
-        PublicHolidays idElFitr = xticketRepository.getPublicHoliday(LocalDate.parse("2024-04-10"));
-        if (idElFitr == null) {
-            PublicHolidays newHoliday = new PublicHolidays();
-            newHoliday.setCreatedAt(LocalDateTime.now());
-            newHoliday.setCreatedBy(SYSTEM_USER);
-            newHoliday.setHoliday(LocalDate.parse("2024-04-10"));
-            xticketRepository.createPublicHoliday(newHoliday);
-        }
-
-        PublicHolidays idElFitrHol = xticketRepository.getPublicHoliday(LocalDate.parse("2024-04-11"));
-        if (idElFitrHol == null) {
-            PublicHolidays newHoliday = new PublicHolidays();
-            newHoliday.setCreatedAt(LocalDateTime.now());
-            newHoliday.setCreatedBy(SYSTEM_USER);
-            newHoliday.setHoliday(LocalDate.parse("2024-04-11"));
-            xticketRepository.createPublicHoliday(newHoliday);
-        }
-
-        PublicHolidays workersDay = xticketRepository.getPublicHoliday(LocalDate.parse("2024-05-01"));
-        if (workersDay == null) {
-            PublicHolidays newHoliday = new PublicHolidays();
-            newHoliday.setCreatedAt(LocalDateTime.now());
-            newHoliday.setCreatedBy(SYSTEM_USER);
-            newHoliday.setHoliday(LocalDate.parse("2024-05-01"));
-            xticketRepository.createPublicHoliday(newHoliday);
-        }
-
-        PublicHolidays idElKabir = xticketRepository.getPublicHoliday(LocalDate.parse("2024-06-16"));
-        if (idElKabir == null) {
-            PublicHolidays newHoliday = new PublicHolidays();
-            newHoliday.setCreatedAt(LocalDateTime.now());
-            newHoliday.setCreatedBy(SYSTEM_USER);
-            newHoliday.setHoliday(LocalDate.parse("2024-06-16"));
-            xticketRepository.createPublicHoliday(newHoliday);
-        }
-
-        PublicHolidays idElMalud = xticketRepository.getPublicHoliday(LocalDate.parse("2024-09-16"));
-        if (idElMalud == null) {
-            PublicHolidays newHoliday = new PublicHolidays();
-            newHoliday.setCreatedAt(LocalDateTime.now());
-            newHoliday.setCreatedBy(SYSTEM_USER);
-            newHoliday.setHoliday(LocalDate.parse("2024-09-16"));
-            xticketRepository.createPublicHoliday(newHoliday);
-        }
-
-        PublicHolidays xmas = xticketRepository.getPublicHoliday(LocalDate.parse("2024-12-25"));
-        if (xmas == null) {
-            PublicHolidays newHoliday = new PublicHolidays();
-            newHoliday.setCreatedAt(LocalDateTime.now());
-            newHoliday.setCreatedBy(SYSTEM_USER);
-            newHoliday.setHoliday(LocalDate.parse("2024-12-25"));
-            xticketRepository.createPublicHoliday(newHoliday);
-        }
-
-        PublicHolidays boxingDay = xticketRepository.getPublicHoliday(LocalDate.parse("2024-12-26"));
-        if (boxingDay == null) {
-            PublicHolidays newHoliday = new PublicHolidays();
-            newHoliday.setCreatedAt(LocalDateTime.now());
-            newHoliday.setCreatedBy(SYSTEM_USER);
-            newHoliday.setHoliday(LocalDate.parse("2024-12-26"));
-            xticketRepository.createPublicHoliday(newHoliday);
-        }
-
         //Create the entities
         Entities defaultEntity = xticketRepository.getEntitiesUsingCode(defaultEntityCode);
         if (defaultEntity == null) {
