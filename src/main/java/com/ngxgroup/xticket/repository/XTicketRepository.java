@@ -498,5 +498,7 @@ public interface XTicketRepository {
     AutomatedTicket updateAutomatedTicket(AutomatedTicket automatedTicket);
 
     AutomatedTicket deleteAutomatedTicket(AutomatedTicket automatedTicket);
+    
+    AutomatedTicket getAutomatedTicketUsingType(TicketType ticketType);
 
 }

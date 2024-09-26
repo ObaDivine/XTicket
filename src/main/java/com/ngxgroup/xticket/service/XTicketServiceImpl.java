@@ -5879,11 +5879,11 @@ public class XTicketServiceImpl implements XTicketService {
                                 newTicket.setDepartmentName(d.getDepartmentName());
                                 newTicket.setServiceUnitName("");
                                 newTicket.setTicketCount(tickets.size());
-                                newTicket.setFiveStar(tickets.stream().filter(f -> f.getRating() == 5).mapToInt(t -> t.getRating()).sum());
-                                newTicket.setFourStar(tickets.stream().filter(f -> f.getRating() == 4).mapToInt(t -> t.getRating()).sum());
-                                newTicket.setThreeStar(tickets.stream().filter(f -> f.getRating() == 3).mapToInt(t -> t.getRating()).sum());
-                                newTicket.setTwoStar(tickets.stream().filter(f -> f.getRating() == 2).mapToInt(t -> t.getRating()).sum());
-                                newTicket.setOneStar(tickets.stream().filter(f -> f.getRating() == 1).mapToInt(t -> t.getRating()).sum());
+                                newTicket.setFiveStar(tickets.stream().filter(f -> f.getRating() == 5).mapToInt(t -> t.getRating()).count());
+                                newTicket.setFourStar(tickets.stream().filter(f -> f.getRating() == 4).mapToInt(t -> t.getRating()).count());
+                                newTicket.setThreeStar(tickets.stream().filter(f -> f.getRating() == 3).mapToInt(t -> t.getRating()).count());
+                                newTicket.setTwoStar(tickets.stream().filter(f -> f.getRating() == 2).mapToInt(t -> t.getRating()).count());
+                                newTicket.setOneStar(tickets.stream().filter(f -> f.getRating() == 1).mapToInt(t -> t.getRating()).count());
                                 newTicket.setRating(tickets.stream().mapToInt(t -> t.getRating()).sum());
                                 newTicket.setRatingAverage(tickets.stream().mapToInt(t -> t.getRating()).sum() / tickets.size());
                                 newTicket.setTicketCount(tickets.size());
@@ -5918,11 +5918,11 @@ public class XTicketServiceImpl implements XTicketService {
                                 newTicket.setDepartmentName(s.getDepartment().getDepartmentName());
                                 newTicket.setServiceUnitName(s.getServiceUnitName());
                                 newTicket.setTicketCount(tickets.size());
-                                newTicket.setFiveStar(tickets.stream().filter(f -> f.getRating() == 5).mapToInt(t -> t.getRating()).sum());
-                                newTicket.setFourStar(tickets.stream().filter(f -> f.getRating() == 4).mapToInt(t -> t.getRating()).sum());
-                                newTicket.setThreeStar(tickets.stream().filter(f -> f.getRating() == 3).mapToInt(t -> t.getRating()).sum());
-                                newTicket.setTwoStar(tickets.stream().filter(f -> f.getRating() == 2).mapToInt(t -> t.getRating()).sum());
-                                newTicket.setOneStar(tickets.stream().filter(f -> f.getRating() == 1).mapToInt(t -> t.getRating()).sum());
+                                newTicket.setFiveStar(tickets.stream().filter(f -> f.getRating() == 5).mapToInt(t -> t.getRating()).count());
+                                newTicket.setFourStar(tickets.stream().filter(f -> f.getRating() == 4).mapToInt(t -> t.getRating()).count());
+                                newTicket.setThreeStar(tickets.stream().filter(f -> f.getRating() == 3).mapToInt(t -> t.getRating()).count());
+                                newTicket.setTwoStar(tickets.stream().filter(f -> f.getRating() == 2).mapToInt(t -> t.getRating()).count());
+                                newTicket.setOneStar(tickets.stream().filter(f -> f.getRating() == 1).mapToInt(t -> t.getRating()).count());
                                 newTicket.setRating(tickets.stream().mapToInt(t -> t.getRating()).sum());
                                 newTicket.setRatingAverage(tickets.stream().mapToInt(t -> t.getRating()).sum() / tickets.size());
                                 newTicket.setTicketCount(tickets.size());
@@ -6715,20 +6715,20 @@ public class XTicketServiceImpl implements XTicketService {
     public XTicketPayload fetchTicketByAutomation(XTicketPayload requestPayload) {
         var response = new XTicketPayload();
         try {
-            //Check if the entity exist using code
-            Entities entityByCode = xticketRepository.getEntitiesUsingCode(requestPayload.getFromEntity());
-            if (entityByCode == null) {
-                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
-                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Entity", "Code", requestPayload.getEntityCode()}, Locale.ENGLISH));
-                response.setData(null);
-                return response;
-            }
-
             //Fetch the open ticket status
             TicketStatus ticketStatus = xticketRepository.getTicketStatusUsingCode("CLOSED");
             if (ticketStatus == null) {
                 response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
                 response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{"CLOSED"}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if the service unit exist using code
+            ServiceUnit serviceUnit = xticketRepository.getServiceUnitUsingCode(requestPayload.getServiceUnitCode());
+            if (serviceUnit == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Service Unit", "Code", requestPayload.getServiceUnitCode()}, Locale.ENGLISH));
                 response.setData(null);
                 return response;
             }
@@ -6906,7 +6906,16 @@ public class XTicketServiceImpl implements XTicketService {
 
             //Check if the ticket type exist using code
             TicketType ticketType = xticketRepository.getTicketTypeUsingCode(requestPayload.getTicketTypeCode());
-            if (ticketType != null && !Objects.equals(automatedTicket.getId(), ticketType.getId())) {
+            if (ticketType == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Ticket Type", "Code", requestPayload.getTicketTypeCode()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Check if the same automated ticket exist
+            AutomatedTicket automatedTicketType = xticketRepository.getAutomatedTicketUsingType(ticketType);
+            if (automatedTicketType != null && !Objects.equals(automatedTicket.getId(), automatedTicketType.getId())) {
                 response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
                 response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Automated Ticket", "Code", requestPayload.getTicketTypeCode()}, Locale.ENGLISH));
                 response.setData(null);
