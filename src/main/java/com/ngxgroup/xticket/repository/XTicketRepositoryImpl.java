@@ -1818,9 +1818,20 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public Tickets getAutomatedTicketUsingTicketType(TicketType ticketType) {
-        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM AutomatedTicket p WHERE p.ticketType = :ticketType", Tickets.class)
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketType = :ticketType AND p.automated = true", Tickets.class)
                 .setParameter("ticketType", ticketType);
         List<Tickets> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset.get(0);
+    }
+
+    @Override
+    public AutomatedTicket getAutomatedTicketUsingType(TicketType ticketType) {
+        TypedQuery<AutomatedTicket> query = em.createQuery("SELECT p FROM AutomatedTicket p WHERE p.ticketType = :ticketType", AutomatedTicket.class)
+                .setParameter("ticketType", ticketType);
+        List<AutomatedTicket> recordset = query.getResultList();
         if (recordset.isEmpty()) {
             return null;
         }

@@ -410,10 +410,8 @@ public class ReportController {
     @Secured("ROLE_MANAGEMENT_REPORT")
     public String automatedTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
-        model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("entityList", xticketService.fetchEntity().getData());
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
-        model.addAttribute("ticketTypeList", xticketService.fetchTicketType(true).getData());
-        model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -424,11 +422,9 @@ public class ReportController {
     public String automatedTicket(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
         XTicketPayload response = xticketService.fetchTicketByAutomation(requestPayload);
         model.addAttribute("ticketPayload", requestPayload);
-        model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
+        model.addAttribute("entityList", xticketService.fetchEntity().getData());
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
-        model.addAttribute("ticketTypeList", xticketService.fetchTicketType(true).getData());
         model.addAttribute("dataList", response.getData());
-        model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         resetAlertMessage();
