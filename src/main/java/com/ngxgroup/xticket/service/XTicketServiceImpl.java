@@ -48,6 +48,7 @@ import jakarta.servlet.ServletContext;
 import java.io.File;
 import java.time.DayOfWeek;
 import java.time.Duration;
+import java.time.Month;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -125,6 +126,8 @@ public class XTicketServiceImpl implements XTicketService {
     private double slaExceeded;
     @Value("${xticket.default.email.domain}")
     private String emailDomain;
+    @Value("${xticket.cron.job.automatedticket}")
+    private String automatedTicketJob;
 
     @Override
     public XTicketPayload signin(XTicketPayload requestPayload) {
@@ -2058,7 +2061,7 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
-            response.setResponseMessage(messageSource.getMessage("appMessages.success.roles", new Object[0], Locale.ENGLISH));
+            response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{"Ticket Agent", "Created or Updated Successfully"}, Locale.ENGLISH));
             response.setData(null);
             return response;
         } catch (Exception ex) {
@@ -2172,8 +2175,9 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             Tickets newTicket = new Tickets();
-            newTicket.setAttachedFile(!requestPayload.getUploadedFiles().isEmpty());
+            newTicket.setAttachedFile(requestPayload.getUploadedFiles() != null && !requestPayload.getUploadedFiles().isEmpty());
             newTicket.setAgentNotifiedOfExpiry(false);
+            newTicket.setAutomated(requestPayload.isAutomated());
             newTicket.setClosedAt(null);
             newTicket.setClosedBy(null);
             newTicket.setCreatedAt(LocalDateTime.now());
@@ -2201,7 +2205,7 @@ public class XTicketServiceImpl implements XTicketService {
             Tickets createTicket = xticketRepository.createTicket(newTicket);
 
             int fileIndex = 1;
-            if (!requestPayload.getUploadedFiles().isEmpty()) {
+            if (requestPayload.getUploadedFiles() != null && !requestPayload.getUploadedFiles().isEmpty()) {
                 for (MultipartFile f : requestPayload.getUploadedFiles()) {
                     String fileExt = FilenameUtils.getExtension(f.getOriginalFilename());
                     String newFileName = genericService.generateFileName();
@@ -6650,8 +6654,8 @@ public class XTicketServiceImpl implements XTicketService {
                 return response;
             }
 
-            AppUser serviceRequester = xticketRepository.getAppUserUsingEmail(automatedTicket.getServiceRequester());
-            AppUser serviceProvider = xticketRepository.getAppUserUsingEmail(automatedTicket.getServiceProvider());
+//            AppUser serviceRequester = xticketRepository.getAppUserUsingEmail(automatedTicket.getServiceRequester());
+//            AppUser serviceProvider = xticketRepository.getAppUserUsingEmail(automatedTicket.getServiceProvider());
             BeanUtils.copyProperties(automatedTicket, response);
             response.setCreatedAt(automatedTicket.getCreatedAt().toLocalDate().toString());
             response.setId(automatedTicket.getId().intValue());
@@ -6661,8 +6665,8 @@ public class XTicketServiceImpl implements XTicketService {
             response.setTicketSlaName(String.valueOf(automatedTicket.getTicketType().getSla().getTicketSla()) + " " + automatedTicket.getTicketType().getSla().getTicketSlaPeriod());
             response.setStartDate(String.valueOf(automatedTicket.getStartDate()));
             response.setEndDate(String.valueOf(automatedTicket.getEndDate()));
-            response.setCreatedBy(serviceRequester == null ? "" : serviceRequester.getLastName() + ", " + serviceRequester.getOtherName());
-            response.setTicketAgent(serviceProvider == null ? "" : serviceProvider.getLastName() + ", " + serviceProvider.getOtherName());
+            response.setCreatedBy(automatedTicket.getServiceRequester());
+            response.setTicketAgent(automatedTicket.getServiceProvider());
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
             response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
@@ -6825,6 +6829,15 @@ public class XTicketServiceImpl implements XTicketService {
                     return response;
                 }
 
+                //Check if the same automated ticket exist
+                AutomatedTicket automatedTicketType = xticketRepository.getAutomatedTicketUsingType(ticketType);
+                if (automatedTicketType != null) {
+                    response.setResponseCode(ResponseCodes.RECORD_EXIST_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.ticket.exist", new Object[]{"Automated Ticket", "Code", requestPayload.getTicketTypeCode()}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
                 //Check if the service requester is same as service provider
                 if (requestPayload.getCreatedBy().equalsIgnoreCase(requestPayload.getTicketAgent())) {
                     response.setResponseCode(ResponseCodes.SAME_ACCOUNT.getResponseCode());
@@ -6860,6 +6873,16 @@ public class XTicketServiceImpl implements XTicketService {
                         response.setData(null);
                         return response;
                     }
+                }
+
+                String automatedTicketTime = automatedTicketJob.split(" ")[1];
+                LocalDateTime runDate = LocalDateTime.of(startDate, startDate.atTime(Integer.valueOf(automatedTicketTime), 0).toLocalTime());
+                if (LocalDateTime.now().isAfter(runDate)) {
+                    String message = "Start date is today but the current hour (" + String.valueOf(LocalDateTime.now().getHour()) + ") is past schedule job time of (" + automatedTicketTime + ")";
+                    response.setResponseCode(ResponseCodes.INPUT_MISSING.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.invalid.date", new Object[]{message, " Please update start date accordingly"}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
                 }
 
                 AutomatedTicket newAutomatedTicket = new AutomatedTicket();
@@ -6969,6 +6992,16 @@ public class XTicketServiceImpl implements XTicketService {
                     return response;
                 }
             }
+
+                String automatedTicketTime = automatedTicketJob.split(" ")[1];
+                LocalDateTime runDate = LocalDateTime.of(startDate, startDate.atTime(Integer.valueOf(automatedTicketTime), 0).toLocalTime());
+                if (LocalDateTime.now().isAfter(runDate)) {
+                    String message = "Start date is today but the current hour (" + String.valueOf(LocalDateTime.now().getHour()) + ") is past schedule job time of (" + automatedTicketTime + ")";
+                    response.setResponseCode(ResponseCodes.INPUT_MISSING.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.invalid.date", new Object[]{message, " Please update start date accordingly"}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
 
             automatedTicket.setCreatedAt(LocalDateTime.now());
             automatedTicket.setCreatedBy(principal);

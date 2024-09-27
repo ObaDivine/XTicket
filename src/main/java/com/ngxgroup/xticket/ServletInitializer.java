@@ -45,7 +45,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
     private String defaultDepartmentCode;
     @Value("${xticket.default.departmentname}")
     private String defaultDepartmentName;
-    @Value("${tipro.holiday}")
+    @Value("${xticket.holiday}")
     private String[] publicHolidays;
     static final String SYSTEM_USER = "System";
     static final String ENABLE_STATUS = "Enabled";
@@ -721,6 +721,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
                 }
             }
         }
+        
         //Create the entities
         Entities defaultEntity = xticketRepository.getEntitiesUsingCode(defaultEntityCode);
         if (defaultEntity == null) {

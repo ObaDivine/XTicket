@@ -65,11 +65,9 @@ public class CrobJob {
                     String[] escalationEmails = t.getTicketType().getEscalationEmails().split(",");
                     String carbonCopyEmail = "";
                     if (escalationEmails.length > 0) {
-                        //Check if this first escalation
+                        //Check if this is first escalation
                         if (t.getEscalationIndex() == 0) {
                             carbonCopyEmail = t.getTicketAgent().getAgent().getEmail();
-                            //Escalate the email and push email notification
-                            sendEmail(escalationEmails[t.getEscalationIndex()], carbonCopyEmail, t);
 
                             //Update the escalation index
                             t.setEscalationIndex(t.getEscalationIndex() + 1);
@@ -87,27 +85,31 @@ public class CrobJob {
                             newEscalation.setSlaExpiresAt(t.getSlaExpiry());
                             newEscalation.setTicket(t);
                             xticketRepository.createTicketEscalation(newEscalation);
+
+                            //Escalate the email and push email notification
+                            sendEmail(escalationEmails[0], carbonCopyEmail, t);
                         } else {
                             //Check if time to run the next escalation
                             long timeElapsed = Duration.between(t.getEscalatedAt(), LocalDateTime.now()).toMinutes();
-                            if (timeElapsed >= escalationInterval && (t.getEscalationIndex() + 1) <= escalationEmails.length) {
-                                carbonCopyEmail = escalationEmails[t.getEscalationIndex() - 1];
-
-                                //Escalate the email and push email notification
-                                sendEmail(escalationEmails[t.getEscalationIndex()], carbonCopyEmail, t);
+                            int currentEscalationIndex = t.getEscalationIndex();
+                            if (timeElapsed >= escalationInterval && (currentEscalationIndex < escalationEmails.length)) {
+                                carbonCopyEmail = escalationEmails[currentEscalationIndex - 1];
 
                                 //Update the escalation index
-                                t.setEscalationIndex(t.getEscalationIndex() + 1);
+                                t.setEscalationIndex(currentEscalationIndex + 1);
                                 t.setEscalatedAt(LocalDateTime.now());
                                 xticketRepository.updateTicket(t);
 
                                 //Add to the ticket escalations
                                 TicketEscalations newEscalation = new TicketEscalations();
                                 newEscalation.setCreatedAt(LocalDateTime.now());
-                                newEscalation.setEscalatedTo(escalationEmails[t.getEscalationIndex()]);
+                                newEscalation.setEscalatedTo(escalationEmails[currentEscalationIndex]);
                                 newEscalation.setSlaExpiresAt(t.getSlaExpiry());
                                 newEscalation.setTicket(t);
                                 xticketRepository.createTicketEscalation(newEscalation);
+
+                                //Escalate the email and push email notification
+                                sendEmail(escalationEmails[currentEscalationIndex], carbonCopyEmail, t);
                             }
                         }
                     }
@@ -145,9 +147,9 @@ public class CrobJob {
 
         //Determine who to address the email to
         String recipient = "";
-        AppUser carbonCopyUser = xticketRepository.getAppUserUsingEmail(carbonCopy);
-        if (carbonCopyUser != null) {
-            recipient = "Dear " + carbonCopyUser.getLastName() + ", " + carbonCopyUser.getOtherName() + ",";
+        AppUser recipientUser = xticketRepository.getAppUserUsingEmail(escalationEmail);
+        if (recipientUser != null) {
+            recipient = "Dear " + recipientUser.getLastName() + ", " + recipientUser.getOtherName();
         } else {
             recipient = "Dear Sir/Madam,";
         }
@@ -197,11 +199,13 @@ public class CrobJob {
                     requestPayload.setInternal(t.getTicketType().isInternal());
                     requestPayload.setMessage(t.getMessage());
                     requestPayload.setSubject(t.getSubject());
+                    requestPayload.setUploadedFiles(null);
+                    requestPayload.setAutomated(true); //Set the automation
                     xticketService.createTicket(requestPayload, t.getServiceRequester());
 
                     //Set the next run date
                     LocalDate nextRun = null;
-                    switch (requestPayload.getFrequency()) {
+                    switch (t.getFrequency()) {
                         case "Daily" -> {
                             nextRun = LocalDate.now().plusDays(1);
                         }

@@ -155,10 +155,11 @@ public class GenericServiceImpl implements GenericService {
 
             Properties props = mailSender.getJavaMailProperties();
             props.put("mail.transport.protocol", mailProtocol);
-            props.put("mail.smtp.auth", "true");
-            props.put("mail.smtp.starttls.enable", "false");
+            props.put("mail.smtp.auth", true);
+            props.put("mail.smtp.starttls.enable", true);
             props.put("mail.debug", "true");
             props.put("mail.smtp.ssl.trust", mailTrust);
+            props.put("mail.smtp.ssl.enable", true);
 
             MimeMessage emailDetails = mailSender.createMimeMessage();
             emailDetails.setFrom(mailFrom);
