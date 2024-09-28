@@ -32,6 +32,7 @@ import java.util.List;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +46,8 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @PersistenceContext
     EntityManager em;
+    @Value("${xticket.default.email.domain}")
+    private String emailDomain;
 
     @Override
     public AppUser getAppUserUsingEmail(String email) {
@@ -306,7 +309,8 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<AppUser> getInternalAppUsers() {
-        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.internal = true", AppUser.class);
+        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.internal = true AND p.email != :sa", AppUser.class)
+                .setParameter("sa", "sa@" + emailDomain);
         List<AppUser> recordset = query.getResultList();
         if (recordset.isEmpty()) {
             return null;
