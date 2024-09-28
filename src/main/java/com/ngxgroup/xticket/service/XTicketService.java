@@ -184,7 +184,6 @@ public interface XTicketService {
      * @param requestPayload
      * @return
      */
-    XTicketPayload fetchTicketByEntity(XTicketPayload requestPayload);
 
     XTicketPayload fetchTicketByEntityToEntity(XTicketPayload requestPayload);
 
@@ -207,7 +206,6 @@ public interface XTicketService {
      * @param requestPayload
      * @return
      */
-    XTicketPayload fetchTicketByDepartment(XTicketPayload requestPayload);
 
     XTicketPayload fetchTicketByDepartmentToEntity(XTicketPayload requestPayload);
 
@@ -230,8 +228,7 @@ public interface XTicketService {
      * @param requestPayload
      * @return
      */
-    XTicketPayload fetchTicketByServiceUnit(XTicketPayload requestPayload);
-
+    
     XTicketPayload fetchTicketByServiceUnitToEntity(XTicketPayload requestPayload);
 
     XTicketPayload fetchTicketByServiceRating(XTicketPayload requestPayload);

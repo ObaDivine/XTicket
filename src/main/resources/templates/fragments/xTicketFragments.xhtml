@@ -199,12 +199,6 @@
                                     </a>
                                 </li>
                                 <li sec:authorize="hasRole('MANAGEMENT_REPORT')">
-                                    <a class="dropdown-item" href="" th:href="@{/report/ticket/service-unit}">
-                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Tickets By Service Unit
-                                        </div>
-                                    </a>
-                                </li>
-                                <li sec:authorize="hasRole('MANAGEMENT_REPORT')">
                                     <a class="dropdown-item" href="" th:href="@{/report/ticket/automation}">
                                         <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Automated Tickets
                                         </div>

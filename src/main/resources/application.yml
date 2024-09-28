@@ -85,7 +85,7 @@ xticket:
   cron:
     job: 
       ticketrun: '*/2 * * * * ?' #This cron job runs every 2 minutes
-      automatedticket: '*/2 * * * * ?' #This cron job runs every 9am
+      automatedticket: '0 9 * * * ?' #This cron job runs every 9am
   email:
     contactus: coordination@ngxgroup.com
     escalation:

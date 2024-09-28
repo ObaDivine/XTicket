@@ -485,7 +485,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<Tickets> getClosedTickets(LocalDate startDate, LocalDate endDate, TicketStatus ticketStatus, Entities entity) {
-        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketStatus = :ticketStatus AND p.createdAt >= :startDate AND p.createdAt <= :endDate AND p.closedBy.entity = :entity AND p.automated = false", Tickets.class)
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketStatus = :ticketStatus AND p.createdAt >= :startDate AND p.createdAt <= :endDate AND p.closedBy.entity = :entity", Tickets.class)
                 .setParameter("startDate", startDate.atStartOfDay())
                 .setParameter("endDate", endDate.atTime(23, 59))
                 .setParameter("ticketStatus", ticketStatus)
@@ -499,7 +499,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<Tickets> getClosedTickets(LocalDate startDate, LocalDate endDate, TicketStatus ticketStatus, Department department) {
-        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketStatus = :ticketStatus AND p.createdAt >= :startDate AND p.createdAt <= :endDate AND p.closedBy.department = :department AND p.automated = false", Tickets.class)
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketStatus = :ticketStatus AND p.createdAt >= :startDate AND p.createdAt <= :endDate AND p.closedBy.department = :department", Tickets.class)
                 .setParameter("startDate", startDate.atStartOfDay())
                 .setParameter("endDate", endDate.atTime(23, 59))
                 .setParameter("ticketStatus", ticketStatus)
@@ -512,10 +512,11 @@ public class XTicketRepositoryImpl implements XTicketRepository {
     }
 
     @Override
-    public List<Tickets> getClosedAutomatedTickets(LocalDate startDate, LocalDate endDate, TicketStatus ticketStatus) {
-        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketStatus = :ticketStatus AND p.createdAt >= :startDate AND p.createdAt <= :endDate AND p.automated = true", Tickets.class)
+    public List<Tickets> getClosedTickets(LocalDate startDate, LocalDate endDate, TicketStatus ticketStatus, ServiceUnit serviceUnit) {
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.createdAt >= :startDate AND p.createdAt <= :endDate AND p.ticketType.serviceUnit = :serviceUnit AND p.ticketStatus = :ticketStatus", Tickets.class)
                 .setParameter("startDate", startDate.atStartOfDay())
                 .setParameter("endDate", endDate.atTime(23, 59))
+                .setParameter("serviceUnit", serviceUnit)
                 .setParameter("ticketStatus", ticketStatus);
         List<Tickets> recordset = query.getResultList();
         if (recordset.isEmpty()) {
@@ -525,11 +526,10 @@ public class XTicketRepositoryImpl implements XTicketRepository {
     }
 
     @Override
-    public List<Tickets> getTicketsByServiceUnit(LocalDate startDate, LocalDate endDate, ServiceUnit serviceUnit, TicketStatus ticketStatus) {
-        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.createdAt >= :startDate AND p.createdAt <= :endDate AND p.ticketType.serviceUnit = :serviceUnit AND p.ticketStatus = :ticketStatus", Tickets.class)
+    public List<Tickets> getClosedAutomatedTickets(LocalDate startDate, LocalDate endDate, TicketStatus ticketStatus) {
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketStatus = :ticketStatus AND p.createdAt >= :startDate AND p.createdAt <= :endDate AND p.automated = true", Tickets.class)
                 .setParameter("startDate", startDate.atStartOfDay())
                 .setParameter("endDate", endDate.atTime(23, 59))
-                .setParameter("serviceUnit", serviceUnit)
                 .setParameter("ticketStatus", ticketStatus);
         List<Tickets> recordset = query.getResultList();
         if (recordset.isEmpty()) {

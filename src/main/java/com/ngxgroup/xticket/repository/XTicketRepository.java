@@ -150,7 +150,7 @@ public interface XTicketRepository {
 
     List<Tickets> getTicketsByServiceUnit(LocalDate startDate, LocalDate endDate, ServiceUnit serviceUnit);
 
-    List<Tickets> getTicketsByServiceUnit(LocalDate startDate, LocalDate endDate, ServiceUnit serviceUnit, TicketStatus ticketStatus);
+    List<Tickets> getClosedTickets(LocalDate startDate, LocalDate endDate, TicketStatus ticketStatus, ServiceUnit serviceUnit);
 
     List<DocumentUpload> getDocumentUploadUsingTicket(Tickets ticket);
 
@@ -272,7 +272,6 @@ public interface XTicketRepository {
     TicketAgent deleteTicketAgent(TicketAgent ticketAgent);
 
     TicketAgent getTicketAgentUsingId(long id);
-
 
     /**
      * Ticket Escalation
@@ -498,7 +497,7 @@ public interface XTicketRepository {
     AutomatedTicket updateAutomatedTicket(AutomatedTicket automatedTicket);
 
     AutomatedTicket deleteAutomatedTicket(AutomatedTicket automatedTicket);
-    
+
     AutomatedTicket getAutomatedTicketUsingType(TicketType ticketType);
 
 }

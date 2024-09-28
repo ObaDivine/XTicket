@@ -267,35 +267,6 @@ public class ReportController {
         return "reportappuser";
     }
 
-    @GetMapping("/ticket/service-unit")
-    @Secured("ROLE_MANAGEMENT_REPORT")
-    public String serviceUnit(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
-        model.addAttribute("ticketPayload", new XTicketPayload());
-        model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
-        model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
-        model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
-        model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
-        model.addAttribute("alertMessage", alertMessage);
-        model.addAttribute("alertMessageType", alertMessageType);
-        resetAlertMessage();
-        return "reportticketsbyserviceunit";
-    }
-
-    @PostMapping("/ticket/service-unit/process")
-    public String serviceUnit(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
-        XTicketPayload response = xticketService.fetchTicketByServiceUnit(requestPayload);
-        model.addAttribute("ticketPayload", requestPayload);
-        model.addAttribute("ticketGroupList", xticketService.fetchTicketGroup().getData());
-        model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
-        model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
-        model.addAttribute("dataList", response.getData());
-        model.addAttribute("userList", xticketService.fetchTicketAgent().getData());
-        model.addAttribute("alertMessage", response.getResponseMessage());
-        model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
-        resetAlertMessage();
-        return "reportticketsbyserviceunit";
-    }
-
     @GetMapping("/ticket/service-unit-entity")
     @Secured("ROLE_MANAGEMENT_REPORT")
     public String serviceUnitToEntity(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
@@ -411,6 +382,7 @@ public class ReportController {
     public String automatedTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("entityList", xticketService.fetchEntity().getData());
+        model.addAttribute("departmentList", xticketService.fetchDepartment().getData());
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
@@ -423,6 +395,7 @@ public class ReportController {
         XTicketPayload response = xticketService.fetchTicketByAutomation(requestPayload);
         model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("entityList", xticketService.fetchEntity().getData());
+        model.addAttribute("departmentList", xticketService.fetchDepartment().getData());
         model.addAttribute("serviceUnitList", xticketService.fetchServiceUnit().getData());
         model.addAttribute("dataList", response.getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
