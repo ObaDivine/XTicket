@@ -7,7 +7,6 @@ import com.ngxgroup.xticket.payload.XTicketPayload;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
