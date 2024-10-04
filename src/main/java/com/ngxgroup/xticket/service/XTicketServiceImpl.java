@@ -275,6 +275,7 @@ public class XTicketServiceImpl implements XTicketService {
                     appUser.setLoginFailCount(0);
                     appUser.setLastLogin(LocalDateTime.now());
                     appUser.setOnline(true);
+                    appUser.setSessionId(requestPayload.getSessionId());
                     xticketRepository.updateAppUser(appUser);
 
                     String message = messageSource.getMessage("appMessages.success.signin", new Object[0], Locale.ENGLISH);
