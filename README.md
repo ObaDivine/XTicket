@@ -1,2 +1,2 @@
 # XTicket
-Nigerian Exchange Group Ticketing System
+Nigerian Exchange Group Ticket System

@@ -150,13 +150,17 @@
                                     </div>
                                     <div class="card-body scrollbar">
                                         <div class="small" th:each="rec : ${ticketPayload.data}">
-                                            <p th:if="!${rec.reply}"><b class="text-primary">You&nbsp;&nbsp;</b> &nbsp; 
+                                            <p th:if="!${rec.reply}"><b class="text-primary">
+                                                    <span th:text="${rec.messageFrom}"></span>
+                                                    <span>&nbsp;&nbsp;</span></b> &nbsp; 
                                                 <span>[</span>
                                                 <span th:text="${rec.createdAt}"></span>
                                                 <span>]:&nbsp;</span>    
                                                 <span><i th:text="${rec.message}"></i></span> 
                                             </p>
-                                            <p th:if="${rec.reply}"><b class="text-secondary">Agent</b>
+                                            <p th:if="${rec.reply}"><b class="text-secondary">
+                                                    <span th:text="${rec.messageFrom}"></span>
+                                                    <span>&nbsp;&nbsp;</span></b>
                                                 <span>[</span>
                                                 <span th:text="${rec.createdAt}"></span>
                                                 <span>]:&nbsp;</span>    

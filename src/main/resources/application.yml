@@ -51,13 +51,13 @@ spring:
         show-sql: false
 
 email:
-    host: smtp.zoho.com #10.172.16.170
-    port: 465 #25
+    host: 10.172.16.170
+    port: 25
     protocol: smtp
-    trust: smtp.zoho.com #10.172.16.170
-    login: info@entitysc.com #postmaster@ngxgroup.com
-    from: info@entitysc.com #X-Ticket
-    password: Anaconda1521@ #Password10$
+    trust: 10.172.16.170
+    login: postmaster@ngxgroup.com
+    from: X-Ticket
+    password: Password10$
     
 xticket:
   holiday: 2024-01-01,2024-03-29,2024-04-01,2024-04-10,2024-04-11,2024-05-01,2024-06-12,2024-06-16,2024-09-16,2024-10-10,2024-12-25,2024-12-26
@@ -98,6 +98,9 @@ xticket:
       base:
         dir: C:/NGX/XTicket
   default:
+    notification:
+      push: A new push notification received
+      ticket: You have a new ticket request
     entitycode: NGX
     entityname: Nigerian Exchange Group
     departmentcode: DEF

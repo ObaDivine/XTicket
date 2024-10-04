@@ -159,7 +159,7 @@ public class GenericServiceImpl implements GenericService {
             props.put("mail.smtp.starttls.enable", true);
             props.put("mail.debug", "true");
             props.put("mail.smtp.ssl.trust", mailTrust);
-            props.put("mail.smtp.ssl.enable", true);
+            props.put("mail.smtp.ssl.enable", false);
 
             MimeMessage emailDetails = mailSender.createMimeMessage();
             emailDetails.setFrom(mailFrom);
