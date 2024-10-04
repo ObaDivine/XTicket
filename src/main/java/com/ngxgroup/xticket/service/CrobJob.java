@@ -226,7 +226,7 @@ public class CrobJob {
                         }
                     }
 
-                    if (t.getEndDate() == null || t.getEndDate().isAfter(nextRun)) {
+                    if (t.getEndDate() == null || t.getEndDate().isEqual(nextRun) || t.getEndDate().isAfter(nextRun)) {
                         //No end date
                         t.setNextRun(nextRun);
                         xticketRepository.updateAutomatedTicket(t);

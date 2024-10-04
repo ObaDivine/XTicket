@@ -40,6 +40,7 @@ public class TicketController {
     public String newTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -56,6 +57,7 @@ public class TicketController {
         }
         model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "error");
         return "newticket";
@@ -70,6 +72,7 @@ public class TicketController {
             return "redirect:/ticket/open";
         }
         model.addAttribute("ticketPayload", response);
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "error");
         return "ticketdetails";
@@ -102,6 +105,7 @@ public class TicketController {
     public String closeTicket(@RequestParam("tr") String tr, Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("dataList", xticketService.fetchClosedTicket(principal.getName(), tr).getData());
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -113,6 +117,7 @@ public class TicketController {
     public String myOpenTicket(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("dataList", xticketService.fetchOpenTicket(principal.getName()).getData());
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -128,6 +133,7 @@ public class TicketController {
         model.addAttribute("ticketPayload", response);
         model.addAttribute("ticketReplyPayload", ticketPayload);
         model.addAttribute("ticketList", xticketService.fetchTicketByUser(principal.getName()).getData());
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -156,6 +162,7 @@ public class TicketController {
         model.addAttribute("reassignedTicketCount", response.getReassignedTickets() == null ? 0 : response.getReassignedTickets().size());
         model.addAttribute("escalatedTicketCount", response.getTicketEscalations() == null ? 0 : response.getTicketEscalations().size());
         model.addAttribute("commentTicketCount", response.getTicketComments() == null ? 0 : response.getTicketComments().size());
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         return "ticketfulldetails";
@@ -175,6 +182,7 @@ public class TicketController {
         model.addAttribute("reassignedTicketCount", response.getReassignedTickets() == null ? 0 : response.getReassignedTickets().size());
         model.addAttribute("escalatedTicketCount", response.getTicketEscalations() == null ? 0 : response.getTicketEscalations().size());
         model.addAttribute("commentTicketCount", response.getTicketComments() == null ? 0 : response.getTicketComments().size());
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         return "ticketfulldetails";
@@ -187,6 +195,7 @@ public class TicketController {
         model.addAttribute("dataList", xticketService.fetchOpenTicket().getData());
         model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
         model.addAttribute("ticketAgentList", xticketService.fetchTicketAgent().getData());
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -204,6 +213,7 @@ public class TicketController {
         model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
         model.addAttribute("ticketAgentList", xticketService.fetchTicketAgent().getData());
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "error");
         return "reassignticket";

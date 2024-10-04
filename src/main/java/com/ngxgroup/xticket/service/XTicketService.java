@@ -184,7 +184,6 @@ public interface XTicketService {
      * @param requestPayload
      * @return
      */
-
     XTicketPayload fetchTicketByEntityToEntity(XTicketPayload requestPayload);
 
     XTicketPayload fetchEntity();
@@ -206,7 +205,6 @@ public interface XTicketService {
      * @param requestPayload
      * @return
      */
-
     XTicketPayload fetchTicketByDepartmentToEntity(XTicketPayload requestPayload);
 
     XTicketPayload fetchDepartment();
@@ -228,7 +226,6 @@ public interface XTicketService {
      * @param requestPayload
      * @return
      */
-    
     XTicketPayload fetchTicketByServiceUnitToEntity(XTicketPayload requestPayload);
 
     XTicketPayload fetchTicketByServiceRating(XTicketPayload requestPayload);
@@ -323,5 +320,20 @@ public interface XTicketService {
     XTicketPayload fetchAuditLog(XTicketPayload requestPayload);
 
     XTicketPayload createContactUs(XTicketPayload requestPayload);
+
+    /**
+     * Push Notification
+     *
+     * @return
+     */
+    XTicketPayload fetchPushNotification();
+
+    XTicketPayload fetchPushNotification(String id, boolean batch);
+
+    XTicketPayload fetchPushNotificationByUser(String principal);
+
+    XTicketPayload createPushNotification(XTicketPayload requestPayload, String principal);
+
+    XTicketPayload deletePushNotification(String id, String principal, boolean batch);
 
 }

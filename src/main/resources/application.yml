@@ -67,7 +67,7 @@ xticket:
       unit: minutes #This should be either hours or minutes
   slaexpiry:
     notification: 5 #Notification sent 5 mins or less to SLA expiry
-    timeleft: 5 #Time left before ticket SLA is violated
+    timeleft: 5 #Time left to SLA Violation. Use to determine criticality
     exceeded: 60  #Tickets closed in <= 60% of the alloted time
   office:
     open: 8
@@ -98,6 +98,9 @@ xticket:
       base:
         dir: C:/NGX/XTicket
   default:
+    notification:
+      push: A new push notification received
+      ticket: You have a new ticket request
     entitycode: NGX
     entityname: Nigerian Exchange Group
     departmentcode: DEF

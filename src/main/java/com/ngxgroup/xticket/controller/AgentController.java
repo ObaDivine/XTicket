@@ -37,6 +37,7 @@ public class AgentController {
         model.addAttribute("dataList", xticketService.fetchOpenTicketForAgent(principal.getName(), tr).getData());
         model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
         model.addAttribute("userList", null);
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -57,6 +58,7 @@ public class AgentController {
         model.addAttribute("ticketStatusList", xticketService.fetchTicketStatusForReply().getData());
         model.addAttribute("userList", null);
         model.addAttribute("documentList", response.getUploadDocuments());
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -75,6 +77,7 @@ public class AgentController {
         model.addAttribute("dataList", xticketService.fetchOpenTicketForAgent(principal.getName(), "all").getData());
         model.addAttribute("ticketTypeList", xticketService.fetchTicketType(false).getData());
         model.addAttribute("userList", null);
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "error");
         return "agentopenticket";
@@ -100,6 +103,7 @@ public class AgentController {
         model.addAttribute("ticketStatusList", xticketService.fetchTicketStatusForReply().getData());
         model.addAttribute("userList", null);
         model.addAttribute("documentList", response.getUploadDocuments());
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();

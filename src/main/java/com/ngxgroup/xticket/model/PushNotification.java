@@ -1,9 +1,7 @@
 package com.ngxgroup.xticket.model;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -24,8 +22,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "notification")
-public class Notification implements Serializable {
+@Table(name = "push_notification")
+public class PushNotification implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -33,13 +31,13 @@ public class Notification implements Serializable {
     @Column(name = "id")
     private Long id;
     @Column(name = "created_at")
-    private LocalDate createdAt;
-    @Column(name = "created_time")
-    private LocalTime createdTime;
+    private LocalDateTime createdAt;
     @Column(name = "message", length = 10000)
     private String message;
     @Column(name = "sent_by")
     private String sentBy;
     @Column(name = "sent_to")
     private String sentTo;
+    @Column(name = "batch_id")
+    private int batchId;
 }

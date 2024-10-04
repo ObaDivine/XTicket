@@ -79,4 +79,6 @@ public class AppUser implements Serializable {
     private Entities entity;
     @ManyToOne
     private Department department;
+    @Column(name = "session_id")
+    private String sessionId;
 }

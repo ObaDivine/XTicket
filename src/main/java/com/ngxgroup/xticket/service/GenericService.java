@@ -23,5 +23,7 @@ public interface GenericService {
     
     String generateFileName();
     
+    CompletableFuture<String> pushNotification(String responseCode, String responseMessage, String sessionId);
+    
     CompletableFuture<String> logResponse(String username, Object refNo, String auditClass, String auditCategory, String auditAction, String oldValue, String newValue);
 }

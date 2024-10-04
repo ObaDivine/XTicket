@@ -37,7 +37,7 @@
                             <div class="row">
                                 <div class="col-lg-3 col-md-12 col-sm-12">
                                     <span class="fs--1 text-800 fw-semi-bold mb-0">Ticket ID: </span>
-                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.ticketId}"></span>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary bold" th:text="${ticketPayload.ticketId}"></span>
                                 </div>
                                 <div class="col-lg-3 col-md-12 col-sm-12">
                                     <span class="fs--1 text-800 fw-semi-bold mb-0">Ticket Group: </span>
@@ -48,27 +48,27 @@
                                     <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.ticketTypeName}"></span>
                                 </div>
                                 <div class="col-lg-3 col-md-12 col-sm-12">
-                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Ticket Source: </span>
-                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.source}"></span>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Priority: </span>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.priority}"></span>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-lg-3 col-md-12 col-sm-12">
-                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Subject: </span>
-                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.subject}"></span>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Status: </span>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.status}"></span>
                                 </div>
                                 <div class="col-lg-3 col-md-12 col-sm-12">
-                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Message: </span>
-                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.message}"></span>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Escalated: </span>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.escalated}"></span>
                                 </div>
                                 <div class="col-lg-3 col-md-12 col-sm-12">
                                     <span class="fs--1 text-800 fw-semi-bold mb-0">Internal: </span>
                                     <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.internal}"></span>
                                 </div>
                                 <div class="col-lg-3 col-md-12 col-sm-12">
-                                    <span class="fs--1 text-800 fw-semi-bold mb-0">File Index: </span>
-                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.fileIndex}"></span>
-                                </div>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">SLA Expiry: </span>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-warning-600" th:text="${ticketPayload.slaExpiry}"></span>
+                                </div> 
                             </div>
                             <div class="row">
                                 <div class="col-lg-3 col-md-12 col-sm-12">
@@ -90,24 +90,6 @@
                             </div>
                             <div class="row">
                                 <div class="col-lg-3 col-md-12 col-sm-12">
-                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Priority: </span>
-                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.priority}"></span>
-                                </div>
-                                <div class="col-lg-3 col-md-12 col-sm-12">
-                                    <span class="fs--1 text-800 fw-semi-bold mb-0">SLA Expiry: </span>
-                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.slaExpiry}"></span>
-                                </div>
-                                <div class="col-lg-3 col-md-12 col-sm-12">
-                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Open: </span>
-                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.ticketOpen}"></span>
-                                </div>
-                                <div class="col-lg-3 col-md-12 col-sm-12">
-                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Escalated: </span>
-                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.escalated}"></span>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-3 col-md-12 col-sm-12">
                                     <span class="fs--1 text-800 fw-semi-bold mb-0">Rating: </span>
                                     <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.rating}"></span>
                                 </div>
@@ -120,8 +102,18 @@
                                     <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.ticketAgent}"></span>
                                 </div>
                                 <div class="col-lg-3 col-md-12 col-sm-12">
-                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Status: </span>
-                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.status}"></span>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Ticket Source: </span>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.source}"></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Subject: </span>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.subject}"></span>
+                                </div>
+                                <div class="col-lg-6 col-md-12 col-sm-12">
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0">Message: </span>
+                                    <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.message}"></span>
                                 </div>
                             </div>
                         </div>
@@ -180,7 +172,7 @@
                                                         <td th:text="${rec.reopenedBy}" class="ticketId align-middle white-space-nowrap start ps-3"></td>
                                                         <td th:text="${rec.closedAt}" class="ticketType align-middle white-space-nowrap start ps-3"></td>
                                                         <td th:text="${rec.priority}" class="priority align-middle white-space-nowrap start ps-3"></td>
-                                                        <td th:text="${rec.slaExpiry}" class="ticketType align-middle white-space-nowrap start ps-3"></td>
+                                                        <td th:text="${rec.slaExpiry}" class="ticketType align-middle white-space-nowrap start ps-3 text-warning-600"></td>
                                                         <td th:text="${rec.ticketAgent}" class="ticketGroup align-middle white-space-nowrap start ps-3"></td>
                                                         <td th:text="${rec.rating}" class="rating align-middle white-space-nowrap start ps-3"></td>
                                                     </tr>
@@ -299,21 +291,17 @@
                                             <table class="table table-responsive table-sm table-striped fs--1 mb-0 border-200">
                                                 <thead>
                                                     <tr>
-                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketId">SLA Expiry</th>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketId">Escalated At</th>
                                                         <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketGroup">Escalated To</th>
-                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="subject">Closed At</th>
-                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="priority">Priority</th>
                                                         <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="subject">SLA Expiry</th>
                                                         <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketType">Ticket Agent</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody class="list" id="deal-tables-body" th:if="${escalatedTicketList != null}">
                                                     <tr th:each="rec : ${escalatedTicketList}" class="position-static">
-                                                        <td th:text="${rec.slaExpiry}" class="date align-middle white-space-nowrap start ps-3"></td>
+                                                        <td th:text="${rec.createdAt}" class="date align-middle white-space-nowrap start ps-3"></td>
                                                         <td th:text="${rec.escalationEmails}" class="ticketId align-middle white-space-nowrap start ps-3"></td>
-                                                        <td th:text="${rec.closedAt}" class="ticketType align-middle white-space-nowrap start ps-3"></td>
-                                                        <td th:text="${rec.priority}" class="priority align-middle white-space-nowrap start ps-3"></td>
-                                                        <td th:text="${rec.slaExpiry}" class="ticketType align-middle white-space-nowrap start ps-3"></td>
+                                                        <td th:text="${rec.slaExpiry}" class="ticketType align-middle white-space-nowrap start ps-3 text-warning-600"></td>
                                                         <td th:text="${rec.ticketAgent}" class="ticketGroup align-middle white-space-nowrap start ps-3"></td>
                                                     </tr>
                                                 </tbody>

@@ -109,6 +109,10 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
         appRoles.put("DELETE_AUTOMATED_TICKET", "Delete Automated Tickets");
         appRoles.put("UPDATE_AUTOMATED_TICKET", "Update Automated Tickets");
         appRoles.put("LIST_AUTOMATED_TICKET", "List Automated Tickets");
+        appRoles.put("ADD_PUSH_NOTIFICATION", "Add Push Notification");
+        appRoles.put("DELETE_PUSH_NOTIFICATION", "Delete Push Notification");
+        appRoles.put("UPDATE_PUSH_NOTIFICATION", "Update Push Notification");
+        appRoles.put("LIST_PUSH_NOTIFICATION", "List Push Notification");
 
         for (Map.Entry<String, String> role : appRoles.entrySet()) {
             //Check if the role exist already
@@ -537,6 +541,43 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
                 newGroupRole.setRoleGroup(saGroup);
                 xticketRepository.createGroupRoles(newGroupRole);
             }
+
+            AppRoles addPushNotification = xticketRepository.getRoleUsingRoleName("ADD_PUSH_NOTIFICATION");
+            if (addPushNotification != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(addPushNotification);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles updatePushNotification = xticketRepository.getRoleUsingRoleName("UPDATE_PUSH_NOTIFICATION");
+            if (updatePushNotification != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(updatePushNotification);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles deletePushNotification = xticketRepository.getRoleUsingRoleName("DELETE_PUSH_NOTIFICATION");
+            if (deletePushNotification != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(deletePushNotification);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles listPushNotification = xticketRepository.getRoleUsingRoleName("LIST_PUSH_NOTIFICATION");
+            if (listPushNotification != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(listPushNotification);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
         }
 
         //Create the default role group
@@ -721,7 +762,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
                 }
             }
         }
-        
+
         //Create the entities
         Entities defaultEntity = xticketRepository.getEntitiesUsingCode(defaultEntityCode);
         if (defaultEntity == null) {

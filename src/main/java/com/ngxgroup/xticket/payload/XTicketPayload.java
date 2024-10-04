@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 public class XTicketPayload {
 
+    String sessionId;
     String adAuthDomains;
     String email;
     String responseCode;
@@ -80,6 +81,7 @@ public class XTicketPayload {
     String closedAt;
     String closedBy;
     int id = 0;
+    int batchId = 0;
     List<XTicketPayload> data;
     List<XTicketPayload> reopenedTickets;
     List<XTicketPayload> reassignedTickets;
@@ -149,4 +151,6 @@ public class XTicketPayload {
     long twoStar;
     long oneStar;
     long[] series;
+    String sentBy;
+    String sentTo;
 }
