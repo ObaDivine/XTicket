@@ -14,6 +14,7 @@ import com.ngxgroup.xticket.model.Entities;
 import com.ngxgroup.xticket.model.GroupRoles;
 import com.ngxgroup.xticket.model.KnowledgeBase;
 import com.ngxgroup.xticket.model.KnowledgeBaseCategory;
+import com.ngxgroup.xticket.model.PushNotification;
 import com.ngxgroup.xticket.model.PublicHolidays;
 import com.ngxgroup.xticket.model.RoleGroups;
 import com.ngxgroup.xticket.model.ServiceUnit;
@@ -48,7 +49,6 @@ import jakarta.servlet.ServletContext;
 import java.io.File;
 import java.time.DayOfWeek;
 import java.time.Duration;
-import java.time.Month;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -56,6 +56,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -128,6 +129,10 @@ public class XTicketServiceImpl implements XTicketService {
     private String emailDomain;
     @Value("${xticket.cron.job.automatedticket}")
     private String automatedTicketJob;
+    @Value("${xticket.default.notification.push}")
+    private String pushNotificationMessage;
+    @Value("${xticket.default.notification.ticket}")
+    private String ticketNotificationMessage;
 
     @Override
     public XTicketPayload signin(XTicketPayload requestPayload) {
@@ -222,6 +227,7 @@ public class XTicketServiceImpl implements XTicketService {
                     appUser.setLoginFailCount(0);
                     appUser.setLastLogin(LocalDateTime.now());
                     appUser.setOnline(true);
+                    appUser.setSessionId(requestPayload.getSessionId());
                     xticketRepository.updateAppUser(appUser);
 
                     String message = messageSource.getMessage("appMessages.success.signin", new Object[0], Locale.ENGLISH);
@@ -312,6 +318,7 @@ public class XTicketServiceImpl implements XTicketService {
             appUser.setLoginFailCount(0);
             appUser.setLastLogin(LocalDateTime.now());
             appUser.setOnline(true);
+            appUser.setSessionId(requestPayload.getSessionId());
             xticketRepository.updateAppUser(appUser);
 
             String message = messageSource.getMessage("appMessages.success.signin", new Object[0], Locale.ENGLISH);
@@ -748,7 +755,7 @@ public class XTicketServiceImpl implements XTicketService {
             if (requestPayload.getAction().equalsIgnoreCase("Email") || requestPayload.getAction().equalsIgnoreCase("Mobile")) {
                 if (requestPayload.getNewValue().equalsIgnoreCase("")) {
                     response.setResponseCode(ResponseCodes.INPUT_MISSING.getResponseCode());
-                    response.setResponseMessage(messageSource.getMessage("appMessages.invalid.newvalue", new Object[0], Locale.ENGLISH));
+                    response.setResponseMessage(messageSource.getMessage("appMessages.invalid.newvalue", new Object[]{"User Email or Mobile Number"}, Locale.ENGLISH));
                     response.setData(null);
                     return response;
                 }
@@ -757,7 +764,7 @@ public class XTicketServiceImpl implements XTicketService {
                 if (requestPayload.getAction().equalsIgnoreCase("Email")) {
                     if (!requestPayload.getNewValue().matches("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$")) {
                         response.setResponseCode(ResponseCodes.INVALID_TYPE.getResponseCode());
-                        response.setResponseMessage(messageSource.getMessage("appMessages.invalid.newvalue", new Object[0], Locale.ENGLISH));
+                        response.setResponseMessage(messageSource.getMessage("appMessages.invalid.newvalue", new Object[]{"User Email"}, Locale.ENGLISH));
                         response.setData(null);
                         return response;
                     }
@@ -767,7 +774,7 @@ public class XTicketServiceImpl implements XTicketService {
                 if (requestPayload.getAction().equalsIgnoreCase("Mobile")) {
                     if (!requestPayload.getNewValue().matches("[0-9]{11}")) {
                         response.setResponseCode(ResponseCodes.INVALID_TYPE.getResponseCode());
-                        response.setResponseMessage(messageSource.getMessage("appMessages.invalid.newvalue", new Object[0], Locale.ENGLISH));
+                        response.setResponseMessage(messageSource.getMessage("appMessages.invalid.newvalue", new Object[]{"Mobile Number"}, Locale.ENGLISH));
                         response.setData(null);
                         return response;
                     }
@@ -2011,57 +2018,74 @@ public class XTicketServiceImpl implements XTicketService {
                 return response;
             }
 
-            List<String> roles = Arrays.asList(requestPayload.getRolesToUpdate().split(","));
-            if (!roles.isEmpty()) {
+            //Check if no role is selected
+            if (requestPayload.getRolesToUpdate() == null || requestPayload.getRolesToUpdate().equalsIgnoreCase("")) {
                 List<TicketAgent> currentRoles = xticketRepository.getTicketAgent(userAgent);
                 if (currentRoles != null) {
                     for (TicketAgent rol : currentRoles) {
-                        //Check if the current role is found in the new roles
-                        if (!roles.contains(rol.getTicketType().getTicketTypeName())) {
-                            //Check if a ticket has been created with this agent id
-                            Tickets agentTicket = xticketRepository.getTicketUsingAgent(rol);
-                            if (agentTicket == null) {
-                                xticketRepository.deleteTicketAgent(rol);
-                            } else {
-                                rol.setInUse(false);
-                                xticketRepository.updateTicketAgent(rol);
-                            }
+                        //Check if a ticket has been created with this agent id
+                        Tickets agentTicket = xticketRepository.getTicketUsingAgent(rol);
+                        if (agentTicket == null) {
+                            xticketRepository.deleteTicketAgent(rol);
+                        } else {
+                            rol.setInUse(false);
+                            xticketRepository.updateTicketAgent(rol);
                         }
                     }
                 }
-                for (String rol : roles) {
-                    //Check if the roles exist in the db or not
-                    TicketType newTicketType = xticketRepository.getTicketTypeUsingName(rol);
-                    List<TicketAgent> agentTicket = xticketRepository.getTicketAgentUsingTicketType(userAgent, newTicketType);
-
-                    if (agentTicket == null) {
-                        TicketAgent newTicket = new TicketAgent();
-                        newTicket.setCreatedAt(LocalDateTime.now());
-                        newTicket.setAgent(userAgent);
-                        newTicket.setCreatedBy(principal);
-                        newTicket.setInUse(true);
-                        TicketType ticketType = xticketRepository.getTicketTypeUsingName(rol);
-                        newTicket.setTicketType(ticketType);
-                        xticketRepository.createTicketAgent(newTicket);
+            } else {
+                List<String> roles = Arrays.asList(requestPayload.getRolesToUpdate().split(","));
+                if (!roles.isEmpty()) {
+                    List<TicketAgent> currentRoles = xticketRepository.getTicketAgent(userAgent);
+                    if (currentRoles != null) {
+                        for (TicketAgent rol : currentRoles) {
+                            //Check if the current role is found in the new roles
+                            if (!roles.contains(rol.getTicketType().getTicketTypeName())) {
+                                //Check if a ticket has been created with this agent id
+                                Tickets agentTicket = xticketRepository.getTicketUsingAgent(rol);
+                                if (agentTicket == null) {
+                                    xticketRepository.deleteTicketAgent(rol);
+                                } else {
+                                    rol.setInUse(false);
+                                    xticketRepository.updateTicketAgent(rol);
+                                }
+                            }
+                        }
                     }
-                }
+                    for (String rol : roles) {
+                        //Check if the roles exist in the db or not
+                        TicketType newTicketType = xticketRepository.getTicketTypeUsingName(rol);
+                        List<TicketAgent> agentTicket = xticketRepository.getTicketAgentUsingTicketType(userAgent, newTicketType);
 
-                //Update the user as agent if not already
-                if (!userAgent.isAgent()) {
-                    userAgent.setAgent(true);
-                    xticketRepository.updateAppUser(userAgent);
-                }
+                        if (agentTicket == null) {
+                            TicketAgent newTicket = new TicketAgent();
+                            newTicket.setCreatedAt(LocalDateTime.now());
+                            newTicket.setAgent(userAgent);
+                            newTicket.setCreatedBy(principal);
+                            newTicket.setInUse(true);
+                            TicketType ticketType = xticketRepository.getTicketTypeUsingName(rol);
+                            newTicket.setTicketType(ticketType);
+                            xticketRepository.createTicketAgent(newTicket);
+                        }
+                    }
 
-                //Update the user role to that of an agent
-                RoleGroups agentGroup = xticketRepository.getRoleGroupUsingGroupName("AGENT");
-                if (agentGroup != null) {
-                    userAgent.setRole(agentGroup);
-                    xticketRepository.updateAppUser(userAgent);
+                    //Update the user as agent if not already
+                    if (!userAgent.isAgent()) {
+                        userAgent.setAgent(true);
+                        xticketRepository.updateAppUser(userAgent);
+                    }
+
+                    //Update the user role to that of an agent
+                    RoleGroups agentGroup = xticketRepository.getRoleGroupUsingGroupName("AGENT");
+                    if (agentGroup != null) {
+                        userAgent.setRole(agentGroup);
+                        xticketRepository.updateAppUser(userAgent);
+                    }
                 }
             }
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
-            response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{"Ticket Agent", "Created or Updated Successfully"}, Locale.ENGLISH));
+            response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{"Ticket Agent", "Created or Updated"}, Locale.ENGLISH));
             response.setData(null);
             return response;
         } catch (Exception ex) {
@@ -2257,6 +2281,9 @@ public class XTicketServiceImpl implements XTicketService {
             mailPayload.setEmailBody(message);
             genericService.sendEmail(mailPayload, principal);
 
+            //Send out push notification
+            genericService.pushNotification("00", ticketNotificationMessage, ticketAgent.getAgent().getSessionId() == null ? "" : ticketAgent.getAgent().getSessionId());
+
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
             response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{ticketType.getTicketTypeName() + " Ticket", "Created"}, Locale.ENGLISH));
             response.setData(null);
@@ -2351,6 +2378,9 @@ public class XTicketServiceImpl implements XTicketService {
                     + "<p>" + companyName + "</p>";
             mailPayload.setEmailBody(message);
             genericService.sendEmail(mailPayload, principal);
+
+            //Send out push notification
+            genericService.pushNotification("00", ticketNotificationMessage, ticket.getTicketAgent().getAgent().getSessionId() == null ? "" : ticket.getTicketAgent().getAgent().getSessionId());
 
             //Check if the status is changed
             if (!requestPayload.getTicketStatusCode().equalsIgnoreCase("")) {
@@ -2470,6 +2500,9 @@ public class XTicketServiceImpl implements XTicketService {
             mailPayload.setEmailBody(message);
             genericService.sendEmail(mailPayload, principal);
 
+            //Send out push notification
+            genericService.pushNotification("00", ticketNotificationMessage, ticket.getCreatedBy().getSessionId() == null ? "" : ticket.getCreatedBy().getSessionId());
+
             //Check if the status is changed
             if (!requestPayload.getTicketStatusCode().equalsIgnoreCase("")) {
                 TicketStatus ticketStatus = xticketRepository.getTicketStatusUsingCode(requestPayload.getTicketStatusCode());
@@ -2483,7 +2516,7 @@ public class XTicketServiceImpl implements XTicketService {
                     ticket.setTicketPause(null);
                 }
                 ticket.setTicketStatus(ticketStatus);
-                xticketRepository.updateTicketStatus(ticketStatus);
+                xticketRepository.updateTicket(ticket);
 
                 //Log the status change record
                 TicketStatusChange newStatus = new TicketStatusChange();
@@ -2542,6 +2575,7 @@ public class XTicketServiceImpl implements XTicketService {
                     TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
                     newTicket.setReopenedId(reopenedTicket == null ? 0 : reopenedTicket.getId().intValue());
                     newTicket.setEmail(t.getCreatedBy().getEmail());
+                    newTicket.setSlaExpiry(dtf.format(t.getSlaExpiry()));
                     ticketList.add(newTicket);
                 }
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
@@ -2928,8 +2962,8 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             //Fetch the ticket for the user
-            TicketStatus openStatus = xticketRepository.getTicketStatusUsingCode("CLOSED");
-            List<Tickets> openTickets = xticketRepository.getOpenAgentTickets(appUser, openStatus);
+            TicketStatus closedStatus = xticketRepository.getTicketStatusUsingCode("CLOSED");
+            List<Tickets> openTickets = xticketRepository.getOpenAgentTickets(appUser, closedStatus);
 
             if (openTickets != null) {
                 //Filters tickets with 5 mins or less to SLA expiry
@@ -2968,8 +3002,8 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             //Fetch the ticket for the user
-            TicketStatus openStatus = xticketRepository.getTicketStatusUsingCode("CLOSED");
-            List<Tickets> openTickets = xticketRepository.getOpenAgentTickets(appUser, openStatus);
+            TicketStatus closedStatus = xticketRepository.getTicketStatusUsingCode("CLOSED");
+            List<Tickets> openTickets = xticketRepository.getOpenAgentTickets(appUser, closedStatus);
 
             if (openTickets != null) {
                 //Filters tickets with 5 mins or less to SLA expiry
@@ -3257,6 +3291,7 @@ public class XTicketServiceImpl implements XTicketService {
                     TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
                     newTicket.setReopenedId(reopenedTicket == null ? 0 : reopenedTicket.getId().intValue());
                     newTicket.setEmail(t.getCreatedBy().getEmail());
+                    newTicket.setStatus(t.getTicketStatus().getTicketStatusName());
                     data.add(newTicket);
                 }
 
@@ -3530,13 +3565,13 @@ public class XTicketServiceImpl implements XTicketService {
             //Check if the ticket was reopened
             LocalDateTime closedDate;
             String closedBy;
-            TicketStatus openTicketStatus = xticketRepository.getTicketStatusUsingCode("OPEN");
+            TicketStatus closedTicketStatus = xticketRepository.getTicketStatusUsingCode("CLOSED");
             if (ticket.isTicketReopen()) {
                 //Get the last reopened record
                 TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(ticket);
                 closedDate = reopenedTicket.getClosedAt();
                 closedBy = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
-            } else if (Objects.equals(ticket.getTicketStatus(), openTicketStatus)) {
+            } else if (!Objects.equals(ticket.getTicketStatus(), closedTicketStatus)) {
                 closedDate = null;
                 closedBy = "";
             } else {
@@ -3631,6 +3666,8 @@ public class XTicketServiceImpl implements XTicketService {
                     XTicketPayload escalation = new XTicketPayload();
                     escalation.setSlaExpiry(rec.getSlaExpiresAt() == null ? null : dtf.format(rec.getSlaExpiresAt()));
                     escalation.setEscalationEmails(rec.getEscalatedTo());
+                    escalation.setCreatedAt(rec.getCreatedAt() == null ? null : shortDtf.format(rec.getCreatedAt()));
+                    escalation.setTicketAgent(rec.getTicket().getTicketAgent().getAgent().getLastName() + ", " + rec.getTicket().getTicketAgent().getAgent().getOtherName());
                     ticketEscalationRecord.add(escalation);
                 }
                 response.setTicketEscalations(ticketEscalationRecord);
@@ -7723,6 +7760,315 @@ public class XTicketServiceImpl implements XTicketService {
             response.setValue(knowledgeBaseList.size());
             response.setData(data);
             return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    /**
+     * Push PushNotification *
+     */
+    @Override
+    public XTicketPayload fetchPushNotification() {
+        var response = new XTicketPayload();
+        try {
+            List<XTicketPayload> data = new ArrayList<>();
+            List<PushNotification> pushNotification = xticketRepository.getPushNotification();
+            if (pushNotification != null) {
+                for (PushNotification t : pushNotification) {
+                    XTicketPayload payload = new XTicketPayload();
+                    BeanUtils.copyProperties(t, payload);
+                    payload.setCreatedAt(dtf.format(t.getCreatedAt()));
+                    payload.setId(t.getId().intValue());
+                    data.add(payload);
+                }
+            }
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{data.size()}, Locale.ENGLISH));
+            response.setData(data);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload fetchPushNotification(String id, boolean batch) {
+        var response = new XTicketPayload();
+        try {
+            PushNotification pushNotification = xticketRepository.getPushNotificationUsingId(Long.parseLong(id));
+            if (pushNotification == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{id}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            BeanUtils.copyProperties(pushNotification, response);
+            response.setCreatedAt(pushNotification.getCreatedAt().toLocalDate().toString());
+            response.setId(pushNotification.getId().intValue());
+            response.setBatchId(batch ? pushNotification.getBatchId() : 0);
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload fetchPushNotificationByUser(String principal) {
+        var response = new XTicketPayload();
+        try {
+            List<PushNotification> pushNotification = xticketRepository.getPushNotificationBySendTo(principal);
+            if (pushNotification == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{principal}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            List<XTicketPayload> data = new ArrayList<>();
+            for (PushNotification t : pushNotification) {
+                XTicketPayload payload = new XTicketPayload();
+                BeanUtils.copyProperties(t, payload);
+                payload.setCreatedAt(dtf.format(t.getCreatedAt()));
+                var appUser = xticketRepository.getAppUserUsingEmail(t.getSentBy());
+                payload.setSentBy(appUser == null ? t.getSentBy() : appUser.getLastName() + ", " + appUser.getOtherName());
+                payload.setId(t.getId().intValue());
+                data.add(payload);
+            }
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{data.size()}, Locale.ENGLISH));
+            response.setData(data);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload createPushNotification(XTicketPayload requestPayload, String principal) {
+        var response = new XTicketPayload();
+        try {
+            //Check if the request is for update or create new
+            if (requestPayload.getId() == 0) {
+                //Check if the user is valid
+                var appUser = xticketRepository.getAppUserUsingEmail(principal);
+                if (appUser == null) {
+                    response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.user.notexist", new Object[]{principal}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
+                Random random = new Random();
+                int batchId = random.nextInt(1000000); //Integer.parseInt(UUID.randomUUID().toString().replace("-", "").substring(0,10));
+                //Check the action type
+                switch (requestPayload.getAction()) {
+                    case "AllAgents": {
+                        List<AppUser> ticketAgents = xticketRepository.getAgentAppUsers();
+                        if (ticketAgents != null) {
+                            for (AppUser t : ticketAgents) {
+                                PushNotification newNotification = new PushNotification();
+                                newNotification.setCreatedAt(LocalDateTime.now());
+                                newNotification.setSentBy(principal);
+                                newNotification.setSentTo(t.getEmail());
+                                newNotification.setMessage(requestPayload.getMessage());
+                                newNotification.setBatchId(batchId);
+                                xticketRepository.createPushNotification(newNotification);
+
+                                //Log the response
+                                StringBuilder newValue = new StringBuilder();
+                                newValue.append("Message:").append(requestPayload.getMessage()).append(", ")
+                                        .append("Sent By:").append(principal).append(", ")
+                                        .append("Sent To:").append(t.getEmail());
+                                genericService.logResponse(principal, requestPayload.getId(), "Create", "Push Notification", "Create Push Notification.", "", newValue.toString());
+
+                                //Send out push notification
+                                genericService.pushNotification("00", pushNotificationMessage, t.getSessionId() == null ? "" : t.getSessionId());
+                            }
+                        }
+                        break;
+                    }
+                    case "AllUsers": {
+                        List<AppUser> allUsers = xticketRepository.getActiveUsers();
+                        if (allUsers != null) {
+                            for (AppUser t : allUsers) {
+                                PushNotification newNotification = new PushNotification();
+                                newNotification.setCreatedAt(LocalDateTime.now());
+                                newNotification.setSentBy(principal);
+                                newNotification.setSentTo(t.getEmail());
+                                newNotification.setMessage(requestPayload.getMessage());
+                                newNotification.setBatchId(batchId);
+                                xticketRepository.createPushNotification(newNotification);
+
+                                //Log the response
+                                StringBuilder newValue = new StringBuilder();
+                                newValue.append("Message:").append(requestPayload.getMessage()).append(", ")
+                                        .append("Sent By:").append(principal).append(", ")
+                                        .append("Sent To:").append(t.getEmail());
+                                genericService.logResponse(principal, requestPayload.getId(), "Create", "Push Notification", "Create Push Notification.", "", newValue.toString());
+
+                                //Send out push notification
+                                genericService.pushNotification("00", pushNotificationMessage, t.getSessionId() == null ? "" : t.getSessionId());
+                            }
+                        }
+                        break;
+                    }
+                    case "User": {
+                        //Check if the user email is provided
+                        if (requestPayload.getEmail().equalsIgnoreCase("")) {
+                            response.setResponseCode(ResponseCodes.INPUT_MISSING.getResponseCode());
+                            response.setResponseMessage(messageSource.getMessage("appMessages.invalid.newvalue", new Object[]{"User Email"}, Locale.ENGLISH));
+                            response.setData(null);
+                            return response;
+                        }
+
+                        AppUser selectedUser = xticketRepository.getAppUserUsingEmail(requestPayload.getEmail());
+                        if (selectedUser == null) {
+                            response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                            response.setResponseMessage(messageSource.getMessage("appMessages.user.notexist", new Object[]{requestPayload.getEmail()}, Locale.ENGLISH));
+                            response.setData(null);
+                            return response;
+                        }
+
+                        PushNotification newNotification = new PushNotification();
+                        newNotification.setCreatedAt(LocalDateTime.now());
+                        newNotification.setSentBy(principal);
+                        newNotification.setSentTo(requestPayload.getEmail());
+                        newNotification.setMessage(requestPayload.getMessage());
+                        newNotification.setBatchId(batchId);
+                        xticketRepository.createPushNotification(newNotification);
+
+                        //Log the response
+                        StringBuilder newValue = new StringBuilder();
+                        newValue.append("Message:").append(requestPayload.getMessage()).append(", ")
+                                .append("Sent By:").append(principal).append(", ")
+                                .append("Sent To:").append(requestPayload.getEmail());
+                        genericService.logResponse(principal, requestPayload.getId(), "Create", "Push Notification", "Create Push Notification.", "", newValue.toString());
+
+                        //Send out push notification
+                        genericService.pushNotification("00", pushNotificationMessage, selectedUser.getSessionId() == null ? "" : selectedUser.getSessionId());
+                        break;
+                    }
+                }
+
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{"Push Notification", "Created"}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //This is an update request
+            PushNotification pushNotification = xticketRepository.getPushNotificationUsingId(Long.valueOf(requestPayload.getId()));
+            if (pushNotification == null) {
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Push Notification", "Id", requestPayload.getId()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            if (requestPayload.getBatchId() == 0) {
+                StringBuilder oldValue = new StringBuilder();
+                oldValue.append("Message:").append(pushNotification.getMessage());
+
+                //This is a single update
+                pushNotification.setMessage(requestPayload.getMessage());
+                xticketRepository.updatePushNotification(pushNotification);
+
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{"Push Notification", "Updated"}, Locale.ENGLISH));
+                response.setData(null);
+
+                //Log the response
+                StringBuilder newValue = new StringBuilder();
+                newValue.append("Message:").append(requestPayload.getMessage()).append(", ");
+                genericService.logResponse(principal, requestPayload.getId(), "Update", "Push Notification", "Update Push Notification. " + requestPayload.getMessage(), oldValue.toString(), newValue.toString());
+                return response;
+            } else {
+                //This is a batch update
+                List<PushNotification> batchNotification = xticketRepository.getPushNotificationUsingBatchId(pushNotification.getBatchId());
+                if (batchNotification != null) {
+                    for (PushNotification t : batchNotification) {
+                        StringBuilder oldValue = new StringBuilder();
+                        oldValue.append("Message:").append(t.getMessage());
+
+                        t.setMessage(requestPayload.getMessage());
+                        xticketRepository.updatePushNotification(t);
+
+                        //Log the response
+                        StringBuilder newValue = new StringBuilder();
+                        newValue.append("Message:").append(requestPayload.getMessage()).append(", ");
+                        genericService.logResponse(principal, t.getId(), "Update", "Push Notification", "Update Push Notification. " + requestPayload.getMessage(), oldValue.toString(), newValue.toString());
+                    }
+                }
+
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{"Push Notification", "Updated"}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload deletePushNotification(String id, String principal, boolean batch) {
+        var response = new XTicketPayload();
+        try {
+            //Check if the push notification by Id is valid
+            PushNotification pushNotification = xticketRepository.getPushNotificationUsingId(Long.valueOf(id));
+            if (pushNotification == null) {
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Push Notification", "Id", id}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            if (!batch) {
+                xticketRepository.deletePushNotification(pushNotification);
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{"Push Notification" + pushNotification.getMessage(), "Deleted"}, Locale.ENGLISH));
+                response.setData(null);
+
+                //Log the response
+                genericService.logResponse(principal, pushNotification.getId(), "Delete", "Push Notification", "Delete Push Notification. " + pushNotification.getMessage(), pushNotification.getMessage(), "");
+                return response;
+            } else {
+                //This is a batch delete
+                List<PushNotification> batchNotification = xticketRepository.getPushNotificationUsingBatchId(pushNotification.getBatchId());
+                if (batchNotification != null) {
+                    for (PushNotification t : batchNotification) {
+                        xticketRepository.deletePushNotification(t);
+                        //Log the response
+                        genericService.logResponse(principal, pushNotification.getId(), "Delete", "Push Notification", "Delete Push Notification. " + pushNotification.getMessage(), pushNotification.getMessage(), "");
+                    }
+                }
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{"Push Notification" + pushNotification.getMessage(), "Deleted"}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
         } catch (Exception ex) {
             response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
             response.setResponseMessage(ex.getMessage());

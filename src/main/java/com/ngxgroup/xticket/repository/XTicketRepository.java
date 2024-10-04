@@ -11,7 +11,7 @@ import com.ngxgroup.xticket.model.Entities;
 import com.ngxgroup.xticket.model.GroupRoles;
 import com.ngxgroup.xticket.model.KnowledgeBase;
 import com.ngxgroup.xticket.model.KnowledgeBaseCategory;
-import com.ngxgroup.xticket.model.Notification;
+import com.ngxgroup.xticket.model.PushNotification;
 import com.ngxgroup.xticket.model.PublicHolidays;
 import com.ngxgroup.xticket.model.RoleGroups;
 import com.ngxgroup.xticket.model.ServiceUnit;
@@ -65,8 +65,6 @@ public interface XTicketRepository {
     List<AppUser> getAppUserUsingEntity(Entities entity);
 
     AppUser getAppUserUsingUserId(String id);
-
-    List<Notification> getNotifications(String principal);
 
     AppRoles getRoleUsingRoleName(String roleName);
 
@@ -500,4 +498,22 @@ public interface XTicketRepository {
 
     AutomatedTicket getAutomatedTicketUsingType(TicketType ticketType);
 
+    /**
+     * Push Notification
+     *
+     * @return *
+     */
+    List<PushNotification> getPushNotification();
+
+    PushNotification getPushNotificationUsingId(long id);
+
+    List<PushNotification> getPushNotificationBySendTo(String sendTo);
+
+    List<PushNotification> getPushNotificationUsingBatchId(int batchId);
+
+    PushNotification createPushNotification(PushNotification pushNotification);
+
+    PushNotification updatePushNotification(PushNotification pushNotification);
+
+    PushNotification deletePushNotification(PushNotification pushNotification);
 }

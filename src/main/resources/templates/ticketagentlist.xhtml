@@ -65,7 +65,7 @@
                                             <td th:text="${rec.lastLogin}" class="lastLogin align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.createdBy}" class="createdBy align-middle white-space-nowrap start ps-3"></td>
                                             <td class="align-middle white-space-nowrap start ps-3 btn-reveal-trigger">
-                                                <a class="text-success" href="#!" th:href="@{/setup/ticket/agent}"><span class="fas fa-edit" data-bs-toggle="tooltip" data-bs-placement="right" title="Update Ticket"></span></a>
+                                                <a class="text-success" href="#!" th:href="@{'/setup/ticket/agent?seid=' + ${rec.email}}"><span class="fas fa-edit" data-bs-toggle="tooltip" data-bs-placement="right" title="Update Agent"></span></a>
                                             </td>
                                         </tr>
                                     </tbody>

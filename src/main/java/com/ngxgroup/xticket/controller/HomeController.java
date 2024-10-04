@@ -21,15 +21,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import com.ngxgroup.xticket.service.XTicketService;
-import com.sun.management.OperatingSystemMXBean;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.lang.management.ManagementFactory;
-//import java.lang.management.OperatingSystemMXBean;
 import java.util.Locale;
-import java.util.logging.Level;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
@@ -57,7 +53,6 @@ public class HomeController implements ErrorController {
     Gson gson;
     @Value("${xticket.adauth.domains}")
     private String adAuthDomains;
-    private static final Logger LOGGER = Logger.getLogger(HomeController.class.getName());
     private String alertMessage = "";
     private String alertMessageType = "";
     private final SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
@@ -75,6 +70,8 @@ public class HomeController implements ErrorController {
 
     @PostMapping("/login")
     public String signin(@ModelAttribute("signinPayload") XTicketPayload requestPayload, HttpSession httpSession, HttpServletRequest httpRequest, HttpServletResponse httpResponse, Model model) {
+        //Set the session id
+        requestPayload.setSessionId(httpSession.getId());
         XTicketPayload response = xticketService.signin(requestPayload);
         if (response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
             List<SimpleGrantedAuthority> newAuthorities = new ArrayList<>();
@@ -198,6 +195,7 @@ public class HomeController implements ErrorController {
         model.addAttribute("ticketList", ticketByGroup);
         model.addAttribute("ticketByGroupChartData", generateTicketByGroupChart(ticketByGroup));
         model.addAttribute("ticketByStatusChartData", generateTicketByGroupChart(ticketByStatus));
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -221,6 +219,7 @@ public class HomeController implements ErrorController {
         model.addAttribute("ticketList", openTicketByGroup);
         model.addAttribute("ticketByGroupChartData", generateTicketByGroupChart(ticketByGroup));
         model.addAttribute("ticketByStatusChartData", generateTicketByGroupChart(ticketByStatus));
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -302,6 +301,7 @@ public class HomeController implements ErrorController {
     @GetMapping("/profile")
     public String profile(HttpServletRequest request, HttpServletResponse response, Principal principal, Model model) {
         model.addAttribute("profilePayload", new XTicketPayload());
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", alertMessage);
         resetAlertMessage();
         return "profile";
@@ -316,6 +316,7 @@ public class HomeController implements ErrorController {
         model.addAttribute("popularArticleList", xticketService.fetchKnowledgeBasePopularArticle().getData());
         model.addAttribute("latestArticleList", xticketService.fetchKnowledgeBaseLatestArticle().getData());
         model.addAttribute("popularTagList", xticketService.fetchKnowledgeBasePopularTag().getData());
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         model.addAttribute("alertMessage", alertMessage);
@@ -332,6 +333,7 @@ public class HomeController implements ErrorController {
         model.addAttribute("popularArticleList", xticketService.fetchKnowledgeBasePopularArticle().getData());
         model.addAttribute("latestArticleList", xticketService.fetchKnowledgeBaseLatestArticle().getData());
         model.addAttribute("popularTagList", xticketService.fetchKnowledgeBasePopularTag().getData());
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         model.addAttribute("alertMessage", alertMessage);
@@ -348,6 +350,7 @@ public class HomeController implements ErrorController {
         model.addAttribute("popularArticleList", xticketService.fetchKnowledgeBasePopularArticle().getData());
         model.addAttribute("latestArticleList", xticketService.fetchKnowledgeBaseLatestArticle().getData());
         model.addAttribute("popularTagList", xticketService.fetchKnowledgeBasePopularTag().getData());
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         model.addAttribute("alertMessage", alertMessage);
@@ -360,6 +363,7 @@ public class HomeController implements ErrorController {
     public String knowledgeBaseCategory(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("recordCount", xticketService.fetchKnowledgeBaseCategory().getData().size());
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -375,6 +379,7 @@ public class HomeController implements ErrorController {
             return "redirect:/knowledge-base/category";
         }
         model.addAttribute("ticketPayload", requestPayload);
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "error");
         resetAlertMessage();
@@ -392,6 +397,7 @@ public class HomeController implements ErrorController {
         }
         model.addAttribute("ticketPayload", response);
         model.addAttribute("recordCount", xticketService.fetchKnowledgeBaseCategory().getData().size());
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "success");
         resetAlertMessage();
@@ -403,6 +409,7 @@ public class HomeController implements ErrorController {
     public String knowledgeBaseCategory(Model model, Principal principal) {
         XTicketPayload response = xticketService.fetchKnowledgeBaseCategory();
         model.addAttribute("dataList", response.getData());
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -424,6 +431,7 @@ public class HomeController implements ErrorController {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("recordCount", xticketService.fetchKnowledgeBaseContent().getData().size());
         model.addAttribute("knowledgeBaseCategoryList", xticketService.fetchKnowledgeBaseCategory().getData());
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -441,6 +449,7 @@ public class HomeController implements ErrorController {
         model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("recordCount", xticketService.fetchKnowledgeBaseContent().getData().size());
         model.addAttribute("knowledgeBaseCategoryList", xticketService.fetchKnowledgeBaseCategory().getData());
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "error");
         resetAlertMessage();
@@ -459,6 +468,7 @@ public class HomeController implements ErrorController {
         model.addAttribute("ticketPayload", response);
         model.addAttribute("knowledgeBaseCategoryList", xticketService.fetchKnowledgeBaseCategory().getData());
         model.addAttribute("recordCount", xticketService.fetchKnowledgeBaseContent().getData().size());
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "success");
         resetAlertMessage();
@@ -470,6 +480,7 @@ public class HomeController implements ErrorController {
     public String knowledgeBaseContent(Model model, Principal principal) {
         XTicketPayload response = xticketService.fetchKnowledgeBaseContent();
         model.addAttribute("dataList", response.getData());
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -550,6 +561,112 @@ public class HomeController implements ErrorController {
         model.addAttribute("alertMessage", alertMessage);
         resetAlertMessage();
         return "knowledgebasesearch";
+    }
+
+    @GetMapping("/notification")
+    @Secured("ROLE_ADD_PUSH_NOTIFICATION")
+    public String pushNotification(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
+        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("recordCount", xticketService.fetchPushNotification().getData().size());
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
+        resetAlertMessage();
+        return "notification";
+    }
+
+    @PostMapping("/notification/create")
+    public String pushNotification(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession session, Principal principal, Model model) {
+        XTicketPayload response = xticketService.createPushNotification(requestPayload, principal.getName());
+        if (response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
+            alertMessage = response.getResponseMessage();
+            alertMessageType = "success";
+            return "redirect:/notification";
+        }
+        model.addAttribute("ticketPayload", requestPayload);
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        model.addAttribute("alertMessage", response.getResponseMessage());
+        model.addAttribute("alertMessageType", "error");
+        resetAlertMessage();
+        return "notification";
+    }
+
+    @GetMapping("/notification/edit")
+    @Secured("ROLE_UPDATE_PUSH_NOTIFICATION")
+    public String pushNotification(@RequestParam("seid") String id, Model model, Principal principal) {
+        XTicketPayload response = xticketService.fetchPushNotification(id, false);
+        if (!response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
+            alertMessage = response.getResponseMessage();
+            alertMessageType = "error";
+            return "redirect:/notification/list";
+        }
+        model.addAttribute("ticketPayload", response);
+        model.addAttribute("recordCount", xticketService.fetchPushNotification().getData().size());
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        model.addAttribute("alertMessage", response.getResponseMessage());
+        model.addAttribute("alertMessageType", "success");
+        resetAlertMessage();
+        return "notification";
+    }
+
+    @GetMapping("/notification/batch/edit")
+    @Secured("ROLE_UPDATE_PUSH_NOTIFICATION")
+    public String batchUpdatePushNotification(@RequestParam("seid") String id, Model model, Principal principal) {
+        XTicketPayload response = xticketService.fetchPushNotification(id, true);
+        if (!response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode())) {
+            alertMessage = response.getResponseMessage();
+            alertMessageType = "error";
+            return "redirect:/notification/list";
+        }
+        model.addAttribute("ticketPayload", response);
+        model.addAttribute("recordCount", xticketService.fetchPushNotification().getData().size());
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        model.addAttribute("alertMessage", response.getResponseMessage());
+        model.addAttribute("alertMessageType", "success");
+        resetAlertMessage();
+        return "notification";
+    }
+
+    @GetMapping("/notification/list")
+    @Secured("ROLE_LIST_PUSH_NOTIFICATION")
+    public String pushNotification(Model model, Principal principal) {
+        XTicketPayload response = xticketService.fetchPushNotification();
+        model.addAttribute("dataList", response.getData());
+        alertMessage = response.getResponseMessage();
+        alertMessageType = response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error";
+        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
+        resetAlertMessage();
+        return "notificationlist";
+    }
+
+    @GetMapping("/notification/delete")
+    @Secured("ROLE_DELETE_PUSH_NOTIFICATION")
+    public String deletePushNotification(@RequestParam("seid") String seid, Model model, Principal principal) {
+        XTicketPayload response = xticketService.deletePushNotification(seid, principal.getName(), false);
+        alertMessage = response.getResponseMessage();
+        alertMessageType = response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error";
+        return "redirect:/notification/list";
+    }
+
+    @GetMapping("/notification/batch/delete")
+    @Secured("ROLE_DELETE_PUSH_NOTIFICATION")
+    public String batchDeletePushNotification(@RequestParam("seid") String seid, Model model, Principal principal) {
+        XTicketPayload response = xticketService.deletePushNotification(seid, principal.getName(), true);
+        alertMessage = response.getResponseMessage();
+        alertMessageType = response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error";
+        return "redirect:/notification/list";
+    }
+
+    @GetMapping("/notification/self/delete")
+    @Secured("ROLE_DELETE_PUSH_NOTIFICATION")
+    public String deletePushNotificationByUser(@RequestParam("seid") String seid, Model model, Principal principal, HttpServletRequest httpRequest) {
+        XTicketPayload response = xticketService.deletePushNotification(seid, principal.getName(), false);
+        alertMessage = "Notification Deleted";
+        alertMessageType = response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error";
+        String requestUri = httpRequest.getHeader("Referer");
+        return "redirect:" + requestUri;
     }
 
     private void resetAlertMessage() {

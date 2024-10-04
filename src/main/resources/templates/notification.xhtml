@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
-        <title>X-Ticket - Ticket Agent</title>
+        <title>X-Ticket - Push Notification</title>
         <th:block th:insert="~{fragments/xTicketFragments :: headerfiles}"></th:block>
     </head>
     <body onload="preloaderFunction()" style="margin: 0;">
@@ -13,14 +13,14 @@
                 <div class="content">
                     <div class="row gy-3 mb-3 justify-content-between">
                         <div class="col-md-4 col-auto">
-                            <h5 class="text-1100 text-primary">Setup Ticket Agent</h5>
+                            <h5 class="text-1100 text-primary">Push Notification</h5>
                         </div>
                         <div class="col-md-5 col-auto">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb mb-0">
                                     <li th:if="!${session.isAgent}" class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
-                                    <li th:if="${session.isAgent}" class="breadcrumb-item"><a href="#" th:href="@{/agent/dashboard}">Dashboard</a></li>
-                                    <li class="breadcrumb-item active">Ticket Agent</li>
+                                    <li th:if="${session.isAgent}"class="breadcrumb-item"><a href="#" th:href="@{/agent/dashboard}">Dashboard</a></li>
+                                    <li class="breadcrumb-item active">Push Notification</li>
                                 </ol>
                             </nav>
                         </div>
@@ -28,34 +28,28 @@
                             <h5><span class="text-1100 text-primary" th:text="'Welcome ' + ${session.fullName} + ' :: '"></span><span th:text="${session.userType}" class="text-secondary"></span></h5>
                         </div>
                         <hr/>
-                    </div>            
+                    </div>
                     <div class="row mb-3 justify-content-between">
-                        <div class="offset-lg-3 col-lg-6 col-md-12 col-sm-12">
-                            <form class="mb-3" th:object="${ticketPayload}" th:action="@{/setup/ticket/agent/permission}" method="POST">
-                                <div class="input-group input-group-sm mb-3">
-                                    <span class="input-group-text">System User</span>
-                                    <select class="form-select form-control-sm" aria-label="email" th:field="*{email}" required="required">
-                                        <option value="">---Select User---</option>
-                                        <option th:each="fa : ${userList}" th:value="${fa.email}" th:text="${fa.lastName + ', ' + fa.otherName}"></option>
-                                    </select>
-                                    <button type="submit" class="btn btn-primary btn-sm">Fetch Type</button>
+                        <div class="offset-lg-4 col-lg-4 col-md-12 col-sm-12">
+                            <form th:object="${ticketPayload}" th:action="@{/notification/create}" method="POST">
+                                <input type="hidden" th:field="*{id}" />
+                                <input type="hidden" th:field="*{batchId}" />
+                                <div class="form-icon-container">
+                                    <textarea class="form-control form-control-sm form-icon-input" th:field="*{message}" placeholder="Your message" required="required" rows="3"></textarea>
+                                    <span class="text-danger asterisk">*</span>
+                                    <span class="fas fa-comments text-900 fs--1 form-icon text-primary"></span>
                                 </div>
-                            </form>
-                            <form th:object="${ticketPayload}" th:action="@{/setup/ticket/agent/create}" method="POST" th:if="${roleList != null}">
-                                <input type="hidden" th:field="*{email}" />
-                                <div class="row mt-3">
-                                    <div class="col-lg-6 col-sm-12 col-md-12" th:each="rec : ${roleList}">
-                                        <div th:switch="${rec.roleExist}">
-                                            <span th:case="${'false'}">
-                                                <input type="checkbox" class="form-check-input" name="rolesToUpdate" th:value="${rec.ticketTypeName}" />
-                                                <label class="form-check-label col-form-label-sm" th:text="${rec.ticketTypeName}"></label> 
-                                            </span>
-                                            <span th:case="${'true'}">
-                                                <input type="checkbox" class="form-check-input"  name="rolesToUpdate" th:value="${rec.ticketTypeName}" checked="checked" />
-                                                <label class="form-check-label" th:text="${rec.ticketTypeName}"></label>  
-                                            </span>
-                                        </div>  
-                                    </div>                                                                                  
+                                <div class="form-icon-container">
+                                    <select class="form-select form-control-sm form-icon-input" aria-label="action" th:field="*{action}">
+                                        <option value="User">User</option>
+                                        <option value="AllAgents">All Agents</option>
+                                        <option value="AllUsers">All Users</option>
+                                    </select>
+                                    <span class="fas fa-layer-group text-900 fs--1 form-icon text-primary"></span>
+                                </div>
+                                <div class="form-icon-container">
+                                    <input type="email" class="form-control form-control-sm form-icon-input" th:field="*{email}" placeholder="Enter user email"/>
+                                    <span class="fas fa-at text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <button class="btn btn-primary btn-sm w-40 mb-3 mt-2" type="button" data-bs-target="#confirmModal" data-bs-toggle="modal">Submit</button>
                                 <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModal" aria-hidden="true">
@@ -65,7 +59,7 @@
                                                 <h6 class="modal-title text-primary">X-Ticket</h6>
                                             </div>
                                             <div class="modal-body">
-                                                <p>Confirm create ticket agent</p>
+                                                <p>Confirm create push notification</p>
                                                 <button type="submit" class="btn btn-primary btn-sm">Create</button>
                                                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
                                             </div>
@@ -76,17 +70,17 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="offset-lg-3 col-lg-6 col-sm-12 col-md-12">
+                        <div class="offset-lg-4 col-lg-4 col-sm-12 col-md-12">
                             <div class="border-top border-dashed border-300 py-4">
                                 <div class="d-flex flex-between-center">
                                     <div>
                                         <div class="d-flex align-items-center mb-1"><span class="fa-solid fa-th-list me-2 fs--1 text-700"></span>
-                                            <p class="text-1000 mb-0 lh-1">Ticket Agent Listing</p>
+                                            <p class="text-1000 mb-0 lh-1">Push Notification Listing</p>
                                         </div>
                                         <p class="fs--1 text-700 mb-0"><span>X-Ticket</span>
-                                            <span class="text-400 mx-1">| </span><a sec:authorize="hasRole('LIST_TICKET_AGENT')" th:href="@{/setup/ticket/agent/list}">Ticket Agent Listing</a>
+                                            <span class="text-400 mx-1">| </span><a sec:authorize="hasRole('LIST_PUSH_NOTIFICATION')" th:href="@{/notification/list}">Notification Listing</a>
                                             <span class="text-400 mx-1">| </span>
-                                            <span class="text-nowrap">Total of <b><span th:text="${recordCount}" class="text-primary"></span></b> Ticket Agent Created</span></p>
+                                            <span class="text-nowrap">Total of <b><span th:text="${recordCount}" class="text-primary"></span></b> Notification Created</span></p>
                                     </div>
                                 </div>
                             </div>

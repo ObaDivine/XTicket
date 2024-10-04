@@ -11,7 +11,7 @@ import com.ngxgroup.xticket.model.Entities;
 import com.ngxgroup.xticket.model.GroupRoles;
 import com.ngxgroup.xticket.model.KnowledgeBase;
 import com.ngxgroup.xticket.model.KnowledgeBaseCategory;
-import com.ngxgroup.xticket.model.Notification;
+import com.ngxgroup.xticket.model.PushNotification;
 import com.ngxgroup.xticket.model.PublicHolidays;
 import com.ngxgroup.xticket.model.RoleGroups;
 import com.ngxgroup.xticket.model.ServiceUnit;
@@ -119,17 +119,6 @@ public class XTicketRepositoryImpl implements XTicketRepository {
         em.merge(appUser);
         em.flush();
         return appUser;
-    }
-
-    @Override
-    public List<Notification> getNotifications(String principal) {
-        TypedQuery<Notification> query = em.createQuery("SELECT p FROM Notification p WHERE p.sentTo = :principal OR p.sentTo = 'All'", Notification.class)
-                .setParameter("principal", principal);
-        List<Notification> recordset = query.getResultList();
-        if (recordset.isEmpty()) {
-            return null;
-        }
-        return recordset;
     }
 
     @Override
@@ -289,7 +278,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<AppUser> getActiveUsers() {
-        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.isEnabled = true", AppUser.class);
+        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.isLocked = false", AppUser.class);
         List<AppUser> recordset = query.getResultList();
         if (recordset.isEmpty()) {
             return null;
@@ -299,7 +288,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<AppUser> getDisabledUsers() {
-        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.isEnabled = false", AppUser.class);
+        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.isLocked = true", AppUser.class);
         List<AppUser> recordset = query.getResultList();
         if (recordset.isEmpty()) {
             return null;
@@ -1861,6 +1850,70 @@ public class XTicketRepositoryImpl implements XTicketRepository {
         em.remove(em.contains(automatedTicket) ? automatedTicket : em.merge(automatedTicket));
         em.flush();
         return automatedTicket;
+    }
+
+    @Override
+    public List<PushNotification> getPushNotification() {
+        TypedQuery<PushNotification> query = em.createQuery("SELECT p FROM PushNotification p", PushNotification.class);
+        List<PushNotification> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset;
+    }
+
+    @Override
+    public PushNotification getPushNotificationUsingId(long id) {
+        TypedQuery<PushNotification> query = em.createQuery("SELECT p FROM PushNotification p WHERE p.id = :id", PushNotification.class)
+                .setParameter("id", id);
+        List<PushNotification> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset.get(0);
+    }
+
+    @Override
+    public List<PushNotification> getPushNotificationBySendTo(String sendTo) {
+        TypedQuery<PushNotification> query = em.createQuery("SELECT p FROM PushNotification p WHERE p.sentTo = :sendTo", PushNotification.class)
+                .setParameter("sendTo", sendTo);
+        List<PushNotification> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset;
+    }
+
+    @Override
+    public List<PushNotification> getPushNotificationUsingBatchId(int batchId) {
+        TypedQuery<PushNotification> query = em.createQuery("SELECT p FROM PushNotification p WHERE p.batchId = :batchId", PushNotification.class)
+                .setParameter("batchId", batchId);
+        List<PushNotification> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset;
+    }
+
+    @Override
+    public PushNotification createPushNotification(PushNotification pushNotification) {
+        em.persist(pushNotification);
+        em.flush();
+        return pushNotification;
+    }
+
+    @Override
+    public PushNotification updatePushNotification(PushNotification pushNotification) {
+        em.merge(pushNotification);
+        em.flush();
+        return pushNotification;
+    }
+
+    @Override
+    public PushNotification deletePushNotification(PushNotification pushNotification) {
+        em.remove(em.contains(pushNotification) ? pushNotification : em.merge(pushNotification));
+        em.flush();
+        return pushNotification;
     }
 
 }

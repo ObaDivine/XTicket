@@ -1,6 +1,7 @@
 package com.ngxgroup.xticket.service;
 
 import com.google.gson.Gson;
+import com.ngxgroup.xticket.controller.PushNotificationController;
 import com.ngxgroup.xticket.model.AuditLog;
 import com.ngxgroup.xticket.payload.LogPayload;
 import com.ngxgroup.xticket.payload.XTicketPayload;
@@ -46,6 +47,8 @@ public class GenericServiceImpl implements GenericService {
     XTicketRepository xticketRepository;
     @Autowired
     Gson gson;
+    @Autowired
+    PushNotificationController pushNotification;
     @Value("${xticket.encryption.key.web}")
     private String encryptionKey;
     @Value("${email.login}")
@@ -231,6 +234,17 @@ public class GenericServiceImpl implements GenericService {
         newLog.setRefNo(String.valueOf(refNo));
         newLog.setUsername(username);
         xticketRepository.createAuditLog(newLog);
+        return CompletableFuture.completedFuture("Success");
+    }
+
+    @Override
+    public CompletableFuture<String> pushNotification(String responseCode, String responseMessage, String sessionId) {
+        XTicketPayload requestPayload = new XTicketPayload();
+        requestPayload.setResponseCode(responseCode);
+        requestPayload.setResponseMessage(responseMessage);
+        requestPayload.setSessionId(sessionId);
+        //Push the notification
+        pushNotification.pushNotification(requestPayload);
         return CompletableFuture.completedFuture("Success");
     }
 
