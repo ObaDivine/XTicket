@@ -2965,21 +2965,20 @@ public class XTicketServiceImpl implements XTicketService {
             //Fetch the ticket for the user
             TicketStatus closedStatus = xticketRepository.getTicketStatusUsingCode("CLOSED");
             List<Tickets> openTickets = xticketRepository.getOpenAgentTickets(appUser, closedStatus);
-
+            List<XTicketPayload> data = new ArrayList<>();
             if (openTickets != null) {
                 //Filters tickets with 5 mins or less to SLA expiry
-                openTickets = openTickets.stream().filter(t -> Duration.between(LocalDateTime.now(), t.getSlaExpiry()).toMinutes() <= slaExpiryTimeLeft).collect(Collectors.toList());
-                XTicketPayload openTicket = new XTicketPayload();
-                openTicket.setValue(openTickets.size());
-                openTicket.setName("About to Violate Sla");
+                openTickets = openTickets.stream().filter(t -> Duration.between(LocalDateTime.now(), t.getSlaExpiry()).toMinutes() <= slaExpiryTimeLeft && Duration.between(LocalDateTime.now(), t.getSlaExpiry()).toMinutes() >= 0).collect(Collectors.toList());
+                response.setValue(openTickets.size());
+                response.setName("About to Violate Sla");
             } else {
-                XTicketPayload openTicket = new XTicketPayload();
-                openTicket.setValue(0);
-                openTicket.setName("About to Violate Sla");
+                response.setValue(0);
+                response.setName("About to Violate Sla");
             }
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
             response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
+                        response.setData(data);
             return response;
         } catch (Exception ex) {
             response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
@@ -3005,18 +3004,16 @@ public class XTicketServiceImpl implements XTicketService {
             //Fetch the ticket for the user
             TicketStatus closedStatus = xticketRepository.getTicketStatusUsingCode("CLOSED");
             List<Tickets> openTickets = xticketRepository.getOpenAgentTickets(appUser, closedStatus);
-
             if (openTickets != null) {
                 //Filters tickets with 5 mins or less to SLA expiry
                 openTickets = openTickets.stream().filter(t -> t.getTicketType().getSla().getPriority().equalsIgnoreCase("Critical")
                         || t.getTicketType().getSla().getPriority().equalsIgnoreCase("High")).collect(Collectors.toList());
-                XTicketPayload openTicket = new XTicketPayload();
-                openTicket.setValue(openTickets.size());
-                openTicket.setName("Critical Sla Tickets");
+                
+                response.setValue(openTickets.size());
+                response.setName("Critical Sla Tickets");
             } else {
-                XTicketPayload openTicket = new XTicketPayload();
-                openTicket.setValue(0);
-                openTicket.setName("Critical Sla Tickets");
+                response.setValue(0);
+                response.setName("Critical Sla Tickets");
             }
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
@@ -3270,7 +3267,7 @@ public class XTicketServiceImpl implements XTicketService {
                 }
 
                 if (transType.equalsIgnoreCase("sla")) {
-                    agentTickets = agentTickets.stream().filter(t -> Duration.between(LocalDateTime.now(), t.getSlaExpiry()).toMinutes() <= slaExpiryTimeLeft).collect(Collectors.toList());
+                    agentTickets = agentTickets.stream().filter(t -> Duration.between(LocalDateTime.now(), t.getSlaExpiry()).toMinutes() <= slaExpiryTimeLeft && Duration.between(LocalDateTime.now(), t.getSlaExpiry()).toMinutes() >= 0).collect(Collectors.toList());
                 }
 
                 if (!transType.equalsIgnoreCase("all") && !transType.equalsIgnoreCase("sla") && !transType.equalsIgnoreCase("critical") && !transType.equalsIgnoreCase("")) {
@@ -7892,6 +7889,7 @@ public class XTicketServiceImpl implements XTicketService {
                                 newNotification.setSentTo(t.getEmail());
                                 newNotification.setMessage(requestPayload.getMessage());
                                 newNotification.setBatchId(batchId);
+                                newNotification.setRead(false);
                                 xticketRepository.createPushNotification(newNotification);
 
                                 //Log the response
@@ -7917,6 +7915,7 @@ public class XTicketServiceImpl implements XTicketService {
                                 newNotification.setSentTo(t.getEmail());
                                 newNotification.setMessage(requestPayload.getMessage());
                                 newNotification.setBatchId(batchId);
+                                newNotification.setRead(false);
                                 xticketRepository.createPushNotification(newNotification);
 
                                 //Log the response
@@ -7941,31 +7940,30 @@ public class XTicketServiceImpl implements XTicketService {
                             return response;
                         }
 
-                        AppUser selectedUser = xticketRepository.getAppUserUsingEmail(requestPayload.getEmail());
-                        if (selectedUser == null) {
-                            response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
-                            response.setResponseMessage(messageSource.getMessage("appMessages.user.notexist", new Object[]{requestPayload.getEmail()}, Locale.ENGLISH));
-                            response.setData(null);
-                            return response;
+                        String[] emails = requestPayload.getEmail().split(",");
+                        for (String e : emails) {
+                            AppUser selectedUser = xticketRepository.getAppUserUsingEmail(e);
+                            if (selectedUser != null) {
+                                PushNotification newNotification = new PushNotification();
+                                newNotification.setCreatedAt(LocalDateTime.now());
+                                newNotification.setSentBy(principal);
+                                newNotification.setSentTo(requestPayload.getEmail());
+                                newNotification.setMessage(requestPayload.getMessage());
+                                newNotification.setBatchId(batchId);
+                                newNotification.setRead(false);
+                                xticketRepository.createPushNotification(newNotification);
+
+                                //Log the response
+                                StringBuilder newValue = new StringBuilder();
+                                newValue.append("Message:").append(requestPayload.getMessage()).append(", ")
+                                        .append("Sent By:").append(principal).append(", ")
+                                        .append("Sent To:").append(e);
+                                genericService.logResponse(principal, requestPayload.getId(), "Create", "Push Notification", "Create Push Notification.", "", newValue.toString());
+
+                                //Send out push notification
+                                genericService.pushNotification("00", pushNotificationMessage, selectedUser.getSessionId() == null ? "" : selectedUser.getSessionId());
+                            }
                         }
-
-                        PushNotification newNotification = new PushNotification();
-                        newNotification.setCreatedAt(LocalDateTime.now());
-                        newNotification.setSentBy(principal);
-                        newNotification.setSentTo(requestPayload.getEmail());
-                        newNotification.setMessage(requestPayload.getMessage());
-                        newNotification.setBatchId(batchId);
-                        xticketRepository.createPushNotification(newNotification);
-
-                        //Log the response
-                        StringBuilder newValue = new StringBuilder();
-                        newValue.append("Message:").append(requestPayload.getMessage()).append(", ")
-                                .append("Sent By:").append(principal).append(", ")
-                                .append("Sent To:").append(requestPayload.getEmail());
-                        genericService.logResponse(principal, requestPayload.getId(), "Create", "Push Notification", "Create Push Notification.", "", newValue.toString());
-
-                        //Send out push notification
-                        genericService.pushNotification("00", pushNotificationMessage, selectedUser.getSessionId() == null ? "" : selectedUser.getSessionId());
                         break;
                     }
                 }

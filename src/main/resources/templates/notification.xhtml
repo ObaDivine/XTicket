@@ -48,7 +48,9 @@
                                     <span class="fas fa-layer-group text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <div class="form-icon-container">
-                                    <input type="email" class="form-control form-control-sm form-icon-input" th:field="*{email}" placeholder="Enter user email"/>
+                                   <input type="text" class="form-control form-control-sm form-icon-input" th:field="*{email}" placeholder="Enter user email(s)" 
+                                           required="required" pattern="^(([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)(\\s*,\\s*|\\s*$))*$",
+                                           title="Emails separated by comma"/>
                                     <span class="fas fa-at text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <button class="btn btn-primary btn-sm w-40 mb-3 mt-2" type="button" data-bs-target="#confirmModal" data-bs-toggle="modal">Submit</button>

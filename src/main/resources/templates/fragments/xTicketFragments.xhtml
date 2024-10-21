@@ -51,7 +51,7 @@
                 }
                 ;
 
-                const eventSource = new EventSource('http://localhost:8080/xticket/events/subscribe');
+                const eventSource = new EventSource('http://testapp.ngxgroup.com:8443/xticket/events/subscribe');
                 eventSource.addEventListener("callback", function (event) {
                     var jsonData = JSON.parse(event.data);
                     showAlert(jsonData.responseMessage, jsonData.responseCode === '00' ? 'success' : 'error', 'bottom-right');
@@ -393,7 +393,7 @@
                                             <div class="p-3 border-300 notification-card position-relative read border-bottom" th:each="rec : ${notification}">
                                                 <div class="d-flex align-items-center justify-content-between position-relative">
                                                     <div class="d-flex">
-                                                        <div class="avatar avatar-m status-online me-3"><img class="rounded-circle" th:src="@{/images/icon/40x40/avatar.webp}" alt="" />
+                                                        <div class="avatar avatar-m status-online me-3"><img class="rounded-circle" th:src="@{/images/icons/avatar.webp}" alt="" />
                                                         </div>
                                                         <div class="me-3 flex-1">
                                                             <h4 class="fs--1 text-black" th:text="${rec.sentBy}">Brian Okon</h4>
@@ -409,7 +409,10 @@
                                                     <div class="font-sans-serif d-none d-sm-block">
                                                         <button class="btn fs--2 btn-sm dropdown-toggle dropdown-caret-none transition-none notification-dropdown-toggle" type="button" data-stop-propagation="data-stop-propagation" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs--2 text-900"></span></button>
                                                         <div class="dropdown-menu dropdown-menu-end py-2">
-                                                            <a class="dropdown-item" href="#!" th:href="@{'/notification/self/delete?seid=' + ${rec.id}}">Delete</a></div>
+                                                            <a class="dropdown-item" href="#!" th:href="@{'/notification/self/read?seid=' + ${rec.id}}">Mark as Read</a>
+                                                            <a class="dropdown-item" href="#!" th:href="@{'/notification/self/read?seid=' + ${rec.id}}">Mark as Read</a>
+                                                            <a class="dropdown-item" href="#!" th:href="@{'/notification/self/delete?seid=' + ${rec.id}}">Delete</a>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
