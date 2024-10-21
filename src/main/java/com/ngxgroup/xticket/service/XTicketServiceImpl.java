@@ -49,6 +49,7 @@ import jakarta.servlet.ServletContext;
 import java.io.File;
 import java.time.DayOfWeek;
 import java.time.Duration;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -2266,7 +2267,7 @@ public class XTicketServiceImpl implements XTicketService {
             XTicketPayload mailPayload = new XTicketPayload();
             mailPayload.setRecipientEmail(ticketAgent.getAgent().getEmail());
             mailPayload.setEmailSubject("Ticket Request Notification");
-            mailPayload.setCarbonCopyEmail("");
+            mailPayload.setCarbonCopyEmail(ticketType.getServiceUnit().getGroupEmail());
             LocalDateTime slaExpiry = getSlaExpiryDate(ticketType);
             String slaTime = timeDtf.format(slaExpiry.toLocalTime());
             String slaDate = slaExpiry.getMonth().toString() + " " + slaExpiry.getDayOfMonth() + ", " + slaExpiry.getYear();
@@ -3061,6 +3062,24 @@ public class XTicketServiceImpl implements XTicketService {
                 ticket.setResolution(requestPayload.getResolution());
                 xticketRepository.updateTicket(ticket);
 
+                //Send notification to ticket agents or the requester
+                String recipientEmail = appUser.equals(ticket.getCreatedBy()) ? ticket.getTicketAgent().getAgent().getEmail() : appUser.getEmail();
+                String recipientName = appUser.equals(ticket.getCreatedBy()) ? ticket.getTicketAgent().getAgent().getLastName() : appUser.getLastName();
+
+                XTicketPayload mailPayload = new XTicketPayload();
+                mailPayload.setRecipientEmail(recipientEmail);
+                mailPayload.setEmailSubject("Ticket Closure Notification");
+                mailPayload.setCarbonCopyEmail("");
+                String message = "<h4>Dear " + recipientName + ",</h4>\n"
+                        + "<p>A <b>" + ticket.getTicketType().getTicketTypeName() + "</b> ticket with an ID <b>" + ticket.getTicketId()
+                        + "</b> has been closed by <b>" + appUser.getLastName() + ", " + appUser.getOtherName() + ".</b></p>"
+                        + "<p>To view the ticket details or take action, kindly login into NGX X-Ticket by <a href=\"" + host + "/xticket/ticket/view?seid=" + ticket.getId() + "\">clicking here</a></p>"
+                        + "<p>For support and enquiries, email: " + companyEmail + ".</p>\n"
+                        + "<p>Best wishes,</p>"
+                        + "<p>" + companyName + "</p>";
+                mailPayload.setEmailBody(message);
+                genericService.sendEmail(mailPayload, principal);
+
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
                 response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{" ticket is ", "closed "}, Locale.ENGLISH));
                 response.setData(null);
@@ -3089,6 +3108,24 @@ public class XTicketServiceImpl implements XTicketService {
             ticketReopen.setRating(requestPayload.getRating());
             ticketReopen.setRatingComment(requestPayload.getComment());
             xticketRepository.updateTicketReopen(ticketReopen);
+
+            //Send notification to ticket agents or the requester
+            String recipientEmail = appUser.equals(ticket.getCreatedBy()) ? ticket.getTicketAgent().getAgent().getEmail() : appUser.getEmail();
+            String recipientName = appUser.equals(ticket.getCreatedBy()) ? ticket.getTicketAgent().getAgent().getLastName() : appUser.getLastName();
+
+            XTicketPayload mailPayload = new XTicketPayload();
+            mailPayload.setRecipientEmail(recipientEmail);
+            mailPayload.setEmailSubject("Ticket Closure Notification");
+            mailPayload.setCarbonCopyEmail("");
+            String message = "<h4>Dear " + recipientName + ",</h4>\n"
+                    + "<p>A <b>" + ticket.getTicketType().getTicketTypeName() + "</b> ticket with an ID <b>" + ticket.getTicketId()
+                    + "</b> has been closed by <b>" + appUser.getLastName() + ", " + appUser.getOtherName() + ".</b></p>"
+                    + "<p>To view the ticket details or take action, kindly login into NGX X-Ticket by <a href=\"" + host + "/xticket/ticket/view?seid=" + ticket.getId() + "\">clicking here</a></p>"
+                    + "<p>For support and enquiries, email: " + companyEmail + ".</p>\n"
+                    + "<p>Best wishes,</p>"
+                    + "<p>" + companyName + "</p>";
+            mailPayload.setEmailBody(message);
+            genericService.sendEmail(mailPayload, principal);
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
             response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{" ticket is ", "closed "}, Locale.ENGLISH));
@@ -5755,6 +5792,7 @@ public class XTicketServiceImpl implements XTicketService {
                     payload.setId(t.getId().intValue());
                     payload.setDepartmentName(t.getDepartment().getDepartmentName());
                     payload.setDepartmentCode(t.getDepartment().getDepartmentCode());
+                    payload.setEmail(t.getGroupEmail());
                     data.add(payload);
                 }
             }
@@ -5788,6 +5826,7 @@ public class XTicketServiceImpl implements XTicketService {
             response.setId(serviceUnit.getId().intValue());
             response.setDepartmentName(serviceUnit.getDepartment().getDepartmentName());
             response.setDepartmentCode(serviceUnit.getDepartment().getDepartmentCode());
+            response.setEmail(serviceUnit.getGroupEmail());
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
             response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
@@ -5850,6 +5889,7 @@ public class XTicketServiceImpl implements XTicketService {
                 newServiceUnit.setStatus(requestPayload.getStatus());
                 newServiceUnit.setServiceUnitCode(requestPayload.getServiceUnitCode());
                 newServiceUnit.setServiceUnitName(requestPayload.getServiceUnitName());
+                newServiceUnit.setGroupEmail(requestPayload.getEmail());
                 xticketRepository.createServiceUnit(newServiceUnit);
 
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
@@ -5909,6 +5949,7 @@ public class XTicketServiceImpl implements XTicketService {
             serviceUnit.setStatus(requestPayload.getStatus());
             serviceUnit.setServiceUnitCode(requestPayload.getServiceUnitCode());
             serviceUnit.setServiceUnitName(requestPayload.getServiceUnitName());
+            serviceUnit.setGroupEmail(requestPayload.getEmail());
             xticketRepository.updateServiceUnit(serviceUnit);
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
@@ -6378,6 +6419,7 @@ public class XTicketServiceImpl implements XTicketService {
                     payload.setTicketSlaName(String.valueOf(t.getTicketType().getSla().getTicketSla()) + " " + t.getTicketType().getSla().getTicketSlaPeriod());
                     payload.setStartDate(String.valueOf(t.getStartDate()));
                     payload.setEndDate(String.valueOf(t.getEndDate()));
+                    payload.setRunTime(String.valueOf(t.getRuntime()));
                     data.add(payload);
                 }
             }
@@ -6417,6 +6459,7 @@ public class XTicketServiceImpl implements XTicketService {
             response.setEndDate(String.valueOf(automatedTicket.getEndDate()));
             response.setCreatedBy(automatedTicket.getServiceRequester());
             response.setTicketAgent(automatedTicket.getServiceProvider());
+            response.setRunTime(String.valueOf(automatedTicket.getRuntime()));
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
             response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
@@ -6641,7 +6684,7 @@ public class XTicketServiceImpl implements XTicketService {
                 }
 
                 String automatedTicketTime = automatedTicketJob.split(" ")[1];
-                LocalDateTime runDate = LocalDateTime.of(startDate, startDate.atTime(Integer.valueOf(automatedTicketTime), 0).toLocalTime());
+                LocalDateTime runDate = LocalDateTime.of(startDate, LocalTime.parse(requestPayload.getRunTime()));
                 if (LocalDateTime.now().isAfter(runDate)) {
                     String message = "Start date is today but the current hour (" + String.valueOf(LocalDateTime.now().getHour()) + ") is past schedule job time of (" + automatedTicketTime + ")";
                     response.setResponseCode(ResponseCodes.INPUT_MISSING.getResponseCode());
@@ -6664,6 +6707,8 @@ public class XTicketServiceImpl implements XTicketService {
                 newAutomatedTicket.setStartDate(LocalDate.parse(requestPayload.getStartDate()));
                 newAutomatedTicket.setSubject(requestPayload.getSubject());
                 newAutomatedTicket.setTicketType(ticketType);
+                newAutomatedTicket.setRuntime(LocalTime.parse(requestPayload.getRunTime()));
+                newAutomatedTicket.setRunCount(0);
                 xticketRepository.createAutomatedTicket(newAutomatedTicket);
 
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
@@ -6738,14 +6783,16 @@ public class XTicketServiceImpl implements XTicketService {
                     .append("Escalation:").append(requestPayload.getEscalationEmails()).append(", ")
                     .append("Frequency:").append(requestPayload.getFrequency()).append(", ");
 
+            //Check if the automated ticket has ran at all
             LocalDate startDate = LocalDate.parse(requestPayload.getStartDate());
-
-            //Check the start and end date
-            if (startDate.isBefore(LocalDate.now())) {
-                response.setResponseCode(ResponseCodes.OUT_OF_RANGE.getResponseCode());
-                response.setResponseMessage(messageSource.getMessage("appMessages.invalid.date", new Object[]{"Start Date", " cannot be less than today"}, Locale.ENGLISH));
-                response.setData(null);
-                return response;
+            if (automatedTicket.getRunCount() == 0) {
+                //Check the start and end date
+                if (startDate.isBefore(LocalDate.now())) {
+                    response.setResponseCode(ResponseCodes.OUT_OF_RANGE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.invalid.date", new Object[]{"Start Date", " cannot be less than today"}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
             }
 
             if (!requestPayload.getEndDate().equalsIgnoreCase("")) {
@@ -6758,10 +6805,9 @@ public class XTicketServiceImpl implements XTicketService {
                 }
             }
 
-            String automatedTicketTime = automatedTicketJob.split(" ")[1];
-            LocalDateTime runDate = LocalDateTime.of(startDate, startDate.atTime(Integer.valueOf(automatedTicketTime), 0).toLocalTime());
+            LocalDateTime runDate = LocalDateTime.of(startDate, LocalTime.parse(requestPayload.getRunTime()));
             if (LocalDateTime.now().isAfter(runDate)) {
-                String message = "Start date is today but the current hour (" + String.valueOf(LocalDateTime.now().getHour()) + ") is past schedule job time of (" + automatedTicketTime + ")";
+                String message = "Start date is today but the current hour (" + String.valueOf(LocalDateTime.now().getHour()) + ") is past schedule job time of (" + requestPayload.getRunTime() + ")";
                 response.setResponseCode(ResponseCodes.INPUT_MISSING.getResponseCode());
                 response.setResponseMessage(messageSource.getMessage("appMessages.invalid.date", new Object[]{message, " Please update start date accordingly"}, Locale.ENGLISH));
                 response.setData(null);
@@ -6781,6 +6827,7 @@ public class XTicketServiceImpl implements XTicketService {
             automatedTicket.setStartDate(LocalDate.parse(requestPayload.getStartDate()));
             automatedTicket.setSubject(requestPayload.getSubject());
             automatedTicket.setTicketType(ticketType);
+            automatedTicket.setRuntime(LocalTime.parse(requestPayload.getRunTime()));
             xticketRepository.updateAutomatedTicket(automatedTicket);
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());

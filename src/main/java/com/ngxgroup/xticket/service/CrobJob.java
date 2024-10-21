@@ -13,6 +13,7 @@ import com.ngxgroup.xticket.repository.XTicketRepository;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
@@ -185,14 +186,14 @@ public class CrobJob {
         genericService.sendEmail(mailPayload, escalationEmail);
     }
 
-    @Scheduled(cron = "${xticket.cron.job.automatedticket}")
+    @Scheduled(fixedDelay = 1000)
     public void automatedTicket() {
         //Fetch automated tickets
-        List<AutomatedTicket> automatedTickets = xticketRepository.getActiveAutomatedTicket();
+        List<AutomatedTicket> automatedTickets = xticketRepository.getTodayAutomatedTicket();
         if (automatedTickets != null) {
             for (AutomatedTicket t : automatedTickets) {
                 //Check if the next run date is today
-                if (t.getNextRun().isEqual(LocalDate.now())) {
+                if (t.getRuntime().compareTo(LocalTime.now()) <= 0) {
                     //Trigger ticket push
                     XTicketPayload requestPayload = new XTicketPayload();
                     requestPayload.setTicketTypeCode(t.getTicketType().getTicketTypeCode());
@@ -229,6 +230,7 @@ public class CrobJob {
                     if (t.getEndDate() == null || t.getEndDate().isEqual(nextRun) || t.getEndDate().isAfter(nextRun)) {
                         //No end date
                         t.setNextRun(nextRun);
+                        t.setRunCount(t.getRunCount() + 1);
                         xticketRepository.updateAutomatedTicket(t);
                     } else {
                         //Disable the auto ticket

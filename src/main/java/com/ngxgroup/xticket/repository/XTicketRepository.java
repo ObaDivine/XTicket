@@ -486,6 +486,8 @@ public interface XTicketRepository {
 
     List<AutomatedTicket> getActiveAutomatedTicket();
 
+    List<AutomatedTicket> getTodayAutomatedTicket();
+
     AutomatedTicket getAutomatedTicketUsingId(long id);
 
     Tickets getAutomatedTicketUsingTicketType(TicketType ticketType);

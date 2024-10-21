@@ -68,10 +68,10 @@
                                             <td th:text="${rec.createdBy}" class="createdBy align-middle white-space-nowrap start ps-3"></td>
                                             <td class="align-middle white-space-nowrap start ps-3 btn-reveal-trigger">
                                                 <a sec:authorize="hasRole('KNOWLEDGE_BASE_SETUP')" class="text-success" href="#!" th:href="@{'/knowledge-base/content/edit?seid=' + ${rec.id}}">
-                                                    <span class="fas fa-edit" data-bs-toggle="tooltip" data-bs-placement="right" title="Update Ticket Status"></span>
+                                                    <span class="fas fa-edit" data-bs-toggle="tooltip" data-bs-placement="right" title="Update Knowledge Base Content"></span>
                                                 </a>
                                                 <a sec:authorize="hasRole('KNOWLEDGE_BASE_SETUP')" class="text-danger" th:data-bs-target="'#a' + ${rec.id}" data-bs-toggle="modal">
-                                                    <span class="fas fa-trash" data-bs-toggle="tooltip" data-bs-placement="right" title="Delete Ticket Status"></span>
+                                                    <span class="fas fa-trash" data-bs-toggle="tooltip" data-bs-placement="right" title="Delete Knowledge Base Content"></span>
                                                 </a>
                                                 <div class="modal fade" th:id="'a' + ${rec.id}" tabindex="-1" role="dialog" aria-labelledby="${rec.id}" aria-hidden="true">
                                                     <div class="modal-dialog">
@@ -111,7 +111,7 @@
             </div>
             <th:block th:insert="~{fragments/xTicketFragments :: scriptfiles}"></th:block>   
         </main>
-         <script th:src="@{/js/jspdf.min.js}"></script>
+        <script th:src="@{/js/jspdf.min.js}"></script>
         <script th:src="@{/js/jspdf.plugin.autotable.min.js}"></script>
         <script th:src="@{/js/tableHTMLExport.js}"></script>
         <script>

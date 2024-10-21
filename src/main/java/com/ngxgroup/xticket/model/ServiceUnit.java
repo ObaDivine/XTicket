@@ -43,4 +43,6 @@ public class ServiceUnit implements Serializable {
     private Department department;
     @Column(name = "status")
     private String status;
+    @Column(name = "group_email")
+    private String groupEmail;
 }

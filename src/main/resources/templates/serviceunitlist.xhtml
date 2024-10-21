@@ -51,6 +51,7 @@
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="entityName">Department</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketGroup">Service Unit Code</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="name">Service Unit Name</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="email">Group Email</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="cretedBy">Created By</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="status">Status</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col">Action</th>
@@ -62,6 +63,7 @@
                                             <td th:text="${rec.departmentName}" class="entityName align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.serviceUnitCode}" class="ticketGroup align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.serviceUnitName}" class="name align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.email}" class="email align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.createdBy}" class="createdBy align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.status}" class="status align-middle white-space-nowrap start ps-3"></td>
                                             <td class="align-middle white-space-nowrap start ps-3 btn-reveal-trigger">
