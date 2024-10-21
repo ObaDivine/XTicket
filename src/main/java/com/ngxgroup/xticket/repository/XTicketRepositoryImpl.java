@@ -1799,6 +1799,17 @@ public class XTicketRepositoryImpl implements XTicketRepository {
     }
 
     @Override
+    public List<AutomatedTicket> getTodayAutomatedTicket() {
+        TypedQuery<AutomatedTicket> query = em.createQuery("SELECT p FROM AutomatedTicket p WHERE p.status = 'Enabled' AND p.nextRun = :today", AutomatedTicket.class)
+                .setParameter("today", LocalDate.now());
+        List<AutomatedTicket> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset;
+    }
+
+    @Override
     public AutomatedTicket getAutomatedTicketUsingId(long id) {
         TypedQuery<AutomatedTicket> query = em.createQuery("SELECT p FROM AutomatedTicket p WHERE p.id = :id", AutomatedTicket.class)
                 .setParameter("id", id);

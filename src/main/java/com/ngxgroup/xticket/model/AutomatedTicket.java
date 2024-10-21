@@ -10,6 +10,7 @@ import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -58,4 +59,8 @@ public class AutomatedTicket implements Serializable {
     private TicketType ticketType;
     @Column(name = "status")
     private String status;
+    @Column(name = "runtime")
+    private LocalTime runtime;
+    @Column(name = "run_count")
+    private int runCount = 0;
 }

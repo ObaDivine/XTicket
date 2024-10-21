@@ -68,10 +68,12 @@
                                     <span class="fas fa-user text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <div class="input-group input-group-sm">
-                                    <span class="input-group-text" id="startDate">Start Date</span>
+                                    <span class="input-group-text" id="startDate">Start Date*</span>
                                     <input class="form-control" type="date" aria-label="StartDate" aria-describedby="startDate" th:field="*{startDate}" required="required" />
                                     <span class="input-group-text" id="endDate">End Date</span>
                                     <input class="form-control" type="date" aria-label="endDate" aria-describedby="endDate" th:field="*{endDate}" />
+                                    <span class="input-group-text" id="runTime">Run Time*</span>
+                                    <input class="form-control" type="time" aria-label="runTime" aria-describedby="runTime" th:field="*{runTime}" required="required" />
                                 </div>
                                 <div class="form-icon-container">
                                     <select class="form-select form-control-sm form-icon-input" aria-label="frequency" th:field="*{frequency}" required="required">

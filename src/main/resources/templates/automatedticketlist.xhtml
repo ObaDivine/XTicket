@@ -54,6 +54,7 @@
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="sla">Ticket SLA</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">Start Date</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">End Date</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="timeElapsed">Run Time</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="frequency">Frequency</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="escalation">Escalation</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="subject">Subject</th>
@@ -72,6 +73,7 @@
                                             <td th:text="${rec.ticketSlaName}" class="sla align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.startDate}" class="date align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.endDate}" class="date align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.runTime}" class="timeElapsed align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.frequency}" class="frequency align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.escalationEmails}" class="escalation align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.subject}" class="subject align-middle white-space-nowrap start ps-3"></td>

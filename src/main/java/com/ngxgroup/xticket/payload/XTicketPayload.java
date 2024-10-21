@@ -123,6 +123,7 @@ public class XTicketPayload {
     String startDate;
     String endDate;
     String timeElapsed;
+    String runTime;
     String documentLink;
     String originalFileName;
     String passwordChangeDate;
