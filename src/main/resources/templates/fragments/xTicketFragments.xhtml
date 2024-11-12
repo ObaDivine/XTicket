@@ -17,9 +17,9 @@
             <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css"></link>
             <link th:href="@{/css/theme-rtl.min.css}" type="text/css" rel="stylesheet" id="style-rtl"></link>
             <link th:href="@{/css/theme.min.css}" type="text/css" rel="stylesheet" id="style-default"></link>
+            <link th:href="@{/css/choices.min.css}" type="text/css" rel="stylesheet"></link>
             <link th:href="@{/css/style.css}" type="text/css" rel="stylesheet" id="user-style-default"></link>
             <link th:href="@{/css/sweetalert2.min.css}" type="text/css" rel="stylesheet" id="user-style-default"></link>
-            <link th:href="@{/css/choices.min.css}" type="text/css" rel="stylesheet"></link>
             <script th:inline="javascript">
                 document.addEventListener("DOMContentLoaded", () => {
                     var message = [[${alertMessage}]];
@@ -537,10 +537,10 @@
             <footer class="footer position-absolute">
                 <div class="row g-0 justify-content-between align-items-center h-100">
                     <div class="col-12 col-sm-auto text-center">
-                        <p class="mb-0 mt-2 mt-sm-0 text-500 text-secondary">X-Ticket System
+                        <p class="mb-0 mt-2 mt-sm-0 text-500 text-primary"><span class="text-primary">X-Ticket System</span>
                             <span class="d-none d-sm-inline-block"></span>
                             <span class="d-none d-sm-inline-block mx-1">|</span>
-                            <br class="d-sm-none" /><span th:text="${#dates.year(#dates.createNow())}"></span> &copy;<a class="mx-1" href="https://ngxgroup.com">Nigerian Exchange Group</a>
+                            <br class="d-sm-none" /><span th:text="${#dates.year(#dates.createNow())}"></span> &copy;<a class="mx-1 text-primary" href="https://ngxgroup.com">Nigerian Exchange Group</a>
                         </p>
                     </div>
                     <div class="col-12 col-sm-auto text-center">
@@ -551,18 +551,17 @@
         </div>
 
         <div th:fragment="scriptfiles">
-            <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8="  crossorigin="anonymous"></script>
+            <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
             <script th:src="@{/js/popper.min.js}"></script>
             <script th:src="@{/js/bootstrap.min.js}"></script>
             <script th:src="@{/js/fontawesome.min.js}"></script>
             <script th:src="@{/js/list.min.js}"></script>
             <script th:src="@{/js/feather.min.js}"></script>
             <script th:src="@{/js/dayjs.min.js}"></script>
+            <script th:src="@{/js/choices.min.js}"></script>
             <script th:src="@{/js/echarts.min.js}"></script>
             <script th:src="@{/js/sweetalert2.min.js}"></script>
             <script th:src="@{/js/xticket.js}"></script>
-            <script th:src="@{/js/choices.min.js}"></script>
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
             <form id="logoutForm" th:action="@{/logout}" method="POST">
                 <div class="modal fade" id="confirmLogout" tabindex="-1" role="dialog" aria-labelledby="confirmLogout" aria-hidden="true">
                     <div class="modal-dialog">
@@ -593,6 +592,8 @@
                     document.getElementById("top").style.display = "block";
                 }
                 ;
+
+                const choices = new Choices('[data-choices]');
             </script>
         </div>
     </body>

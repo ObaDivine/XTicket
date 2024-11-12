@@ -84,7 +84,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<AppUser> getAgentAppUsers() {
-        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.agent = true", AppUser.class);
+        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.agent = true ORDER BY p.id DESC", AppUser.class);
         List<AppUser> recordset = query.getResultList();
         if (recordset.isEmpty()) {
             return null;
@@ -94,7 +94,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<AppUser> getAppUserUsingEntity(Entities entity) {
-        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.entity = :entity", AppUser.class)
+        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.entity = :entity ORDER BY p.id DESC", AppUser.class)
                 .setParameter("entity", entity);
         List<AppUser> recordset = query.getResultList();
         if (recordset.isEmpty()) {
@@ -105,7 +105,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<AppUser> getAppUserUsingRoleGroup(RoleGroups roleGroup) {
-        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.role = :roleGroup", AppUser.class)
+        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.role = :roleGroup ORDER BY p.id DESC", AppUser.class)
                 .setParameter("roleGroup", roleGroup);
         List<AppUser> recordset = query.getResultList();
         if (recordset.isEmpty()) {
@@ -141,7 +141,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<AppRoles> getAppRoles() {
-        TypedQuery<AppRoles> query = em.createQuery("SELECT p FROM AppRoles p", AppRoles.class);
+        TypedQuery<AppRoles> query = em.createQuery("SELECT p FROM AppRoles p ORDER BY p.id DESC", AppRoles.class);
         List<AppRoles> recordset = query.getResultList();
         if (recordset.isEmpty()) {
             return null;
@@ -151,7 +151,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<RoleGroups> getRoleGroupList() {
-        TypedQuery<RoleGroups> query = em.createQuery("SELECT p FROM RoleGroups p", RoleGroups.class);
+        TypedQuery<RoleGroups> query = em.createQuery("SELECT p FROM RoleGroups p ORDER BY p.id DESC", RoleGroups.class);
         List<RoleGroups> recordset = query.getResultList();
         if (recordset.isEmpty()) {
             return null;
@@ -204,7 +204,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<GroupRoles> getGroupRolesUsingRoleGroup(RoleGroups roleGroup) {
-        TypedQuery<GroupRoles> query = em.createQuery("SELECT p FROM GroupRoles p WHERE p.roleGroup = :roleGroup", GroupRoles.class)
+        TypedQuery<GroupRoles> query = em.createQuery("SELECT p FROM GroupRoles p WHERE p.roleGroup = :roleGroup ORDER BY p.id DESC", GroupRoles.class)
                 .setParameter("roleGroup", roleGroup);
         List<GroupRoles> recordset = query.getResultList();
         if (recordset.isEmpty()) {
@@ -247,7 +247,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<AppUser> getUsers() {
-        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p", AppUser.class);
+        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p ORDER BY p.id DESC", AppUser.class);
         List<AppUser> recordset = query.getResultList();
         if (recordset.isEmpty()) {
             return null;
@@ -268,7 +268,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<AppUser> getAppUsersForTFAFix() {
-        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.twoFactorSecretKey = 'NA'", AppUser.class);
+        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.twoFactorSecretKey = 'NA' ORDER BY p.id DESC", AppUser.class);
         List<AppUser> recordset = query.getResultList();
         if (recordset.isEmpty()) {
             return null;
@@ -278,7 +278,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<AppUser> getActiveUsers() {
-        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.isLocked = false", AppUser.class);
+        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.isLocked = false ORDER BY p.id DESC", AppUser.class);
         List<AppUser> recordset = query.getResultList();
         if (recordset.isEmpty()) {
             return null;
@@ -288,7 +288,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<AppUser> getDisabledUsers() {
-        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.isLocked = true", AppUser.class);
+        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.isLocked = true ORDER BY p.id DESC", AppUser.class);
         List<AppUser> recordset = query.getResultList();
         if (recordset.isEmpty()) {
             return null;
@@ -298,7 +298,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<AppUser> getInternalAppUsers() {
-        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.internal = true AND p.email != :sa", AppUser.class)
+        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.internal = true AND p.email != :sa ORDER BY p.id DESC", AppUser.class)
                 .setParameter("sa", "sa@" + emailDomain);
         List<AppUser> recordset = query.getResultList();
         if (recordset.isEmpty()) {
@@ -309,7 +309,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<AuditLog> getAuditLogUsingDate(String startDate, String endDate) {
-        TypedQuery<AuditLog> query = em.createQuery("SELECT c FROM AuditLog c WHERE c.createdAt >= '" + startDate + "'" + " AND c.createdAt <= '" + endDate + "'", AuditLog.class);
+        TypedQuery<AuditLog> query = em.createQuery("SELECT p FROM AuditLog p WHERE p.createdAt >= '" + startDate + "'" + " AND p.createdAt <= '" + endDate + "' ORDER BY p.id DESC", AuditLog.class);
         List<AuditLog> recordset = query.getResultList();
         if (recordset.isEmpty()) {
             return null;
@@ -386,7 +386,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<Tickets> getTicketsUsingStatus(TicketStatus ticketStatus) {
-        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketStatus = :ticketStatus", Tickets.class)
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketStatus = :ticketStatus ORDER BY p.id DESC", Tickets.class)
                 .setParameter("ticketStatus", ticketStatus);
         List<Tickets> recordset = query.getResultList();
         if (recordset.isEmpty()) {
@@ -397,7 +397,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<Tickets> getOpenTicketsByType(TicketType ticketType, TicketStatus ticketStatus) {
-        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketType = :ticketType AND p.ticketStatus = :ticketStatus", Tickets.class)
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketType = :ticketType AND p.ticketStatus = :ticketStatus ORDER BY p.id DESC", Tickets.class)
                 .setParameter("ticketType", ticketType)
                 .setParameter("ticketStatus", ticketStatus);
         List<Tickets> recordset = query.getResultList();
