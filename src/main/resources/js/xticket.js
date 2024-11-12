@@ -144,4 +144,3 @@ function replaceString(text, charToReplace) {
     return newString;
 }
 ;
-

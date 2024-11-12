@@ -17,9 +17,9 @@
             <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css"></link>
             <link th:href="@{/css/theme-rtl.min.css}" type="text/css" rel="stylesheet" id="style-rtl"></link>
             <link th:href="@{/css/theme.min.css}" type="text/css" rel="stylesheet" id="style-default"></link>
+            <link th:href="@{/css/choices.min.css}" type="text/css" rel="stylesheet"></link>
             <link th:href="@{/css/style.css}" type="text/css" rel="stylesheet" id="user-style-default"></link>
             <link th:href="@{/css/sweetalert2.min.css}" type="text/css" rel="stylesheet" id="user-style-default"></link>
-            <link th:href="@{/css/choices.min.css}" type="text/css" rel="stylesheet"></link>
             <script th:inline="javascript">
                 document.addEventListener("DOMContentLoaded", () => {
                     var message = [[${alertMessage}]];
@@ -84,7 +84,7 @@
         <div th:fragment="topMenu">
             <nav class="navbar navbar-top navbar-expand-lg" id="navbarTop">
                 <div class="navbar-logo">
-                    <button class="btn navbar-toggler navbar-toggler-humburger-icon hover-bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#navbarVerticalCollapse" aria-controls="navbarVerticalCollapse" aria-expanded="false" aria-label="Toggle Navigation">
+                    <button class="btn navbar-toggler navbar-toggler-humburger-icon hover-bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTopCollapse" aria-controls="navbarTopCollapse" aria-expanded="false" aria-label="Toggle Navigation">
                         <span class="navbar-toggle-icon"><span class="toggle-line"></span></span>
                     </button>
                     <a th:if="!${session.isAgent}" class="navbar-brand me-1 me-sm-3" th:href="@{/dashboard}">
@@ -548,17 +548,17 @@
         </div>
 
         <div th:fragment="scriptfiles">
-            <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8="  crossorigin="anonymous"></script>
+            <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
             <script th:src="@{/js/popper.min.js}"></script>
             <script th:src="@{/js/bootstrap.min.js}"></script>
             <script th:src="@{/js/fontawesome.min.js}"></script>
             <script th:src="@{/js/list.min.js}"></script>
             <script th:src="@{/js/feather.min.js}"></script>
             <script th:src="@{/js/dayjs.min.js}"></script>
+            <script th:src="@{/js/choices.min.js}"></script>
             <script th:src="@{/js/echarts.min.js}"></script>
             <script th:src="@{/js/sweetalert2.min.js}"></script>
             <script th:src="@{/js/xticket.js}"></script>
-            <script th:src="@{/js/choices.min.js}"></script>
             <form id="logoutForm" th:action="@{/logout}" method="POST">
                 <div class="modal fade" id="confirmLogout" tabindex="-1" role="dialog" aria-labelledby="confirmLogout" aria-hidden="true">
                     <div class="modal-dialog">
@@ -589,6 +589,8 @@
                     document.getElementById("top").style.display = "block";
                 }
                 ;
+
+                const choices = new Choices('[data-choices]');
             </script>
         </div>
     </body>
