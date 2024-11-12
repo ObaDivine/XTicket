@@ -80,9 +80,9 @@ public class Tickets implements Serializable {
     private LocalDateTime slaViolatedAt;
     @ManyToOne
     private TicketAgent ticketAgentViolated;
-    @Column(name = "subject", length = 5000)
+    @Column(name = "subject", length = 1000)
     private String subject;
-    @Column(name = "message", length = 5000)
+    @Column(name = "message", length = 1000)
     private String message;
     @Column(name = "attached_file")
     private boolean attachedFile = false;
@@ -94,9 +94,9 @@ public class Tickets implements Serializable {
     private boolean agentNotifiedOfExpiry = false;
     @Column(name = "rating")
     private int rating = 0;
-    @Column(name = "rating_comment", length = 5000)
+    @Column(name = "rating_comment", length = 1000)
     private String ratingComment;
-    @Column(name = "resolution", length = 5000)
+    @Column(name = "resolution", length = 1000)
     private String resolution;
     @Column(name = "automated")
     private boolean automated;

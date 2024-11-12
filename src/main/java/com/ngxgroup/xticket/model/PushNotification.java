@@ -40,6 +40,6 @@ public class PushNotification implements Serializable {
     private String sentTo;
     @Column(name = "batch_id")
     private int batchId;
-    @Column(name = "read")
-    private boolean read;
+    @Column(name = "message_read")
+    private boolean messageRead;
 }

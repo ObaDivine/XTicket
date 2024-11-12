@@ -578,6 +578,42 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
                 xticketRepository.createGroupRoles(newGroupRole);
             }
 
+            AppRoles addTicketSla = xticketRepository.getRoleUsingRoleName("ADD_TICKET_SLA");
+            if (addTicketSla != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(addTicketSla);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles updateTicketSla = xticketRepository.getRoleUsingRoleName("UPDATE_TICKET_SLA");
+            if (updateTicketSla != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(updateTicketSla);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles deleteTicketSla = xticketRepository.getRoleUsingRoleName("DELETE_TICKET_SLA");
+            if (deleteTicketSla != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(deleteTicketSla);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
+            AppRoles listTicketSla = xticketRepository.getRoleUsingRoleName("LIST_TICKET_SLA");
+            if (listTicketSla != null) {
+                GroupRoles newGroupRole = new GroupRoles();
+                newGroupRole.setAppRole(listTicketSla);
+                newGroupRole.setCreatedAt(LocalDateTime.now());
+                newGroupRole.setRoleGroup(saGroup);
+                xticketRepository.createGroupRoles(newGroupRole);
+            }
+
         }
 
         //Create the default role group
@@ -772,7 +808,7 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
             newEntity.setEntityCode(defaultEntityCode);
             newEntity.setEntityName(defaultEntityName);
             newEntity.setStatus(ENABLE_STATUS);
-            xticketRepository.createEntities(newEntity);
+            defaultEntity = xticketRepository.createEntities(newEntity);
         }
 
         //Create the department

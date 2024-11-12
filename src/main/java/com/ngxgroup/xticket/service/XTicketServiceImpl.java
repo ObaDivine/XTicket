@@ -2979,7 +2979,7 @@ public class XTicketServiceImpl implements XTicketService {
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
             response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
-                        response.setData(data);
+            response.setData(data);
             return response;
         } catch (Exception ex) {
             response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
@@ -3009,7 +3009,7 @@ public class XTicketServiceImpl implements XTicketService {
                 //Filters tickets with 5 mins or less to SLA expiry
                 openTickets = openTickets.stream().filter(t -> t.getTicketType().getSla().getPriority().equalsIgnoreCase("Critical")
                         || t.getTicketType().getSla().getPriority().equalsIgnoreCase("High")).collect(Collectors.toList());
-                
+
                 response.setValue(openTickets.size());
                 response.setName("Critical Sla Tickets");
             } else {
@@ -3060,11 +3060,11 @@ public class XTicketServiceImpl implements XTicketService {
                 ticket.setRating(requestPayload.getRating());
                 ticket.setRatingComment(requestPayload.getComment());
                 ticket.setResolution(requestPayload.getResolution());
-                xticketRepository.updateTicket(ticket);
+                ticket = xticketRepository.updateTicket(ticket);
 
                 //Send notification to ticket agents or the requester
-                String recipientEmail = appUser.equals(ticket.getCreatedBy()) ? ticket.getTicketAgent().getAgent().getEmail() : appUser.getEmail();
-                String recipientName = appUser.equals(ticket.getCreatedBy()) ? ticket.getTicketAgent().getAgent().getLastName() : appUser.getLastName();
+                String recipientEmail = Objects.equals(ticket.getClosedBy(), ticket.getCreatedBy()) ? ticket.getTicketAgent().getAgent().getEmail() : ticket.getCreatedBy().getEmail();
+                String recipientName = Objects.equals(ticket.getClosedBy(), ticket.getCreatedBy()) ? ticket.getTicketAgent().getAgent().getLastName() : ticket.getCreatedBy().getLastName();
 
                 XTicketPayload mailPayload = new XTicketPayload();
                 mailPayload.setRecipientEmail(recipientEmail);
@@ -3100,7 +3100,7 @@ public class XTicketServiceImpl implements XTicketService {
             ticket.setTicketStatus(closedStatus);
             ticket.setTicketReopen(false);
             ticket.setResolution(requestPayload.getResolution());
-            xticketRepository.updateTicket(ticket);
+            ticket = xticketRepository.updateTicket(ticket);
 
             //Update the reopened ticket record
             ticketReopen.setClosedAt(LocalDateTime.now());
@@ -3110,8 +3110,8 @@ public class XTicketServiceImpl implements XTicketService {
             xticketRepository.updateTicketReopen(ticketReopen);
 
             //Send notification to ticket agents or the requester
-            String recipientEmail = appUser.equals(ticket.getCreatedBy()) ? ticket.getTicketAgent().getAgent().getEmail() : appUser.getEmail();
-            String recipientName = appUser.equals(ticket.getCreatedBy()) ? ticket.getTicketAgent().getAgent().getLastName() : appUser.getLastName();
+            String recipientEmail = Objects.equals(ticket.getClosedBy(), ticketReopen.getReopenedBy()) ? ticket.getTicketAgent().getAgent().getEmail() : ticket.getCreatedBy().getEmail();
+            String recipientName = Objects.equals(ticket.getClosedBy(), ticketReopen.getReopenedBy()) ? ticket.getTicketAgent().getAgent().getLastName() : ticket.getCreatedBy().getLastName();
 
             XTicketPayload mailPayload = new XTicketPayload();
             mailPayload.setRecipientEmail(recipientEmail);
@@ -7936,7 +7936,7 @@ public class XTicketServiceImpl implements XTicketService {
                                 newNotification.setSentTo(t.getEmail());
                                 newNotification.setMessage(requestPayload.getMessage());
                                 newNotification.setBatchId(batchId);
-                                newNotification.setRead(false);
+                                newNotification.setMessageRead(false);
                                 xticketRepository.createPushNotification(newNotification);
 
                                 //Log the response
@@ -7962,7 +7962,7 @@ public class XTicketServiceImpl implements XTicketService {
                                 newNotification.setSentTo(t.getEmail());
                                 newNotification.setMessage(requestPayload.getMessage());
                                 newNotification.setBatchId(batchId);
-                                newNotification.setRead(false);
+                                newNotification.setMessageRead(false);
                                 xticketRepository.createPushNotification(newNotification);
 
                                 //Log the response
@@ -7997,7 +7997,7 @@ public class XTicketServiceImpl implements XTicketService {
                                 newNotification.setSentTo(requestPayload.getEmail());
                                 newNotification.setMessage(requestPayload.getMessage());
                                 newNotification.setBatchId(batchId);
-                                newNotification.setRead(false);
+                                newNotification.setMessageRead(false);
                                 xticketRepository.createPushNotification(newNotification);
 
                                 //Log the response
