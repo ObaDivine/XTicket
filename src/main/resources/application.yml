@@ -40,14 +40,19 @@ spring:
             profile: dev
     datasource:
         initialization-mode: ALWAYS
-        password: qwerty@1 
-        username: xcdev
-        driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-        url: jdbc:sqlserver://10.172.16.145\XBRDB;databaseName=XTicket;encrypt=true;trustServerCertificate=true;
+        #password: qwerty@1 
+        #username: xcdev
+        #driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+        #url: jdbc:sqlserver://10.172.16.145\XBRDB;databaseName=XTicket;encrypt=true;trustServerCertificate=true;
+        password: F3bru@ry02mth
+        username: admin
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://10.172.16.221:3306/xticket?allowPublicKeyRetrieval=true&useSSL=false
     jpa:
         hibernate:
             ddl-auto: update
-            dialect: org.hibernate.dialect.SQLServerDialect
+            #dialect: org.hibernate.dialect.SQLServerDialect
+            dialect: org.hibernate.dialect.MySQL8Dialect
         show-sql: false
 
 email:

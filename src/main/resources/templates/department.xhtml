@@ -42,7 +42,7 @@
                                     <span class="fas fa-layer-group text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <div class="form-icon-container">
-                                    <input type="text" class="form-control form-control-sm form-icon-input" th:field="*{departmentCode}" placeholder="Enter department code" required="required"/>
+                                    <input type="text" class="form-control form-control-sm form-icon-input" th:field="*{departmentCode}" placeholder="Enter department code" required="required"  pattern="^[a-zA-Z_-]*$" title="Only letters, - and _ allowed. Max length of 50 characters" />
                                     <span class="text-danger asterisk">*</span>
                                     <span class="fas fa-terminal text-900 fs--1 form-icon text-primary"></span>
                                 </div>

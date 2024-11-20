@@ -32,26 +32,27 @@
                     <div class="row mb-3 justify-content-between">
                         <div class="offset-lg-3 col-lg-6 col-md-12 col-sm-12">
                             <form class="mb-3" th:object="${ticketPayload}" th:action="@{/setup/ticket/agent/permission}" method="POST">
-                                <div class="input-group input-group-sm mb-3">
-                                    <span class="input-group-text">System User</span>
-                                    <select class="form-select form-control-sm" aria-label="email" th:field="*{email}" required="required">
+                                <div class="form-icon-container">
+                                    <select class="form-select form-control-sm" aria-label="email" data-choices="data-choices" data-options='{"removeItemButton":orm-icon-inputtrue,"placeholder":true}' th:field="*{email}" required="required" style="min-width: 2500px;">
                                         <option value="">---Select User---</option>
                                         <option th:each="fa : ${userList}" th:value="${fa.email}" th:text="${fa.lastName + ', ' + fa.otherName}"></option>
                                     </select>
-                                    <button type="submit" class="btn btn-primary btn-sm">Fetch Type</button>
+                                    <span class="text-danger asterisk">*</span>
                                 </div>
+                                <button type="submit" class="btn btn-primary btn-sm mt-2">Fetch Type</button>
                             </form>
+                            <h6 class="text-primary mt-5">Select Ticket Types</h6>
                             <form th:object="${ticketPayload}" th:action="@{/setup/ticket/agent/create}" method="POST" th:if="${roleList != null}">
                                 <input type="hidden" th:field="*{email}" />
                                 <div class="row mt-3">
                                     <div class="col-lg-6 col-sm-12 col-md-12" th:each="rec : ${roleList}">
                                         <div th:switch="${rec.roleExist}">
                                             <span th:case="${'false'}">
-                                                <input type="checkbox" class="form-check-input" name="rolesToUpdate" th:value="${rec.ticketTypeName}" />
+                                                <input type="checkbox" class="form-check-input" name="rolesToUpdate" th:value="${rec.ticketTypeCode}" />
                                                 <label class="form-check-label col-form-label-sm" th:text="${rec.ticketTypeName}"></label> 
                                             </span>
                                             <span th:case="${'true'}">
-                                                <input type="checkbox" class="form-check-input"  name="rolesToUpdate" th:value="${rec.ticketTypeName}" checked="checked" />
+                                                <input type="checkbox" class="form-check-input"  name="rolesToUpdate" th:value="${rec.ticketTypeCode}" checked="checked" />
                                                 <label class="form-check-label" th:text="${rec.ticketTypeName}"></label>  
                                             </span>
                                         </div>  

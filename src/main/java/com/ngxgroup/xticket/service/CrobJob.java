@@ -290,8 +290,8 @@ public class CrobJob {
         List<EmailTemp> pendingEmail = xticketRepository.getPendingEmails();
         if (pendingEmail != null) {
             for (EmailTemp email : pendingEmail) {
-                String response = sendEmail(email.getEmail().split(","), email.getSubject(), email.getMessage(), email.getCarbonCopy().split(","), email.getFileAttachment());
-                if (response.equalsIgnoreCase("Success")) {
+                String[] response = sendEmail(email.getEmail().split(","), email.getSubject(), email.getMessage(), email.getCarbonCopy().split(","), email.getFileAttachment());
+                if (response[0].equalsIgnoreCase("Success")) {
                     Emails pemEmail = new Emails();
                     BeanUtils.copyProperties(email, pemEmail);
                     pemEmail.setId(null);
@@ -301,13 +301,14 @@ public class CrobJob {
                     xticketRepository.deleteEmailTemp(email);
                 } else {
                     email.setTryCount(email.getTryCount() + 1);
+                    email.setError(response[1]);
                     xticketRepository.updateEmailTemp(email);
                 }
             }
         }
     }
 
-    private String sendEmail(String[] recipient, String subject, String emailBody, String[] carbonCopy, String fileAttachment) {
+    private String[] sendEmail(String[] recipient, String subject, String emailBody, String[] carbonCopy, String fileAttachment) {
         try {
             JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
             mailSender.setHost(mailHost);
@@ -325,50 +326,61 @@ public class CrobJob {
             props.put("mail.smtp.ssl.enable", false);
 
             MimeMessage emailDetails = mailSender.createMimeMessage();
-            Address addresses[] = {};
+            Address[] addresses = {};
             List<Address> recipientList = new ArrayList<>();
             for (String addr : recipient) {
-                Address address = new InternetAddress(addr);
-                recipientList.add(address);
+                if (addr.matches("^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")) {
+                    Address address = new InternetAddress(addr);
+                    recipientList.add(address);
+                }
             }
 
             if (carbonCopy.length > 0) {
-                Address cc[] = {};
+                Address[] cc = {};
                 List<Address> carbonCopyList = new ArrayList<>();
                 for (String addr : carbonCopy) {
-                    Address address = new InternetAddress(addr);
-                    carbonCopyList.add(address);
+                    if (addr.matches("^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")) {
+                        Address address = new InternetAddress(addr);
+                        carbonCopyList.add(address);
+                    }
                 }
-                emailDetails.setRecipients(Message.RecipientType.CC, carbonCopyList.toArray(addresses));
+                if (!carbonCopyList.isEmpty()) {
+                    emailDetails.setRecipients(Message.RecipientType.CC, carbonCopyList.toArray(cc));
+                }
             }
 
-            emailDetails.setFrom(mailFrom);
-            emailDetails.setRecipients(Message.RecipientType.TO, recipientList.toArray(addresses));
-            emailDetails.setSubject(subject);
-            BodyPart messageBodyPart = new MimeBodyPart();
-            messageBodyPart.setContent(emailBody, "text/html");
+            //Check if there is a valid recipient set
+            if (!recipientList.isEmpty()) {
+                emailDetails.setFrom(mailFrom);
+                emailDetails.setRecipients(Message.RecipientType.TO, recipientList.toArray(addresses));
+                emailDetails.setSubject(subject);
+                BodyPart messageBodyPart = new MimeBodyPart();
+                messageBodyPart.setContent(emailBody, "text/html");
 
-            if (fileAttachment != null && !fileAttachment.equalsIgnoreCase("")) {
-                //Add the attachment
-                MimeBodyPart attachmentBodyPart = new MimeBodyPart();
-                DataSource source = new FileDataSource(fileAttachment);
-                attachmentBodyPart.setDataHandler(new DataHandler(source));
-                attachmentBodyPart.setFileName(fileAttachment);
+                if (fileAttachment != null && !fileAttachment.equalsIgnoreCase("")) {
+                    //Add the attachment
+                    MimeBodyPart attachmentBodyPart = new MimeBodyPart();
+                    DataSource source = new FileDataSource(fileAttachment);
+                    attachmentBodyPart.setDataHandler(new DataHandler(source));
+                    attachmentBodyPart.setFileName(fileAttachment);
 
-                Multipart multipart = new MimeMultipart();
-                multipart.addBodyPart(messageBodyPart);
-                multipart.addBodyPart(attachmentBodyPart);
-                emailDetails.setContent(multipart);
+                    Multipart multipart = new MimeMultipart();
+                    multipart.addBodyPart(messageBodyPart);
+                    multipart.addBodyPart(attachmentBodyPart);
+                    emailDetails.setContent(multipart);
+                } else {
+                    Multipart multipart = new MimeMultipart();
+                    multipart.addBodyPart(messageBodyPart);
+                    emailDetails.setContent(multipart);
+                }
+
+                mailSender.send(emailDetails);
+                return new String[]{"Success", ""};
             } else {
-                Multipart multipart = new MimeMultipart();
-                multipart.addBodyPart(messageBodyPart);
-                emailDetails.setContent(multipart);
+                return new String[]{"Failed", "No recipient"};
             }
-
-            mailSender.send(emailDetails);
-            return "Success";
         } catch (Exception ex) {
-            return "Failed";
+            return new String[]{"Failed", ex.getMessage()};
         }
     }
 

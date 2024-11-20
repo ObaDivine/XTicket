@@ -37,6 +37,7 @@
                                         <option value="">---Select Ticket Type---</option>
                                         <option th:each="fa : ${ticketTypeList}" th:value="${fa.ticketTypeCode}" th:text="${fa.ticketTypeName}"></option>
                                     </select>
+                                    <span class="text-danger asterisk">*</span>
                                 </div>
                                 <div class="form-icon-container">
                                     <input type="text" class="form-control form-control-sm form-icon-input" th:field="*{subject}" placeholder="Enter subject" required="required"/>

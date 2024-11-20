@@ -203,12 +203,13 @@ public class SetupController {
 
     @PostMapping("/ticket/agent/permission")
     public String ticketAgentPermission(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession session, Principal principal, Model model) {
+        XTicketPayload response = xticketService.fetchAgentTicketTypes(requestPayload.getEmail());
         model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("userList", xticketService.fetchInternalAppUsers());
-        model.addAttribute("roleList", xticketService.fetchAgentTicketTypes(requestPayload.getEmail()).getData());
+        model.addAttribute("roleList", response.getData());
         model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
-        model.addAttribute("alertMessage", alertMessage);
-        model.addAttribute("alertMessageType", alertMessageType);
+        model.addAttribute("alertMessage", response.getResponseMessage());
+        model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         resetAlertMessage();
         return "ticketagent";
     }

@@ -2092,7 +2092,7 @@ public class XTicketServiceImpl implements XTicketService {
                     }
                     for (String rol : roles) {
                         //Check if the roles exist in the db or not
-                        TicketType newTicketType = xticketRepository.getTicketTypeUsingName(rol);
+                        TicketType newTicketType = xticketRepository.getTicketTypeUsingCode(rol);
                         List<TicketAgent> agentTicket = xticketRepository.getTicketAgentUsingTicketType(userAgent, newTicketType);
 
                         if (agentTicket == null) {
@@ -2101,7 +2101,7 @@ public class XTicketServiceImpl implements XTicketService {
                             newTicket.setAgent(userAgent);
                             newTicket.setCreatedBy(principal);
                             newTicket.setInUse(true);
-                            TicketType ticketType = xticketRepository.getTicketTypeUsingName(rol);
+                            TicketType ticketType = xticketRepository.getTicketTypeUsingCode(rol);
                             newTicket.setTicketType(ticketType);
                             xticketRepository.createTicketAgent(newTicket);
                         }
@@ -2148,14 +2148,14 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             List<XTicketPayload> data = new ArrayList<>();
-            List<String> userRoles = new ArrayList<>();
-            List<String> userNoRoles = new ArrayList<>();
+            List<Long> userRoles = new ArrayList<>();
+            List<Long> userNoRoles = new ArrayList<>();
 
             //Fecth the Group details
             List<TicketAgent> userTicketTypes = xticketRepository.getTicketAgent(appUser);
             if (userTicketTypes != null) {
                 for (TicketAgent r : userTicketTypes) {
-                    userRoles.add(r.getTicketType().getTicketTypeName());
+                    userRoles.add(r.getTicketType().getId());
                 }
             }
 
@@ -2163,26 +2163,30 @@ public class XTicketServiceImpl implements XTicketService {
             List<TicketType> allTicketType = xticketRepository.getTicketType();
             if (allTicketType != null) {
                 for (TicketType r : allTicketType) {
-                    if (!userRoles.contains(r.getTicketTypeName())) {
-                        userNoRoles.add(r.getTicketTypeName());
+                    if (!userRoles.contains(r.getId())) {
+                        userNoRoles.add(r.getId());
                     }
                 }
             }
 
-            for (String r : userRoles) {
+            for (Long r : userRoles) {
+                TicketType ticketType = xticketRepository.getTicketTypeUsingId(r);
                 XTicketPayload newRole = new XTicketPayload();
-                newRole.setTicketTypeName(r);
+                newRole.setTicketTypeName(ticketType.getTicketTypeName());
+                newRole.setTicketTypeCode(ticketType.getTicketTypeCode());
                 newRole.setRoleExist("true");
                 data.add(newRole);
             }
 
-            for (String r : userNoRoles) {
+            for (Long r : userNoRoles) {
+                TicketType ticketType = xticketRepository.getTicketTypeUsingId(r);
                 XTicketPayload newRole = new XTicketPayload();
-                newRole.setTicketTypeName(r);
+                newRole.setTicketTypeName(ticketType.getTicketTypeName());
+                newRole.setTicketTypeCode(ticketType.getTicketTypeCode());
                 newRole.setRoleExist("false");
                 data.add(newRole);
             }
-            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
             response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{data.size()}, Locale.ENGLISH));
             response.setData(data);
             return response;
@@ -8222,7 +8226,7 @@ public class XTicketServiceImpl implements XTicketService {
             } else {
                 emails = xticketRepository.getEmailsUsingUserEmail(requestPayload.getEmail(), LocalDate.parse(requestPayload.getStartDate()), LocalDate.parse(requestPayload.getEndDate()));
             }
- 
+
             if (emails == null) {
                 response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
                 response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{" choosen"}, Locale.ENGLISH));
