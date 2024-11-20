@@ -455,6 +455,27 @@ public class ReportController {
         return "auditlog";
     }
 
+    @GetMapping("/emails")
+    @Secured("ROLE_REPORT")
+    public String emailNotification(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
+        model.addAttribute("ticketPayload", new XTicketPayload());
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
+        resetAlertMessage();
+        return "emailnotification";
+    }
+
+    @PostMapping("/emails/process")
+    public String emailNotification(@ModelAttribute("ticketPayload") XTicketPayload requestPayload, HttpSession httpSession, Principal principal, Model model) {
+        XTicketPayload response = xticketService.fetchEmailNotification(requestPayload);
+        model.addAttribute("ticketPayload", requestPayload);
+        model.addAttribute("dataList", response.getData());
+        model.addAttribute("alertMessage", response.getResponseMessage());
+        model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
+        resetAlertMessage();
+        return "emailnotification";
+    }
+
     private String generateServiceRatingChart(List<XTicketPayload> ticketList) {
         List<ChartPayload> data = new ArrayList<>();
         if (ticketList != null) {

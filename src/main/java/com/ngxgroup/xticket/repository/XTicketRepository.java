@@ -7,6 +7,8 @@ import com.ngxgroup.xticket.model.AutomatedTicket;
 import com.ngxgroup.xticket.model.ContactUs;
 import com.ngxgroup.xticket.model.Department;
 import com.ngxgroup.xticket.model.DocumentUpload;
+import com.ngxgroup.xticket.model.EmailTemp;
+import com.ngxgroup.xticket.model.Emails;
 import com.ngxgroup.xticket.model.Entities;
 import com.ngxgroup.xticket.model.GroupRoles;
 import com.ngxgroup.xticket.model.KnowledgeBase;
@@ -518,4 +520,27 @@ public interface XTicketRepository {
     PushNotification updatePushNotification(PushNotification pushNotification);
 
     PushNotification deletePushNotification(PushNotification pushNotification);
+
+    /**
+     * Email Transactions
+     *
+     * @param emailTemp
+     * @return *
+     */
+    EmailTemp createEmailTemp(EmailTemp emailTemp);
+
+    EmailTemp deleteEmailTemp(EmailTemp emailTemp);
+
+    EmailTemp updateEmailTemp(EmailTemp emailTemp);
+
+    List<EmailTemp> getPendingEmails();
+
+    Emails createEmail(Emails email);
+
+    List<Emails> getEmailsUsingUserEmail(String email);
+
+    List<Emails> getEmailsUsingUserEmail(String email, LocalDate startDate, LocalDate endDate);
+
+    List<Emails> getEmails(LocalDate startDate, LocalDate endDate);
+
 }

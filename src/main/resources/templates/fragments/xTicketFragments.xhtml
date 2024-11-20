@@ -253,6 +253,12 @@
                                         </div>
                                     </a>
                                 </li>
+                                <li sec:authorize="hasRole('REPORT')">
+                                    <a class="dropdown-item" href="" th:href="@{/report/emails}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 uil" data-feather="clipboard"></span>Email Notification Report
+                                        </div>
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown" sec:authorize="hasRole('KNOWLEDGE_BASE')">

@@ -3,7 +3,7 @@
     Author     : briano
 */
 htnl, body{
-    font-family: "Montserrat" !important;
+    font-family: "Nunito Sans" !important;
     color: black;
 }
 
@@ -16,6 +16,10 @@ htnl, body{
 }
 
 .btn-primary{
+    background-color: #00663F !important;
+}
+
+.bg-primary{
     background-color: #00663F !important;
 }
 

@@ -33,12 +33,11 @@
                         <div class="offset-lg-3 col-lg-6 col-md-12 col-sm-12">
                             <form class="mb-3" th:object="${userPayload}" th:action="@{/user/update}" method="POST">
                                 <div class="form-icon-container">
-                                    <select class="form-control form-control-sm form-icon-input" aria-label="email" th:field="*{email}" required="required">
+                                    <select class="form-control form-control-sm form-icon-input" data-choices="data-choices" data-options='{"removeItemButton":orm-icon-inputtrue,"placeholder":true}' aria-label="email" th:field="*{email}" required="required">
                                         <option value="">---Select User---</option>
                                         <option th:each="fa : ${userList}" th:value="${fa.email}" th:text="${fa.lastName + ', ' + fa.otherName}"></option>
                                     </select>
                                     <span class="text-danger asterisk">*</span>
-                                    <span class="fas fa-users text-900 fs--1 form-icon text-primary"></span>
                                 </div>
                                 <div class="form-icon-container">
                                     <select class="form-control form-control-sm form-icon-input" aria-label="action" th:field="*{action}" required="required">
@@ -51,6 +50,7 @@
                                         <option value="AgentRemove">Remove As Agent</option>
                                         <option value="FailedLogin">Reset Failed Login</option>
                                         <option value="LogoutTime">Reset Lockout Time</option>
+                                        <option value="SendActivationEmail">Send Activation Email</option>
                                         <option value="Unlock">Unlock User</option>
                                         <option value="Department">Update Department</option>
                                         <option value="Email">Update Email</option>

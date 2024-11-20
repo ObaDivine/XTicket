@@ -336,4 +336,13 @@ public interface XTicketService {
 
     XTicketPayload deletePushNotification(String id, String principal, boolean batch);
 
+    /**
+     * Email Notification
+     *
+     *
+     * @param requestPayload
+     * @return
+     */
+    XTicketPayload fetchEmailNotification(XTicketPayload requestPayload);
+
 }

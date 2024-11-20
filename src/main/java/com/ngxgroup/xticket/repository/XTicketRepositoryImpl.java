@@ -7,6 +7,8 @@ import com.ngxgroup.xticket.model.AutomatedTicket;
 import com.ngxgroup.xticket.model.ContactUs;
 import com.ngxgroup.xticket.model.Department;
 import com.ngxgroup.xticket.model.DocumentUpload;
+import com.ngxgroup.xticket.model.EmailTemp;
+import com.ngxgroup.xticket.model.Emails;
 import com.ngxgroup.xticket.model.Entities;
 import com.ngxgroup.xticket.model.GroupRoles;
 import com.ngxgroup.xticket.model.KnowledgeBase;
@@ -653,7 +655,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<TicketReopened> getDistinctTicketReopened(LocalDate startDate, LocalDate endDate) {
-        TypedQuery<TicketReopened> query = em.createQuery("SELECT DISTINCT(p) FROM TicketReopened p WHERE p.reopenedAt >= :startDate AND p.reopenedAt <= :endDate ORDER BY p.id DESC", TicketReopened.class)
+        TypedQuery<TicketReopened> query = em.createQuery("SELECT DISTINCT(p) FROM TicketReopened p WHERE p.reopenedAt >= :startDate AND p.reopenedAt <= :endDate", TicketReopened.class)
                 .setParameter("startDate", startDate.atStartOfDay())
                 .setParameter("endDate", endDate.atTime(23, 59));
         List<TicketReopened> recordset = query.getResultList();
@@ -954,7 +956,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<AppUser> getDistinctTicketAgent() {
-        TypedQuery<AppUser> query = em.createQuery("SELECT distinct p.agent FROM TicketAgent p WHERE p.inUse = true ORDER BY p.id DESC", AppUser.class);
+        TypedQuery<AppUser> query = em.createQuery("SELECT distinct p.agent FROM TicketAgent p WHERE p.inUse = true", AppUser.class);
         List<AppUser> recordset = query.getResultList();
         if (recordset.isEmpty()) {
             return null;
@@ -1219,7 +1221,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<TicketReassign> getDistinctTicketReassigned(LocalDate startDate, LocalDate endDate) {
-        TypedQuery<TicketReassign> query = em.createQuery("SELECT DISTINCT(p) FROM TicketReassign p WHERE p.reassignedAt >= :startDate AND p.reassignedAt <= :endDate ORDER BY p.id DESC", TicketReassign.class)
+        TypedQuery<TicketReassign> query = em.createQuery("SELECT DISTINCT(p) FROM TicketReassign p WHERE p.reassignedAt >= :startDate AND p.reassignedAt <= :endDate", TicketReassign.class)
                 .setParameter("startDate", startDate.atStartOfDay())
                 .setParameter("endDate", endDate.atTime(23, 59));
         List<TicketReassign> recordset = query.getResultList();
@@ -1925,6 +1927,80 @@ public class XTicketRepositoryImpl implements XTicketRepository {
         em.remove(em.contains(pushNotification) ? pushNotification : em.merge(pushNotification));
         em.flush();
         return pushNotification;
+    }
+
+    @Override
+    public EmailTemp createEmailTemp(EmailTemp emailTemp) {
+        em.persist(emailTemp);
+        em.flush();
+        return emailTemp;
+    }
+
+    @Override
+    public EmailTemp deleteEmailTemp(EmailTemp emailTemp) {
+        em.remove(em.contains(emailTemp) ? emailTemp : em.merge(emailTemp));
+        em.flush();
+        return emailTemp;
+    }
+
+    @Override
+    public EmailTemp updateEmailTemp(EmailTemp emailTemp) {
+        em.merge(emailTemp);
+        em.flush();
+        return emailTemp;
+    }
+
+    @Override
+    public List<EmailTemp> getPendingEmails() {
+        TypedQuery<EmailTemp> query = em.createQuery("SELECT p FROM EmailTemp p WHERE p.tryCount < 4", EmailTemp.class);
+        List<EmailTemp> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset;
+    }
+
+    @Override
+    public Emails createEmail(Emails email) {
+        em.persist(email);
+        em.flush();
+        return email;
+    }
+
+    @Override
+    public List<Emails> getEmailsUsingUserEmail(String email) {
+        TypedQuery<Emails> query = em.createQuery("SELECT p FROM Emails p WHERE p.email = :email ORDER BY p.id DESC", Emails.class)
+                .setParameter("email", email);
+        List<Emails> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset;
+    }
+
+    @Override
+    public List<Emails> getEmailsUsingUserEmail(String email, LocalDate startDate, LocalDate endDate) {
+        TypedQuery<Emails> query = em.createQuery("SELECT p FROM Emails p WHERE p.email = :email AND p.createdAt >= :startDate AND p.createdAt <= :endDate ORDER BY p.id DESC", Emails.class)
+                .setParameter("email", email)
+                .setParameter("startDate", startDate.atStartOfDay())
+                .setParameter("endDate", endDate.atTime(23, 59));
+        List<Emails> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset;
+    }
+
+    @Override
+    public List<Emails> getEmails(LocalDate startDate, LocalDate endDate) {
+        TypedQuery<Emails> query = em.createQuery("SELECT p FROM Emails p WHERE p.createdAt >= :startDate AND p.createdAt <= :endDate ORDER BY p.id DESC", Emails.class)
+                .setParameter("startDate", startDate.atStartOfDay())
+                .setParameter("endDate", endDate.atTime(23, 59));
+        List<Emails> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset;
     }
 
 }

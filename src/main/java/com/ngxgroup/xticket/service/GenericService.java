@@ -1,6 +1,5 @@
 package com.ngxgroup.xticket.service;
 
-import com.ngxgroup.xticket.payload.XTicketPayload;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -18,9 +17,7 @@ public interface GenericService {
     String generateRequestId();
 
     String generateTOTPSecretKey();
-
-    CompletableFuture<String> sendEmail(XTicketPayload requestPayload, String principal);
-    
+   
     String generateFileName();
     
     CompletableFuture<String> pushNotification(String responseCode, String responseMessage, String sessionId);

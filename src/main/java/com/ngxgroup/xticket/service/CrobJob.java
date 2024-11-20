@@ -2,6 +2,8 @@ package com.ngxgroup.xticket.service;
 
 import com.ngxgroup.xticket.model.AppUser;
 import com.ngxgroup.xticket.model.AutomatedTicket;
+import com.ngxgroup.xticket.model.EmailTemp;
+import com.ngxgroup.xticket.model.Emails;
 import com.ngxgroup.xticket.model.TicketEscalations;
 import com.ngxgroup.xticket.model.TicketStatus;
 import com.ngxgroup.xticket.model.Tickets;
@@ -10,13 +12,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import com.ngxgroup.xticket.repository.XTicketRepository;
+import jakarta.activation.DataHandler;
+import jakarta.activation.DataSource;
+import jakarta.activation.FileDataSource;
+import jakarta.mail.Address;
+import jakarta.mail.BodyPart;
+import jakarta.mail.Message;
+import jakarta.mail.Multipart;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 /**
  *
@@ -25,8 +42,6 @@ import org.springframework.beans.factory.annotation.Value;
 @Service
 public class CrobJob {
 
-    @Autowired
-    GenericService genericService;
     @Autowired
     XTicketRepository xticketRepository;
     @Autowired
@@ -37,6 +52,20 @@ public class CrobJob {
     private String companyName;
     @Value("${xticket.company.email}")
     private String companyEmail;
+    @Value("${email.login}")
+    private String mailLogin;
+    @Value("${email.from}")
+    private String mailFrom;
+    @Value("${email.password}")
+    private String mailPassword;
+    @Value("${email.host}")
+    private String mailHost;
+    @Value("${email.port}")
+    private String mailPort;
+    @Value("${email.protocol}")
+    private String mailProtocol;
+    @Value("${email.trust}")
+    private String mailTrust;
     @Value("${xticket.email.escalation.interval}")
     private int escalationInterval;
     @Value("${xticket.slaexpiry.notification}")
@@ -66,6 +95,26 @@ public class CrobJob {
                     String[] escalationEmails = t.getTicketType().getEscalationEmails().split(",");
                     String carbonCopyEmail = "";
                     if (escalationEmails.length > 0) {
+                        //Determine who to address the email to
+                        String recipient = "";
+                        AppUser recipientUser = xticketRepository.getAppUserUsingEmail(escalationEmails[0]);
+                        if (recipientUser != null) {
+                            recipient = "Dear " + recipientUser.getLastName() + ", " + recipientUser.getOtherName();
+                        } else {
+                            recipient = "Dear Sir/Madam,";
+                        }
+                        String slaTime = timeDtf.format(t.getSlaExpiry().toLocalTime());
+                        String slaDate = t.getSlaExpiry().getMonth().toString() + " " + t.getSlaExpiry().getDayOfMonth() + ", " + t.getSlaExpiry().getYear();
+                        String message = "<h4>" + recipient + "</h4>\n"
+                                + "<p>An SLA for <b>" + t.getTicketType().getTicketTypeName() + "</b> ticket with an ID <b>" + t.getTicketId()
+                                + "</b> and priority <b>" + t.getTicketType().getSla().getPriority() + "</b> has been violated by <b>" + t.getTicketAgent().getAgent().getLastName() + ", " + t.getTicketAgent().getAgent().getOtherName()
+                                + "</b> in <b>" + t.getTicketType().getServiceUnit().getServiceUnitName() + ".</b></p>"
+                                + "<p>The ticket expired at <b>" + slaTime + "</b> on <b>" + slaDate + "</b></p>"
+                                + "<p>To view the ticket details or take action, kindly login into NGX X-Ticket by <a href=\"" + host + "/xticket" + "\">clicking here</a></p>"
+                                + "<p>For support and enquiries, email: " + companyEmail + ".</p>\n"
+                                + "<p>Best wishes,</p>"
+                                + "<p>" + companyName + "</p>";
+
                         //Check if this is first escalation
                         if (t.getEscalationIndex() == 0) {
                             carbonCopyEmail = t.getTicketAgent().getAgent().getEmail();
@@ -88,7 +137,17 @@ public class CrobJob {
                             xticketRepository.createTicketEscalation(newEscalation);
 
                             //Escalate the email and push email notification
-                            sendEmail(escalationEmails[0], carbonCopyEmail, t);
+                            EmailTemp emailTemp = new EmailTemp();
+                            emailTemp.setCreatedAt(LocalDateTime.now());
+                            emailTemp.setEmail(escalationEmails[0]);
+                            emailTemp.setError("");
+                            emailTemp.setMessage(message);
+                            emailTemp.setStatus("Pending");
+                            emailTemp.setSubject("Ticket SLA Violation Notification");
+                            emailTemp.setTryCount(0);
+                            emailTemp.setCarbonCopy(carbonCopyEmail);
+                            emailTemp.setFileAttachment("");
+                            xticketRepository.createEmailTemp(emailTemp);
                         } else {
                             //Check if time to run the next escalation
                             long timeElapsed = Duration.between(t.getEscalatedAt(), LocalDateTime.now()).toMinutes();
@@ -110,7 +169,17 @@ public class CrobJob {
                                 xticketRepository.createTicketEscalation(newEscalation);
 
                                 //Escalate the email and push email notification
-                                sendEmail(escalationEmails[currentEscalationIndex], carbonCopyEmail, t);
+                                EmailTemp emailTemp = new EmailTemp();
+                                emailTemp.setCreatedAt(LocalDateTime.now());
+                                emailTemp.setEmail(escalationEmails[currentEscalationIndex]);
+                                emailTemp.setError("");
+                                emailTemp.setMessage(message);
+                                emailTemp.setStatus("Pending");
+                                emailTemp.setSubject("Ticket SLA Violation Notification");
+                                emailTemp.setTryCount(0);
+                                emailTemp.setCarbonCopy(carbonCopyEmail);
+                                emailTemp.setFileAttachment("");
+                                xticketRepository.createEmailTemp(emailTemp);
                             }
                         }
                     }
@@ -130,60 +199,33 @@ public class CrobJob {
                 long timeElapsed = Duration.between(LocalDateTime.now(), t.getSlaExpiry()).toMinutes();
                 if ((timeElapsed <= slaExpiryNotificationInterval) && !t.isAgentNotifiedOfExpiry()) {
                     //Send notification email to the agent
-                    ticketNearSLAViolationSendEmail(t.getTicketAgent().getAgent().getEmail(), t);
+                    String slaTime = timeDtf.format(t.getSlaExpiry().toLocalTime());
+                    String slaDate = t.getSlaExpiry().getMonth().toString() + " " + t.getSlaExpiry().getDayOfMonth() + ", " + t.getSlaExpiry().getYear();
+                    String message = "<h4>Dear " + t.getTicketAgent().getAgent().getLastName() + ",</h4>\n"
+                            + "<p>An SLA for <b>" + t.getTicketType().getTicketTypeName() + "</b> ticket with an ID <b>" + t.getTicketId()
+                            + "</b> is about to be violated. The priority is <b>" + t.getTicketType().getSla().getPriority() + ".</b></p>"
+                            + "<p>The ticket is set to expire by <b>" + slaTime + "</b> on <b>" + slaDate + "</b></p>"
+                            + "<p>To view the ticket details or take action, kindly login to NGX X-Ticket by <a href=\"" + host + "/xticket" + "\">clicking here</a></p>"
+                            + "<p>For support and enquiries, email: " + companyEmail + ".</p>\n"
+                            + "<p>Best wishes,</p>"
+                            + "<p>" + companyName + "</p>";
+
+                    EmailTemp emailTemp = new EmailTemp();
+                    emailTemp.setCreatedAt(LocalDateTime.now());
+                    emailTemp.setEmail(t.getTicketAgent().getAgent().getEmail());
+                    emailTemp.setError("");
+                    emailTemp.setMessage(message);
+                    emailTemp.setStatus("Pending");
+                    emailTemp.setSubject("Ticket SLA Violation Notification");
+                    emailTemp.setTryCount(0);
+                    emailTemp.setCarbonCopy("");
+                    emailTemp.setFileAttachment("");
+                    xticketRepository.createEmailTemp(emailTemp);
                     t.setAgentNotifiedOfExpiry(true);
                     xticketRepository.updateTicket(t);
                 }
             }
         }
-    }
-
-    private void sendEmail(String escalationEmail, String carbonCopy, Tickets ticket) {
-        XTicketPayload mailPayload = new XTicketPayload();
-        mailPayload.setRecipientEmail(escalationEmail);
-        mailPayload.setCarbonCopyEmail(carbonCopy);
-        mailPayload.setEmailSubject("Ticket SLA Violation Notification");
-        String slaTime = timeDtf.format(ticket.getSlaExpiry().toLocalTime());
-        String slaDate = ticket.getSlaExpiry().getMonth().toString() + " " + ticket.getSlaExpiry().getDayOfMonth() + ", " + ticket.getSlaExpiry().getYear();
-
-        //Determine who to address the email to
-        String recipient = "";
-        AppUser recipientUser = xticketRepository.getAppUserUsingEmail(escalationEmail);
-        if (recipientUser != null) {
-            recipient = "Dear " + recipientUser.getLastName() + ", " + recipientUser.getOtherName();
-        } else {
-            recipient = "Dear Sir/Madam,";
-        }
-        String message = "<h4>" + recipient + "</h4>\n"
-                + "<p>An SLA for <b>" + ticket.getTicketType().getTicketTypeName() + "</b> ticket with an ID <b>" + ticket.getTicketId()
-                + "</b> and priority <b>" + ticket.getTicketType().getSla().getPriority() + "</b> has been violated by <b>" + ticket.getTicketAgent().getAgent().getLastName() + ", " + ticket.getTicketAgent().getAgent().getOtherName()
-                + "</b> in <b>" + ticket.getTicketType().getServiceUnit().getServiceUnitName() + ".</b></p>"
-                + "<p>The ticket expired at <b>" + slaTime + "</b> on <b>" + slaDate + "</b></p>"
-                + "<p>To view the ticket details or take action, kindly login into NGX X-Ticket by <a href=\"" + host + "/xticket" + "\">clicking here</a></p>"
-                + "<p>For support and enquiries, email: " + companyEmail + ".</p>\n"
-                + "<p>Best wishes,</p>"
-                + "<p>" + companyName + "</p>";
-        mailPayload.setEmailBody(message);
-        genericService.sendEmail(mailPayload, escalationEmail);
-    }
-
-    private void ticketNearSLAViolationSendEmail(String escalationEmail, Tickets ticket) {
-        XTicketPayload mailPayload = new XTicketPayload();
-        mailPayload.setRecipientEmail(escalationEmail);
-        mailPayload.setEmailSubject("Ticket SLA Violation Notification");
-        mailPayload.setCarbonCopyEmail("");
-        String slaTime = timeDtf.format(ticket.getSlaExpiry().toLocalTime());
-        String slaDate = ticket.getSlaExpiry().getMonth().toString() + " " + ticket.getSlaExpiry().getDayOfMonth() + ", " + ticket.getSlaExpiry().getYear();
-        String message = "<h4>Dear " + ticket.getTicketAgent().getAgent().getLastName() + ",</h4>\n"
-                + "<p>An SLA for <b>" + ticket.getTicketType().getTicketTypeName() + "</b> ticket with an ID <b>" + ticket.getTicketId()
-                + "</b> is about to be violated. The priority is <b>" + ticket.getTicketType().getSla().getPriority() + ".</b></p>"
-                + "<p>The ticket is set to expire by <b>" + slaTime + "</b> on <b>" + slaDate + "</b></p>"
-                + "<p>To view the ticket details or take action, kindly login to NGX X-Ticket by <a href=\"" + host + "/xticket" + "\">clicking here</a></p>"
-                + "<p>For support and enquiries, email: " + companyEmail + ".</p>\n"
-                + "<p>Best wishes,</p>"
-                + "<p>" + companyName + "</p>";
-        mailPayload.setEmailBody(message);
-        genericService.sendEmail(mailPayload, escalationEmail);
     }
 
     @Scheduled(fixedDelay = 1000)
@@ -239,6 +281,94 @@ public class CrobJob {
                     }
                 }
             }
+        }
+    }
+
+    @Scheduled(fixedDelay = 1000)
+    public void sendEmail() {
+        //Fetch all the pending emails
+        List<EmailTemp> pendingEmail = xticketRepository.getPendingEmails();
+        if (pendingEmail != null) {
+            for (EmailTemp email : pendingEmail) {
+                String response = sendEmail(email.getEmail().split(","), email.getSubject(), email.getMessage(), email.getCarbonCopy().split(","), email.getFileAttachment());
+                if (response.equalsIgnoreCase("Success")) {
+                    Emails pemEmail = new Emails();
+                    BeanUtils.copyProperties(email, pemEmail);
+                    pemEmail.setId(null);
+                    pemEmail.setStatus("Completed");
+                    xticketRepository.createEmail(pemEmail);
+                    //Delete from the pending email
+                    xticketRepository.deleteEmailTemp(email);
+                } else {
+                    email.setTryCount(email.getTryCount() + 1);
+                    xticketRepository.updateEmailTemp(email);
+                }
+            }
+        }
+    }
+
+    private String sendEmail(String[] recipient, String subject, String emailBody, String[] carbonCopy, String fileAttachment) {
+        try {
+            JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+            mailSender.setHost(mailHost);
+            mailSender.setPort(Integer.parseInt(mailPort));
+
+            mailSender.setUsername(mailLogin);
+            mailSender.setPassword(mailPassword);
+
+            Properties props = mailSender.getJavaMailProperties();
+            props.put("mail.transport.protocol", mailProtocol);
+            props.put("mail.smtp.auth", true);
+            props.put("mail.smtp.starttls.enable", true);
+            props.put("mail.debug", "true");
+            props.put("mail.smtp.ssl.trust", mailTrust);
+            props.put("mail.smtp.ssl.enable", false);
+
+            MimeMessage emailDetails = mailSender.createMimeMessage();
+            Address addresses[] = {};
+            List<Address> recipientList = new ArrayList<>();
+            for (String addr : recipient) {
+                Address address = new InternetAddress(addr);
+                recipientList.add(address);
+            }
+
+            if (carbonCopy.length > 0) {
+                Address cc[] = {};
+                List<Address> carbonCopyList = new ArrayList<>();
+                for (String addr : carbonCopy) {
+                    Address address = new InternetAddress(addr);
+                    carbonCopyList.add(address);
+                }
+                emailDetails.setRecipients(Message.RecipientType.CC, carbonCopyList.toArray(addresses));
+            }
+
+            emailDetails.setFrom(mailFrom);
+            emailDetails.setRecipients(Message.RecipientType.TO, recipientList.toArray(addresses));
+            emailDetails.setSubject(subject);
+            BodyPart messageBodyPart = new MimeBodyPart();
+            messageBodyPart.setContent(emailBody, "text/html");
+
+            if (fileAttachment != null && !fileAttachment.equalsIgnoreCase("")) {
+                //Add the attachment
+                MimeBodyPart attachmentBodyPart = new MimeBodyPart();
+                DataSource source = new FileDataSource(fileAttachment);
+                attachmentBodyPart.setDataHandler(new DataHandler(source));
+                attachmentBodyPart.setFileName(fileAttachment);
+
+                Multipart multipart = new MimeMultipart();
+                multipart.addBodyPart(messageBodyPart);
+                multipart.addBodyPart(attachmentBodyPart);
+                emailDetails.setContent(multipart);
+            } else {
+                Multipart multipart = new MimeMultipart();
+                multipart.addBodyPart(messageBodyPart);
+                emailDetails.setContent(multipart);
+            }
+
+            mailSender.send(emailDetails);
+            return "Success";
+        } catch (Exception ex) {
+            return "Failed";
         }
     }
 

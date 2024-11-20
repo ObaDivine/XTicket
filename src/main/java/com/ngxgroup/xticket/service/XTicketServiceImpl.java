@@ -10,6 +10,8 @@ import com.ngxgroup.xticket.model.AutomatedTicket;
 import com.ngxgroup.xticket.model.ContactUs;
 import com.ngxgroup.xticket.model.Department;
 import com.ngxgroup.xticket.model.DocumentUpload;
+import com.ngxgroup.xticket.model.EmailTemp;
+import com.ngxgroup.xticket.model.Emails;
 import com.ngxgroup.xticket.model.Entities;
 import com.ngxgroup.xticket.model.GroupRoles;
 import com.ngxgroup.xticket.model.KnowledgeBase;
@@ -457,10 +459,6 @@ public class XTicketServiceImpl implements XTicketService {
             xticketRepository.createAppUser(newUser);
 
             //Send profile activation email
-            XTicketPayload mailPayload = new XTicketPayload();
-            mailPayload.setRecipientEmail(requestPayload.getEmail());
-            mailPayload.setEmailSubject("Profile Activation");
-            mailPayload.setCarbonCopyEmail("");
             String message = "<h4>Dear " + requestPayload.getLastName() + "</h4>\n"
                     + "<p>We appreciate your interest in " + companyName + " X-TICKET, our award-winning ticketing platform and help desk.</p>\n"
                     + "<p>To activate your profile, please click on the activation button below</p>\n"
@@ -470,8 +468,18 @@ public class XTicketServiceImpl implements XTicketService {
                     + "<p>Best wishes,</p>"
                     + "<p>" + companyName + "</p>";
 
-            mailPayload.setEmailBody(message);
-            genericService.sendEmail(mailPayload, requestPayload.getEmail());
+            EmailTemp emailTemp = new EmailTemp();
+            emailTemp.setCreatedAt(LocalDateTime.now());
+            emailTemp.setEmail(requestPayload.getEmail());
+            emailTemp.setError("");
+            emailTemp.setMessage(message);
+            emailTemp.setStatus("Pending");
+            emailTemp.setSubject("Profile Activation");
+            emailTemp.setTryCount(0);
+            emailTemp.setCarbonCopy("");
+            emailTemp.setFileAttachment("");
+            xticketRepository.createEmailTemp(emailTemp);
+
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
             response.setResponseMessage(messageSource.getMessage("appMessages.success.user", new Object[0], Locale.ENGLISH));
 
@@ -683,10 +691,6 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             //Send password reset email
-            XTicketPayload mailPayload = new XTicketPayload();
-            mailPayload.setRecipientEmail(requestPayload.getEmail());
-            mailPayload.setEmailSubject("Password Change");
-            mailPayload.setCarbonCopyEmail("");
             String message = "<h4>Dear " + requestPayload.getLastName() + "</h4>\n"
                     + "<p>We appreciate your interest in " + companyName + " X-TICKET, our award-winning ticketing platform and help desk.</p>\n"
                     + "<p>To activate your profile, please click on the activation button below</p>\n"
@@ -695,9 +699,17 @@ public class XTicketServiceImpl implements XTicketService {
                     + "<p>Once again, thanks for choosing " + companyName + "!.</p>\n"
                     + "<p>Best wishes,</p>"
                     + "<p>" + companyName + "</p>";
-
-            mailPayload.setEmailBody(message);
-            genericService.sendEmail(mailPayload, requestPayload.getEmail());
+            EmailTemp emailTemp = new EmailTemp();
+            emailTemp.setCreatedAt(LocalDateTime.now());
+            emailTemp.setEmail(requestPayload.getEmail());
+            emailTemp.setError("");
+            emailTemp.setMessage(message);
+            emailTemp.setStatus("Pending");
+            emailTemp.setSubject("Password Change");
+            emailTemp.setTryCount(0);
+            emailTemp.setCarbonCopy("");
+            emailTemp.setFileAttachment("");
+            xticketRepository.createEmailTemp(emailTemp);
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
             response.setResponseMessage(messageSource.getMessage("appMessages.success.forgotpassword", new Object[]{requestPayload.getEmail()}, Locale.ENGLISH));
 
@@ -918,6 +930,30 @@ public class XTicketServiceImpl implements XTicketService {
                     selectedUser.setEntity(entity);
                     xticketRepository.updateAppUser(selectedUser);
                     newValue = String.valueOf(entity.getEntityName());
+                    break;
+                }
+                case "SendActivationEmail" -> {
+                    //Queue the email for activation
+                    String activationId = UUID.randomUUID().toString().replaceAll("-", "");
+                    String message = "<h4>Dear " + selectedUser.getLastName() + "</h4>\n"
+                            + "<p>We appreciate your interest in " + companyName + " X-TICKET, our award-winning ticketing platform and help desk.</p>\n"
+                            + "<p>To activate your profile, please click on the activation button below</p>\n"
+                            + "<p><a href=\"" + host + "/xticket/signup/activate?id=" + activationId + "\"><button type='button' style='display:inline-block;background-color:#ee4f1e;padding:5px; width:200px; color:#ffffff; text-align:center; border-radius:20px; border-color:white;'>Activate Profile</button></a></p>"
+                            + "<p>For support and enquiries, email: " + companyEmail + ".</p>\n"
+                            + "<p>Once again, thanks for choosing " + companyName + "!.</p>\n"
+                            + "<p>Best wishes,</p>"
+                            + "<p>" + companyName + "</p>";
+                    EmailTemp emailTemp = new EmailTemp();
+                    emailTemp.setCreatedAt(LocalDateTime.now());
+                    emailTemp.setEmail(requestPayload.getEmail());
+                    emailTemp.setError("");
+                    emailTemp.setMessage(message);
+                    emailTemp.setStatus("Pending");
+                    emailTemp.setSubject("Profile Activation");
+                    emailTemp.setTryCount(0);
+                    emailTemp.setCarbonCopy("");
+                    emailTemp.setFileAttachment("");
+                    xticketRepository.createEmailTemp(emailTemp);
                     break;
                 }
             }
@@ -2264,10 +2300,6 @@ public class XTicketServiceImpl implements XTicketService {
             xticketRepository.createTicketComment(newComment);
 
             //Send notification to ticket agents
-            XTicketPayload mailPayload = new XTicketPayload();
-            mailPayload.setRecipientEmail(ticketAgent.getAgent().getEmail());
-            mailPayload.setEmailSubject("Ticket Request Notification");
-            mailPayload.setCarbonCopyEmail(ticketType.getServiceUnit().getGroupEmail());
             LocalDateTime slaExpiry = getSlaExpiryDate(ticketType);
             String slaTime = timeDtf.format(slaExpiry.toLocalTime());
             String slaDate = slaExpiry.getMonth().toString() + " " + slaExpiry.getDayOfMonth() + ", " + slaExpiry.getYear();
@@ -2280,8 +2312,18 @@ public class XTicketServiceImpl implements XTicketService {
                     + "<p>For support and enquiries, email: " + companyEmail + ".</p>\n"
                     + "<p>Best wishes,</p>"
                     + "<p>" + companyName + "</p>";
-            mailPayload.setEmailBody(message);
-            genericService.sendEmail(mailPayload, principal);
+
+            EmailTemp emailTemp = new EmailTemp();
+            emailTemp.setCreatedAt(LocalDateTime.now());
+            emailTemp.setEmail(ticketAgent.getAgent().getEmail());
+            emailTemp.setError("");
+            emailTemp.setMessage(message);
+            emailTemp.setStatus("Pending");
+            emailTemp.setSubject("Ticket Request Notification");
+            emailTemp.setTryCount(0);
+            emailTemp.setCarbonCopy(ticketType.getServiceUnit().getGroupEmail());
+            emailTemp.setFileAttachment("");
+            xticketRepository.createEmailTemp(emailTemp);
 
             //Send out push notification
             genericService.pushNotification("00", ticketNotificationMessage, ticketAgent.getAgent().getSessionId() == null ? "" : ticketAgent.getAgent().getSessionId());
@@ -2363,10 +2405,6 @@ public class XTicketServiceImpl implements XTicketService {
             xticketRepository.createTicketComment(newComment);
 
             //Send notification to ticket agent
-            XTicketPayload mailPayload = new XTicketPayload();
-            mailPayload.setRecipientEmail(ticket.getTicketAgent().getAgent().getEmail());
-            mailPayload.setEmailSubject("Ticket Reply Notification");
-            mailPayload.setCarbonCopyEmail("");
             String slaTime = timeDtf.format(ticket.getSlaExpiry().toLocalTime());
             String slaDate = ticket.getSlaExpiry().getMonth().toString() + " " + ticket.getSlaExpiry().getDayOfMonth() + ", " + ticket.getSlaExpiry().getYear();
             String message = "<h4>Dear " + ticket.getTicketAgent().getAgent().getLastName() + ",</h4>\n"
@@ -2378,8 +2416,18 @@ public class XTicketServiceImpl implements XTicketService {
                     + "<p>For support and enquiries, email: " + companyEmail + ".</p>\n"
                     + "<p>Best wishes,</p>"
                     + "<p>" + companyName + "</p>";
-            mailPayload.setEmailBody(message);
-            genericService.sendEmail(mailPayload, principal);
+
+            EmailTemp emailTemp = new EmailTemp();
+            emailTemp.setCreatedAt(LocalDateTime.now());
+            emailTemp.setEmail(ticket.getTicketAgent().getAgent().getEmail());
+            emailTemp.setError("");
+            emailTemp.setMessage(message);
+            emailTemp.setStatus("Pending");
+            emailTemp.setSubject("Ticket Reply Notification");
+            emailTemp.setTryCount(0);
+            emailTemp.setCarbonCopy("");
+            emailTemp.setFileAttachment("");
+            xticketRepository.createEmailTemp(emailTemp);
 
             //Send out push notification
             genericService.pushNotification("00", ticketNotificationMessage, ticket.getTicketAgent().getAgent().getSessionId() == null ? "" : ticket.getTicketAgent().getAgent().getSessionId());
@@ -2484,10 +2532,6 @@ public class XTicketServiceImpl implements XTicketService {
             xticketRepository.createTicketComment(newComment);
 
             //Send notification to the client
-            XTicketPayload mailPayload = new XTicketPayload();
-            mailPayload.setRecipientEmail(ticket.getCreatedBy().getEmail());
-            mailPayload.setEmailSubject("Ticket Reply Notification");
-            mailPayload.setCarbonCopyEmail("");
             String slaTime = timeDtf.format(ticket.getSlaExpiry().toLocalTime());
             String slaDate = ticket.getSlaExpiry().getMonth().toString() + " " + ticket.getSlaExpiry().getDayOfMonth() + ", " + ticket.getSlaExpiry().getYear();
             String message = "<h4>Dear " + ticket.getCreatedBy().getLastName() + ",</h4>\n"
@@ -2499,8 +2543,18 @@ public class XTicketServiceImpl implements XTicketService {
                     + "<p>For support and enquiries, email: " + companyEmail + ".</p>\n"
                     + "<p>Best wishes,</p>"
                     + "<p>" + companyName + "</p>";
-            mailPayload.setEmailBody(message);
-            genericService.sendEmail(mailPayload, principal);
+
+            EmailTemp emailTemp = new EmailTemp();
+            emailTemp.setCreatedAt(LocalDateTime.now());
+            emailTemp.setEmail(ticket.getCreatedBy().getEmail());
+            emailTemp.setError("");
+            emailTemp.setMessage(message);
+            emailTemp.setStatus("Pending");
+            emailTemp.setSubject("Ticket Reply Notification");
+            emailTemp.setTryCount(0);
+            emailTemp.setCarbonCopy("");
+            emailTemp.setFileAttachment("");
+            xticketRepository.createEmailTemp(emailTemp);
 
             //Send out push notification
             genericService.pushNotification("00", ticketNotificationMessage, ticket.getCreatedBy().getSessionId() == null ? "" : ticket.getCreatedBy().getSessionId());
@@ -3066,10 +3120,7 @@ public class XTicketServiceImpl implements XTicketService {
                 String recipientEmail = Objects.equals(ticket.getClosedBy(), ticket.getCreatedBy()) ? ticket.getTicketAgent().getAgent().getEmail() : ticket.getCreatedBy().getEmail();
                 String recipientName = Objects.equals(ticket.getClosedBy(), ticket.getCreatedBy()) ? ticket.getTicketAgent().getAgent().getLastName() : ticket.getCreatedBy().getLastName();
 
-                XTicketPayload mailPayload = new XTicketPayload();
-                mailPayload.setRecipientEmail(recipientEmail);
-                mailPayload.setEmailSubject("Ticket Closure Notification");
-                mailPayload.setCarbonCopyEmail("");
+                //Send closed ticket notification
                 String message = "<h4>Dear " + recipientName + ",</h4>\n"
                         + "<p>A <b>" + ticket.getTicketType().getTicketTypeName() + "</b> ticket with an ID <b>" + ticket.getTicketId()
                         + "</b> has been closed by <b>" + appUser.getLastName() + ", " + appUser.getOtherName() + ".</b></p>"
@@ -3077,8 +3128,17 @@ public class XTicketServiceImpl implements XTicketService {
                         + "<p>For support and enquiries, email: " + companyEmail + ".</p>\n"
                         + "<p>Best wishes,</p>"
                         + "<p>" + companyName + "</p>";
-                mailPayload.setEmailBody(message);
-                genericService.sendEmail(mailPayload, principal);
+                EmailTemp emailTemp = new EmailTemp();
+                emailTemp.setCreatedAt(LocalDateTime.now());
+                emailTemp.setEmail(recipientEmail);
+                emailTemp.setError("");
+                emailTemp.setMessage(message);
+                emailTemp.setStatus("Pending");
+                emailTemp.setSubject("Ticket Closure Notification");
+                emailTemp.setTryCount(0);
+                emailTemp.setCarbonCopy("");
+                emailTemp.setFileAttachment("");
+                xticketRepository.createEmailTemp(emailTemp);
 
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
                 response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{" ticket is ", "closed "}, Locale.ENGLISH));
@@ -3113,10 +3173,7 @@ public class XTicketServiceImpl implements XTicketService {
             String recipientEmail = Objects.equals(ticket.getClosedBy(), ticketReopen.getReopenedBy()) ? ticket.getTicketAgent().getAgent().getEmail() : ticket.getCreatedBy().getEmail();
             String recipientName = Objects.equals(ticket.getClosedBy(), ticketReopen.getReopenedBy()) ? ticket.getTicketAgent().getAgent().getLastName() : ticket.getCreatedBy().getLastName();
 
-            XTicketPayload mailPayload = new XTicketPayload();
-            mailPayload.setRecipientEmail(recipientEmail);
-            mailPayload.setEmailSubject("Ticket Closure Notification");
-            mailPayload.setCarbonCopyEmail("");
+            //Send closed ticket notification
             String message = "<h4>Dear " + recipientName + ",</h4>\n"
                     + "<p>A <b>" + ticket.getTicketType().getTicketTypeName() + "</b> ticket with an ID <b>" + ticket.getTicketId()
                     + "</b> has been closed by <b>" + appUser.getLastName() + ", " + appUser.getOtherName() + ".</b></p>"
@@ -3124,8 +3181,18 @@ public class XTicketServiceImpl implements XTicketService {
                     + "<p>For support and enquiries, email: " + companyEmail + ".</p>\n"
                     + "<p>Best wishes,</p>"
                     + "<p>" + companyName + "</p>";
-            mailPayload.setEmailBody(message);
-            genericService.sendEmail(mailPayload, principal);
+
+            EmailTemp emailTemp = new EmailTemp();
+            emailTemp.setCreatedAt(LocalDateTime.now());
+            emailTemp.setEmail(recipientEmail);
+            emailTemp.setError("");
+            emailTemp.setMessage(message);
+            emailTemp.setStatus("Pending");
+            emailTemp.setSubject("Ticket Closure Notification");
+            emailTemp.setTryCount(0);
+            emailTemp.setCarbonCopy("");
+            emailTemp.setFileAttachment("");
+            xticketRepository.createEmailTemp(emailTemp);
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
             response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{" ticket is ", "closed "}, Locale.ENGLISH));
@@ -3201,10 +3268,6 @@ public class XTicketServiceImpl implements XTicketService {
             xticketRepository.createTicketComment(newComment);
 
             //Send notification to ticket agents
-            XTicketPayload mailPayload = new XTicketPayload();
-            mailPayload.setRecipientEmail(ticketAgent.getAgent().getEmail());
-            mailPayload.setEmailSubject("Ticket Reply Notification");
-            mailPayload.setCarbonCopyEmail("");
             LocalDateTime slaExpiry = getSlaExpiryDate(ticket.getTicketType());
             String slaTime = timeDtf.format(slaExpiry.toLocalTime());
             String slaDate = slaExpiry.getMonth().toString() + " " + slaExpiry.getDayOfMonth() + ", " + slaExpiry.getYear();
@@ -3217,8 +3280,18 @@ public class XTicketServiceImpl implements XTicketService {
                     + "<p>For support and enquiries, email: " + companyEmail + ".</p>\n"
                     + "<p>Best wishes,</p>"
                     + "<p>" + companyName + "</p>";
-            mailPayload.setEmailBody(message);
-            genericService.sendEmail(mailPayload, principal);
+
+            EmailTemp emailTemp = new EmailTemp();
+            emailTemp.setCreatedAt(LocalDateTime.now());
+            emailTemp.setEmail(ticketAgent.getAgent().getEmail());
+            emailTemp.setError("");
+            emailTemp.setMessage(message);
+            emailTemp.setStatus("Pending");
+            emailTemp.setSubject("Ticket Reply Notification");
+            emailTemp.setTryCount(0);
+            emailTemp.setCarbonCopy("");
+            emailTemp.setFileAttachment("");
+            xticketRepository.createEmailTemp(emailTemp);
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
             response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
@@ -3550,10 +3623,6 @@ public class XTicketServiceImpl implements XTicketService {
             xticketRepository.createTicketComment(newComment);
 
             //Send notification to ticket agents
-            XTicketPayload mailPayload = new XTicketPayload();
-            mailPayload.setRecipientEmail(newTicketAgent.getEmail());
-            mailPayload.setEmailSubject("Ticket Reassigned Notification");
-            mailPayload.setCarbonCopyEmail("");
             LocalDateTime slaExpiry = getSlaExpiryDate(ticketType);
             String slaTime = timeDtf.format(slaExpiry.toLocalTime());
             String slaDate = slaExpiry.getMonth().toString() + " " + slaExpiry.getDayOfMonth() + ", " + slaExpiry.getYear();
@@ -3566,8 +3635,18 @@ public class XTicketServiceImpl implements XTicketService {
                     + "<p>For support and enquiries, email: " + companyEmail + ".</p>\n"
                     + "<p>Best wishes,</p>"
                     + "<p>" + companyName + "</p>";
-            mailPayload.setEmailBody(message);
-            genericService.sendEmail(mailPayload, principal);
+
+            EmailTemp emailTemp = new EmailTemp();
+            emailTemp.setCreatedAt(LocalDateTime.now());
+            emailTemp.setEmail(newTicketAgent.getEmail());
+            emailTemp.setError("");
+            emailTemp.setMessage(message);
+            emailTemp.setStatus("Pending");
+            emailTemp.setSubject("Ticket Reassigned Notification");
+            emailTemp.setTryCount(0);
+            emailTemp.setCarbonCopy("");
+            emailTemp.setFileAttachment("");
+            xticketRepository.createEmailTemp(emailTemp);
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
             response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
@@ -4158,6 +4237,7 @@ public class XTicketServiceImpl implements XTicketService {
                         payload.setLastLogin(t.getAgent().getLastLogin() == null ? "" : t.getAgent().getLastLogin().format(dtf));
                         payload.setTicketTypeName(t.getTicketType().getTicketTypeName());
                         payload.setTicketCount(ticketsByAgent == null ? 0 : ticketsByAgent.size());
+                        payload.setServiceUnitName(t.getTicketType().getServiceUnit().getServiceUnitName());
                         data.add(payload);
                     }
 
@@ -4175,8 +4255,10 @@ public class XTicketServiceImpl implements XTicketService {
                     //Create a list of all the ticket types for the agent
                     List<TicketAgent> ticketsByUser = xticketRepository.getTicketAgent(t);
                     StringBuilder strBuilder = new StringBuilder();
+                    StringBuilder serviceUnitStrBuilder = new StringBuilder();
                     for (TicketAgent ta : ticketsByUser) {
                         strBuilder.append(ta.getTicketType().getTicketTypeName()).append(", ");
+                        serviceUnitStrBuilder.append(ta.getTicketType().getServiceUnit().getServiceUnitName()).append(", ");
                     }
 
                     //Fetch the tickets closed by the agent
@@ -4187,6 +4269,7 @@ public class XTicketServiceImpl implements XTicketService {
                     payload.setLastLogin(t.getLastLogin() == null ? "" : t.getLastLogin().format(dtf));
                     payload.setTicketCount(ticketsByAgent == null ? 0 : ticketsByAgent.size());
                     payload.setTicketTypeName(strBuilder.toString());
+                    payload.setServiceUnitName(serviceUnitStrBuilder.toString());
                     data.add(payload);
                 }
 
@@ -7752,18 +7835,24 @@ public class XTicketServiceImpl implements XTicketService {
             xticketRepository.createContactUs(newContact);
 
             //Send email to the contact us mail group
-            XTicketPayload mailPayload = new XTicketPayload();
-            mailPayload.setRecipientEmail(contactUsEmail);
-            mailPayload.setEmailSubject("Contact Us");
-            mailPayload.setCarbonCopyEmail("");
             String message = "<h4>To Whom It May Concern,</h4>\n"
                     + "<p>" + requestPayload.getName() + " sent a message \"" + requestPayload.getMessage() + "\"</p>"
                     + "<p>For feedback, kindly use the email  " + requestPayload.getEmail() + "  or call the mobile " + requestPayload.getMobileNumber() + "</p>"
                     + "<p>Best wishes,</p>"
                     + "<p>" + companyName + "</p>";
 
-            mailPayload.setEmailBody(message);
-            genericService.sendEmail(mailPayload, contactUsEmail);
+            EmailTemp emailTemp = new EmailTemp();
+            emailTemp.setCreatedAt(LocalDateTime.now());
+            emailTemp.setEmail(contactUsEmail);
+            emailTemp.setError("");
+            emailTemp.setMessage(message);
+            emailTemp.setStatus("Pending");
+            emailTemp.setSubject("Contact Us");
+            emailTemp.setTryCount(0);
+            emailTemp.setCarbonCopy("");
+            emailTemp.setFileAttachment("");
+            xticketRepository.createEmailTemp(emailTemp);
+
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
             response.setResponseMessage(messageSource.getMessage("appMessages.success.contact", new Object[0], Locale.ENGLISH));
             return response;
@@ -8115,6 +8204,48 @@ public class XTicketServiceImpl implements XTicketService {
                 response.setData(null);
                 return response;
             }
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload fetchEmailNotification(XTicketPayload requestPayload) {
+        var response = new XTicketPayload();
+        try {
+            List<Emails> emails = null;
+            if (requestPayload.getEmail().equalsIgnoreCase("")) {
+                emails = xticketRepository.getEmails(LocalDate.parse(requestPayload.getStartDate()), LocalDate.parse(requestPayload.getEndDate()));
+            } else {
+                emails = xticketRepository.getEmailsUsingUserEmail(requestPayload.getEmail(), LocalDate.parse(requestPayload.getStartDate()), LocalDate.parse(requestPayload.getEndDate()));
+            }
+ 
+            if (emails == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{" choosen"}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            List<XTicketPayload> data = new ArrayList<>();
+            for (Emails t : emails) {
+                XTicketPayload payload = new XTicketPayload();
+                BeanUtils.copyProperties(t, payload);
+                payload.setCreatedAt(dtf.format(t.getCreatedAt()));
+                payload.setEmailBody(t.getMessage());
+                payload.setEmailSubject(t.getSubject());
+                payload.setCarbonCopyEmail(t.getCarbonCopy());
+                payload.setRecipientEmail(t.getEmail());
+                payload.setId(t.getId().intValue());
+                data.add(payload);
+            }
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{data.size()}, Locale.ENGLISH));
+            response.setData(data);
+            return response;
         } catch (Exception ex) {
             response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
             response.setResponseMessage(ex.getMessage());
