@@ -46,6 +46,8 @@ public interface XTicketRepository {
 
     AppUser getAppUserUsingId(long id);
 
+    AppUser getAppUserUsingSessionId(String sessionId);
+
     AppUser updateAppUser(AppUser appUser);
 
     AppUser deleteAppUser(AppUser appUser);

@@ -118,6 +118,14 @@
                                         <div class="dropdown-item-wrapper"><span class="me-2 fas fa-tachometer" data-feather="dashboard-outlined"></span>Dashboard
                                         </div>
                                     </a>
+                                    <a  class="dropdown-item" href="" th:href="@{/about}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 fas fa-circle-info" data-feather="dashboard-outlined"></span>About X-Ticket
+                                        </div>
+                                    </a>
+                                    <a sec:authorize="hasRole('LIST_USER')" class="dropdown-item" href="" th:href="@{/system}">
+                                        <div class="dropdown-item-wrapper"><span class="me-2 fa-brands fa-sourcetree" data-feather="dashboard-outlined"></span>System Information
+                                        </div>
+                                    </a>
                                 </li>
                             </ul>
                         </li>

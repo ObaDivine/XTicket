@@ -344,5 +344,7 @@ public interface XTicketService {
      * @return
      */
     XTicketPayload fetchEmailNotification(XTicketPayload requestPayload);
+    
+    XTicketPayload fetchSystemInfo(String transType);
 
 }

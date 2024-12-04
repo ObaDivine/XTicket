@@ -1,5 +1,6 @@
 package com.ngxgroup.xticket;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties;
@@ -13,6 +14,9 @@ import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -49,6 +53,7 @@ import org.thymeleaf.templatemode.TemplateMode;
 @Import({WebSecurityConfig.class})
 @PropertySource("classpath:application.yml")
 @EnableTransactionManagement
+@EnableCaching
 public class AppConfig implements WebMvcConfigurer {
 
     @Autowired
@@ -142,5 +147,16 @@ public class AppConfig implements WebMvcConfigurer {
         gsonBuilder.registerTypeAdapter(LocalDateTime.class, new LocalDateTimeSerializer());
         gsonBuilder.registerTypeAdapter(LocalDateTime.class, new LocalDateTimeDeserializer());
         return gsonBuilder.create();
+    }
+
+    @Bean
+    public CacheManager cacheManager() {
+        CaffeineCacheManager cacheManager = new CaffeineCacheManager();
+        cacheManager.setCaffeine(Caffeine.newBuilder()
+                .initialCapacity(200)
+                .maximumSize(500)
+                .weakKeys()
+                .recordStats());
+        return cacheManager;
     }
 }

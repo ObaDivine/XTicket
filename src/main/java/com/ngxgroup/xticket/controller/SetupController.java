@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpSession;
 import java.security.Principal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.MessageSource;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,8 +28,6 @@ public class SetupController {
 
     @Autowired
     XTicketService xticketService;
-    @Autowired
-    MessageSource messageSource;
     @Value("${xticket.default.departmentcode}")
     private String defaultDepartmentCode;
     private String alertMessage = "";

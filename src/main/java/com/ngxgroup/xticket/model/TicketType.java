@@ -47,6 +47,8 @@ public class TicketType implements Serializable {
     private TicketSla sla;
     @Column(name = "escalation_emails", length = 5000)
     private String escalationEmails;
+    @Column(name = "escalation_sla", length = 5000)
+    private String escalationSla;
     @Column(name = "email_escalation_index")
     private int emailEscalationIndex;
     @Column(name = "status")

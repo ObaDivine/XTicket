@@ -31,7 +31,10 @@ import com.ngxgroup.xticket.model.TicketStatus;
 import com.ngxgroup.xticket.model.TicketStatusChange;
 import com.ngxgroup.xticket.model.TicketType;
 import com.ngxgroup.xticket.model.Tickets;
+import com.ngxgroup.xticket.payload.ActuatorPayload;
+import com.ngxgroup.xticket.payload.KeyValuePair;
 import com.ngxgroup.xticket.payload.LogPayload;
+import com.ngxgroup.xticket.payload.MetricsPayload;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Hashtable;
@@ -67,6 +70,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -78,6 +85,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class XTicketServiceImpl implements XTicketService {
 
+    @Autowired
+    Environment environment;
     @Autowired
     ServletContext servletContext;
     @Autowired
@@ -206,6 +215,7 @@ public class XTicketServiceImpl implements XTicketService {
                         if (appUser.getLoginFailCount() == Integer.parseInt(passwordRetryCount)) {
                             appUser.setLoginFailCount(appUser.getLoginFailCount() + 1);
                             appUser.setResetTime(LocalDateTime.now().plusMinutes(Integer.parseInt(passwordResetTime)));
+                            appUser.setLocked(true);
                             xticketRepository.updateAppUser(appUser);
 
                             String message = messageSource.getMessage("appMessages.user.multiple.attempt", new Object[]{requestPayload.getEmail().trim()}, Locale.ENGLISH);
@@ -231,6 +241,7 @@ public class XTicketServiceImpl implements XTicketService {
                     appUser.setLastLogin(LocalDateTime.now());
                     appUser.setOnline(true);
                     appUser.setSessionId(requestPayload.getSessionId());
+                    appUser.setLocked(false);
                     xticketRepository.updateAppUser(appUser);
 
                     String message = messageSource.getMessage("appMessages.success.signin", new Object[0], Locale.ENGLISH);
@@ -247,6 +258,7 @@ public class XTicketServiceImpl implements XTicketService {
                         if (appUser.getLoginFailCount() == Integer.parseInt(passwordRetryCount)) {
                             appUser.setLoginFailCount(appUser.getLoginFailCount() + 1);
                             appUser.setResetTime(LocalDateTime.now().plusMinutes(Integer.parseInt(passwordResetTime)));
+                            appUser.setLocked(true);
                             xticketRepository.updateAppUser(appUser);
 
                             String message = messageSource.getMessage("appMessages.user.multiple.attempt", new Object[]{requestPayload.getEmail().trim()}, Locale.ENGLISH);
@@ -279,6 +291,7 @@ public class XTicketServiceImpl implements XTicketService {
                     appUser.setLastLogin(LocalDateTime.now());
                     appUser.setOnline(true);
                     appUser.setSessionId(requestPayload.getSessionId());
+                    appUser.setLocked(false);
                     xticketRepository.updateAppUser(appUser);
 
                     String message = messageSource.getMessage("appMessages.success.signin", new Object[0], Locale.ENGLISH);
@@ -323,6 +336,7 @@ public class XTicketServiceImpl implements XTicketService {
             appUser.setLastLogin(LocalDateTime.now());
             appUser.setOnline(true);
             appUser.setSessionId(requestPayload.getSessionId());
+            appUser.setLocked(false);
             xticketRepository.updateAppUser(appUser);
 
             String message = messageSource.getMessage("appMessages.success.signin", new Object[0], Locale.ENGLISH);
@@ -470,7 +484,7 @@ public class XTicketServiceImpl implements XTicketService {
 
             EmailTemp emailTemp = new EmailTemp();
             emailTemp.setCreatedAt(LocalDateTime.now());
-            emailTemp.setEmail(requestPayload.getEmail());
+            emailTemp.setEmail(requestPayload.getEmail().trim());
             emailTemp.setError("");
             emailTemp.setMessage(message);
             emailTemp.setStatus("Pending");
@@ -534,6 +548,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "profile", key = "{#principal}")
     public XTicketPayload fetchProfile(String principal) {
         var response = new XTicketPayload();
         try {
@@ -701,7 +716,7 @@ public class XTicketServiceImpl implements XTicketService {
                     + "<p>" + companyName + "</p>";
             EmailTemp emailTemp = new EmailTemp();
             emailTemp.setCreatedAt(LocalDateTime.now());
-            emailTemp.setEmail(requestPayload.getEmail());
+            emailTemp.setEmail(requestPayload.getEmail().trim());
             emailTemp.setError("");
             emailTemp.setMessage(message);
             emailTemp.setStatus("Pending");
@@ -724,11 +739,13 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "users")
     public List<AppUser> fetchAppUsers() {
         return xticketRepository.getUsers();
     }
 
     @Override
+    @Cacheable(value = "internalUser")
     public List<AppUser> fetchInternalAppUsers() {
         return xticketRepository.getInternalAppUsers();
     }
@@ -744,6 +761,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @CachePut(value = "users", key = "{#requestPayload.email}")
     public XTicketPayload updateAppUser(XTicketPayload requestPayload, String principal) {
         var response = new XTicketPayload();
         try {
@@ -945,7 +963,7 @@ public class XTicketServiceImpl implements XTicketService {
                             + "<p>" + companyName + "</p>";
                     EmailTemp emailTemp = new EmailTemp();
                     emailTemp.setCreatedAt(LocalDateTime.now());
-                    emailTemp.setEmail(requestPayload.getEmail());
+                    emailTemp.setEmail(requestPayload.getEmail().trim());
                     emailTemp.setError("");
                     emailTemp.setMessage(message);
                     emailTemp.setStatus("Pending");
@@ -977,16 +995,18 @@ public class XTicketServiceImpl implements XTicketService {
      * Roles *
      */
     @Override
+    @Cacheable(value = "roleGroup")
     public List<RoleGroups> fetchRoleGroup() {
         return xticketRepository.getRoleGroupList();
     }
 
     @Override
+    @Cacheable(value = "roleGroup", key = "{#id}")
     public XTicketPayload fetchRoleGroup(String id) {
         var response = new XTicketPayload();
         try {
             //Fetch the role group
-            RoleGroups roleGroup = xticketRepository.getRoleGroupUsingId(Long.valueOf(id));
+            RoleGroups roleGroup = xticketRepository.getRoleGroupUsingId(Long.parseLong(id));
             if (roleGroup == null) {
                 response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
                 response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{id}, Locale.ENGLISH));
@@ -1009,6 +1029,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "appRoles")
     public List<AppRoles> fetchAppRoles() {
         return xticketRepository.getAppRoles();
     }
@@ -1052,6 +1073,19 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             //This is an update request
+            return updateRoleGroup(requestPayload, principal);
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @CachePut(value = "roleGroup", key = "{#requestPayload.id}")
+    private XTicketPayload updateRoleGroup(XTicketPayload requestPayload, String principal) {
+        var response = new XTicketPayload();
+        try {
             RoleGroups oldRoleGroup = xticketRepository.getRoleGroupUsingId(Long.valueOf(requestPayload.getId()));
             if (oldRoleGroup == null) {
                 response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
@@ -1089,6 +1123,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @CacheEvict(value = "roleGroup", key = "{#id}")
     public XTicketPayload deleteRoleGroup(String id, String principal) {
         var response = new XTicketPayload();
         try {
@@ -1102,7 +1137,7 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             //Check if the group role exist
-            RoleGroups oldRoleGroup = xticketRepository.getRoleGroupUsingId(Long.valueOf(id));
+            RoleGroups oldRoleGroup = xticketRepository.getRoleGroupUsingId(Long.parseLong(id));
             if (oldRoleGroup == null) {
                 response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
                 response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{id}, Locale.ENGLISH));
@@ -1138,6 +1173,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "groupRoles", key = "{#groupName}")
     public XTicketPayload fetchGroupRoles(String groupName) {
         var response = new XTicketPayload();
         try {
@@ -1197,6 +1233,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @CachePut(value = "groupRoles", key = "#requestPayload.groupName")
     public XTicketPayload updateGroupRoles(XTicketPayload requestPayload) {
         var response = new XTicketPayload();
         try {
@@ -1240,6 +1277,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "userRoles", key = "{#principal}")
     public List<GroupRoles> fetchUserRoles(String principal) {
         try {
             //Fetch the user
@@ -1263,6 +1301,7 @@ public class XTicketServiceImpl implements XTicketService {
      * Ticket Group *
      */
     @Override
+    @Cacheable(value = "ticketGroup")
     public XTicketPayload fetchTicketGroup() {
         var response = new XTicketPayload();
         try {
@@ -1292,6 +1331,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "ticketGroup", key = "{#id}")
     public XTicketPayload fetchTicketGroup(String id) {
         var response = new XTicketPayload();
         try {
@@ -1373,6 +1413,20 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             //This is an update request
+            return updateTicketGroup(requestPayload, principal);
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @CachePut(value = "ticketGroup", key = "{#id}")
+    private XTicketPayload updateTicketGroup(XTicketPayload requestPayload, String principal) {
+        var response = new XTicketPayload();
+        try {
+            //This is an update request
             TicketGroup ticketGroup = xticketRepository.getTicketGroupUsingId(Long.valueOf(requestPayload.getId()));
             if (ticketGroup == null) {
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
@@ -1426,11 +1480,12 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @CacheEvict(value = "ticketGroup", key = "{#id}")
     public XTicketPayload deleteTicketGroup(String id, String principal) {
         var response = new XTicketPayload();
         try {
             //Check if the ticket group by Id is valid
-            TicketGroup ticketGroup = xticketRepository.getTicketGroupUsingId(Long.valueOf(id));
+            TicketGroup ticketGroup = xticketRepository.getTicketGroupUsingId(Long.parseLong(id));
             if (ticketGroup == null) {
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
                 response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Ticket Group", "Id", id}, Locale.ENGLISH));
@@ -1479,6 +1534,7 @@ public class XTicketServiceImpl implements XTicketService {
      * @param includeAutomatedTicket
      */
     @Override
+    @Cacheable(value = "ticketType")
     public XTicketPayload fetchTicketType(boolean includeAutomatedTicket) {
         var response = new XTicketPayload();
         try {
@@ -1495,6 +1551,7 @@ public class XTicketServiceImpl implements XTicketService {
                     payload.setTicketGroupCode(t.getTicketGroup().getTicketGroupCode());
                     payload.setServiceUnitCode(t.getServiceUnit().getServiceUnitCode());
                     payload.setServiceUnitName(t.getServiceUnit().getServiceUnitName());
+                    payload.setEscalationSla(t.getEscalationSla());
                     payload.setInitialSla(t.getSla().getTicketSlaPeriod() == 'D' ? t.getSla().getTicketSla() + " Day(s)"
                             : t.getSla().getTicketSlaPeriod() == 'M' ? t.getSla().getTicketSla() + " Minute(s)" : t.getSla().getTicketSla() + " Hour(s)");
                     data.add(payload);
@@ -1514,6 +1571,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "ticketType", key = "{#id}")
     public XTicketPayload fetchTicketType(String id) {
         var response = new XTicketPayload();
         try {
@@ -1533,6 +1591,7 @@ public class XTicketServiceImpl implements XTicketService {
             response.setServiceUnitCode(ticketType.getServiceUnit().getServiceUnitCode());
             response.setServiceUnitName(ticketType.getServiceUnit().getServiceUnitName());
             response.setTicketSlaName(ticketType.getSla().getTicketSlaName());
+            response.setEscalationSla(ticketType.getEscalationSla());
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
             response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{1}, Locale.ENGLISH));
@@ -1606,12 +1665,51 @@ public class XTicketServiceImpl implements XTicketService {
                     return response;
                 }
 
+                //Validate the escalation emails
+                List<String> invalidEscalationEmails = new ArrayList<>();
+                String[] escalationEmails = requestPayload.getEscalationEmails().split(",");
+                for (String esc : escalationEmails) {
+                    if (!esc.trim().matches("^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")) {
+                        invalidEscalationEmails.add(esc);
+                    }
+                }
+
+                if (!invalidEscalationEmails.isEmpty()) {
+                    response.setResponseCode(ResponseCodes.INVALID_TYPE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.invalid.param", new Object[]{"Following Email(s) are invalid", invalidEscalationEmails}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
+                List<String> invalidEscalationWaitTime = new ArrayList<>();
+                String[] escalationSla = requestPayload.getEscalationSla().split(",");
+                for (String esc : escalationSla) {
+                    if (!esc.trim().matches("^([0-9]{1,2}[MHD])*$")) {
+                        invalidEscalationWaitTime.add(esc);
+                    }
+                }
+
+                if (!invalidEscalationWaitTime.isEmpty()) {
+                    response.setResponseCode(ResponseCodes.INVALID_TYPE.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.invalid.param", new Object[]{"Following SLA(s) are invalid", invalidEscalationWaitTime}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
+                if (escalationEmails.length != escalationSla.length) {
+                    response.setResponseCode(ResponseCodes.NAME_MISMATCH.getResponseCode());
+                    response.setResponseMessage(messageSource.getMessage("appMessages.invalid.param", new Object[]{"Number of escalations " + escalationEmails.length, " does not match SLA count of " + escalationSla.length}, Locale.ENGLISH));
+                    response.setData(null);
+                    return response;
+                }
+
                 TicketType newTicketType = new TicketType();
                 newTicketType.setCreatedAt(LocalDateTime.now());
                 newTicketType.setCreatedBy(principal);
                 newTicketType.setTicketTypeCode(requestPayload.getTicketTypeCode());
                 newTicketType.setTicketTypeName(requestPayload.getTicketTypeName());
                 newTicketType.setEscalationEmails(requestPayload.getEscalationEmails());
+                newTicketType.setEscalationSla(requestPayload.getEscalationSla());
                 newTicketType.setInternal(requestPayload.isInternal());
                 newTicketType.setEmailEscalationIndex(0);
                 newTicketType.setSla(ticketSla);
@@ -1632,6 +1730,7 @@ public class XTicketServiceImpl implements XTicketService {
                 newValue.append("Ticket Type Code:").append(requestPayload.getTicketTypeCode()).append(", ")
                         .append("Ticket Type Name:").append(requestPayload.getTicketTypeName()).append(", ")
                         .append("Escalation Emails:").append(requestPayload.getEscalationEmails()).append(", ")
+                        .append("Escalation Wait Time:").append(requestPayload.getEscalationSla()).append(", ")
                         .append("SLA:").append(ticketSla.getTicketSlaName()).append(", ")
                         .append("Service Unit:").append(serviceUnit.getServiceUnitName()).append(", ")
                         .append("Ticket Group:").append(ticketGroup.getTicketGroupName()).append(", ")
@@ -1642,6 +1741,20 @@ public class XTicketServiceImpl implements XTicketService {
                 return response;
             }
 
+            //This is an update request
+            return updateTicketType(requestPayload, principal);
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @CachePut(value = "ticketType", key = "{#requestPayload.id}")
+    private XTicketPayload updateTicketType(XTicketPayload requestPayload, String principal) {
+        var response = new XTicketPayload();
+        try {
             //This is an update request
             TicketType ticketType = xticketRepository.getTicketTypeUsingId(Long.valueOf(requestPayload.getId()));
             if (ticketType == null) {
@@ -1696,10 +1809,49 @@ public class XTicketServiceImpl implements XTicketService {
                 return response;
             }
 
+            //Validate the escalation emails
+            List<String> invalidEscalationEmails = new ArrayList<>();
+            String[] escalationEmails = requestPayload.getEscalationEmails().split(",");
+            for (String esc : escalationEmails) {
+                if (!esc.trim().matches("^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")) {
+                    invalidEscalationEmails.add(esc);
+                }
+            }
+
+            if (!invalidEscalationEmails.isEmpty()) {
+                response.setResponseCode(ResponseCodes.INVALID_TYPE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.invalid.param", new Object[]{"Following Email(s) are invalid", invalidEscalationEmails}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            List<String> invalidEscalationWaitTime = new ArrayList<>();
+            String[] escalationSla = requestPayload.getEscalationSla().split(",");
+            for (String esc : escalationSla) {
+                if (!esc.trim().matches("^([0-9]{1,2}[MHD])*$")) {
+                    invalidEscalationWaitTime.add(esc);
+                }
+            }
+
+            if (!invalidEscalationWaitTime.isEmpty()) {
+                response.setResponseCode(ResponseCodes.INVALID_TYPE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.invalid.param", new Object[]{"Following wait time(s) are invalid", invalidEscalationWaitTime}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            if (escalationEmails.length != escalationSla.length) {
+                response.setResponseCode(ResponseCodes.NAME_MISMATCH.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.invalid.param", new Object[]{"Escalation count of " + escalationEmails.length, " does not match Wait Time count of " + escalationSla.length}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
             StringBuilder oldValue = new StringBuilder();
             oldValue.append("Ticket Type Code:").append(ticketType.getTicketTypeCode()).append(", ")
                     .append("Ticket Type Name:").append(ticketType.getTicketTypeName()).append(", ")
                     .append("Escalation Emails:").append(ticketType.getEscalationEmails()).append(", ")
+                    .append("Escalation Wait Time:").append(ticketType.getEscalationSla()).append(", ")
                     .append("SLA:").append(ticketSla.getTicketSlaName()).append(", ")
                     .append("Service Unit:").append(serviceUnit.getServiceUnitName()).append(", ")
                     .append("Ticket Group:").append(ticketGroup.getTicketGroupName()).append(", ")
@@ -1713,6 +1865,7 @@ public class XTicketServiceImpl implements XTicketService {
             ticketType.setTicketTypeCode(requestPayload.getTicketTypeCode());
             ticketType.setTicketTypeName(requestPayload.getTicketTypeName());
             ticketType.setEscalationEmails(requestPayload.getEscalationEmails());
+            ticketType.setEscalationSla(requestPayload.getEscalationSla());
             ticketType.setInternal(requestPayload.isInternal());
             ticketType.setEmailEscalationIndex(0);
             ticketType.setSla(ticketSla);
@@ -1733,6 +1886,7 @@ public class XTicketServiceImpl implements XTicketService {
             newValue.append("Ticket Type Code:").append(requestPayload.getTicketTypeCode()).append(", ")
                     .append("Ticket Type Name:").append(requestPayload.getTicketTypeName()).append(", ")
                     .append("Escalation Emails:").append(requestPayload.getEscalationEmails()).append(", ")
+                    .append("Escalation Wait Time:").append(requestPayload.getEscalationSla()).append(", ")
                     .append("SLA:").append(ticketSla.getTicketSlaName()).append(", ")
                     .append("Service Unit:").append(serviceUnit.getServiceUnitName()).append(", ")
                     .append("Ticket Group:").append(ticketGroup.getTicketGroupName()).append(", ")
@@ -1750,11 +1904,12 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @CacheEvict(value = "ticketType", key = "{#id}")
     public XTicketPayload deleteTicketType(String id, String principal) {
         var response = new XTicketPayload();
         try {
             //Check if the ticket type by Id is valid
-            TicketType ticketType = xticketRepository.getTicketTypeUsingId(Long.valueOf(id));
+            TicketType ticketType = xticketRepository.getTicketTypeUsingId(Long.parseLong(id));
             if (ticketType == null) {
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
                 response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Ticket Type", "Id", id}, Locale.ENGLISH));
@@ -1788,6 +1943,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "ticketType", key = "{#ticketGroupCode}")
     public List<TicketType> fetchTicketTypeUsingGroup(String ticketGroupCode, String principal) {
         var appUser = xticketRepository.getAppUserUsingEmail(principal);
         if (appUser == null) {
@@ -1817,6 +1973,7 @@ public class XTicketServiceImpl implements XTicketService {
      * Ticket SLA *
      */
     @Override
+    @Cacheable(value = "ticketSla")
     public XTicketPayload fetchTicketSla() {
         var response = new XTicketPayload();
         try {
@@ -1846,6 +2003,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "ticketSla", key = "{#id}")
     public XTicketPayload fetchTicketSla(String id) {
         var response = new XTicketPayload();
         try {
@@ -1919,6 +2077,20 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             //This is an update request
+            return updateTicketSla(requestPayload, principal);
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @CachePut(value = "ticketSla", key = "{#requestPayload.id}")
+    private XTicketPayload updateTicketSla(XTicketPayload requestPayload, String principal) {
+        var response = new XTicketPayload();
+        try {
+            //This is an update request
             TicketSla ticketSla = xticketRepository.getTicketSlaUsingId(Long.valueOf(requestPayload.getId()));
             if (ticketSla == null) {
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
@@ -1964,11 +2136,12 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @CacheEvict(value = "ticketSla", key = "{#id}")
     public XTicketPayload deleteTicketSla(String id, String principal) {
         var response = new XTicketPayload();
         try {
             //Check if the ticket group by Id is valid
-            TicketSla ticketSla = xticketRepository.getTicketSlaUsingId(Long.valueOf(id));
+            TicketSla ticketSla = xticketRepository.getTicketSlaUsingId(Long.parseLong(id));
             if (ticketSla == null) {
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
                 response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Ticket SLA", "Id", id}, Locale.ENGLISH));
@@ -2005,6 +2178,7 @@ public class XTicketServiceImpl implements XTicketService {
      * Ticket Agent *
      */
     @Override
+    @Cacheable(value = "ticketAgent")
     public XTicketPayload fetchTicketAgent() {
         var response = new XTicketPayload();
         try {
@@ -2135,6 +2309,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "agentTicketType", key = "{#principal}")
     public XTicketPayload fetchAgentTicketTypes(String principal) {
         var response = new XTicketPayload();
         try {
@@ -2319,13 +2494,13 @@ public class XTicketServiceImpl implements XTicketService {
 
             EmailTemp emailTemp = new EmailTemp();
             emailTemp.setCreatedAt(LocalDateTime.now());
-            emailTemp.setEmail(ticketAgent.getAgent().getEmail());
+            emailTemp.setEmail(ticketAgent.getAgent().getEmail().trim());
             emailTemp.setError("");
             emailTemp.setMessage(message);
             emailTemp.setStatus("Pending");
             emailTemp.setSubject("Ticket Request Notification");
             emailTemp.setTryCount(0);
-            emailTemp.setCarbonCopy(ticketType.getServiceUnit().getGroupEmail());
+            emailTemp.setCarbonCopy(ticketType.getServiceUnit().getGroupEmail().trim());
             emailTemp.setFileAttachment("");
             xticketRepository.createEmailTemp(emailTemp);
 
@@ -2423,7 +2598,7 @@ public class XTicketServiceImpl implements XTicketService {
 
             EmailTemp emailTemp = new EmailTemp();
             emailTemp.setCreatedAt(LocalDateTime.now());
-            emailTemp.setEmail(ticket.getTicketAgent().getAgent().getEmail());
+            emailTemp.setEmail(ticket.getTicketAgent().getAgent().getEmail().trim());
             emailTemp.setError("");
             emailTemp.setMessage(message);
             emailTemp.setStatus("Pending");
@@ -2550,7 +2725,7 @@ public class XTicketServiceImpl implements XTicketService {
 
             EmailTemp emailTemp = new EmailTemp();
             emailTemp.setCreatedAt(LocalDateTime.now());
-            emailTemp.setEmail(ticket.getCreatedBy().getEmail());
+            emailTemp.setEmail(ticket.getCreatedBy().getEmail().trim());
             emailTemp.setError("");
             emailTemp.setMessage(message);
             emailTemp.setStatus("Pending");
@@ -2607,6 +2782,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "openTicket", key = "{#principal}")
     public XTicketPayload fetchOpenTicket(String principal) {
         var response = new XTicketPayload();
         try {
@@ -2657,6 +2833,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "closedTicket", key = "{#principal}")
     public XTicketPayload fetchClosedTicket(String principal) {
         var response = new XTicketPayload();
         try {
@@ -2781,6 +2958,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "tickets", key = "{#id}")
     public XTicketPayload fetchTicketUsingId(String id) {
         var response = new XTicketPayload();
         try {
@@ -2846,6 +3024,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "userTickets", key = "{#principal}")
     public XTicketPayload fetchTicketByUser(String principal) {
         var response = new XTicketPayload();
         try {
@@ -3134,7 +3313,7 @@ public class XTicketServiceImpl implements XTicketService {
                         + "<p>" + companyName + "</p>";
                 EmailTemp emailTemp = new EmailTemp();
                 emailTemp.setCreatedAt(LocalDateTime.now());
-                emailTemp.setEmail(recipientEmail);
+                emailTemp.setEmail(recipientEmail.trim());
                 emailTemp.setError("");
                 emailTemp.setMessage(message);
                 emailTemp.setStatus("Pending");
@@ -3188,7 +3367,7 @@ public class XTicketServiceImpl implements XTicketService {
 
             EmailTemp emailTemp = new EmailTemp();
             emailTemp.setCreatedAt(LocalDateTime.now());
-            emailTemp.setEmail(recipientEmail);
+            emailTemp.setEmail(recipientEmail.trim());
             emailTemp.setError("");
             emailTemp.setMessage(message);
             emailTemp.setStatus("Pending");
@@ -3287,7 +3466,7 @@ public class XTicketServiceImpl implements XTicketService {
 
             EmailTemp emailTemp = new EmailTemp();
             emailTemp.setCreatedAt(LocalDateTime.now());
-            emailTemp.setEmail(ticketAgent.getAgent().getEmail());
+            emailTemp.setEmail(ticketAgent.getAgent().getEmail().trim());
             emailTemp.setError("");
             emailTemp.setMessage(message);
             emailTemp.setStatus("Pending");
@@ -3313,6 +3492,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "openTicket")
     public XTicketPayload fetchOpenTicket() {
         var response = new XTicketPayload();
         try {
@@ -3426,6 +3606,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "closedTicket")
     public XTicketPayload fetchClosedTicket() {
         var response = new XTicketPayload();
         try {
@@ -3642,7 +3823,7 @@ public class XTicketServiceImpl implements XTicketService {
 
             EmailTemp emailTemp = new EmailTemp();
             emailTemp.setCreatedAt(LocalDateTime.now());
-            emailTemp.setEmail(newTicketAgent.getEmail());
+            emailTemp.setEmail(newTicketAgent.getEmail().trim());
             emailTemp.setError("");
             emailTemp.setMessage(message);
             emailTemp.setStatus("Pending");
@@ -3668,6 +3849,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "ticketDetails", key = "{#ticketId}")
     public XTicketPayload fetchTicketFullDetails(String ticketId) {
         var response = new XTicketPayload();
         try {
@@ -4799,6 +4981,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "entities")
     public XTicketPayload fetchEntity() {
         var response = new XTicketPayload();
         try {
@@ -4828,6 +5011,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "entities", key = "{#id}")
     public XTicketPayload fetchEntity(String id) {
         var response = new XTicketPayload();
         try {
@@ -4908,6 +5092,20 @@ public class XTicketServiceImpl implements XTicketService {
                 return response;
             }
 
+            //This is update
+            return updateEntity(requestPayload, principal);
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @CachePut(value = "entities", key = "{#requestPayload.id}")
+    private XTicketPayload updateEntity(XTicketPayload requestPayload, String principal) {
+        var response = new XTicketPayload();
+        try {
             //This is an update request
             Entities entity = xticketRepository.getEntitiesUsingId(Long.valueOf(requestPayload.getId()));
             if (entity == null) {
@@ -4963,11 +5161,12 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @CacheEvict(value = "entities", key = "{#id}")
     public XTicketPayload deleteEntity(String id, String principal) {
         var response = new XTicketPayload();
         try {
             //Check if the service unit by Id is valid
-            Entities entity = xticketRepository.getEntitiesUsingId(Long.valueOf(id));
+            Entities entity = xticketRepository.getEntitiesUsingId(Long.parseLong(id));
             if (entity == null) {
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
                 response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Entity", "Id", id}, Locale.ENGLISH));
@@ -5188,6 +5387,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "department")
     public XTicketPayload fetchDepartment() {
         var response = new XTicketPayload();
         try {
@@ -5219,6 +5419,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "department", key = "{#id}")
     public XTicketPayload fetchDepartment(String id) {
         var response = new XTicketPayload();
         try {
@@ -5313,6 +5514,20 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             //This is an update request
+            return updateDepartment(requestPayload, principal);
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @CachePut(value = "department", key = "{#requestPayload.id}")
+    private XTicketPayload updateDepartment(XTicketPayload requestPayload, String principal) {
+        var response = new XTicketPayload();
+        try {
+            //This is an update request
             Department department = xticketRepository.getDepartmentUsingId(Long.valueOf(requestPayload.getId()));
             if (department == null) {
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
@@ -5379,11 +5594,12 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @CacheEvict(value = "department", key = "{#id}")
     public XTicketPayload deleteDepartment(String id, String principal) {
         var response = new XTicketPayload();
         try {
             //Check if the department by Id is valid
-            Department department = xticketRepository.getDepartmentUsingId(Long.valueOf(id));
+            Department department = xticketRepository.getDepartmentUsingId(Long.parseLong(id));
             if (department == null) {
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
                 response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Department", "Id", id}, Locale.ENGLISH));
@@ -5865,6 +6081,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "serviceUnit")
     public XTicketPayload fetchServiceUnit() {
         var response = new XTicketPayload();
         try {
@@ -5897,6 +6114,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "serviceUnit", key = "{#id}")
     public XTicketPayload fetchServiceUnit(String id) {
         var response = new XTicketPayload();
         try {
@@ -5992,6 +6210,20 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             //This is an update request
+            return updateServiceUnit(requestPayload, principal);
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @CachePut(value = "serviceUnit", key = "{#requestPayload.id}")
+    private XTicketPayload updateServiceUnit(XTicketPayload requestPayload, String principal) {
+        var response = new XTicketPayload();
+        try {
+            //This is an update request
             ServiceUnit serviceUnit = xticketRepository.getServiceUnitUsingId(Long.valueOf(requestPayload.getId()));
             if (serviceUnit == null) {
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
@@ -6060,11 +6292,12 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @CacheEvict(value = "serviceUnit", key = "{#id}")
     public XTicketPayload deleteServiceUnit(String id, String principal) {
         var response = new XTicketPayload();
         try {
             //Check if the service unit by Id is valid
-            ServiceUnit serviceUnit = xticketRepository.getServiceUnitUsingId(Long.valueOf(id));
+            ServiceUnit serviceUnit = xticketRepository.getServiceUnitUsingId(Long.parseLong(id));
             if (serviceUnit == null) {
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
                 response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Service Unit", "Id", id}, Locale.ENGLISH));
@@ -6241,6 +6474,7 @@ public class XTicketServiceImpl implements XTicketService {
      * Ticket Status *
      */
     @Override
+    @Cacheable(value = "ticketStatus")
     public XTicketPayload fetchTicketStatus() {
         var response = new XTicketPayload();
         try {
@@ -6270,6 +6504,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "ticketStatus", key = "{#id}")
     public XTicketPayload fetchTicketStatus(String id) {
         var response = new XTicketPayload();
         try {
@@ -6381,6 +6616,20 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             //This is an update request
+            return updateTicketStatus(requestPayload, principal);
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @CachePut(value = "ticketStatus", key = "{#requestPayload.id}")
+    private XTicketPayload updateTicketStatus(XTicketPayload requestPayload, String principal) {
+        var response = new XTicketPayload();
+        try {
+            //This is an update request
             TicketStatus ticketStatus = xticketRepository.getTicketStatusUsingId(Long.valueOf(requestPayload.getId()));
             if (ticketStatus == null) {
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
@@ -6426,7 +6675,6 @@ public class XTicketServiceImpl implements XTicketService {
                     .append("Ticket Status Name:").append(requestPayload.getTicketStatusName());
             //Log the response
             genericService.logResponse(principal, ticketStatus.getId(), "Update", "Ticket Status", "Update Ticket Status " + requestPayload.getTicketStatusName(), oldValue.toString(), newValue.toString());
-
             return response;
         } catch (Exception ex) {
             response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
@@ -6437,11 +6685,12 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @CacheEvict(value = "ticketStatus", key = "{#id}")
     public XTicketPayload deleteTicketStatus(String id, String principal) {
         var response = new XTicketPayload();
         try {
             //Check if the ticket status by Id is valid
-            TicketStatus ticketStatus = xticketRepository.getTicketStatusUsingId(Long.valueOf(id));
+            TicketStatus ticketStatus = xticketRepository.getTicketStatusUsingId(Long.parseLong(id));
             if (ticketStatus == null) {
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
                 response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Ticket Status", "Id", id}, Locale.ENGLISH));
@@ -6486,6 +6735,7 @@ public class XTicketServiceImpl implements XTicketService {
      * Automated Ticket *
      */
     @Override
+    @Cacheable(value = "automatedTicket")
     public XTicketPayload fetchAutomatedTicket() {
         var response = new XTicketPayload();
         try {
@@ -6524,6 +6774,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "automatedTicket", key = "{#id}")
     public XTicketPayload fetchAutomatedTicket(String id) {
         var response = new XTicketPayload();
         try {
@@ -6561,6 +6812,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "automatedTicketType")
     public XTicketPayload fetchAutomatedTicketType() {
         var response = new XTicketPayload();
         try {
@@ -6755,7 +7007,7 @@ public class XTicketServiceImpl implements XTicketService {
                 //Check the start and end date
                 if (startDate.isBefore(LocalDate.now())) {
                     response.setResponseCode(ResponseCodes.OUT_OF_RANGE.getResponseCode());
-                    response.setResponseMessage(messageSource.getMessage("appMessages.invalid.date", new Object[]{"Start Date", " cannot be less than today"}, Locale.ENGLISH));
+                    response.setResponseMessage(messageSource.getMessage("appMessages.invalid.param", new Object[]{"Start Date", " cannot be less than today"}, Locale.ENGLISH));
                     response.setData(null);
                     return response;
                 }
@@ -6764,7 +7016,7 @@ public class XTicketServiceImpl implements XTicketService {
                     LocalDate endDate = LocalDate.parse(requestPayload.getEndDate());
                     if (endDate.isBefore(LocalDate.now()) || endDate.isBefore(startDate)) {
                         response.setResponseCode(ResponseCodes.OUT_OF_RANGE.getResponseCode());
-                        response.setResponseMessage(messageSource.getMessage("appMessages.invalid.date", new Object[]{"Start or End Date", " cannot be in the past"}, Locale.ENGLISH));
+                        response.setResponseMessage(messageSource.getMessage("appMessages.invalid.param", new Object[]{"Start or End Date", " cannot be in the past"}, Locale.ENGLISH));
                         response.setData(null);
                         return response;
                     }
@@ -6775,7 +7027,7 @@ public class XTicketServiceImpl implements XTicketService {
                 if (LocalDateTime.now().isAfter(runDate)) {
                     String message = "Start date is today but the current hour (" + String.valueOf(LocalDateTime.now().getHour()) + ") is past schedule job time of (" + automatedTicketTime + ")";
                     response.setResponseCode(ResponseCodes.INPUT_MISSING.getResponseCode());
-                    response.setResponseMessage(messageSource.getMessage("appMessages.invalid.date", new Object[]{message, " Please update start date accordingly"}, Locale.ENGLISH));
+                    response.setResponseMessage(messageSource.getMessage("appMessages.invalid.param", new Object[]{message, " Please update start date accordingly"}, Locale.ENGLISH));
                     response.setData(null);
                     return response;
                 }
@@ -6815,6 +7067,20 @@ public class XTicketServiceImpl implements XTicketService {
                 return response;
             }
 
+            //This is an update request
+            return updateAutomatedTicket(requestPayload, principal);
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @CachePut(value = "automatedTicket", key = "{#requestPayload.id}")
+    private XTicketPayload updateAutomatedTicket(XTicketPayload requestPayload, String principal) {
+        var response = new XTicketPayload();
+        try {
             //This is an update request
             AutomatedTicket automatedTicket = xticketRepository.getAutomatedTicketUsingId(Long.valueOf(requestPayload.getId()));
             if (automatedTicket == null) {
@@ -6876,7 +7142,7 @@ public class XTicketServiceImpl implements XTicketService {
                 //Check the start and end date
                 if (startDate.isBefore(LocalDate.now())) {
                     response.setResponseCode(ResponseCodes.OUT_OF_RANGE.getResponseCode());
-                    response.setResponseMessage(messageSource.getMessage("appMessages.invalid.date", new Object[]{"Start Date", " cannot be less than today"}, Locale.ENGLISH));
+                    response.setResponseMessage(messageSource.getMessage("appMessages.invalid.param", new Object[]{"Start Date", " cannot be less than today"}, Locale.ENGLISH));
                     response.setData(null);
                     return response;
                 }
@@ -6886,7 +7152,7 @@ public class XTicketServiceImpl implements XTicketService {
                 LocalDate endDate = LocalDate.parse(requestPayload.getEndDate());
                 if (endDate.isBefore(LocalDate.now()) || endDate.isBefore(startDate)) {
                     response.setResponseCode(ResponseCodes.OUT_OF_RANGE.getResponseCode());
-                    response.setResponseMessage(messageSource.getMessage("appMessages.invalid.date", new Object[]{"Start or End Date", " cannot be in the past"}, Locale.ENGLISH));
+                    response.setResponseMessage(messageSource.getMessage("appMessages.invalid.param", new Object[]{"Start or End Date", " cannot be in the past"}, Locale.ENGLISH));
                     response.setData(null);
                     return response;
                 }
@@ -6896,7 +7162,7 @@ public class XTicketServiceImpl implements XTicketService {
             if (LocalDateTime.now().isAfter(runDate)) {
                 String message = "Start date is today but the current hour (" + String.valueOf(LocalDateTime.now().getHour()) + ") is past schedule job time of (" + requestPayload.getRunTime() + ")";
                 response.setResponseCode(ResponseCodes.INPUT_MISSING.getResponseCode());
-                response.setResponseMessage(messageSource.getMessage("appMessages.invalid.date", new Object[]{message, " Please update start date accordingly"}, Locale.ENGLISH));
+                response.setResponseMessage(messageSource.getMessage("appMessages.invalid.param", new Object[]{message, " Please update start date accordingly"}, Locale.ENGLISH));
                 response.setData(null);
                 return response;
             }
@@ -6934,7 +7200,6 @@ public class XTicketServiceImpl implements XTicketService {
                     .append("Frequency:").append(requestPayload.getFrequency()).append(", ");
             //Log the response
             genericService.logResponse(principal, automatedTicket.getId(), "Update", "Automated Ticket", "Update Automated Ticket " + requestPayload.getTicketTypeCode(), oldValue.toString(), newValue.toString());
-
             return response;
         } catch (Exception ex) {
             response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
@@ -6945,11 +7210,12 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @CacheEvict(value = "automatedTicket", key = "{#id}")
     public XTicketPayload deleteAutomatedTicket(String id, String principal) {
         var response = new XTicketPayload();
         try {
             //Check if the automated ticket by Id is valid
-            AutomatedTicket automatedTicket = xticketRepository.getAutomatedTicketUsingId(Long.valueOf(id));
+            AutomatedTicket automatedTicket = xticketRepository.getAutomatedTicketUsingId(Long.parseLong(id));
             if (automatedTicket == null) {
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
                 response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Automated Ticket", "Id", id}, Locale.ENGLISH));
@@ -7154,6 +7420,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "knowledgeBaseCategory")
     public XTicketPayload fetchKnowledgeBaseCategory() {
         var response = new XTicketPayload();
         try {
@@ -7185,6 +7452,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "knowledgeBaseCategory", key = "{#id}")
     public XTicketPayload fetchKnowledgeBaseCategory(String id) {
         var response = new XTicketPayload();
         try {
@@ -7267,6 +7535,20 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             //This is an update request
+            return updateKnowledgeBaseCategory(requestPayload, principal);
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @CachePut(value = "knowledgeBaseCategory", key = "{#requestPayload.id}")
+    private XTicketPayload updateKnowledgeBaseCategory(XTicketPayload requestPayload, String principal) {
+        var response = new XTicketPayload();
+        try {
+            //This is an update request
             KnowledgeBaseCategory knowledgeBaseCategory = xticketRepository.getKnowledgeBaseCategoryUsingId(Long.valueOf(requestPayload.getId()));
             if (knowledgeBaseCategory == null) {
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
@@ -7320,11 +7602,12 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @CacheEvict(value = "knowledgeBaseCategory", key = "{#id}")
     public XTicketPayload deleteKnowledgeBaseCategory(String id, String principal) {
         var response = new XTicketPayload();
         try {
             //Check if the knowledge base by Id is valid
-            KnowledgeBaseCategory knowledgeBaseCategory = xticketRepository.getKnowledgeBaseCategoryUsingId(Long.valueOf(id));
+            KnowledgeBaseCategory knowledgeBaseCategory = xticketRepository.getKnowledgeBaseCategoryUsingId(Long.parseLong(id));
             if (knowledgeBaseCategory == null) {
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
                 response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Knowledge Base Category", "Id", id}, Locale.ENGLISH));
@@ -7358,6 +7641,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "knowledgeBaseContent")
     public XTicketPayload fetchKnowledgeBaseContent() {
         var response = new XTicketPayload();
         try {
@@ -7392,6 +7676,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "knowledgeBaseContent", key = "{#id}")
     public XTicketPayload fetchKnowledgeBaseContentUsingCategory(String id) {
         var response = new XTicketPayload();
         try {
@@ -7437,6 +7722,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "knowledgeBaseContent", key = "{#id}")
     public XTicketPayload fetchKnowledgeBaseContent(String id) {
         var response = new XTicketPayload();
         try {
@@ -7541,6 +7827,20 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             //This is an update request
+            return updateKnowledgeBaseContent(requestPayload, principal);
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @CachePut(value = "knowledgeBaseContent", key = "{#requestPayload.id}")
+    private XTicketPayload updateKnowledgeBaseContent(XTicketPayload requestPayload, String principal) {
+        var response = new XTicketPayload();
+        try {
+            //This is an update request
             KnowledgeBase knowledgeBase = xticketRepository.getKnowledgeBaseUsingId(Long.valueOf(requestPayload.getId()));
             if (knowledgeBase == null) {
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
@@ -7599,11 +7899,12 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @CacheEvict(value = "knowledgeBaseContent", key = "{#id}")
     public XTicketPayload deleteKnowledgeBaseContent(String id, String principal) {
         var response = new XTicketPayload();
         try {
             //Check if the knowledge base by Id is valid
-            KnowledgeBase knowledgeBase = xticketRepository.getKnowledgeBaseUsingId(Long.valueOf(id));
+            KnowledgeBase knowledgeBase = xticketRepository.getKnowledgeBaseUsingId(Long.parseLong(id));
             if (knowledgeBase == null) {
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
                 response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Knowledge Base", "Id", id}, Locale.ENGLISH));
@@ -7628,6 +7929,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "knowledgeBase")
     public XTicketPayload fetchKnowledgeBase() {
         var response = new XTicketPayload();
         try {
@@ -7847,7 +8149,7 @@ public class XTicketServiceImpl implements XTicketService {
 
             EmailTemp emailTemp = new EmailTemp();
             emailTemp.setCreatedAt(LocalDateTime.now());
-            emailTemp.setEmail(contactUsEmail);
+            emailTemp.setEmail(contactUsEmail.trim());
             emailTemp.setError("");
             emailTemp.setMessage(message);
             emailTemp.setStatus("Pending");
@@ -7910,6 +8212,7 @@ public class XTicketServiceImpl implements XTicketService {
      * Push PushNotification *
      */
     @Override
+    @Cacheable(value = "pushNotification")
     public XTicketPayload fetchPushNotification() {
         var response = new XTicketPayload();
         try {
@@ -7938,6 +8241,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "pushNotification", key = "{#id}")
     public XTicketPayload fetchPushNotification(String id, boolean batch) {
         var response = new XTicketPayload();
         try {
@@ -7967,6 +8271,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "userPushNotification", key = "{#principal}")
     public XTicketPayload fetchPushNotificationByUser(String principal) {
         var response = new XTicketPayload();
         try {
@@ -8115,6 +8420,20 @@ public class XTicketServiceImpl implements XTicketService {
             }
 
             //This is an update request
+            return updatePushNotification(requestPayload, principal);
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @CachePut(value = "pushNotification", key = "{#requestPayload.id}")
+    private XTicketPayload updatePushNotification(XTicketPayload requestPayload, String principal) {
+        var response = new XTicketPayload();
+        try {
+            //This is an update request
             PushNotification pushNotification = xticketRepository.getPushNotificationUsingId(Long.valueOf(requestPayload.getId()));
             if (pushNotification == null) {
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
@@ -8172,11 +8491,12 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @CacheEvict(value = "pushNotification", key = "{#id}")
     public XTicketPayload deletePushNotification(String id, String principal, boolean batch) {
         var response = new XTicketPayload();
         try {
             //Check if the push notification by Id is valid
-            PushNotification pushNotification = xticketRepository.getPushNotificationUsingId(Long.valueOf(id));
+            PushNotification pushNotification = xticketRepository.getPushNotificationUsingId(Long.parseLong(id));
             if (pushNotification == null) {
                 response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
                 response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Push Notification", "Id", id}, Locale.ENGLISH));
@@ -8255,6 +8575,107 @@ public class XTicketServiceImpl implements XTicketService {
             response.setResponseMessage(ex.getMessage());
             response.setData(null);
             return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload fetchSystemInfo(String transType) {
+        XTicketPayload responsePayload = new XTicketPayload();
+        switch (transType) {
+            case "UserConnection" -> {
+                List<XTicketPayload> data = new ArrayList<>();
+                List<AppUser> appUsers = xticketRepository.getUsers();
+                if (appUsers != null) {
+                    for (AppUser u : appUsers) {
+                        XTicketPayload user = new XTicketPayload();
+                        user.setUsername(u.getEmail());
+                        user.setLastLogin(u.getLastLogin() == null ? "" : dtf.format(u.getLastLogin()));
+                        user.setSessionId(u.getSessionId());
+                        user.setStatus(u.isOnline() ? "Online" : "Offline");
+                        data.add(user);
+                    }
+                    responsePayload.setData(data);
+                    return responsePayload;
+                }
+                responsePayload.setData(null);
+                return responsePayload;
+            }
+            case "SystemResources" -> {
+                List<KeyValuePair> keyValueList = new ArrayList<>();
+                //Call the OS actiator endpoint
+                String cpuCount = genericService.httpGet(host + "/xticket/actuator/metrics/system.cpu.count");
+                MetricsPayload cpuCountPayload = gson.fromJson(cpuCount, MetricsPayload.class);
+                KeyValuePair cpuCountKeyValue = new KeyValuePair();
+                cpuCountKeyValue.setKey(cpuCountPayload.getDescription().replace("\"", ""));
+                cpuCountKeyValue.setValue(String.valueOf(cpuCountPayload.getMeasurements().get(0).getValue()));
+                keyValueList.add(cpuCountKeyValue);
+
+                String cpuUsage = genericService.httpGet(host + "/xticket/actuator/metrics/system.cpu.usage");
+                MetricsPayload cpuUsagePayload = gson.fromJson(cpuUsage, MetricsPayload.class);
+                KeyValuePair cpuUsageKeyValue = new KeyValuePair();
+                cpuUsageKeyValue.setKey(cpuUsagePayload.getDescription().replace("\"", ""));
+                cpuUsageKeyValue.setValue(String.valueOf(cpuUsagePayload.getMeasurements().get(0).getValue()));
+                keyValueList.add(cpuUsageKeyValue);
+
+                String diskTotal = genericService.httpGet(host + "/xticket/actuator/metrics/disk.total");
+                MetricsPayload diskTotalPayload = gson.fromJson(diskTotal, MetricsPayload.class);
+                KeyValuePair diskTotalKeyValue = new KeyValuePair();
+                diskTotalKeyValue.setKey("Total Disk Space");
+                double diskSpaceTotal = Double.parseDouble(diskTotalPayload.getMeasurements().get(0).getValue()) / 1073741824; //This is 1024 * 1024 * 1024
+                diskTotalKeyValue.setValue(String.format("%.0f", diskSpaceTotal) + " GB");
+                keyValueList.add(diskTotalKeyValue);
+
+                String diskFree = genericService.httpGet(host + "/xticket/actuator/metrics/disk.free");
+                MetricsPayload diskFreePayload = gson.fromJson(diskFree, MetricsPayload.class);
+                KeyValuePair diskFreeKeyValue = new KeyValuePair();
+                diskFreeKeyValue.setKey("Free Disk Space");
+                double diskSpaceFree = Double.parseDouble(diskFreePayload.getMeasurements().get(0).getValue()) / 1073741824; //This is 1024 * 1024 * 1024
+                diskFreeKeyValue.setValue(String.format("%.0f", diskSpaceFree) + " GB");
+                keyValueList.add(diskFreeKeyValue);
+
+                responsePayload.setKeyValuePair(keyValueList);
+                return responsePayload;
+            }
+            case "JavaVirtualMachine" -> {
+                List<KeyValuePair> keyValueList = new ArrayList<>();
+                //Call the OS actiator endpoint
+                String cpuTime = genericService.httpGet(host + "/xticket/actuator/metrics/process.cpu.time");
+                MetricsPayload cpuTimePayload = gson.fromJson(cpuTime, MetricsPayload.class);
+                KeyValuePair cpuTimeKeyValue = new KeyValuePair();
+                cpuTimeKeyValue.setKey(cpuTimePayload.getDescription().replace("\"", ""));
+                double upTimeInNanoSec = Double.parseDouble(cpuTimePayload.getMeasurements().get(0).getValue()) / Double.parseDouble("3600000000000"); // COnvert to Hours (60 * 60)
+                cpuTimeKeyValue.setValue(String.format("%.2f", upTimeInNanoSec) + " Hour");
+                keyValueList.add(cpuTimeKeyValue);
+
+                String cpuUsage = genericService.httpGet(host + "/xticket/actuator/metrics/process.cpu.usage");
+                MetricsPayload cpuUsagePayload = gson.fromJson(cpuUsage, MetricsPayload.class);
+                KeyValuePair cpuUsageKeyValue = new KeyValuePair();
+                cpuUsageKeyValue.setKey(cpuUsagePayload.getDescription().replace("\"", ""));
+                cpuUsageKeyValue.setValue(String.valueOf(cpuUsagePayload.getMeasurements().get(0).getValue()));
+                keyValueList.add(cpuUsageKeyValue);
+
+                String cpuUptime = genericService.httpGet(host + "/xticket/actuator/metrics/process.uptime");
+                MetricsPayload cpuUptimePayload = gson.fromJson(cpuUptime, MetricsPayload.class);
+                KeyValuePair cpuUptimeKeyValue = new KeyValuePair();
+                cpuUptimeKeyValue.setKey(cpuUptimePayload.getDescription().replace("\"", ""));
+                double upTime = Double.parseDouble(cpuUptimePayload.getMeasurements().get(0).getValue()) / 3600; // COnvert to Hours (60 * 60)
+                cpuUptimeKeyValue.setValue(String.format("%.2f", upTime) + " Hour");
+                keyValueList.add(cpuUptimeKeyValue);
+
+                String jvmInfo = genericService.httpGet(host + "/xticket/actuator/metrics/jvm.info");
+                MetricsPayload jvmInfoPayload = gson.fromJson(jvmInfo, MetricsPayload.class);
+                KeyValuePair jvmInfoKeyValue = new KeyValuePair();
+                jvmInfoKeyValue.setKey("Java Version");
+                jvmInfoKeyValue.setValue(String.valueOf(jvmInfoPayload.getAvailableTags().get(2).getValues().get(0)));
+                keyValueList.add(jvmInfoKeyValue);
+
+                responsePayload.setKeyValuePair(keyValueList);
+                return responsePayload;
+            }
+            default -> {
+                //Return empty payload
+                return responsePayload;
+            }
         }
     }
 

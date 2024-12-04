@@ -58,7 +58,7 @@ public class HomeController implements ErrorController {
     private final SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
 
     @GetMapping("/")
-    public String signin(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
+    public String signin(Model model, HttpServletRequest httpRequest, HttpServletResponse httpResponse, Principal principal) {
         model.addAttribute("loginPayload", new XTicketPayload());
         model.addAttribute("passwordPayload", new XTicketPayload());
         model.addAttribute("alertMessage", alertMessage);
@@ -135,7 +135,7 @@ public class HomeController implements ErrorController {
     }
 
     @GetMapping("/signup")
-    public String signup(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
+    public String signup(Model model, HttpServletRequest httpRequest, HttpServletResponse httpResponse, Principal principal) {
         XTicketPayload requestPayload = new XTicketPayload();
         requestPayload.setAdAuthDomains(adAuthDomains);
         model.addAttribute("signupPayload", requestPayload);
@@ -164,7 +164,7 @@ public class HomeController implements ErrorController {
     }
 
     @GetMapping("/signup/activate")
-    public String signupActivation(@RequestParam("id") String id, Model model, HttpServletRequest request, HttpSession httpSession) {
+    public String signupActivation(@RequestParam("id") String id, Model model, HttpServletRequest httpRequest, HttpSession httpSession) {
         XTicketPayload response = xticketService.signUpActivation(id);
         alertMessage = response.getResponseMessage();
         alertMessageType = response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error";
@@ -172,14 +172,34 @@ public class HomeController implements ErrorController {
     }
 
     @PostMapping("/logout")
-    public String logoutPage(HttpServletRequest request, HttpServletResponse response, Principal principal, Model model) {
+    public String logoutPage(HttpServletRequest httpRequest, HttpServletResponse httpResponse, Principal principal, Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {
             xticketService.userOnline(principal.getName(), false);
-            new SecurityContextLogoutHandler().logout(request, response, auth);
+            new SecurityContextLogoutHandler().logout(httpRequest, httpResponse, auth);
         }
         alertMessage = "Your session is terminated and you are logged out";
         return "redirect:/";
+    }
+
+    @GetMapping("/about")
+    public String about(Principal principal, Model model) {
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
+        resetAlertMessage();
+        return "about";
+    }
+
+    @GetMapping("/system")
+    @Secured("ROLE_LIST_USER")
+    public String systemInfo(HttpServletRequest httpRequest, Principal principal, Model model) {
+        model.addAttribute("userConnections", xticketService.fetchSystemInfo("UserConnection").getData());
+        model.addAttribute("systemResources", xticketService.fetchSystemInfo("SystemResources").getKeyValuePair());
+        model.addAttribute("javaVirtualMachine", xticketService.fetchSystemInfo("JavaVirtualMachine").getKeyValuePair());
+        model.addAttribute("alertMessage", alertMessage);
+        model.addAttribute("alertMessageType", alertMessageType);
+        resetAlertMessage();
+        return "systeminfo";
     }
 
     @GetMapping("/dashboard")
@@ -298,7 +318,7 @@ public class HomeController implements ErrorController {
     }
 
     @GetMapping("/profile")
-    public String profile(HttpServletRequest request, HttpServletResponse response, Principal principal, Model model) {
+    public String profile(HttpServletRequest httpRequest, HttpServletResponse httpResponse, Principal principal, Model model) {
         model.addAttribute("profilePayload", new XTicketPayload());
         model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
         model.addAttribute("alertMessage", alertMessage);
@@ -359,7 +379,7 @@ public class HomeController implements ErrorController {
 
     @GetMapping("/knowledge-base/category")
     @Secured("ROLE_KNOWLEDGE_BASE_SETUP")
-    public String knowledgeBaseCategory(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
+    public String knowledgeBaseCategory(Model model, HttpServletRequest httpRequest, HttpServletResponse httpResponse, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("recordCount", xticketService.fetchKnowledgeBaseCategory().getData().size());
         model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
@@ -426,7 +446,7 @@ public class HomeController implements ErrorController {
 
     @GetMapping("/knowledge-base/content")
     @Secured("ROLE_KNOWLEDGE_BASE_SETUP")
-    public String knowledgeBaseContent(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
+    public String knowledgeBaseContent(Model model, HttpServletRequest httpRequest, HttpServletResponse httpResponse, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("recordCount", xticketService.fetchKnowledgeBaseContent().getData().size());
         model.addAttribute("knowledgeBaseCategoryList", xticketService.fetchKnowledgeBaseCategory().getData());
@@ -509,8 +529,8 @@ public class HomeController implements ErrorController {
     }
 
     @RequestMapping("/error")
-    public String handleError(HttpServletRequest request) {
-        Object status = request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
+    public String handleError(HttpServletRequest httpRequest) {
+        Object status = httpRequest.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
         if (status != null) {
             Integer statusCode = Integer.valueOf(status.toString());
 
@@ -523,12 +543,6 @@ public class HomeController implements ErrorController {
             }
         }
         return "error";
-    }
-
-    private boolean isLogin() {
-        return SecurityContextHolder.getContext().getAuthentication() != null
-                && SecurityContextHolder.getContext().getAuthentication().isAuthenticated()
-                && !(SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken);
     }
 
     @GetMapping("/contact-us")
@@ -564,7 +578,7 @@ public class HomeController implements ErrorController {
 
     @GetMapping("/notification")
     @Secured("ROLE_ADD_PUSH_NOTIFICATION")
-    public String pushNotification(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
+    public String pushNotification(Model model, HttpServletRequest httpRequest, HttpServletResponse httpResponse, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("recordCount", xticketService.fetchPushNotification().getData().size());
         model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());

@@ -53,6 +53,7 @@
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="code">Ticket Type Code</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="name">Ticket Type Name</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="escalation">Escalation Emails</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="waiTime">Escalation Wait Time</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="internal">Internal</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="sla">SLA Limit</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="requireCR">Require CR Form</th>
@@ -70,7 +71,8 @@
                                             <td th:text="${rec.serviceUnitName}" class="serviceUnit align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.ticketTypeCode}" class="code align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.ticketTypeName}" class="name align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.escalationEmails}" class="firstEscalation align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.escalationEmails}" class="escalation align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.escalationSla}" class="waiTime align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.internal}" class="internal align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.initialSla}" class="sla align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.requireChangeRequestForm}" class="requireCR align-middle white-space-nowrap start ps-3"></td>

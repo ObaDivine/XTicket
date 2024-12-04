@@ -1,6 +1,9 @@
 ####### NGX - XTicket Config #########
 ---
 server:
+    servlet:
+        session:
+            timeout: 3 #This is 3 minutes
     error:
         include-message: never
         include-binding-errors: always
@@ -13,6 +16,19 @@ server:
     temp:
         dir: C:/XTicket/temp
     connection-timeout: 120000
+    
+management:
+    info:
+        os:
+            enabled: true
+        java:
+            enabled: true
+        env:
+            enabled: true
+    endpoints:
+        web:
+            exposure:
+                include: 'health, info, metrics, env, beans, prometheus, scheduledtasks, sessions, caches'
 
 logging:
     file:
@@ -40,19 +56,19 @@ spring:
             profile: dev
     datasource:
         initialization-mode: ALWAYS
-        #password: qwerty@1 
-        #username: xcdev
-        #driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-        #url: jdbc:sqlserver://10.172.16.145\XBRDB;databaseName=XTicket;encrypt=true;trustServerCertificate=true;
-        password: F3bru@ry02mth
-        username: admin
-        driverClassName: com.mysql.jdbc.Driver
-        url: jdbc:mysql://10.172.16.221:3306/xticket?allowPublicKeyRetrieval=true&useSSL=false
+        password: qwerty@1 
+        username: xcdev
+        driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+        url: jdbc:sqlserver://10.172.16.145\XBRDB;databaseName=XTicket;encrypt=true;trustServerCertificate=true;
+        #password: F3bru@ry02mth
+        #username: admin
+        #driverClassName: com.mysql.jdbc.Driver
+        #url: jdbc:mysql://10.172.16.221:3306/xticket?allowPublicKeyRetrieval=true&useSSL=false
     jpa:
         hibernate:
             ddl-auto: update
-            #dialect: org.hibernate.dialect.SQLServerDialect
-            dialect: org.hibernate.dialect.MySQL8Dialect
+            dialect: org.hibernate.dialect.SQLServerDialect
+            #dialect: org.hibernate.dialect.MySQL8Dialect
         show-sql: false
 
 email:
@@ -79,7 +95,7 @@ xticket:
     close: 17
   adauth:
     domains: ngxgroup.com, brokers.ngxgroup.com  
-  host: 'https://testapp.ngxgroup.com:8443'
+  host: 'http://localhost:8082'
   company:
     name: Nigerian Exchange Group
     address: 2 Custom Street, Marina, Lagos

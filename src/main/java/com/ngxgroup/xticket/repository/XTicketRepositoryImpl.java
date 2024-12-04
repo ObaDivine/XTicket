@@ -83,6 +83,17 @@ public class XTicketRepositoryImpl implements XTicketRepository {
         }
         return recordset.get(0);
     }
+    
+    @Override
+    public AppUser getAppUserUsingSessionId(String sessionId) {
+        TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.sessionId = :sessionId", AppUser.class)
+                .setParameter("sessionId", sessionId);
+        List<AppUser> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset.get(0);
+    }
 
     @Override
     public List<AppUser> getAgentAppUsers() {

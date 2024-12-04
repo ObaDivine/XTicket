@@ -3,17 +3,15 @@ package com.ngxgroup.xticket.payload;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
  * @author briano
  */
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class XTicketPayload {
@@ -89,7 +87,9 @@ public class XTicketPayload {
     List<XTicketPayload> ticketComments;
     List<XTicketPayload> uploadDocuments;
     List<XTicketPayload> knowledgeBaseContentList;
+    List<KeyValuePair> keyValuePair;
     String escalationEmails;
+    String escalationSla;
     boolean escalated;
     boolean ticketOpen;
     boolean locked;

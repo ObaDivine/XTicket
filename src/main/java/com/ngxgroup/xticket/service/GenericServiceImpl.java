@@ -1,5 +1,7 @@
 package com.ngxgroup.xticket.service;
 
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
 import com.ngxgroup.xticket.controller.PushNotificationController;
 import com.ngxgroup.xticket.model.AuditLog;
 import com.ngxgroup.xticket.payload.XTicketPayload;
@@ -13,10 +15,13 @@ import java.util.concurrent.CompletableFuture;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.time.LocalDateTime;
+import java.util.Locale;
 import java.util.Random;
+import java.util.UUID;
 import org.apache.commons.codec.binary.Base32;
 import org.apache.commons.codec.binary.Hex;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -36,7 +41,40 @@ public class GenericServiceImpl implements GenericService {
     private String encryptionKey;
     private static SecretKeySpec secretKey;
     private static byte[] key;
-    static final Logger logger = Logger.getLogger(GenericServiceImpl.class.getName());
+    Logger logger = LoggerFactory.getLogger(GenericServiceImpl.class);
+
+    @Override
+    public void generateLog(String app, String logMessage, String logType, String logLevel, String requestId) {
+        try {
+            String requestBy = "";
+            String remoteIP = "";
+            String channel = "";
+
+            StringBuilder strBuilder = new StringBuilder();
+            strBuilder.append(logType.toUpperCase(Locale.ENGLISH));
+            strBuilder.append(" - ");
+            strBuilder.append("[").append(remoteIP).append(":").append(channel.toUpperCase(Locale.ENGLISH)).append(":").append(requestBy.toUpperCase(Locale.ENGLISH)).append("]");
+            strBuilder.append("[").append(app.toUpperCase(Locale.ENGLISH).toUpperCase(Locale.ENGLISH)).append(":").append(requestId.toUpperCase(Locale.ENGLISH)).append("]");
+            strBuilder.append("[").append(logMessage).append("]");
+
+            if ("INFO".equalsIgnoreCase(logLevel.trim())) {
+                if (logger.isInfoEnabled()) {
+                    logger.info(strBuilder.toString());
+                }
+            }
+
+            if ("DEBUG".equalsIgnoreCase(logLevel.trim())) {
+                if (logger.isDebugEnabled()) {
+                    logger.error(strBuilder.toString());
+                }
+            }
+
+        } catch (Exception ex) {
+            if (logger.isDebugEnabled()) {
+                logger.debug(ex.getMessage());
+            }
+        }
+    }
 
     @Override
     public String decryptString(String textToDecrypt) {
@@ -154,6 +192,42 @@ public class GenericServiceImpl implements GenericService {
         //Push the notification
         pushNotification.pushNotification(requestPayload);
         return CompletableFuture.completedFuture("Success");
+    }
+
+    @Override
+    public String httpGet(String url) {
+        String randomId = UUID.randomUUID().toString().replace("-", "");
+        generateLog("XTicket Get", "", "Request", "INFO", randomId);
+        try {
+            Unirest.setTimeouts(0, 0);
+            HttpResponse<String> httpResponse = Unirest.get(url)
+                    .asString();
+            generateLog("XTicket Get", "", "XTicket Get Request", "INFO", randomId);
+            //Log the error
+            generateLog("XTicket Get", httpResponse.getBody(), "XTicket Get Response", "INFO", randomId);
+            return httpResponse.getBody();
+        } catch (Exception ex) {
+            generateLog("XTicket Get", ex.getMessage(), "XTicket Get Response", "INFO", randomId);
+            return ex.getMessage();
+        }
+    }
+
+    @Override
+    public String httpPost(String url, String requestBody, String randomId) {
+        generateLog("XTicket Post", requestBody, "XTicket Post Request", "INFO", randomId);
+        try {
+            Unirest.setTimeouts(0, 0);
+            HttpResponse<String> httpResponse = Unirest.post(url)
+                    .header("Content-Type", "application/json")
+                    .body(requestBody)
+                    .asString();
+            //Log the response
+            generateLog("XTicket Post", httpResponse.getBody(), "XTicket Post Response", "INFO", randomId);
+            return httpResponse.getBody();
+        } catch (Exception ex) {
+            generateLog("XTicket Post", ex.getMessage(), "XTicket Post Response", "INFO", randomId);
+            return ex.getMessage();
+        }
     }
 
 }

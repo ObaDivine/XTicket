@@ -34,6 +34,8 @@ import java.util.Properties;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.core.session.SessionRegistry;
 
 /**
  *
@@ -42,6 +44,8 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 @Service
 public class CrobJob {
 
+    @Autowired(required = false)
+    private List<SessionRegistry> sessionRegistries;
     @Autowired
     XTicketRepository xticketRepository;
     @Autowired
@@ -66,14 +70,16 @@ public class CrobJob {
     private String mailProtocol;
     @Value("${email.trust}")
     private String mailTrust;
-    @Value("${xticket.email.escalation.interval}")
-    private int escalationInterval;
+//    @Value("${xticket.email.escalation.interval}")
+//    private int escalationSla;
     @Value("${xticket.slaexpiry.notification}")
     private int slaExpiryNotificationInterval;
-    @Value("${xticket.escalation.wait.time}")
-    private long escalationWaitTime;
-    @Value("${xticket.escalation.wait.unit}")
-    private String escalationWaitUnit;
+//    @Value("${xticket.escalation.wait.time}")
+//    private long escalationWaitTime;
+//    @Value("${xticket.escalation.wait.unit}")
+//    private String escalationWaitUnit;
+    @Value("${server.servlet.session.timeout}")
+    private int sessionTimeout;
     DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern("HH:mm:ss");
 
     @Scheduled(cron = "${xticket.cron.job.ticketrun}")
@@ -83,21 +89,18 @@ public class CrobJob {
         List<Tickets> openTickets = xticketRepository.getTicketsByStatus(openStatus);
         if (openTickets != null) {
             for (Tickets t : openTickets) {
-                //Check if the SLA expiry is exceeded
-                long timeElapsedAfterSlaExpiry = 0;
-                if (escalationWaitUnit.equalsIgnoreCase("minutes")) {
-                    timeElapsedAfterSlaExpiry = Duration.between(t.getSlaExpiry(), LocalDateTime.now()).toMinutes();
-                } else {
-                    timeElapsedAfterSlaExpiry = Duration.between(t.getSlaExpiry(), LocalDateTime.now()).toHours();
-                }
-                if (LocalDateTime.now().isAfter(t.getSlaExpiry()) && timeElapsedAfterSlaExpiry >= escalationWaitTime) {
-                    //Fetch emails for escalation
-                    String[] escalationEmails = t.getTicketType().getEscalationEmails().split(",");
-                    String carbonCopyEmail = "";
-                    if (escalationEmails.length > 0) {
-                        //Determine who to address the email to
+                if (LocalDateTime.now().isAfter(t.getSlaExpiry())) {
+                    //Check if the escalation is complete
+                    if (t.getEscalationIndex() < t.getTicketType().getEscalationEmails().split(",").length) {
+                        int escalationIndex = t.getEscalationIndex();
                         String recipient = "";
-                        AppUser recipientUser = xticketRepository.getAppUserUsingEmail(escalationEmails[0]);
+                        String carbonCopyEmail = "";
+                        String recipientEmail = t.getTicketType().getEscalationEmails().split(",")[escalationIndex];
+                        String escalationSla = t.getTicketType().getEscalationSla().split(",")[escalationIndex];
+                        String sla = escalationSla.replace("M", "").replace("H", "").replace("D", "");
+                        String slaDuration = escalationSla.replace(sla, "");
+
+                        AppUser recipientUser = xticketRepository.getAppUserUsingEmail(t.getTicketType().getEscalationEmails().split(",")[escalationIndex]);
                         if (recipientUser != null) {
                             recipient = "Dear " + recipientUser.getLastName() + ", " + recipientUser.getOtherName();
                         } else {
@@ -111,15 +114,38 @@ public class CrobJob {
                                 + "</b> in <b>" + t.getTicketType().getServiceUnit().getServiceUnitName() + ".</b></p>"
                                 + "<p>The ticket expired at <b>" + slaTime + "</b> on <b>" + slaDate + "</b></p>"
                                 + "<p>To view the ticket details or take action, kindly login into NGX X-Ticket by <a href=\"" + host + "/xticket" + "\">clicking here</a></p>"
-                                + "<p>For support and enquiries, email: " + companyEmail + ".</p>\n"
+                                + "<p>For support and enquiries, email: " + companyEmail + ".</p>"
                                 + "<p>Best wishes,</p>"
                                 + "<p>" + companyName + "</p>";
 
-                        //Check if this is first escalation
-                        if (t.getEscalationIndex() == 0) {
+                        //Check if its the first escalation
+                        long timeElapsedAfterSlaExpiry = 0;
+                        if (escalationIndex == 0) {
                             carbonCopyEmail = t.getTicketAgent().getAgent().getEmail();
+                            //Check if the required wait time is exhausted
+                            if (slaDuration.equalsIgnoreCase("M")) {
+                                timeElapsedAfterSlaExpiry = Duration.between(t.getSlaExpiry(), LocalDateTime.now()).toMinutes();
+                            } else if (slaDuration.equalsIgnoreCase("H")) {
+                                timeElapsedAfterSlaExpiry = Duration.between(t.getSlaExpiry(), LocalDateTime.now()).toHours();
+                            } else {
+                                timeElapsedAfterSlaExpiry = Duration.between(t.getSlaExpiry(), LocalDateTime.now()).toDays();
+                            }
+                        } else {
+                            int currentEscalationIndex = t.getEscalationIndex();
+                            carbonCopyEmail = t.getTicketType().getEscalationEmails().split(",")[currentEscalationIndex - 1];
+                            //Check if the required wait time is exhausted
+                            if (slaDuration.equalsIgnoreCase("M")) {
+                                timeElapsedAfterSlaExpiry = Duration.between(t.getEscalatedAt(), LocalDateTime.now()).toMinutes();
+                            } else if (slaDuration.equalsIgnoreCase("H")) {
+                                timeElapsedAfterSlaExpiry = Duration.between(t.getEscalatedAt(), LocalDateTime.now()).toHours();
+                            } else {
+                                timeElapsedAfterSlaExpiry = Duration.between(t.getEscalatedAt(), LocalDateTime.now()).toDays();
+                            }
+                        }
 
-                            //Update the escalation index
+                        //Check if to send mail now or wait
+                        if (sla.equalsIgnoreCase("0")) {
+                            //Run the escalation now
                             t.setEscalationIndex(t.getEscalationIndex() + 1);
                             t.setEscalated(true);
                             t.setEscalatedAt(LocalDateTime.now());
@@ -131,7 +157,7 @@ public class CrobJob {
                             //Add to the ticket escalations
                             TicketEscalations newEscalation = new TicketEscalations();
                             newEscalation.setCreatedAt(LocalDateTime.now());
-                            newEscalation.setEscalatedTo(escalationEmails[t.getEscalationIndex()]);
+                            newEscalation.setEscalatedTo(recipientEmail);
                             newEscalation.setSlaExpiresAt(t.getSlaExpiry());
                             newEscalation.setTicket(t);
                             xticketRepository.createTicketEscalation(newEscalation);
@@ -139,31 +165,26 @@ public class CrobJob {
                             //Escalate the email and push email notification
                             EmailTemp emailTemp = new EmailTemp();
                             emailTemp.setCreatedAt(LocalDateTime.now());
-                            emailTemp.setEmail(escalationEmails[0]);
+                            emailTemp.setEmail(recipientEmail.trim());
                             emailTemp.setError("");
                             emailTemp.setMessage(message);
                             emailTemp.setStatus("Pending");
                             emailTemp.setSubject("Ticket SLA Violation Notification");
                             emailTemp.setTryCount(0);
-                            emailTemp.setCarbonCopy(carbonCopyEmail);
+                            emailTemp.setCarbonCopy(carbonCopyEmail.trim());
                             emailTemp.setFileAttachment("");
                             xticketRepository.createEmailTemp(emailTemp);
                         } else {
-                            //Check if time to run the next escalation
-                            long timeElapsed = Duration.between(t.getEscalatedAt(), LocalDateTime.now()).toMinutes();
-                            int currentEscalationIndex = t.getEscalationIndex();
-                            if (timeElapsed >= escalationInterval && (currentEscalationIndex < escalationEmails.length)) {
-                                carbonCopyEmail = escalationEmails[currentEscalationIndex - 1];
-
+                            if (timeElapsedAfterSlaExpiry >= Long.parseLong(sla)) {
                                 //Update the escalation index
-                                t.setEscalationIndex(currentEscalationIndex + 1);
+                                t.setEscalationIndex(t.getEscalationIndex() + 1);
                                 t.setEscalatedAt(LocalDateTime.now());
                                 xticketRepository.updateTicket(t);
 
                                 //Add to the ticket escalations
                                 TicketEscalations newEscalation = new TicketEscalations();
                                 newEscalation.setCreatedAt(LocalDateTime.now());
-                                newEscalation.setEscalatedTo(escalationEmails[currentEscalationIndex]);
+                                newEscalation.setEscalatedTo(recipientEmail);
                                 newEscalation.setSlaExpiresAt(t.getSlaExpiry());
                                 newEscalation.setTicket(t);
                                 xticketRepository.createTicketEscalation(newEscalation);
@@ -171,27 +192,17 @@ public class CrobJob {
                                 //Escalate the email and push email notification
                                 EmailTemp emailTemp = new EmailTemp();
                                 emailTemp.setCreatedAt(LocalDateTime.now());
-                                emailTemp.setEmail(escalationEmails[currentEscalationIndex]);
+                                emailTemp.setEmail(recipientEmail.trim());
                                 emailTemp.setError("");
                                 emailTemp.setMessage(message);
                                 emailTemp.setStatus("Pending");
                                 emailTemp.setSubject("Ticket SLA Violation Notification");
                                 emailTemp.setTryCount(0);
-                                emailTemp.setCarbonCopy(carbonCopyEmail);
+                                emailTemp.setCarbonCopy(carbonCopyEmail.trim());
                                 emailTemp.setFileAttachment("");
                                 xticketRepository.createEmailTemp(emailTemp);
                             }
                         }
-                    }
-
-                    //Update the ticket escalation 
-                    if (!t.isEscalated()) {
-                        t.setEscalated(true);
-                        t.setEscalatedAt(LocalDateTime.now());
-                        t.setSlaViolated(true);
-                        t.setSlaViolatedAt(LocalDateTime.now());
-                        t.setTicketAgentViolated(t.getTicketAgent());
-                        xticketRepository.updateTicket(t);
                     }
                 }
 
@@ -212,7 +223,7 @@ public class CrobJob {
 
                     EmailTemp emailTemp = new EmailTemp();
                     emailTemp.setCreatedAt(LocalDateTime.now());
-                    emailTemp.setEmail(t.getTicketAgent().getAgent().getEmail());
+                    emailTemp.setEmail(t.getTicketAgent().getAgent().getEmail().trim());
                     emailTemp.setError("");
                     emailTemp.setMessage(message);
                     emailTemp.setStatus("Pending");
@@ -290,7 +301,21 @@ public class CrobJob {
         List<EmailTemp> pendingEmail = xticketRepository.getPendingEmails();
         if (pendingEmail != null) {
             for (EmailTemp email : pendingEmail) {
-                String[] response = sendEmail(email.getEmail().split(","), email.getSubject(), email.getMessage(), email.getCarbonCopy().split(","), email.getFileAttachment());
+                String[] recipient = null;
+                String[] cc = null;
+                if (email.getEmail() == null || email.getEmail().equalsIgnoreCase("")) {
+                    recipient = new String[]{""};
+                } else {
+                    recipient = email.getEmail().split(",");
+                }
+
+                if (email.getCarbonCopy() == null || email.getCarbonCopy().equalsIgnoreCase("")) {
+                    cc = new String[]{""};
+                } else {
+                    cc = email.getCarbonCopy().split(",");
+                }
+
+                String[] response = sendEmail(recipient, email.getSubject(), email.getMessage(), cc, email.getFileAttachment());
                 if (response[0].equalsIgnoreCase("Success")) {
                     Emails pemEmail = new Emails();
                     BeanUtils.copyProperties(email, pemEmail);
@@ -330,7 +355,7 @@ public class CrobJob {
             List<Address> recipientList = new ArrayList<>();
             for (String addr : recipient) {
                 if (addr.matches("^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")) {
-                    Address address = new InternetAddress(addr);
+                    Address address = new InternetAddress(addr.trim());
                     recipientList.add(address);
                 }
             }
@@ -340,7 +365,7 @@ public class CrobJob {
                 List<Address> carbonCopyList = new ArrayList<>();
                 for (String addr : carbonCopy) {
                     if (addr.matches("^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")) {
-                        Address address = new InternetAddress(addr);
+                        Address address = new InternetAddress(addr.trim());
                         carbonCopyList.add(address);
                     }
                 }

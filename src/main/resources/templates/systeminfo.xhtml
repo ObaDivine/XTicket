@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head>
+        <title>X-Ticket - System Info</title>
+        <th:block th:insert="~{fragments/xTicketFragments :: headerfiles}"></th:block>
+    </head>
+    <body onload="preloaderFunction()" style="margin: 0;">
+        <div id="loader"></div>
+        <main class="main animate-bottom" id="top" style="display:none;" >
+            <div class="container-fluid px-0">
+                <th:block th:insert="~{fragments/xTicketFragments :: topMenu}"></th:block>
+                <div class="content">
+                    <div class="row gy-3 mb-3 justify-content-between">
+                        <div class="col-md-4 col-auto">
+                            <h5 class="text-1100 text-primary">System Information</h5>
+                        </div>
+                        <div class="col-md-5 col-auto">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb mb-0">
+                                    <li th:if="!${session.isAgent}" class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
+                                    <li th:if="${session.isAgent}"class="breadcrumb-item"><a href="#" th:href="@{/agent/dashboard}">Dashboard</a></li>
+                                    <li class="breadcrumb-item active">System Information</li>
+                                </ol>
+                            </nav>
+                        </div>
+                        <div class="col-md-3 col-auto">
+                            <h5><span class="text-1100 text-primary" th:text="'Welcome ' + ${session.fullName} + ' :: '"></span><span th:text="${session.userType}" class="text-secondary"></span></h5>
+                        </div>
+                        <hr/>
+                    </div>
+                    <div class="row mb-3 justify-content-between">
+                        <div class="col-lg-12">
+                            <div class="scrollbar">
+                                <ul class="nav nav-underline flex-nowrap mb-3 pb-1" id="myTab" role="tablist">
+                                    <li class="nav-item me-3">
+                                        <a class="nav-link text-nowrap active" id="connection-tab" data-bs-toggle="tab" href="#tab-connection" role="tab" aria-controls="tab-connection" aria-selected="true">
+                                            <span class="fas fa-users me-2"></span><span>User Connections</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item me-3">
+                                        <a class="nav-link text-nowrap" id="system-tab" data-bs-toggle="tab" href="#tab-system" role="tab" aria-controls="tab-system" aria-selected="true">
+                                            <span class="fas fa-server me-2"></span><span>System Resource</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item me-3">
+                                        <a class="nav-link text-nowrap" id="java-tab" data-bs-toggle="tab" href="#tab-java" role="tab" aria-controls="tab-java" aria-selected="true">
+                                            <span class="fa-brands fa-java me-2"></span><span>Java Virtual Machine</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="tab-content" id="systemInfoTabContent">
+                                <div class="tab-pane fade show active" id="tab-connection" role="tabpanel" aria-labelledby="connection-tab">
+                                    <div class="border-top border-bottom border-200"  id="listTable" data-list='{"valueNames":[],"page":10,"pagination":true}'>
+                                        <div class="table-responsive ms-n1 ps-1 scrollbar">
+                                            <div class="offset-lg-8 col-lg-4 col-md-8 col-sm-12 mb-2">
+                                                <div class="search-box">
+                                                    <input class="form-control search-input search" type="search" placeholder="Search record" aria-label="Search" />
+                                                    <span class="fas fa-search search-box-icon"></span>
+                                                </div>
+                                            </div>
+                                            <table class="table table-responsive table-sm table-striped fs--1 mb-0 border-200">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="name">Username</th>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="lastLogin">Last Login</th>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketId">Session Id</th>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="status">Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="list" id="deal-tables-body" th:if="${userConnections != null}">
+                                                    <tr th:each="rec : ${userConnections}" class="position-static">
+                                                        <td th:text="${rec.username}" class="name align-middle white-space-nowrap start ps-3"></td>
+                                                        <td th:text="${rec.lastLogin}" class="lastLogin align-middle white-space-nowrap start ps-3"></td>
+                                                        <td th:text="${rec.sessionId}" class="ticketId align-middle white-space-nowrap start ps-3"></td>
+                                                        <td th:if="${rec.status == 'Online'}" th:text="${rec.status}" class="status align-middle white-space-nowrap start ps-3 bg-success text-white"></td>
+                                                        <td th:if="${rec.status == 'Offline'}" th:text="${rec.status}" class="status align-middle white-space-nowrap start ps-3 bg-danger text-white"></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="row align-items-center justify-content-between py-2 pe-0 fs--1">
+                                            <div class="col-auto d-flex">
+                                                <p class="mb-0 d-none d-sm-block me-3 fw-semi-bold text-900" data-list-info="data-list-info"></p>
+                                                <a class="fw-semi-bold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                                                <a class="fw-semi-bold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                                            </div>
+                                            <div class="col-auto d-flex">
+                                                <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                                                <ul class="mb-0 pagination"></ul>
+                                                <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>  
+                                <div class="tab-pane fade" id="tab-system" role="tabpanel" aria-labelledby="system-tab">
+                                    <div class="border-top border-bottom border-200" id="listTable" data-list='{"valueNames":[],"page":10,"pagination":true}'>
+                                        <div class="table-responsive scrollbar">
+                                            <table class="table table-responsive table-sm table-striped fs--1 mb-0 border-200">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="code">Resource</th>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="name">Value</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="list" id="deal-tables-body" th:if="${systemResources != null}">
+                                                    <tr th:each="rec : ${systemResources}" class="position-static">
+                                                        <td th:text="${rec.key}" class="code align-middle white-space-nowrap start ps-3"></td>
+                                                        <td th:text="${rec.value}" class="name align-middle white-space-nowrap start ps-3"></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="tab-java" role="tabpanel" aria-labelledby="java-tab">
+                                    <div class="border-top border-bottom border-200" id="listTable" data-list='{"valueNames":[],"page":10,"pagination":true}'>
+                                        <div class="table-responsive scrollbar">
+                                            <table class="table table-responsive table-sm table-striped fs--1 mb-0 border-200">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="code">Resource</th>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="name">Value</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="list" id="deal-tables-body" th:if="${javaVirtualMachine != null}">
+                                                    <tr th:each="rec : ${javaVirtualMachine}" class="position-static">
+                                                        <td th:text="${rec.key}" class="code align-middle white-space-nowrap start ps-3"></td>
+                                                        <td th:text="${rec.value}" class="name align-middle white-space-nowrap start ps-3"></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <th:block th:insert="~{fragments/xTicketFragments :: footer}"></th:block>
+                </div>
+            </div>
+            <th:block th:insert="~{fragments/xTicketFragments :: scriptfiles}"></th:block>   
+        </main>
+    </body>
+</html>

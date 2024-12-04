@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head>
+        <title>X-Ticket - About</title>
+        <th:block th:insert="~{fragments/xTicketFragments :: headerfiles}"></th:block>
+    </head>
+    <body onload="preloaderFunction()" style="margin: 0;">
+        <div id="loader"></div>
+        <main class="main animate-bottom" id="top" style="display:none;" >
+            <div class="container-fluid px-0">
+                <th:block th:insert="~{fragments/xTicketFragments :: topMenu}"></th:block>
+                <div class="content">
+                    <div class="row">
+                        <div class="offset-lg-3 col-lg-6 col-sm-12 col-md-12">
+                            <div class="card">
+                                <div class="card-body bg-gray">
+                                    <div class="text-center">
+                                        <img th:src="@{/images/logo_nobg.png}" alt="xticket"  src="" />
+                                        <h4 class="text-body-emphasis text-primary mt-5 mb-5">About X-Ticket</h4> 
+                                    </div>
+                                    <p>X-Ticket is a business tool that helps NGX manage and simplify customer service request</p>
+                                    <p>Release Date: October 2024</p>
+                                    <p>Release Version: 1.0.0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <th:block th:insert="~{fragments/xTicketFragments :: footer}"></th:block>
+                </div>
+            </div>
+            <th:block th:insert="~{fragments/xTicketFragments :: scriptfiles}"></th:block>   
+        </main>
+    </body>
+</html>
