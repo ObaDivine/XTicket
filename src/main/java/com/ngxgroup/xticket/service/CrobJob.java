@@ -36,6 +36,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.session.Session;
+import org.springframework.session.SessionRepository;
 
 /**
  *
@@ -44,8 +47,8 @@ import org.springframework.security.core.session.SessionRegistry;
 @Service
 public class CrobJob {
 
-    @Autowired(required = false)
-    private List<SessionRegistry> sessionRegistries;
+    @Autowired
+    SessionRepository sessionRepository;
     @Autowired
     XTicketRepository xticketRepository;
     @Autowired
@@ -70,16 +73,8 @@ public class CrobJob {
     private String mailProtocol;
     @Value("${email.trust}")
     private String mailTrust;
-//    @Value("${xticket.email.escalation.interval}")
-//    private int escalationSla;
     @Value("${xticket.slaexpiry.notification}")
     private int slaExpiryNotificationInterval;
-//    @Value("${xticket.escalation.wait.time}")
-//    private long escalationWaitTime;
-//    @Value("${xticket.escalation.wait.unit}")
-//    private String escalationWaitUnit;
-    @Value("${server.servlet.session.timeout}")
-    private int sessionTimeout;
     DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern("HH:mm:ss");
 
     @Scheduled(cron = "${xticket.cron.job.ticketrun}")
@@ -409,4 +404,22 @@ public class CrobJob {
         }
     }
 
+    @Scheduled(fixedDelay = 1000)
+    private void validateLoginStatus() {
+        SessionRegistry reg = new SessionRegistryImpl();
+        List<AppUser> appUsers = xticketRepository.getUsers();
+        if (appUsers != null) {
+            for (AppUser u : appUsers) {
+                //Check if the session is still valid
+                if (!u.getSessionId().equalsIgnoreCase("")) {
+                    
+                    Session session = sessionRepository.findById(u.getSessionId());
+                    if (session.isExpired()) {
+                        u.setOnline(false);
+                        xticketRepository.updateAppUser(u);
+                    }
+                }
+            }
+        }
+    }
 }

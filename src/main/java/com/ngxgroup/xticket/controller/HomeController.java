@@ -29,7 +29,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
@@ -110,6 +109,7 @@ public class HomeController implements ErrorController {
             httpSession.setAttribute("isLocked", profileDetails.isLocked());
             httpSession.setAttribute("isActivated", profileDetails.isActivated());
             httpSession.setAttribute("userType", profileDetails.getUserType());
+            
             //Check if the user is an egent
             if (response.isAgent()) {
                 return "redirect:/agent/dashboard";

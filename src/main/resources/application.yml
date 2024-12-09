@@ -3,7 +3,7 @@
 server:
     servlet:
         session:
-            timeout: 3 #This is 3 minutes
+            timeout: 300  #This is 300 seconds (5 minutes)
     error:
         include-message: never
         include-binding-errors: always
@@ -26,9 +26,11 @@ management:
         env:
             enabled: true
     endpoints:
+        sessions:
+            enabled: true
         web:
             exposure:
-                include: 'health, info, metrics, env, beans, prometheus, scheduledtasks, sessions, caches'
+                include: '*'
 
 logging:
     file:
@@ -47,6 +49,11 @@ jwt:
         validity: 60000
              
 spring:
+    session:
+        store-type: jdbc
+        jdbc:
+            initialize-schema: always
+            schema: classpath:org/springframework/session/jdbc/schema-@@platform@@.sql
     cloud:
         loadbalancer:
             ribbon:
@@ -81,7 +88,6 @@ email:
     password: Password10$
     
 xticket:
-  holiday: 2024-01-01,2024-03-29,2024-04-01,2024-04-10,2024-04-11,2024-05-01,2024-06-12,2024-06-16,2024-09-16,2024-10-10,2024-12-25,2024-12-26
   escalation:
     wait:
       time: 2

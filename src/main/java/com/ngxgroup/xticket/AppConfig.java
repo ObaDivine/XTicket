@@ -14,6 +14,7 @@ import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
@@ -49,8 +50,8 @@ import org.thymeleaf.templatemode.TemplateMode;
 @EnableScheduling
 @EnableEncryptableProperties
 @ComponentScan(basePackages = {"com.ngxgroup.xticket"})
+@EntityScan("com.ngxgroup.xticket")
 @EnableJpaRepositories(basePackages = {"com.ngxgroup.xticket.repository"})
-@Import({WebSecurityConfig.class})
 @PropertySource("classpath:application.yml")
 @EnableTransactionManagement
 @EnableCaching
@@ -159,4 +160,5 @@ public class AppConfig implements WebMvcConfigurer {
                 .recordStats());
         return cacheManager;
     }
+
 }

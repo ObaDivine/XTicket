@@ -31,7 +31,6 @@ import com.ngxgroup.xticket.model.TicketStatus;
 import com.ngxgroup.xticket.model.TicketStatusChange;
 import com.ngxgroup.xticket.model.TicketType;
 import com.ngxgroup.xticket.model.Tickets;
-import com.ngxgroup.xticket.payload.ActuatorPayload;
 import com.ngxgroup.xticket.payload.KeyValuePair;
 import com.ngxgroup.xticket.payload.LogPayload;
 import com.ngxgroup.xticket.payload.MetricsPayload;
@@ -51,6 +50,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import com.ngxgroup.xticket.repository.XTicketRepository;
 import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpSession;
 import java.io.File;
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -61,6 +61,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
@@ -85,8 +86,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class XTicketServiceImpl implements XTicketService {
 
-    @Autowired
-    Environment environment;
     @Autowired
     ServletContext servletContext;
     @Autowired
@@ -145,6 +144,7 @@ public class XTicketServiceImpl implements XTicketService {
     private String pushNotificationMessage;
     @Value("${xticket.default.notification.ticket}")
     private String ticketNotificationMessage;
+
 
     @Override
     public XTicketPayload signin(XTicketPayload requestPayload) {

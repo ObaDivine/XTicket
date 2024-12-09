@@ -45,8 +45,6 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
     private String defaultDepartmentCode;
     @Value("${xticket.default.departmentname}")
     private String defaultDepartmentName;
-    @Value("${xticket.holiday}")
-    private String[] publicHolidays;
     static final String SYSTEM_USER = "System";
     static final String ENABLE_STATUS = "Enabled";
 
@@ -783,20 +781,6 @@ public class ServletInitializer extends SpringBootServletInitializer implements 
             newStatus.setTicketStatusName("Closed");
             newStatus.setPauseSLA(false);
             xticketRepository.createTicketStatus(newStatus);
-        }
-
-        //Add known public holidays
-        if (publicHolidays.length != 0) {
-            for (String hols : publicHolidays) {
-                PublicHolidays holiday = xticketRepository.getPublicHoliday(LocalDate.parse(hols));
-                if (holiday == null) {
-                    PublicHolidays newHoliday = new PublicHolidays();
-                    newHoliday.setCreatedAt(LocalDateTime.now());
-                    newHoliday.setCreatedBy(SYSTEM_USER);
-                    newHoliday.setHoliday(LocalDate.parse(hols));
-                    xticketRepository.createPublicHoliday(newHoliday);
-                }
-            }
         }
 
         //Create the entities
