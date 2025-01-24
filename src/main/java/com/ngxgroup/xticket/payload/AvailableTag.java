@@ -14,6 +14,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AvailableTag {
 
-    public String tag;
-    public List<String> values;
+    private String tag;
+    private List<String> values;
 }

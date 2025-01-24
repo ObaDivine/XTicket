@@ -13,6 +13,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Measurement {
 
-    public String statistic;
-    public String value;
+    private String statistic;
+    private String value;
 }

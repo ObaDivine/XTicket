@@ -4,6 +4,7 @@ import com.ngxgroup.xticket.model.AppUser;
 import com.ngxgroup.xticket.model.AutomatedTicket;
 import com.ngxgroup.xticket.model.EmailTemp;
 import com.ngxgroup.xticket.model.Emails;
+import com.ngxgroup.xticket.model.PushNotification;
 import com.ngxgroup.xticket.model.TicketEscalations;
 import com.ngxgroup.xticket.model.TicketStatus;
 import com.ngxgroup.xticket.model.Tickets;
@@ -34,7 +35,6 @@ import java.util.Properties;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.session.Session;
@@ -104,10 +104,10 @@ public class CrobJob {
                         String slaTime = timeDtf.format(t.getSlaExpiry().toLocalTime());
                         String slaDate = t.getSlaExpiry().getMonth().toString() + " " + t.getSlaExpiry().getDayOfMonth() + ", " + t.getSlaExpiry().getYear();
                         String message = "<h4>" + recipient + "</h4>\n"
-                                + "<p>An SLA for <b>" + t.getTicketType().getTicketTypeName() + "</b> ticket with an ID <b>" + t.getTicketId()
-                                + "</b> and priority <b>" + t.getTicketType().getSla().getPriority() + "</b> has been violated by <b>" + t.getTicketAgent().getAgent().getLastName() + ", " + t.getTicketAgent().getAgent().getOtherName()
-                                + "</b> in <b>" + t.getTicketType().getServiceUnit().getServiceUnitName() + ".</b></p>"
-                                + "<p>The ticket expired at <b>" + slaTime + "</b> on <b>" + slaDate + "</b></p>"
+                                + "<p>An SLA for <strong>" + t.getTicketType().getTicketTypeName() + "</strong> ticket with an ID <strong>" + t.getTicketId()
+                                + "</strong> and priority <strong>" + t.getTicketType().getSla().getPriority() + "</strong> has been violated by <strong>" + t.getTicketAgent().getAgent().getLastName() + ", " + t.getTicketAgent().getAgent().getOtherName()
+                                + "</strong> in <strong>" + t.getTicketType().getServiceUnit().getServiceUnitName() + ".</strong></p>"
+                                + "<p>The ticket expired at <strong>" + slaTime + "</strong> on <strong>" + slaDate + "</strong></p>"
                                 + "<p>To view the ticket details or take action, kindly login into NGX X-Ticket by <a href=\"" + host + "/xticket" + "\">clicking here</a></p>"
                                 + "<p>For support and enquiries, email: " + companyEmail + ".</p>"
                                 + "<p>Best wishes,</p>"
@@ -208,9 +208,9 @@ public class CrobJob {
                     String slaTime = timeDtf.format(t.getSlaExpiry().toLocalTime());
                     String slaDate = t.getSlaExpiry().getMonth().toString() + " " + t.getSlaExpiry().getDayOfMonth() + ", " + t.getSlaExpiry().getYear();
                     String message = "<h4>Dear " + t.getTicketAgent().getAgent().getLastName() + ",</h4>\n"
-                            + "<p>An SLA for <b>" + t.getTicketType().getTicketTypeName() + "</b> ticket with an ID <b>" + t.getTicketId()
-                            + "</b> is about to be violated. The priority is <b>" + t.getTicketType().getSla().getPriority() + ".</b></p>"
-                            + "<p>The ticket is set to expire by <b>" + slaTime + "</b> on <b>" + slaDate + "</b></p>"
+                            + "<p>An SLA for <strong>" + t.getTicketType().getTicketTypeName() + "</strong> ticket with an ID <strong>" + t.getTicketId()
+                            + "</strong> is about to be violated. The priority is <strong>" + t.getTicketType().getSla().getPriority() + ".</strong></p>"
+                            + "<p>The ticket is set to expire by <strong>" + slaTime + "</strong> on <strong>" + slaDate + "</strong></p>"
                             + "<p>To view the ticket details or take action, kindly login to NGX X-Ticket by <a href=\"" + host + "/xticket" + "\">clicking here</a></p>"
                             + "<p>For support and enquiries, email: " + companyEmail + ".</p>\n"
                             + "<p>Best wishes,</p>"
@@ -317,6 +317,17 @@ public class CrobJob {
                     pemEmail.setId(null);
                     pemEmail.setStatus("Completed");
                     xticketRepository.createEmail(pemEmail);
+                    
+                    //Send to notification
+                    PushNotification newNotification = new PushNotification();
+                    newNotification.setBatchId(1);
+                    newNotification.setCreatedAt(LocalDateTime.now());
+                    newNotification.setMessage("Email received. Subject - " + email.getMessage());
+                    newNotification.setMessageRead(false);
+                    newNotification.setSentBy("System");
+                    newNotification.setSentTo(recipient[0]);
+                    xticketRepository.createPushNotification(newNotification);
+                    
                     //Delete from the pending email
                     xticketRepository.deleteEmailTemp(email);
                 } else {
@@ -406,7 +417,6 @@ public class CrobJob {
 
     @Scheduled(fixedDelay = 1000)
     private void validateLoginStatus() {
-        SessionRegistry reg = new SessionRegistryImpl();
         List<AppUser> appUsers = xticketRepository.getUsers();
         if (appUsers != null) {
             for (AppUser u : appUsers) {
@@ -414,7 +424,7 @@ public class CrobJob {
                 if (!u.getSessionId().equalsIgnoreCase("")) {
                     
                     Session session = sessionRepository.findById(u.getSessionId());
-                    if (session.isExpired()) {
+                    if (session != null && session.isExpired()) {
                         u.setOnline(false);
                         xticketRepository.updateAppUser(u);
                     }

@@ -50,7 +50,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import com.ngxgroup.xticket.repository.XTicketRepository;
 import jakarta.servlet.ServletContext;
-import jakarta.servlet.http.HttpSession;
 import java.io.File;
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -61,7 +60,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
@@ -74,7 +72,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -144,7 +141,6 @@ public class XTicketServiceImpl implements XTicketService {
     private String pushNotificationMessage;
     @Value("${xticket.default.notification.ticket}")
     private String ticketNotificationMessage;
-
 
     @Override
     public XTicketPayload signin(XTicketPayload requestPayload) {
@@ -306,7 +302,7 @@ public class XTicketServiceImpl implements XTicketService {
 
             //Check authentication
             Boolean passwordMatch = passwordEncoder.matches(requestPayload.getPassword(), appUser.getPassword());
-            if (!passwordMatch) {
+            if (Boolean.FALSE.equals(passwordMatch)) {
                 //Check the fail count
                 if (appUser.getLoginFailCount() == Integer.parseInt(passwordRetryCount)) {
                     appUser.setLoginFailCount(appUser.getLoginFailCount() + 1);
@@ -761,7 +757,7 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
-    @CachePut(value = "users", key = "{#requestPayload.email}")
+    @CachePut(value = "users", key = "{#a0.email}")
     public XTicketPayload updateAppUser(XTicketPayload requestPayload, String principal) {
         var response = new XTicketPayload();
         try {
@@ -1082,7 +1078,7 @@ public class XTicketServiceImpl implements XTicketService {
         }
     }
 
-    @CachePut(value = "roleGroup", key = "{#requestPayload.id}")
+    @CachePut(value = "roleGroup", key = "{#a0.id}")
     private XTicketPayload updateRoleGroup(XTicketPayload requestPayload, String principal) {
         var response = new XTicketPayload();
         try {
@@ -1751,7 +1747,7 @@ public class XTicketServiceImpl implements XTicketService {
         }
     }
 
-    @CachePut(value = "ticketType", key = "{#requestPayload.id}")
+    @CachePut(value = "ticketType", key = "{#a0.id}")
     private XTicketPayload updateTicketType(XTicketPayload requestPayload, String principal) {
         var response = new XTicketPayload();
         try {
@@ -2086,7 +2082,7 @@ public class XTicketServiceImpl implements XTicketService {
         }
     }
 
-    @CachePut(value = "ticketSla", key = "{#requestPayload.id}")
+    @CachePut(value = "ticketSla", key = "{#a0.id}")
     private XTicketPayload updateTicketSla(XTicketPayload requestPayload, String principal) {
         var response = new XTicketPayload();
         try {
@@ -2452,14 +2448,14 @@ public class XTicketServiceImpl implements XTicketService {
                     String newFileName = genericService.generateFileName();
                     DocumentUpload newDoc = new DocumentUpload();
                     newDoc.setCreatedAt(LocalDateTime.now());
-                    newDoc.setDocLink(host + "/xticket/document" + "/" + newFileName + fileIndex + "." + fileExt);
+                    newDoc.setDocLink(host + "/xticket/document/" + newFileName + fileIndex + "." + fileExt);
                     newDoc.setTicket(createTicket);
                     newDoc.setNewFileName(newFileName + "." + fileExt);
                     newDoc.setOriginalFileName(f.getOriginalFilename());
                     newDoc.setUploadBy(appUser);
                     xticketRepository.createDocumentUpload(newDoc);
                     //Copy the file to destination
-                    String path = servletContext.getRealPath("/") + "WEB-INF/classes/document" + "/" + newFileName + fileIndex + "." + fileExt;
+                    String path = servletContext.getRealPath("/") + "WEB-INF/classes/document/" +  newFileName + fileIndex + "." + fileExt;
                     File newFile = new File(path);
                     FileCopyUtils.copy(f.getBytes(), newFile);
                     fileIndex++;
@@ -2483,10 +2479,10 @@ public class XTicketServiceImpl implements XTicketService {
             String slaTime = timeDtf.format(slaExpiry.toLocalTime());
             String slaDate = slaExpiry.getMonth().toString() + " " + slaExpiry.getDayOfMonth() + ", " + slaExpiry.getYear();
             String message = "<h4>Dear " + ticketAgent.getAgent().getLastName() + ",</h4>\n"
-                    + "<p>A <b>" + ticketType.getTicketTypeName() + "</b> ticket with an ID <b>" + ticketId
-                    + "</b> has been generated by <b>" + appUser.getLastName() + ", " + appUser.getOtherName() + "</b> with a priority <b>"
-                    + ticketType.getSla().getPriority() + ".</b></p>"
-                    + "<p>The ticket is set to expire by <b>" + slaTime + "</b> on <b>" + slaDate + "</b></p>"
+                    + "<p>A <strong>" + ticketType.getTicketTypeName() + "</strong> ticket with an ID <strong>" + ticketId
+                    + "</strong> has been generated by <strong>" + appUser.getLastName() + ", " + appUser.getOtherName() + "</strong> with a priority <strong>"
+                    + ticketType.getSla().getPriority() + ".</strong></p>"
+                    + "<p>The ticket is set to expire by <strong>" + slaTime + "</strong> on <strong>" + slaDate + "</strong></p>"
                     + "<p>To view the ticket details or take action, kindly login into NGX X-Ticket by <a href=\"" + host + "/xticket/ticket/view?seid=" + createTicket.getId() + "\">clicking here</a></p>"
                     + "<p>For support and enquiries, email: " + companyEmail + ".</p>\n"
                     + "<p>Best wishes,</p>"
@@ -2587,10 +2583,10 @@ public class XTicketServiceImpl implements XTicketService {
             String slaTime = timeDtf.format(ticket.getSlaExpiry().toLocalTime());
             String slaDate = ticket.getSlaExpiry().getMonth().toString() + " " + ticket.getSlaExpiry().getDayOfMonth() + ", " + ticket.getSlaExpiry().getYear();
             String message = "<h4>Dear " + ticket.getTicketAgent().getAgent().getLastName() + ",</h4>\n"
-                    + "<p>A reply to <b>" + ticket.getTicketType().getTicketTypeName() + "</b> ticket with an ID <b>" + ticket.getTicketId()
-                    + "</b> has been generated by <b>" + appUser.getLastName() + ", " + appUser.getOtherName() + "</b> with a priority <b>"
-                    + ticket.getPriority() + ".</b></p>"
-                    + "<p>The ticket is set to expire by <b>" + slaTime + "</b> on <b>" + slaDate + "</b></p>"
+                    + "<p>A reply to <strong>" + ticket.getTicketType().getTicketTypeName() + "</strong> ticket with an ID <strong>" + ticket.getTicketId()
+                    + "</strong> has been generated by <strong>" + appUser.getLastName() + ", " + appUser.getOtherName() + "</strong> with a priority <strong>"
+                    + ticket.getPriority() + ".</strong></p>"
+                    + "<p>The ticket is set to expire by <strong>" + slaTime + "</strong> on <strong>" + slaDate + "</strong></p>"
                     + "<p>To view the ticket details or take action, kindly login into NGX X-Ticket by <a href=\"" + host + "/xticket/ticket/view?seid=" + ticket.getId() + "\">clicking here</a></p>"
                     + "<p>For support and enquiries, email: " + companyEmail + ".</p>\n"
                     + "<p>Best wishes,</p>"
@@ -2714,10 +2710,10 @@ public class XTicketServiceImpl implements XTicketService {
             String slaTime = timeDtf.format(ticket.getSlaExpiry().toLocalTime());
             String slaDate = ticket.getSlaExpiry().getMonth().toString() + " " + ticket.getSlaExpiry().getDayOfMonth() + ", " + ticket.getSlaExpiry().getYear();
             String message = "<h4>Dear " + ticket.getCreatedBy().getLastName() + ",</h4>\n"
-                    + "<p>A reply to <b>" + ticket.getTicketType().getTicketTypeName() + "</b> ticket with an ID <b>" + ticket.getTicketId() + "</b> and priority <b>"
-                    + ticket.getTicketType().getSla().getPriority() + "</b>"
-                    + " initiated by <b>" + appUser.getLastName() + ", " + appUser.getOtherName() + "</b>.</p>"
-                    + "<p>The ticket is set to expire by <b>" + slaTime + "</b> on <b>" + slaDate + "</b></p>"
+                    + "<p>A reply to <strong>" + ticket.getTicketType().getTicketTypeName() + "</strong> ticket with an ID <strong>" + ticket.getTicketId() + "</strong> and priority <strong>"
+                    + ticket.getTicketType().getSla().getPriority() + "</strong>"
+                    + " initiated by <strong>" + appUser.getLastName() + ", " + appUser.getOtherName() + "</strong>.</p>"
+                    + "<p>The ticket is set to expire by <strong>" + slaTime + "</strong> on <strong>" + slaDate + "</strong></p>"
                     + "<p>To view the ticket details or take action, kindly login into NGX X-Ticket by <a href=\"" + host + "/xticket/ticket/view?seid" + ticket.getId() + "\">clicking here</a></p>"
                     + "<p>For support and enquiries, email: " + companyEmail + ".</p>\n"
                     + "<p>Best wishes,</p>"
@@ -3266,6 +3262,128 @@ public class XTicketServiceImpl implements XTicketService {
     }
 
     @Override
+    @Cacheable(value = "ticketsWithoutRating", key = "{#principal}")
+    public XTicketPayload fetchTicketsWithoutRating(String principal) {
+        var response = new XTicketPayload();
+        try {
+            //Check if the user is valid. This is the person creating the record
+            var appUser = xticketRepository.getAppUserUsingEmail(principal);
+            if (appUser == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.user.notexist", new Object[]{principal}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Fetch all the tickets created by the user without rating
+            TicketStatus closedStatus = xticketRepository.getTicketStatusUsingCode("CLOSED");
+            List<Tickets> tickets = xticketRepository.getClosedTicketsWithoutRating(appUser, closedStatus);
+            if (tickets != null) {
+                List<XTicketPayload> ticketList = new ArrayList<>();
+                for (Tickets t : tickets) {
+                    LocalDateTime closedDate;
+                    String closedBy;
+                    if (t.isTicketReopen()) {
+                        //Get the last reopened record
+                        TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
+                        closedDate = reopenedTicket.getClosedAt();
+                        closedBy = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
+                    } else {
+                        closedDate = t.getClosedAt();
+                        closedBy = t.getClosedBy().getLastName() + ", " + t.getClosedBy().getOtherName();
+                    }
+
+                    XTicketPayload newTicket = new XTicketPayload();
+                    BeanUtils.copyProperties(t, newTicket);
+                    newTicket.setCreatedAt(dtf.format(t.getCreatedAt()));
+                    newTicket.setCreatedBy(t.getCreatedBy().getLastName() + ", " + t.getCreatedBy().getOtherName());
+                    newTicket.setId(t.getId().intValue());
+                    newTicket.setTicketGroupName(t.getTicketGroup().getTicketGroupName());
+                    newTicket.setTicketTypeName(t.getTicketType().getTicketTypeName());
+                    newTicket.setPriority(t.getPriority());
+                    TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
+                    newTicket.setReopenedId(reopenedTicket == null ? 0 : reopenedTicket.getId().intValue());
+                    newTicket.setEmail(t.getCreatedBy().getEmail());
+                    newTicket.setSlaExpiry(dtf.format(t.getSlaExpiry()));
+                    newTicket.setClosedAt(dtf.format(closedDate));
+                    newTicket.setClosedBy(closedBy);
+                    ticketList.add(newTicket);
+                }
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{tickets.size()}, Locale.ENGLISH));
+                response.setData(ticketList);
+                return response;
+            }
+
+            response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{principal}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload fetchTicketsWithoutRating() {
+        var response = new XTicketPayload();
+        try {
+            //Fetch all the tickets created by the user without rating
+            TicketStatus closedStatus = xticketRepository.getTicketStatusUsingCode("CLOSED");
+            List<Tickets> tickets = xticketRepository.getClosedTicketsWithoutRating(closedStatus);
+            if (tickets != null) {
+                List<XTicketPayload> ticketList = new ArrayList<>();
+                for (Tickets t : tickets) {
+                    LocalDateTime closedDate;
+                    String closedBy;
+                    if (t.isTicketReopen()) {
+                        //Get the last reopened record
+                        TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
+                        closedDate = reopenedTicket.getClosedAt();
+                        closedBy = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
+                    } else {
+                        closedDate = t.getClosedAt();
+                        closedBy = t.getClosedBy().getLastName() + ", " + t.getClosedBy().getOtherName();
+                    }
+
+                    XTicketPayload newTicket = new XTicketPayload();
+                    BeanUtils.copyProperties(t, newTicket);
+                    newTicket.setCreatedAt(dtf.format(t.getCreatedAt()));
+                    newTicket.setCreatedBy(t.getCreatedBy().getLastName() + ", " + t.getCreatedBy().getOtherName());
+                    newTicket.setId(t.getId().intValue());
+                    newTicket.setTicketGroupName(t.getTicketGroup().getTicketGroupName());
+                    newTicket.setTicketTypeName(t.getTicketType().getTicketTypeName());
+                    newTicket.setPriority(t.getPriority());
+                    TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
+                    newTicket.setReopenedId(reopenedTicket == null ? 0 : reopenedTicket.getId().intValue());
+                    newTicket.setEmail(t.getCreatedBy().getEmail());
+                    newTicket.setSlaExpiry(dtf.format(t.getSlaExpiry()));
+                    newTicket.setClosedAt(dtf.format(closedDate));
+                    newTicket.setClosedBy(closedBy);
+                    ticketList.add(newTicket);
+                }
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.record", new Object[]{tickets.size()}, Locale.ENGLISH));
+                response.setData(ticketList);
+                return response;
+            }
+
+            response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{""}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
     public XTicketPayload closeTicket(XTicketPayload requestPayload, String principal) {
         var response = new XTicketPayload();
         try {
@@ -3305,8 +3423,8 @@ public class XTicketServiceImpl implements XTicketService {
 
                 //Send closed ticket notification
                 String message = "<h4>Dear " + recipientName + ",</h4>\n"
-                        + "<p>A <b>" + ticket.getTicketType().getTicketTypeName() + "</b> ticket with an ID <b>" + ticket.getTicketId()
-                        + "</b> has been closed by <b>" + appUser.getLastName() + ", " + appUser.getOtherName() + ".</b></p>"
+                        + "<p>A <strong>" + ticket.getTicketType().getTicketTypeName() + "</strong> ticket with an ID <strong>" + ticket.getTicketId()
+                        + "</strong> has been closed by <strong>" + appUser.getLastName() + ", " + appUser.getOtherName() + ".</strong></p>"
                         + "<p>To view the ticket details or take action, kindly login into NGX X-Ticket by <a href=\"" + host + "/xticket/ticket/view?seid=" + ticket.getId() + "\">clicking here</a></p>"
                         + "<p>For support and enquiries, email: " + companyEmail + ".</p>\n"
                         + "<p>Best wishes,</p>"
@@ -3358,8 +3476,8 @@ public class XTicketServiceImpl implements XTicketService {
 
             //Send closed ticket notification
             String message = "<h4>Dear " + recipientName + ",</h4>\n"
-                    + "<p>A <b>" + ticket.getTicketType().getTicketTypeName() + "</b> ticket with an ID <b>" + ticket.getTicketId()
-                    + "</b> has been closed by <b>" + appUser.getLastName() + ", " + appUser.getOtherName() + ".</b></p>"
+                    + "<p>A <strong>" + ticket.getTicketType().getTicketTypeName() + "</strong> ticket with an ID <strong>" + ticket.getTicketId()
+                    + "</strong> has been closed by <strong>" + appUser.getLastName() + ", " + appUser.getOtherName() + ".</strong></p>"
                     + "<p>To view the ticket details or take action, kindly login into NGX X-Ticket by <a href=\"" + host + "/xticket/ticket/view?seid=" + ticket.getId() + "\">clicking here</a></p>"
                     + "<p>For support and enquiries, email: " + companyEmail + ".</p>\n"
                     + "<p>Best wishes,</p>"
@@ -3455,10 +3573,10 @@ public class XTicketServiceImpl implements XTicketService {
             String slaTime = timeDtf.format(slaExpiry.toLocalTime());
             String slaDate = slaExpiry.getMonth().toString() + " " + slaExpiry.getDayOfMonth() + ", " + slaExpiry.getYear();
             String message = "<h4>Dear " + ticketAgent.getAgent().getLastName() + ",</h4>\n"
-                    + "<p>A <b>" + ticket.getTicketType().getTicketTypeName() + "</b> ticket with an ID <b>" + ticket.getTicketId()
-                    + "</b> has been reopened by <b>" + appUser.getLastName() + ", " + appUser.getOtherName() + "</b> with a priority <b>"
-                    + ticket.getTicketType().getSla().getPriority() + ".</b></p>"
-                    + "<p>The ticket is set to expire by <b>" + slaTime + "</b> on <b>" + slaDate + "</b></p>"
+                    + "<p>A <strong>" + ticket.getTicketType().getTicketTypeName() + "</strong> ticket with an ID <strong>" + ticket.getTicketId()
+                    + "</strong> has been reopened by <strong>" + appUser.getLastName() + ", " + appUser.getOtherName() + "</strong> with a priority <strong>"
+                    + ticket.getTicketType().getSla().getPriority() + ".</strong></p>"
+                    + "<p>The ticket is set to expire by <strong>" + slaTime + "</strong> on <strong>" + slaDate + "</strong></p>"
                     + "<p>To view the ticket details or take action, kindly login into NGX X-Ticket by <a href=\"" + host + "/xticket/ticket/view?seid" + ticket.getId() + "\">clicking here</a></p>"
                     + "<p>For support and enquiries, email: " + companyEmail + ".</p>\n"
                     + "<p>Best wishes,</p>"
@@ -3812,10 +3930,10 @@ public class XTicketServiceImpl implements XTicketService {
             String slaTime = timeDtf.format(slaExpiry.toLocalTime());
             String slaDate = slaExpiry.getMonth().toString() + " " + slaExpiry.getDayOfMonth() + ", " + slaExpiry.getYear();
             String message = "<h4>Dear " + newTicketAgent.getLastName() + ",</h4>\n"
-                    + "<p>A <b>" + ticketType.getTicketTypeName() + "</b> ticket with an ID <b>" + ticket.getTicketId()
-                    + "</b> is reassigned to you by <b>" + appUser.getLastName() + ", " + appUser.getOtherName() + "</b> with a priority <b>"
-                    + ticketType.getSla().getPriority() + ".</b></p>"
-                    + "<p>The ticket is set to expire by <b>" + slaTime + "</b> on <b>" + slaDate + "</b></p>"
+                    + "<p>A <strong>" + ticketType.getTicketTypeName() + "</strong> ticket with an ID <strong>" + ticket.getTicketId()
+                    + "</strong> is reassigned to you by <strong>" + appUser.getLastName() + ", " + appUser.getOtherName() + "</strong> with a priority <strong>"
+                    + ticketType.getSla().getPriority() + ".</strong></p>"
+                    + "<p>The ticket is set to expire by <strong>" + slaTime + "</strong> on <strong>" + slaDate + "</strong></p>"
                     + "<p>To view the ticket details or take action, kindly login into NGX X-Ticket by <a href=\"" + host + "/xticket/ticket/view?seid=" + ticket.getId() + "\">clicking here</a></p>"
                     + "<p>For support and enquiries, email: " + companyEmail + ".</p>\n"
                     + "<p>Best wishes,</p>"
@@ -4033,9 +4151,9 @@ public class XTicketServiceImpl implements XTicketService {
                 //Check if user type is set 
                 if (!requestPayload.getSource().equalsIgnoreCase("")) {
                     if (requestPayload.getSource().equalsIgnoreCase("Internal")) {
-                        tickets = tickets.stream().filter(t -> t.isInternal() == true).collect(Collectors.toList());
+                        tickets = tickets.stream().filter(t -> t.isInternal()).collect(Collectors.toList());
                     } else {
-                        tickets = tickets.stream().filter(t -> t.isInternal() == false).collect(Collectors.toList());
+                        tickets = tickets.stream().filter(t -> !t.isInternal()).collect(Collectors.toList());
                     }
                 }
 
@@ -4109,9 +4227,9 @@ public class XTicketServiceImpl implements XTicketService {
                 //Check if user type is set 
                 if (!requestPayload.getSource().equalsIgnoreCase("")) {
                     if (requestPayload.getSource().equalsIgnoreCase("Internal")) {
-                        tickets = tickets.stream().filter(t -> t.isInternal() == true).collect(Collectors.toList());
+                        tickets = tickets.stream().filter(t -> t.isInternal()).collect(Collectors.toList());
                     } else {
-                        tickets = tickets.stream().filter(t -> t.isInternal() == false).collect(Collectors.toList());
+                        tickets = tickets.stream().filter(t -> !t.isInternal()).collect(Collectors.toList());
                     }
                 }
 
@@ -4253,9 +4371,9 @@ public class XTicketServiceImpl implements XTicketService {
                 //Check if user type is set 
                 if (!requestPayload.getSource().equalsIgnoreCase("")) {
                     if (requestPayload.getSource().equalsIgnoreCase("Internal")) {
-                        tickets = tickets.stream().filter(t -> t.isInternal() == true).collect(Collectors.toList());
+                        tickets = tickets.stream().filter(t -> t.isInternal()).collect(Collectors.toList());
                     } else {
-                        tickets = tickets.stream().filter(t -> t.isInternal() == false).collect(Collectors.toList());
+                        tickets = tickets.stream().filter(t -> !t.isInternal()).collect(Collectors.toList());
                     }
                 }
 
@@ -4711,16 +4829,41 @@ public class XTicketServiceImpl implements XTicketService {
                             LocalDateTime closedDate;
                             String closedBy;
                             String closedbyEntity = "";
+                            String serviceProvider = "";
                             if (t.isTicketReopen()) {
                                 //Get the last reopened record
                                 TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
                                 closedDate = reopenedTicket.getClosedAt();
                                 closedBy = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
                                 closedbyEntity = reopenedTicket.getClosedBy().getEntity().getEntityName();
+
+                                //Check if there is at least one comm between the requester and provider
+                                TicketComment ticketComment = xticketRepository.getTicketCommentUsingTicket(t).getLast();
+                                if (Objects.equals(reopenedTicket.getReopenedBy(), reopenedTicket.getClosedBy())) {
+                                    if (ticketComment == null) {
+                                        serviceProvider = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
+                                    } else {
+                                        serviceProvider = ticketComment.getCommentFrom().getLastName() + ", " + ticketComment.getCommentFrom().getOtherName();
+                                    }
+                                } else {
+                                    serviceProvider = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
+                                }
                             } else {
                                 closedDate = t.getClosedAt();
                                 closedBy = t.getClosedBy().getLastName() + ", " + t.getClosedBy().getOtherName();
                                 closedbyEntity = t.getClosedBy().getEntity().getEntityName();
+
+                                //Check if there is at least one comm between the requester and provider
+                                TicketComment ticketComment = xticketRepository.getTicketCommentUsingTicket(t).getLast();
+                                if (Objects.equals(t.getCreatedBy(), t.getClosedBy())) {
+                                    if (ticketComment == null) {
+                                        serviceProvider = t.getClosedBy().getLastName() + ", " + t.getClosedBy().getOtherName();
+                                    } else {
+                                        serviceProvider = ticketComment.getCommentFrom().getLastName() + ", " + ticketComment.getCommentFrom().getOtherName();
+                                    }
+                                } else {
+                                    serviceProvider = t.getClosedBy().getLastName() + ", " + t.getClosedBy().getOtherName();
+                                }
                             }
 
                             newTicket.setClosedAt(dtf.format(closedDate));
@@ -4736,6 +4879,7 @@ public class XTicketServiceImpl implements XTicketService {
                             newTicket.setTicketClosedAt(t.getClosedAt());
                             newTicket.setNewSla(t.getSla());
                             newTicket.setInitialSla(t.getSla().replace("D", " Day(s)").replace("M", " Minute(s)").replace("H", " Hour(s)"));
+                            newTicket.setServiceProvider(serviceProvider);
 
                             //Fetch the count of the tickets reassigned
                             List<TicketReassign> ticketCount = xticketRepository.getTicketReassignedUsingTicket(t);
@@ -4785,16 +4929,41 @@ public class XTicketServiceImpl implements XTicketService {
                     LocalDateTime closedDate;
                     String closedBy;
                     String closedbyEntity = "";
+                    String serviceProvider = "";
                     if (t.isTicketReopen()) {
                         //Get the last reopened record
                         TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
                         closedDate = reopenedTicket.getClosedAt();
                         closedBy = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
                         closedbyEntity = reopenedTicket.getClosedBy().getEntity().getEntityName();
+
+                        //Check if there is at least one comm between the requester and provider
+                        TicketComment ticketComment = xticketRepository.getTicketCommentUsingTicket(t).getLast();
+                        if (Objects.equals(reopenedTicket.getReopenedBy(), reopenedTicket.getClosedBy())) {
+                            if (ticketComment == null) {
+                                serviceProvider = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
+                            } else {
+                                serviceProvider = ticketComment.getCommentFrom().getLastName() + ", " + ticketComment.getCommentFrom().getOtherName();
+                            }
+                        } else {
+                            serviceProvider = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
+                        }
                     } else {
                         closedDate = t.getClosedAt();
                         closedBy = t.getClosedBy().getLastName() + ", " + t.getClosedBy().getOtherName();
                         closedbyEntity = t.getClosedBy().getEntity().getEntityName();
+
+                        //Check if there is at least one comm between the requester and provider
+                        TicketComment ticketComment = xticketRepository.getTicketCommentUsingTicket(t).getLast();
+                        if (Objects.equals(t.getCreatedBy(), t.getClosedBy())) {
+                            if (ticketComment == null) {
+                                serviceProvider = t.getClosedBy().getLastName() + ", " + t.getClosedBy().getOtherName();
+                            } else {
+                                serviceProvider = ticketComment.getCommentFrom().getLastName() + ", " + ticketComment.getCommentFrom().getOtherName();
+                            }
+                        } else {
+                            serviceProvider = t.getClosedBy().getLastName() + ", " + t.getClosedBy().getOtherName();
+                        }
                     }
 
                     newTicket.setClosedAt(dtf.format(closedDate));
@@ -4810,6 +4979,7 @@ public class XTicketServiceImpl implements XTicketService {
                     newTicket.setTicketClosedAt(t.getClosedAt());
                     newTicket.setNewSla(t.getSla());
                     newTicket.setInitialSla(t.getSla().replace("D", " Day(s)").replace("M", " Minute(s)").replace("H", " Hour(s)"));
+                    newTicket.setServiceProvider(serviceProvider);
 
                     //Fetch the count of the tickets reassigned
                     List<TicketReassign> ticketCount = xticketRepository.getTicketReassignedUsingTicket(t);
@@ -5102,7 +5272,7 @@ public class XTicketServiceImpl implements XTicketService {
         }
     }
 
-    @CachePut(value = "entities", key = "{#requestPayload.id}")
+    @CachePut(value = "entities", key = "{#a0.id}")
     private XTicketPayload updateEntity(XTicketPayload requestPayload, String principal) {
         var response = new XTicketPayload();
         try {
@@ -5257,16 +5427,41 @@ public class XTicketServiceImpl implements XTicketService {
                             LocalDateTime closedDate;
                             String closedBy;
                             String closedbyDepartment = "";
+                            String serviceProvider = "";
                             if (t.isTicketReopen()) {
                                 //Get the last reopened record
                                 TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
                                 closedDate = reopenedTicket.getClosedAt();
                                 closedBy = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
                                 closedbyDepartment = reopenedTicket.getClosedBy().getDepartment().getDepartmentName();
+
+                                //Check if there is at least one comm between the requester and provider
+                                TicketComment ticketComment = xticketRepository.getTicketCommentUsingTicket(t).getLast();
+                                if (Objects.equals(reopenedTicket.getReopenedBy(), reopenedTicket.getClosedBy())) {
+                                    if (ticketComment == null) {
+                                        serviceProvider = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
+                                    } else {
+                                        serviceProvider = ticketComment.getCommentFrom().getLastName() + ", " + ticketComment.getCommentFrom().getOtherName();
+                                    }
+                                } else {
+                                    serviceProvider = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
+                                }
                             } else {
                                 closedDate = t.getClosedAt();
                                 closedBy = t.getClosedBy().getLastName() + ", " + t.getClosedBy().getOtherName();
                                 closedbyDepartment = t.getClosedBy().getDepartment().getDepartmentName();
+
+                                //Check if there is at least one comm between the requester and provider
+                                TicketComment ticketComment = xticketRepository.getTicketCommentUsingTicket(t).getLast();
+                                if (Objects.equals(t.getCreatedBy(), t.getClosedBy())) {
+                                    if (ticketComment == null) {
+                                        serviceProvider = t.getClosedBy().getLastName() + ", " + t.getClosedBy().getOtherName();
+                                    } else {
+                                        serviceProvider = ticketComment.getCommentFrom().getLastName() + ", " + ticketComment.getCommentFrom().getOtherName();
+                                    }
+                                } else {
+                                    serviceProvider = t.getClosedBy().getLastName() + ", " + t.getClosedBy().getOtherName();
+                                }
                             }
 
                             newTicket.setClosedAt(dtf.format(closedDate));
@@ -5283,6 +5478,7 @@ public class XTicketServiceImpl implements XTicketService {
                             newTicket.setTicketTypeName(t.getTicketType().getTicketTypeName());
                             newTicket.setTicketCreatedAt(t.getCreatedAt());
                             newTicket.setTicketClosedAt(t.getClosedAt());
+                            newTicket.setServiceProvider(serviceProvider);
                             //Fetch the count of the tickets reassigned
                             List<TicketReassign> ticketCount = xticketRepository.getTicketReassignedUsingTicket(t);
                             newTicket.setTicketReassignedCount(ticketCount == null ? 0 : ticketCount.size());
@@ -5332,16 +5528,41 @@ public class XTicketServiceImpl implements XTicketService {
                     LocalDateTime closedDate;
                     String closedBy;
                     String closedbyDepartment = "";
+                    String serviceProvider = "";
                     if (t.isTicketReopen()) {
                         //Get the last reopened record
                         TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
                         closedDate = reopenedTicket.getClosedAt();
                         closedBy = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
                         closedbyDepartment = reopenedTicket.getClosedBy().getDepartment().getDepartmentName();
+
+                        //Check if there is at least one comm between the requester and provider
+                        TicketComment ticketComment = xticketRepository.getTicketCommentUsingTicket(t).getLast();
+                        if (Objects.equals(reopenedTicket.getReopenedBy(), reopenedTicket.getClosedBy())) {
+                            if (ticketComment == null) {
+                                serviceProvider = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
+                            } else {
+                                serviceProvider = ticketComment.getCommentFrom().getLastName() + ", " + ticketComment.getCommentFrom().getOtherName();
+                            }
+                        } else {
+                            serviceProvider = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
+                        }
                     } else {
                         closedDate = t.getClosedAt();
                         closedBy = t.getClosedBy().getLastName() + ", " + t.getClosedBy().getOtherName();
                         closedbyDepartment = t.getClosedBy().getDepartment().getDepartmentName();
+
+                        //Check if there is at least one comm between the requester and provider
+                        TicketComment ticketComment = xticketRepository.getTicketCommentUsingTicket(t).getLast();
+                        if (Objects.equals(t.getCreatedBy(), t.getClosedBy())) {
+                            if (ticketComment == null) {
+                                serviceProvider = t.getClosedBy().getLastName() + ", " + t.getClosedBy().getOtherName();
+                            } else {
+                                serviceProvider = ticketComment.getCommentFrom().getLastName() + ", " + ticketComment.getCommentFrom().getOtherName();
+                            }
+                        } else {
+                            serviceProvider = t.getClosedBy().getLastName() + ", " + t.getClosedBy().getOtherName();
+                        }
                     }
 
                     newTicket.setClosedAt(dtf.format(closedDate));
@@ -5358,6 +5579,7 @@ public class XTicketServiceImpl implements XTicketService {
                     newTicket.setTicketTypeName(t.getTicketType().getTicketTypeName());
                     newTicket.setTicketCreatedAt(t.getCreatedAt());
                     newTicket.setTicketClosedAt(t.getClosedAt());
+                    newTicket.setServiceProvider(serviceProvider);
                     //Fetch the count of the tickets reassigned
                     List<TicketReassign> ticketCount = xticketRepository.getTicketReassignedUsingTicket(t);
                     newTicket.setTicketReassignedCount(ticketCount == null ? 0 : ticketCount.size());
@@ -5523,7 +5745,7 @@ public class XTicketServiceImpl implements XTicketService {
         }
     }
 
-    @CachePut(value = "department", key = "{#requestPayload.id}")
+    @CachePut(value = "department", key = "{#a0.id}")
     private XTicketPayload updateDepartment(XTicketPayload requestPayload, String principal) {
         var response = new XTicketPayload();
         try {
@@ -5821,16 +6043,41 @@ public class XTicketServiceImpl implements XTicketService {
                             LocalDateTime closedDate;
                             String closedBy;
                             String closedbyServiceUnit = "";
+                            String serviceProvider = "";
                             if (t.isTicketReopen()) {
                                 //Get the last reopened record
                                 TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
                                 closedDate = reopenedTicket.getClosedAt();
                                 closedBy = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
                                 closedbyServiceUnit = reopenedTicket.getTicket().getTicketType().getServiceUnit().getServiceUnitName();
+
+                                //Check if there is at least one comm between the requester and provider
+                                TicketComment ticketComment = xticketRepository.getTicketCommentUsingTicket(t).getLast();
+                                if (Objects.equals(reopenedTicket.getReopenedBy(), reopenedTicket.getClosedBy())) {
+                                    if (ticketComment == null) {
+                                        serviceProvider = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
+                                    } else {
+                                        serviceProvider = ticketComment.getCommentFrom().getLastName() + ", " + ticketComment.getCommentFrom().getOtherName();
+                                    }
+                                } else {
+                                    serviceProvider = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
+                                }
                             } else {
                                 closedDate = t.getClosedAt();
                                 closedBy = t.getClosedBy().getLastName() + ", " + t.getClosedBy().getOtherName();
                                 closedbyServiceUnit = t.getTicketType().getServiceUnit().getServiceUnitName();
+
+                                //Check if there is at least one comm between the requester and provider
+                                TicketComment ticketComment = xticketRepository.getTicketCommentUsingTicket(t).getLast();
+                                if (Objects.equals(t.getCreatedBy(), t.getClosedBy())) {
+                                    if (ticketComment == null) {
+                                        serviceProvider = t.getClosedBy().getLastName() + ", " + t.getClosedBy().getOtherName();
+                                    } else {
+                                        serviceProvider = ticketComment.getCommentFrom().getLastName() + ", " + ticketComment.getCommentFrom().getOtherName();
+                                    }
+                                } else {
+                                    serviceProvider = t.getClosedBy().getLastName() + ", " + t.getClosedBy().getOtherName();
+                                }
                             }
 
                             newTicket.setClosedAt(dtf.format(closedDate));
@@ -5846,6 +6093,7 @@ public class XTicketServiceImpl implements XTicketService {
                             newTicket.setTicketCreatedAt(t.getCreatedAt());
                             newTicket.setTicketClosedAt(t.getClosedAt());
                             newTicket.setNewSla(t.getSla());
+                            newTicket.setServiceProvider(serviceProvider);
 
                             //Fetch the count of the tickets reassigned
                             List<TicketReassign> ticketCount = xticketRepository.getTicketReassignedUsingTicket(t);
@@ -5895,16 +6143,41 @@ public class XTicketServiceImpl implements XTicketService {
                     LocalDateTime closedDate;
                     String closedBy;
                     String closedbyServiceUnit = "";
+                    String serviceProvider = "";
                     if (t.isTicketReopen()) {
                         //Get the last reopened record
                         TicketReopened reopenedTicket = xticketRepository.getMostRecentTicketReopenedUsingTicket(t);
                         closedDate = reopenedTicket.getClosedAt();
                         closedBy = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
                         closedbyServiceUnit = reopenedTicket.getTicket().getTicketType().getServiceUnit().getServiceUnitName();
+
+                        //Check if there is at least one comm between the requester and provider
+                        TicketComment ticketComment = xticketRepository.getTicketCommentUsingTicket(t).getLast();
+                        if (Objects.equals(reopenedTicket.getReopenedBy(), reopenedTicket.getClosedBy())) {
+                            if (ticketComment == null) {
+                                serviceProvider = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
+                            } else {
+                                serviceProvider = ticketComment.getCommentFrom().getLastName() + ", " + ticketComment.getCommentFrom().getOtherName();
+                            }
+                        } else {
+                            serviceProvider = reopenedTicket.getClosedBy().getLastName() + ", " + reopenedTicket.getClosedBy().getOtherName();
+                        }
                     } else {
                         closedDate = t.getClosedAt();
                         closedBy = t.getClosedBy().getLastName() + ", " + t.getClosedBy().getOtherName();
                         closedbyServiceUnit = t.getTicketType().getServiceUnit().getServiceUnitName();
+
+                        //Check if there is at least one comm between the requester and provider
+                        TicketComment ticketComment = xticketRepository.getTicketCommentUsingTicket(t).getLast();
+                        if (Objects.equals(t.getCreatedBy(), t.getClosedBy())) {
+                            if (ticketComment == null) {
+                                serviceProvider = t.getClosedBy().getLastName() + ", " + t.getClosedBy().getOtherName();
+                            } else {
+                                serviceProvider = ticketComment.getCommentFrom().getLastName() + ", " + ticketComment.getCommentFrom().getOtherName();
+                            }
+                        } else {
+                            serviceProvider = t.getClosedBy().getLastName() + ", " + t.getClosedBy().getOtherName();
+                        }
                     }
 
                     newTicket.setClosedAt(dtf.format(closedDate));
@@ -5920,6 +6193,7 @@ public class XTicketServiceImpl implements XTicketService {
                     newTicket.setTicketCreatedAt(t.getCreatedAt());
                     newTicket.setTicketClosedAt(t.getClosedAt());
                     newTicket.setNewSla(t.getSla());
+                    newTicket.setServiceProvider(serviceProvider);
 
                     //Fetch the count of the tickets reassigned
                     List<TicketReassign> ticketCount = xticketRepository.getTicketReassignedUsingTicket(t);
@@ -6219,7 +6493,7 @@ public class XTicketServiceImpl implements XTicketService {
         }
     }
 
-    @CachePut(value = "serviceUnit", key = "{#requestPayload.id}")
+    @CachePut(value = "serviceUnit", key = "{#a0.id}")
     private XTicketPayload updateServiceUnit(XTicketPayload requestPayload, String principal) {
         var response = new XTicketPayload();
         try {
@@ -6611,7 +6885,8 @@ public class XTicketServiceImpl implements XTicketService {
 
                 StringBuilder newValue = new StringBuilder();
                 newValue.append("Ticket Status Code:").append(requestPayload.getTicketStatusCode()).append(", ")
-                        .append("Ticket Status Name:").append(requestPayload.getTicketStatusName());
+                        .append("Ticket Status Name:").append(requestPayload.getTicketStatusName()).append(", ")
+                        .append("Pause SLA:").append(requestPayload.isPauseSLA());
                 return response;
             }
 
@@ -6625,7 +6900,7 @@ public class XTicketServiceImpl implements XTicketService {
         }
     }
 
-    @CachePut(value = "ticketStatus", key = "{#requestPayload.id}")
+    @CachePut(value = "ticketStatus", key = "{#a0.id}")
     private XTicketPayload updateTicketStatus(XTicketPayload requestPayload, String principal) {
         var response = new XTicketPayload();
         try {
@@ -6658,11 +6933,13 @@ public class XTicketServiceImpl implements XTicketService {
 
             StringBuilder oldValue = new StringBuilder();
             oldValue.append("Ticket Status Code:").append(ticketStatus.getTicketStatusCode()).append(", ")
-                    .append("Ticket Status Name:").append(ticketStatus.getTicketStatusName());
+                    .append("Ticket Status Name:").append(ticketStatus.getTicketStatusName()).append(", ")
+                    .append("Pause SLA:").append(ticketStatus.isPauseSLA());
 
             ticketStatus.setStatus(requestPayload.getStatus());
             ticketStatus.setTicketStatusCode(requestPayload.getTicketStatusCode());
             ticketStatus.setTicketStatusName(requestPayload.getTicketStatusName());
+            ticketStatus.setPauseSLA(requestPayload.isPauseSLA());
             xticketRepository.updateTicketStatus(ticketStatus);
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
@@ -6672,7 +6949,8 @@ public class XTicketServiceImpl implements XTicketService {
             //Log the response
             StringBuilder newValue = new StringBuilder();
             newValue.append("Ticket Status Code:").append(requestPayload.getTicketStatusCode()).append(", ")
-                    .append("Ticket Status Name:").append(requestPayload.getTicketStatusName());
+                    .append("Ticket Status Name:").append(requestPayload.getTicketStatusName()).append(", ")
+                    .append("Pause SLA:").append(requestPayload.isPauseSLA());
             //Log the response
             genericService.logResponse(principal, ticketStatus.getId(), "Update", "Ticket Status", "Update Ticket Status " + requestPayload.getTicketStatusName(), oldValue.toString(), newValue.toString());
             return response;
@@ -7025,7 +7303,7 @@ public class XTicketServiceImpl implements XTicketService {
                 String automatedTicketTime = automatedTicketJob.split(" ")[1];
                 LocalDateTime runDate = LocalDateTime.of(startDate, LocalTime.parse(requestPayload.getRunTime()));
                 if (LocalDateTime.now().isAfter(runDate)) {
-                    String message = "Start date is today but the current hour (" + String.valueOf(LocalDateTime.now().getHour()) + ") is past schedule job time of (" + automatedTicketTime + ")";
+                    String message = "Start date is today but the current hour (" + LocalDateTime.now().getHour() + ") is past schedule job time of (" + automatedTicketTime + ")";
                     response.setResponseCode(ResponseCodes.INPUT_MISSING.getResponseCode());
                     response.setResponseMessage(messageSource.getMessage("appMessages.invalid.param", new Object[]{message, " Please update start date accordingly"}, Locale.ENGLISH));
                     response.setData(null);
@@ -7077,7 +7355,7 @@ public class XTicketServiceImpl implements XTicketService {
         }
     }
 
-    @CachePut(value = "automatedTicket", key = "{#requestPayload.id}")
+    @CachePut(value = "automatedTicket", key = "{#a0.id}")
     private XTicketPayload updateAutomatedTicket(XTicketPayload requestPayload, String principal) {
         var response = new XTicketPayload();
         try {
@@ -7160,7 +7438,7 @@ public class XTicketServiceImpl implements XTicketService {
 
             LocalDateTime runDate = LocalDateTime.of(startDate, LocalTime.parse(requestPayload.getRunTime()));
             if (LocalDateTime.now().isAfter(runDate)) {
-                String message = "Start date is today but the current hour (" + String.valueOf(LocalDateTime.now().getHour()) + ") is past schedule job time of (" + requestPayload.getRunTime() + ")";
+                String message = "Start date is today but the current hour (" + LocalDateTime.now().getHour() + ") is past schedule job time of (" + requestPayload.getRunTime() + ")";
                 response.setResponseCode(ResponseCodes.INPUT_MISSING.getResponseCode());
                 response.setResponseMessage(messageSource.getMessage("appMessages.invalid.param", new Object[]{message, " Please update start date accordingly"}, Locale.ENGLISH));
                 response.setData(null);
@@ -7544,7 +7822,7 @@ public class XTicketServiceImpl implements XTicketService {
         }
     }
 
-    @CachePut(value = "knowledgeBaseCategory", key = "{#requestPayload.id}")
+    @CachePut(value = "knowledgeBaseCategory", key = "{#a0.id}")
     private XTicketPayload updateKnowledgeBaseCategory(XTicketPayload requestPayload, String principal) {
         var response = new XTicketPayload();
         try {
@@ -7836,7 +8114,7 @@ public class XTicketServiceImpl implements XTicketService {
         }
     }
 
-    @CachePut(value = "knowledgeBaseContent", key = "{#requestPayload.id}")
+    @CachePut(value = "knowledgeBaseContent", key = "{#a0.id}")
     private XTicketPayload updateKnowledgeBaseContent(XTicketPayload requestPayload, String principal) {
         var response = new XTicketPayload();
         try {
@@ -8429,7 +8707,7 @@ public class XTicketServiceImpl implements XTicketService {
         }
     }
 
-    @CachePut(value = "pushNotification", key = "{#requestPayload.id}")
+    @CachePut(value = "pushNotification", key = "{#a0.id}")
     private XTicketPayload updatePushNotification(XTicketPayload requestPayload, String principal) {
         var response = new XTicketPayload();
         try {
@@ -8528,6 +8806,38 @@ public class XTicketServiceImpl implements XTicketService {
                 response.setData(null);
                 return response;
             }
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
+    @Override
+    public XTicketPayload updatePushNotificationStatus(String id, String transType, String principal, boolean batch) {
+        var response = new XTicketPayload();
+        try {
+            //Check if the push notification by Id is valid
+            PushNotification pushNotification = xticketRepository.getPushNotificationUsingId(Long.parseLong(id));
+            if (pushNotification == null) {
+                response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.ticket.notexist", new Object[]{"Push Notification", "Id", id}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //This is a single update
+            pushNotification.setMessageRead(transType.equalsIgnoreCase("read"));
+            xticketRepository.updatePushNotification(pushNotification);
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{"Push Notification" + pushNotification.getMessage(), "Updated"}, Locale.ENGLISH));
+            response.setData(null);
+
+            //Log the response
+            genericService.logResponse(principal, pushNotification.getId(), "Update", "Push Notification", "Update Push Notification As Read", pushNotification.getMessage(), "");
+            return response;
         } catch (Exception ex) {
             response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
             response.setResponseMessage(ex.getMessage());
@@ -8676,6 +8986,51 @@ public class XTicketServiceImpl implements XTicketService {
                 //Return empty payload
                 return responsePayload;
             }
+        }
+    }
+
+    @Override
+    public XTicketPayload createRateTicket(XTicketPayload requestPayload, String principal) {
+        var response = new XTicketPayload();
+        try {
+            //Check if the user is valid. This is the agent
+            var appUser = xticketRepository.getAppUserUsingEmail(principal);
+            if (appUser == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.user.notexist", new Object[]{principal}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Get the original ticket using Id
+            Tickets ticket = xticketRepository.getTicketUsingId(requestPayload.getId());
+            if (ticket == null) {
+                response.setResponseCode(ResponseCodes.RECORD_NOT_EXIST_CODE.getResponseCode());
+                response.setResponseMessage(messageSource.getMessage("appMessages.norecord", new Object[]{requestPayload.getId()}, Locale.ENGLISH));
+                response.setData(null);
+                return response;
+            }
+
+            //Update the ticket record
+            ticket.setRating(requestPayload.getRating());
+            ticket.setRatingComment(requestPayload.getComment());
+            xticketRepository.updateTicket(ticket);
+
+            StringBuilder newValue = new StringBuilder();
+            newValue.append("Rating:").append(requestPayload.getRating()).append(", ")
+                    .append("Comment:").append(requestPayload.getComment());
+            //Log the response
+            genericService.logResponse(principal, requestPayload.getId(), "Update", "Ticket", "Update rating for " + ticket.getTicketId(), "", newValue.toString());
+
+            response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+            response.setResponseMessage(messageSource.getMessage("appMessages.success.ticket", new Object[]{" ticket is ", "rated "}, Locale.ENGLISH));
+            response.setData(null);
+            return response;
+        } catch (Exception ex) {
+            response.setResponseCode(ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode());
+            response.setResponseMessage(ex.getMessage());
+            response.setData(null);
+            return response;
         }
     }
 

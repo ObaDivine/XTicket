@@ -61,11 +61,11 @@
                                 </div>
                                 <div class="form-icon-container">
                                     <input class="form-check-input" type="checkbox"  th:field="*{popularArticle}" value="True" th:attr="checked=${popularArticle == 'True'}"/>
-                                    <label class="form-check-label">Check if a <b>Popular Article</b></label>
+                                    <label class="form-check-label">Check if a <strong>Popular Article</strong></label>
                                 </div>
                                 <div class="form-icon-container">
                                     <input class="form-check-input" type="checkbox"  th:field="*{latestArticle}" value="True" th:attr="checked=${latestArticle == 'True'}"/>
-                                    <label class="form-check-label">Check if a <b>Latest Article</b></label>
+                                    <label class="form-check-label">Check if a <strong>Latest Article</strong></label>
                                 </div>
                                 <button class="btn btn-primary btn-sm w-40 mb-3 mt-2" type="button" data-bs-target="#confirmModal" data-bs-toggle="modal">Submit</button>
                                 <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModal" aria-hidden="true">
@@ -96,7 +96,7 @@
                                         <p class="fs--1 text-700 mb-0"><span>X-Ticket</span>
                                             <span class="text-400 mx-1">| </span><a sec:authorize="hasRole('KNOWLEDGE_BASE_SETUP')" th:href="@{/knowledge-base/content/list}">Knowledge Base Listing</a>
                                             <span class="text-400 mx-1">| </span>
-                                            <span class="text-nowrap">Total of <b><span th:text="${recordCount}" class="text-primary"></span></b> Knowledge Base Created</span></p>
+                                            <span class="text-nowrap">Total of <strong><span th:text="${recordCount}" class="text-primary"></span></strong> Knowledge Base Created</span></p>
                                     </div>
                                 </div>
                             </div>

@@ -83,7 +83,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
         }
         return recordset.get(0);
     }
-    
+
     @Override
     public AppUser getAppUserUsingSessionId(String sessionId) {
         TypedQuery<AppUser> query = em.createQuery("SELECT p FROM AppUser p WHERE p.sessionId = :sessionId", AppUser.class)
@@ -562,6 +562,29 @@ public class XTicketRepositoryImpl implements XTicketRepository {
     public List<Tickets> getTicketClosedByAgent(AppUser appUser, TicketStatus ticketStatus) {
         TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketStatus = :ticketStatus AND p.closedBy = :appUser ORDER BY p.id DESC", Tickets.class)
                 .setParameter("appUser", appUser)
+                .setParameter("ticketStatus", ticketStatus);
+        List<Tickets> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset;
+    }
+
+    @Override
+    public List<Tickets> getClosedTicketsWithoutRating(AppUser appUser, TicketStatus ticketStatus) {
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketStatus = :ticketStatus AND p.createdBy = :appUser AND p.rating = 0 ORDER BY p.id DESC", Tickets.class)
+                .setParameter("appUser", appUser)
+                .setParameter("ticketStatus", ticketStatus);
+        List<Tickets> recordset = query.getResultList();
+        if (recordset.isEmpty()) {
+            return null;
+        }
+        return recordset;
+    }
+
+    @Override
+    public List<Tickets> getClosedTicketsWithoutRating(TicketStatus ticketStatus) {
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.ticketStatus = :ticketStatus AND p.rating = 0 ORDER BY p.id DESC", Tickets.class)
                 .setParameter("ticketStatus", ticketStatus);
         List<Tickets> recordset = query.getResultList();
         if (recordset.isEmpty()) {

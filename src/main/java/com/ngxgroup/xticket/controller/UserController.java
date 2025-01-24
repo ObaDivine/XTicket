@@ -44,7 +44,9 @@ public class UserController {
         model.addAttribute("roleList", xticketService.fetchRoleGroup());
         model.addAttribute("departmentList", xticketService.fetchDepartment().getData());
         model.addAttribute("entityList", xticketService.fetchEntity().getData());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -64,7 +66,9 @@ public class UserController {
     public String appUserList(Model model, Principal principal) {
         List<AppUser> response = xticketService.fetchAppUsers();
         model.addAttribute("dataList", xticketService.fetchAppUsers());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", messageSource.getMessage("appMessages.ticket.record", new Object[]{response.size()}, Locale.ENGLISH));
         model.addAttribute("alertMessageType", "success");
         resetAlertMessage();
@@ -77,7 +81,9 @@ public class UserController {
         model.addAttribute("rolePayload", new XTicketPayload());
         model.addAttribute("roleList", xticketService.fetchRoleGroup());
         model.addAttribute("groupRolesPayload", null);
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -95,7 +101,9 @@ public class UserController {
         model.addAttribute("rolePayload", requestPayload);
         model.addAttribute("roleList", xticketService.fetchRoleGroup());
         model.addAttribute("groupRolesPayload", response.getData());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         return "roles";
@@ -112,7 +120,9 @@ public class UserController {
         }
         model.addAttribute("rolePayload", response);
         model.addAttribute("roleList", xticketService.fetchRoleGroup());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "success");
         resetAlertMessage();
@@ -133,7 +143,9 @@ public class UserController {
         model.addAttribute("rolePayload", requestPayload);
         model.addAttribute("roleList", xticketService.fetchRoleGroup());
         model.addAttribute("groupRolesPayload", xticketService.fetchGroupRoles(requestPayload.getGroupName()).getData());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", "");
         model.addAttribute("alertMessageType", "");
         return "roles";
@@ -145,7 +157,9 @@ public class UserController {
         model.addAttribute("rolePayload", requestPayload);
         model.addAttribute("roleList", xticketService.fetchRoleGroup());
         model.addAttribute("groupRolesPayload", null);
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         return "roles";

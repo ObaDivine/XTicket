@@ -167,6 +167,12 @@ public interface XTicketService {
 
     XTicketPayload closeTicket(XTicketPayload requestPayload, String principal);
 
+    XTicketPayload fetchTicketsWithoutRating(String principal);
+
+    XTicketPayload fetchTicketsWithoutRating();
+
+    XTicketPayload createRateTicket(XTicketPayload requestPayload, String principal);
+
     XTicketPayload createReopenTicket(XTicketPayload requestPayload, String principal);
 
     XTicketPayload fetchReopenedTicket(XTicketPayload requestPayload);
@@ -336,6 +342,8 @@ public interface XTicketService {
 
     XTicketPayload deletePushNotification(String id, String principal, boolean batch);
 
+    XTicketPayload updatePushNotificationStatus(String id, String transType, String principal, boolean batch);
+
     /**
      * Email Notification
      *
@@ -344,7 +352,7 @@ public interface XTicketService {
      * @return
      */
     XTicketPayload fetchEmailNotification(XTicketPayload requestPayload);
-    
+
     XTicketPayload fetchSystemInfo(String transType);
 
 }

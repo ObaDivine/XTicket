@@ -85,7 +85,7 @@
                                 </div>
                                 <div class="form-icon-container">
                                     <input class="form-check-input" type="checkbox"  th:field="*{internal}" value="True" th:attr="checked=${internal == 'True'}"/>
-                                    <label class="form-check-label">Ticket is for Nigerian Exchange Group <b>ONLY</b></label>
+                                    <label class="form-check-label">Ticket is for Nigerian Exchange Group <strong>ONLY</strong></label>
                                 </div>
                                 <div class="form-icon-container">
                                     <input class="form-check-input" type="checkbox"  th:field="*{requireChangeRequestForm}" value="True" th:attr="checked=${requireChangeRequestForm == 'True'}"/>
@@ -128,7 +128,7 @@
                                         <p class="fs--1 text-700 mb-0"><span>X-Ticket</span>
                                             <span class="text-400 mx-1">| </span><a sec:authorize="hasRole('LIST_TICKET_TYPE')" th:href="@{/setup/ticket/type/list}">Ticket Type Listing</a>
                                             <span class="text-400 mx-1">| </span>
-                                            <span class="text-nowrap">Total of <b><span th:text="${recordCount}" class="text-primary"></span></b> Ticket Type Created</span></p>
+                                            <span class="text-nowrap">Total of <strong><span th:text="${recordCount}" class="text-primary"></span></strong> Ticket Type Created</span></p>
                                     </div>
                                 </div>
                             </div>

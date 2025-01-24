@@ -38,7 +38,7 @@
                                 </form>
                             </div>
 
-                            <i class="fa fa-folder-open text-primary mt-5"></i> <span th:text="${dataList.categoryName}"></span>
+                            <em class="fa fa-folder-open text-primary mt-5"></em> <span th:text="${dataList.categoryName}"></span>
                             <span class="text-info mb-4 ml-5" th:text="' (' + ${dataList.value} + ')'">(10)</span>
                             <hr/>
 
@@ -67,7 +67,7 @@
                             <ul class="nav d-flex flex-column mb-2 pb-1">
                                 <li class="nav-item" th:each="rec : ${popularArticleList}">
                                     <a th:href="@{'/knowledge-base/list/category?seid=' + ${rec.id}}">
-                                        <i class="fa fa-file-alt text-secondary"></i> <span th:text="${rec.knowledgeBaseHeader}"></span>
+                                        <em class="fa fa-file-alt text-secondary"></em> <span th:text="${rec.knowledgeBaseHeader}"></span>
                                     </a>
                                 </li>
                             </ul>
@@ -76,7 +76,7 @@
                             <ul class="nav d-flex flex-column mb-2 pb-1">
                                 <li class="nav-item" th:each="rec : ${latestArticleList}">
                                     <a th:href="@{'/knowledge-base/list/category?seid=' + ${rec.id}}">
-                                        <i class="fa fa-file-alt text-secondary"></i> <span th:text="${rec.knowledgeBaseHeader}"></span>
+                                        <em class="fa fa-file-alt text-secondary"></em> <span th:text="${rec.knowledgeBaseHeader}"></span>
                                     </a>
                                 </li>
                             </ul>

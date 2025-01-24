@@ -35,7 +35,7 @@
                                 <div class="form-icon-container">
                                     <select class="form-select form-control-sm form-icon-input" data-choices="data-choices" data-options='{"removeItemButton":orm-icon-inputtrue,"placeholder":true}' th:field="*{ticketTypeCode}" required="required">
                                         <option value="">---Select Ticket Type---</option>
-                                        <option th:each="fa : ${ticketTypeList}" th:value="${fa.ticketTypeCode}" th:text="${fa.ticketTypeName}"></option>
+                                        <option th:each="fa : ${ticketTypeList}" th:value="${fa.ticketTypeCode}" th:text="${fa.serviceUnitName} + ' -- ' +${fa.ticketTypeName}"></option>
                                     </select>
                                     <span class="text-danger asterisk">*</span>
                                 </div>

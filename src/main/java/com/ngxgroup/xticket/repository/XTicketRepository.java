@@ -134,6 +134,10 @@ public interface XTicketRepository {
 
     List<Tickets> getTicketClosedByAgent(AppUser appUser, TicketStatus ticketStatus);
 
+    List<Tickets> getClosedTicketsWithoutRating(AppUser appUser, TicketStatus ticketStatus);
+
+    List<Tickets> getClosedTicketsWithoutRating(TicketStatus ticketStatus);
+
     int getTicketOpenForAgentByGroup(AppUser appUser, TicketStatus ticketStatus, TicketGroup ticketGroup);
 
     List<Tickets> getViolatedTickets(LocalDate startDate, LocalDate endDate);

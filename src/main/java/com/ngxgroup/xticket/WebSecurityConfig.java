@@ -22,19 +22,15 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class WebSecurityConfig {
 
-    private static final String[] WHITE_LIST_URL = {"/", "/login/**", "/signup/**", "/forgot-password/**", 
+    private static final String[] WHITE_LIST_URL = {"/", "/login/**", "/signup/**", "/forgot-password/**",
         "/logout", "/css/**", "/images/**", "/js/**", "/document/**", "/font/**", "/error/**", "/WEB-INF/**",
-    "/change-expired-password/**", "/contact-us/**", "/actuator/**"};
+        "/change-expired-password/**", "/contact-us/**", "/actuator/**"};
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.cors(cors -> {
-            cors.disable();
-        });
+        http.cors(cors -> cors.disable());
 
-        http.csrf(csrf -> {
-            csrf.disable();
-        });
+        http.csrf(csrf -> csrf.disable());
 
         http.sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)

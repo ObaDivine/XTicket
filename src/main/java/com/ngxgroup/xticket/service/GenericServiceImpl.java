@@ -40,7 +40,6 @@ public class GenericServiceImpl implements GenericService {
     @Value("${xticket.encryption.key.web}")
     private String encryptionKey;
     private static SecretKeySpec secretKey;
-    private static byte[] key;
     Logger logger = LoggerFactory.getLogger(GenericServiceImpl.class);
 
     @Override
@@ -130,7 +129,7 @@ public class GenericServiceImpl implements GenericService {
     public static void setKey(String myKey) {
         MessageDigest sha = null;
         try {
-            key = myKey.getBytes("UTF-8");
+            byte[] key = myKey.getBytes("UTF-8");
             sha = MessageDigest.getInstance("SHA-1");
             key = sha.digest(key);
             key = Arrays.copyOf(key, 16);
@@ -157,12 +156,11 @@ public class GenericServiceImpl implements GenericService {
             int targetStringLength = 25;
             Random random = new SecureRandom();
 
-            var generatedString = random.ints(leftLimit, rightLimit + 1)
+            return random.ints(leftLimit, rightLimit + 1)
                     .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
                     .limit(targetStringLength)
                     .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                     .toString().toUpperCase();
-            return generatedString;
         } catch (Exception ex) {
             return null;
         }

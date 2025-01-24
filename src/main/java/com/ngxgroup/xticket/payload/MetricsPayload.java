@@ -14,9 +14,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MetricsPayload {
 
-    public String name;
-    public String description;
-    public String baseUnit;
-    public List<Measurement> measurements;
-    public List<AvailableTag> availableTags;
+    private String name;
+    private String description;
+    private String baseUnit;
+    private List<Measurement> measurements;
+    private List<AvailableTag> availableTags;
 }

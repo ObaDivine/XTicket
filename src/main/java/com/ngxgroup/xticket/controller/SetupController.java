@@ -39,7 +39,9 @@ public class SetupController {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("recordCount", xticketService.fetchTicketGroup().getData().size());
         model.addAttribute("ticketGroup", xticketService.fetchTicketGroup());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -55,7 +57,9 @@ public class SetupController {
             return "redirect:/setup/ticket/group";
         }
         model.addAttribute("ticketPayload", requestPayload);
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "error");
         resetAlertMessage();
@@ -73,7 +77,9 @@ public class SetupController {
         }
         model.addAttribute("ticketPayload", response);
         model.addAttribute("recordCount", xticketService.fetchTicketGroup().getData().size());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "success");
         resetAlertMessage();
@@ -87,7 +93,9 @@ public class SetupController {
         model.addAttribute("dataList", response.getData());
         alertMessage = response.getResponseMessage();
         alertMessageType = response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error";
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -111,7 +119,9 @@ public class SetupController {
         model.addAttribute("ticketGroup", xticketService.fetchTicketGroup().getData());
         model.addAttribute("ticketSla", xticketService.fetchTicketSla().getData());
         model.addAttribute("recordCount", xticketService.fetchTicketType(true).getData().size());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -130,7 +140,9 @@ public class SetupController {
         model.addAttribute("serviceUnit", xticketService.fetchServiceUnit().getData());
         model.addAttribute("ticketGroup", xticketService.fetchTicketGroup().getData());
         model.addAttribute("ticketSla", xticketService.fetchTicketSla().getData());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "error");
         resetAlertMessage();
@@ -151,7 +163,9 @@ public class SetupController {
         model.addAttribute("serviceUnit", xticketService.fetchServiceUnit().getData());
         model.addAttribute("ticketGroup", xticketService.fetchTicketGroup().getData());
         model.addAttribute("ticketSla", xticketService.fetchTicketSla().getData());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "success");
         resetAlertMessage();
@@ -166,7 +180,9 @@ public class SetupController {
         model.addAttribute("serviceUnit", xticketService.fetchServiceUnit().getData());
         model.addAttribute("ticketGroup", xticketService.fetchTicketGroup().getData());
         model.addAttribute("ticketSla", xticketService.fetchTicketSla().getData());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -191,7 +207,9 @@ public class SetupController {
         model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("userList", xticketService.fetchInternalAppUsers());
         model.addAttribute("roleList", null);
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -204,7 +222,9 @@ public class SetupController {
         model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("userList", xticketService.fetchInternalAppUsers());
         model.addAttribute("roleList", response.getData());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", response.getResponseCode().equalsIgnoreCase(ResponseCodes.SUCCESS_CODE.getResponseCode()) ? "success" : "error");
         resetAlertMessage();
@@ -222,7 +242,9 @@ public class SetupController {
         model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("userList", xticketService.fetchInternalAppUsers());
         model.addAttribute("roleList", xticketService.fetchAgentTicketTypes(principal.getName()).getData());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "error");
         resetAlertMessage();
@@ -234,7 +256,9 @@ public class SetupController {
     public String ticketAgentList(Model model, Principal principal) {
         XTicketPayload response = xticketService.fetchTicketAgent();
         model.addAttribute("dataList", response.getData());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -247,7 +271,9 @@ public class SetupController {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("recordCount", xticketService.fetchTicketSla().getData().size());
         model.addAttribute("ticketSla", xticketService.fetchTicketSla());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -263,7 +289,9 @@ public class SetupController {
             return "redirect:/setup/ticket/sla";
         }
         model.addAttribute("ticketPayload", requestPayload);
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "error");
         resetAlertMessage();
@@ -281,7 +309,9 @@ public class SetupController {
         }
         model.addAttribute("ticketPayload", response);
         model.addAttribute("recordCount", xticketService.fetchTicketSla().getData().size());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "success");
         resetAlertMessage();
@@ -293,7 +323,9 @@ public class SetupController {
     public String ticketSlaList(Model model, Principal principal) {
         XTicketPayload response = xticketService.fetchTicketSla();
         model.addAttribute("dataList", response.getData());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -315,7 +347,9 @@ public class SetupController {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("recordCount", xticketService.fetchServiceUnit().getData().size());
         model.addAttribute("departmentList", xticketService.fetchDepartment().getData());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -332,7 +366,9 @@ public class SetupController {
         }
         model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("departmentList", xticketService.fetchDepartment().getData());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "error");
         resetAlertMessage();
@@ -351,7 +387,9 @@ public class SetupController {
         model.addAttribute("ticketPayload", response);
         model.addAttribute("recordCount", xticketService.fetchServiceUnit().getData().size());
         model.addAttribute("departmentList", xticketService.fetchDepartment().getData());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "success");
         resetAlertMessage();
@@ -363,7 +401,9 @@ public class SetupController {
     public String serviceUnit(Model model, Principal principal) {
         XTicketPayload response = xticketService.fetchServiceUnit();
         model.addAttribute("dataList", response.getData());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -384,7 +424,9 @@ public class SetupController {
     public String ticketStatus(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("recordCount", xticketService.fetchTicketStatus().getData().size());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -400,7 +442,9 @@ public class SetupController {
             return "redirect:/setup/ticket/status";
         }
         model.addAttribute("ticketPayload", requestPayload);
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "error");
         resetAlertMessage();
@@ -418,7 +462,9 @@ public class SetupController {
         }
         model.addAttribute("ticketPayload", response);
         model.addAttribute("recordCount", xticketService.fetchTicketStatus().getData().size());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "success");
         resetAlertMessage();
@@ -430,7 +476,9 @@ public class SetupController {
     public String ticketStatus(Model model, Principal principal) {
         XTicketPayload response = xticketService.fetchTicketStatus();
         model.addAttribute("dataList", response.getData());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -451,7 +499,9 @@ public class SetupController {
     public String entity(Model model, HttpServletRequest request, HttpServletResponse response, Principal principal) {
         model.addAttribute("ticketPayload", new XTicketPayload());
         model.addAttribute("recordCount", xticketService.fetchEntity().getData().size());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -467,7 +517,9 @@ public class SetupController {
             return "redirect:/setup/entity";
         }
         model.addAttribute("ticketPayload", requestPayload);
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "error");
         resetAlertMessage();
@@ -485,7 +537,9 @@ public class SetupController {
         }
         model.addAttribute("ticketPayload", response);
         model.addAttribute("recordCount", xticketService.fetchEntity().getData().size());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "success");
         resetAlertMessage();
@@ -497,7 +551,9 @@ public class SetupController {
     public String entity(Model model, Principal principal) {
         XTicketPayload response = xticketService.fetchEntity();
         model.addAttribute("dataList", response.getData());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -520,7 +576,9 @@ public class SetupController {
         model.addAttribute("recordCount", xticketService.fetchDepartment().getData().size());
         model.addAttribute("entityList", xticketService.fetchEntity().getData());
         model.addAttribute("defaultDepartmentCode", defaultDepartmentCode);
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -538,7 +596,9 @@ public class SetupController {
         model.addAttribute("ticketPayload", requestPayload);
         model.addAttribute("entityList", xticketService.fetchEntity().getData());
         model.addAttribute("defaultDepartmentCode", defaultDepartmentCode);
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "error");
         resetAlertMessage();
@@ -557,7 +617,9 @@ public class SetupController {
         model.addAttribute("ticketPayload", response);
         model.addAttribute("recordCount", xticketService.fetchDepartment().getData().size());
         model.addAttribute("entityList", xticketService.fetchEntity().getData());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "success");
         resetAlertMessage();
@@ -570,7 +632,9 @@ public class SetupController {
         XTicketPayload response = xticketService.fetchDepartment();
         model.addAttribute("dataList", response.getData());
         model.addAttribute("entityList", xticketService.fetchEntity().getData());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -594,7 +658,9 @@ public class SetupController {
         model.addAttribute("userList", xticketService.fetchAppUsers());
         model.addAttribute("ticketAgentList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("ticketTypeList", xticketService.fetchAutomatedTicketType().getData());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();
@@ -614,7 +680,9 @@ public class SetupController {
         model.addAttribute("userList", xticketService.fetchAppUsers());
         model.addAttribute("ticketAgentList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("ticketTypeList", xticketService.fetchAutomatedTicketType().getData());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "error");
         resetAlertMessage();
@@ -635,7 +703,9 @@ public class SetupController {
         model.addAttribute("userList", xticketService.fetchAppUsers());
         model.addAttribute("ticketAgentList", xticketService.fetchTicketAgent().getData());
         model.addAttribute("ticketTypeList", xticketService.fetchAutomatedTicketType().getData());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", response.getResponseMessage());
         model.addAttribute("alertMessageType", "success");
         resetAlertMessage();
@@ -647,7 +717,9 @@ public class SetupController {
     public String automatedTicket(Model model, Principal principal) {
         XTicketPayload response = xticketService.fetchAutomatedTicket();
         model.addAttribute("dataList", response.getData());
-        model.addAttribute("notification", xticketService.fetchPushNotificationByUser(principal.getName()).getData());
+        XTicketPayload pushNotifications = xticketService.fetchPushNotificationByUser(principal.getName());
+        model.addAttribute("notification", pushNotifications.getData());
+        model.addAttribute("unreadMessageCount", pushNotifications.getData() == null ? 0 : pushNotifications.getData().stream().filter(t -> !t.isMessageRead()).count());
         model.addAttribute("alertMessage", alertMessage);
         model.addAttribute("alertMessageType", alertMessageType);
         resetAlertMessage();

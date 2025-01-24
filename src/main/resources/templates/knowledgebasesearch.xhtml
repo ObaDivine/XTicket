@@ -42,7 +42,7 @@
                             <hr/>
                             <div th:each="rec : ${dataList}" class="card mb-2">
                                 <h5 class="card-header p-3">
-                                    <i class="fa fa-folder-open text-primary"></i> 
+                                    <em class="fa fa-folder-open text-primary"></em> 
                                     <span th:text="'Category: ' + ${rec.categoryName}"></span>
                                 </h5>
                                 <div class="card-body">
@@ -68,7 +68,7 @@
                             <ul class="nav d-flex flex-column mb-2 pb-1">
                                 <li class="nav-item" th:each="rec : ${popularArticleList}">
                                     <a th:href="@{'/knowledge-base/list/category?seid=' + ${rec.id}}">
-                                        <i class="fa fa-file-alt text-secondary"></i> <span th:text="${rec.knowledgeBaseHeader}"></span>
+                                        <em class="fa fa-file-alt text-secondary"></em> <span th:text="${rec.knowledgeBaseHeader}"></span>
                                     </a>
                                 </li>
                             </ul>
@@ -77,7 +77,7 @@
                             <ul class="nav d-flex flex-column mb-2 pb-1">
                                 <li class="nav-item" th:each="rec : ${latestArticleList}">
                                     <a th:href="@{'/knowledge-base/list/category?seid=' + ${rec.id}}">
-                                        <i class="fa fa-file-alt text-secondary"></i> <span th:text="${rec.knowledgeBaseHeader}"></span>
+                                        <em class="fa fa-file-alt text-secondary"></em> <span th:text="${rec.knowledgeBaseHeader}"></span>
                                     </a>
                                 </li>
                             </ul>

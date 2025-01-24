@@ -61,7 +61,7 @@
                                                                 </div>
                                                                 <div class="modal-body">
                                                                     <form id="forgotPassword" th:object="${passwordPayload}" th:action="@{/forgot-password}" method="POST">
-                                                                        <p class="text-primary"><i>A password reset instruction would be sent to the email if it exists in our system.</i></p>
+                                                                        <p class="text-primary"><em>A password reset instruction would be sent to the email if it exists in our system.</em></p>
                                                                         <div class="form-icon-container mb-3">
                                                                             <input class="form-control form-icon-input" th:field="*{email}" type="email" placeholder="Email" required="required" />
                                                                             <span class="fas fa-user text-900 fs--1 form-icon text-primary"></span>

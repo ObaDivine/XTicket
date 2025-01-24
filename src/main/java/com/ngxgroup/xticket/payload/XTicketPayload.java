@@ -154,4 +154,7 @@ public class XTicketPayload {
     long[] series;
     String sentBy;
     String sentTo;
+    String serviceRequester;
+    String serviceProvider;
+    boolean messageRead;
 }

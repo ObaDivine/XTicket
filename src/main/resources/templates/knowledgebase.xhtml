@@ -44,7 +44,7 @@
                                 </div>
                                 <div class="card-body rounded-border border-10">
                                     <iframe src="https://player.vimeo.com/video/144748647" width="100%" height="360" frameborder="0" webkitallowfullscreen mozallowfullscreen
-                                            allowfullscreen>          
+                                            allowfullscreen title="Knowledge Base">          
                                     </iframe>
                                 </div>
                             </div>
@@ -53,13 +53,13 @@
                             <div class="row">
                                 <div th:each="rec : ${dataList.data}" class="col-md-6 mb-3">
                                     <a th:href="@{'/knowledge-base/list?seid=' + ${rec.id}}">
-                                        <i class="fa fa-folder-open text-primary"></i> <span th:text="${rec.categoryName}"></span>
+                                        <em class="fa fa-folder-open text-primary"></em> <span th:text="${rec.categoryName}"></span>
                                         <span class="text-info" th:text="' (' + ${rec.value} + ')'">(10)</span>
                                     </a>
                                     <ul class="nav d-flex flex-column fs--1 ms-4 mt-2">
                                         <li class="nav-item mb-1" th:each="con : ${rec.knowledgeBaseContentList}">
                                             <a th:href="@{'/knowledge-base/list/category?seid=' + ${con.id}}">
-                                                <i class="fa fa-file-alt text-secondary"></i> <span th:text="${con.knowledgeBaseHeader}"></span>
+                                                <em class="fa fa-file-alt text-secondary"></em> <span th:text="${con.knowledgeBaseHeader}"></span>
                                             </a>
                                         </li>
                                     </ul>
@@ -81,7 +81,7 @@
                             <ul class="nav d-flex flex-column mb-2 pb-1">
                                 <li class="nav-item" th:each="rec : ${popularArticleList}">
                                     <a th:href="@{'/knowledge-base/list/category?seid=' + ${rec.id}}">
-                                        <i class="fa fa-file-alt text-secondary"></i> <span th:text="${rec.knowledgeBaseHeader}"></span>
+                                        <em class="fa fa-file-alt text-secondary"></em> <span th:text="${rec.knowledgeBaseHeader}"></span>
                                     </a>
                                 </li>
                             </ul>
@@ -90,7 +90,7 @@
                             <ul class="nav d-flex flex-column mb-2 pb-1">
                                 <li class="nav-item" th:each="rec : ${latestArticleList}">
                                     <a th:href="@{'/knowledge-base/list/category?seid=' + ${rec.id}}">
-                                        <i class="fa fa-file-alt text-secondary"></i> <span th:text="${rec.knowledgeBaseHeader}"></span>
+                                        <em class="fa fa-file-alt text-secondary"></em> <span th:text="${rec.knowledgeBaseHeader}"></span>
                                     </a>
                                 </li>
                             </ul>

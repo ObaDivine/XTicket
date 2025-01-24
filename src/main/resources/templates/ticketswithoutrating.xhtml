@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
-        <title>X-Ticket - Closed Ticket</title>
+        <title>X-Ticket - Unrated Closed Ticket</title>
         <th:block th:insert="~{fragments/xTicketFragments :: headerfiles}"></th:block>
     </head>
     <body onload="preloaderFunction()" style="margin: 0;">
@@ -13,15 +13,15 @@
                 <div class="content">
                     <div class="row gy-3 mb-3 justify-content-between">
                         <div class="col-md-4 col-auto">
-                            <h5 class="text-1100 text-primary">Closed Ticket</h5>
+                            <h5 class="text-1100 text-primary">Unrated Closed Ticket</h5>
                         </div>
                         <div class="col-md-5 col-auto">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb mb-0">
                                     <li th:if="!${session.isAgent}" class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
                                     <li th:if="${session.isAgent}"class="breadcrumb-item"><a href="#" th:href="@{/agent/dashboard}">Dashboard</a></li>
-                                    <li class="breadcrumb-item"><a href="#" th:href="@{/ticket/myticket}">My Ticket</a></li>
-                                    <li class="breadcrumb-item active">Closed Ticket Listing</li>
+                                    <li class="breadcrumb-item"><a href="#" th:href="@{/ticket/open}">My Ticket</a></li>
+                                    <li class="breadcrumb-item active">Unrated Closed Ticket Listing</li>
                                 </ol>
                             </nav>
                         </div>
@@ -33,26 +33,22 @@
                     <div class="row mb-6 justify-content-between">
                         <div class="col-lg-12 col-md-12 col-sm-12" id="listTable" data-list='{"valueNames":[],"page":10,"pagination":true}'>
                             <div class="table-responsive ms-n1 ps-1 scrollbar">
-                                <div class="offset-lg-2 col-lg-10 col-md-12 col-sm-12 mb-2">
-                                    <div class="input-group mb-3">
-                                        <input class="form-control form-control-sm search-input search" type="search" placeholder="Search record" aria-label="Search" />
-                                        <div class="input-group-append">
-                                            <button id="csv" class="btn btn-sm btn-secondary">Export to CSV</button> 
-                                            <button id="pdf" class="btn btn-sm btn-secondary">Export to PDF</button>
-                                            <button id="json" class="btn btn-sm btn-secondary">Export to JSON</button>
-                                        </div>
+                                <div class="offset-lg-8 col-lg-4 col-md-8 col-sm-12 mb-2">
+                                    <div class="search-box">
+                                        <input class="form-control search-input search" type="search" placeholder="Search record" aria-label="Search" />
+                                        <span class="fas fa-search search-box-icon"></span>
                                     </div>
                                 </div>
-                                <table class="table table-responsive table-sm table-striped fs--1 mb-0 border-200" id="xticketTable" description="Closed Tickets">
+                                <table class="table table-responsive table-sm table-striped fs--1 mb-0 border-200">
                                     <thead>
                                         <tr>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">Date</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="dateClosed">Date Closed</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="closedBy">Closed By</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">Date Created</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">Date Closed</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketId">Ticket ID</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketGroup">Ticket Group</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketType">Ticket Type</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="priority">Priority</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="sla">SLA</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="subject">Subject</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col">Action</th>
                                         </tr>
@@ -60,39 +56,66 @@
                                     <tbody class="list" id="deal-tables-body" th:if="${dataList != null}">
                                         <tr th:each="rec : ${dataList}" class="position-static">
                                             <td th:text="${rec.createdAt}" class="date align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.closedAt}" class="dateClosed align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.closedBy}" class="closedBy align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.closedAt}" class="date align-middle white-space-nowrap start ps-3"></td>
                                             <td class="ticketId align-middle white-space-nowrap start ps-3">
                                                 <a th:href="@{'/ticket/view/details?seid=' + ${rec.ticketId}}" th:text="${rec.ticketId}"></a>
                                             </td>
                                             <td th:text="${rec.ticketGroupName}" class="ticketGroup align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.ticketTypeName}" class="ticketType align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.priority}" class="priority align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.slaExpiry}" class="sla align-middle white-space-nowrap start ps-3 text-warning-600"></td>
                                             <td th:text="${rec.subject}" class="subject align-middle white-space-nowrap start ps-3"></td>
                                             <td class="align-middle white-space-nowrap start ps-3 btn-reveal-trigger">
-                                                <a class="text-info" th:data-bs-target="'#a' + ${rec.id}" data-bs-toggle="modal" >
-                                                    <span class="fas fa-door-open" data-bs-toggle="tooltip" data-bs-placement="right" title="Reopen Ticket"></span>
-                                                </a>
-                                                <div class="modal fade" th:id="'a' + ${rec.id}" tabindex="-1" role="dialog" aria-labelledby="confirmModal" aria-hidden="true">
+                                                <button class="btn btn-icon btn-primary me-1" th:data-bs-target="'#a' + ${rec.id}" data-bs-toggle="modal">
+                                                    <span class="fas fa-star" data-bs-toggle="tooltip" data-bs-placement="right" title="Rate Service"></span>
+                                                </button>
+                                                <div class="modal fade" th:id="'a' + ${rec.id}" tabindex="-1" role="dialog" th:aria-labelledby="'a' + ${rec.id}" aria-hidden="true">
                                                     <div class="modal-dialog">
                                                         <div class="modal-content">
                                                             <div class="modal-header">
                                                                 <h6 class="modal-title text-primary">X-Ticket</h6>
                                                             </div>
                                                             <div class="modal-body">
-                                                                <form th:object="${ticketPayload}" th:action="@{/ticket/reopen}" method="POST" enctype="multipart/form-data">
-                                                                    <input type="hidden" id="id" name="id" th:value="${rec.id}" />
+                                                                <form th:object="${ticketPayload}" th:action="@{/ticket/rating/process}" method="POST">
+                                                                    <p class="text-primary mb-2"><strong>Your feedback is very important to us.</strong></p>
+                                                                    <p><span class="text-primary">1-Below Expectation:</span> Fails to meet minimum service standards. </p>
+                                                                    <p><span class="text-primary">2-Marginal:</span> Meets minimum requirements but lacks quality and consistency.</p>
+                                                                    <p><span class="text-primary">3-Average:</span> Provides service meeting expectations but lack distinction.</p>
+                                                                    <p><span class="text-primary">4-Good:</span> Exceeds expectations with a strong commitment to quality service.</p>
+                                                                    <p><span class="text-primary">5-Excellent:</span> Exceptional service, exceeding standards & showcasing expertise.</p>
+                                                                    <p class="text-primary mt-2"><strong>Kindly rate the service.</strong></p>
                                                                     <div class="form-icon-container">
-                                                                        <textarea class="form-control form-control-sm form-icon-input" th:field="*{message}" placeholder="Your message" row="10" required="required"></textarea>
-                                                                        <span class="text-danger asterisk">*</span>
+                                                                        <div class="form-check">
+                                                                            <input class="form-check-input" id="highlySatisfactory" type="radio" name="rating" value="5" required="required"/>
+                                                                            <label class="form-check-label" for="highlySatisfactory">Excellent</label>
+                                                                        </div>
+                                                                        <div class="form-check">
+                                                                            <input class="form-check-input" id="moderatelySatisfactory" type="radio" name="rating" value="4" required="required"/>
+                                                                            <label class="form-check-label" for="moderatelySatisfactory">Good</label>
+                                                                        </div>
+                                                                        <div class="form-check">
+                                                                            <input class="form-check-input" id="satisfacstory" type="radio" name="rating" value="3" required="required"/>
+                                                                            <label class="form-check-label" for="satisfactory">Average</label>
+                                                                        </div>
+                                                                        <div class="form-check">
+                                                                            <input class="form-check-input" id="fairlySatisfactory" type="radio" name="rating" value="2" required="required"/>
+                                                                            <label class="form-check-label" for="fairlyatisfactory">Marginal</label>
+                                                                        </div>
+                                                                        <div class="form-check">
+                                                                            <input class="form-check-input" id="notSatisfactory" type="radio" name="rating" value="1" required="required"/>
+                                                                            <label class="form-check-label" for="notatisfactory">Below Expectation</label>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-icon-container">
+                                                                        <textarea class="form-control form-control-sm form-icon-input" th:field="*{comment}" placeholder="Your comment" row="10"></textarea>
                                                                         <span class="fas fa-comments text-900 fs--1 form-icon text-primary"></span>
                                                                     </div>
                                                                     <div class="form-icon-container">
-                                                                        <input type="file" class="form-control form-control-sm form-icon-input" th:field="*{uploadedFiles}" multiple="multiple"/>
-                                                                        <span class="fas fa-paperclip text-900 fs--1 form-icon text-primary"></span>                            
+                                                                        <input type="hidden" id="id" name="id" th:value="${rec.id}" required="required"/>
                                                                     </div>
-                                                                    <button type="submit" class="btn btn-primary btn-sm mt-3">Submit</button>
-                                                                    <button type="button" class="btn btn-secondary btn-sm mt-3" data-bs-dismiss="modal">Close</button>
+                                                                    <p class="mt-3 mb-3">Confirm you want to rate the service</p>
+                                                                    <button type="submit" class="btn btn-primary btn-sm">Rate Service</button>
+                                                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
                                                                 </form>
                                                             </div>
                                                         </div>
@@ -122,19 +145,5 @@
             </div>
             <th:block th:insert="~{fragments/xTicketFragments :: scriptfiles}"></th:block>   
         </main>
-        <script th:src="@{/js/jspdf.min.js}"></script>
-        <script th:src="@{/js/jspdf.plugin.autotable.min.js}"></script>
-        <script th:src="@{/js/tableHTMLExport.js}"></script>
-        <script>
-            $('#json').on('click', function () {
-                $("#xticketTable").tableHTMLExport({type: 'json', filename: 'XTicket_Closed_Ticket.json'});
-            });
-            $('#csv').on('click', function () {
-                $("#xticketTable").tableHTMLExport({type: 'csv', filename: 'XTicket_Closed_Ticket.csv'});
-            });
-            $('#pdf').on('click', function () {
-                $("#xticketTable").tableHTMLExport({type: 'pdf', filename: 'XTicket_Closed_Ticket.pdf'});
-            });
-        </script>
     </body>
 </html>

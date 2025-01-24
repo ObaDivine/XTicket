@@ -64,24 +64,24 @@
                                         <div class="d-flex align-items-center">
                                             <div class="d-flex flex-column flex-md-row align-items-md-center">
                                                 <p class="fs--1 mb-0 me-2" >
-                                                    <b><span>Ticket ID:</span></b>
-                                                    <b><span class="text-primary" th:text="${ticketPayload.ticketId}"></span></b>
+                                                    <strong><span>Ticket ID:</span></strong>
+                                                    <strong><span class="text-primary" th:text="${ticketPayload.ticketId}"></span></strong>
                                                 </p>
                                                 <p class="fs--1 mb-0 me-2">
-                                                    <b><span>Ticket Type:</span></b>
-                                                    <b><span class="text-primary" th:text="${ticketPayload.ticketTypeName}"></span></b>
+                                                    <strong><span>Ticket Type:</span></strong>
+                                                    <strong><span class="text-primary" th:text="${ticketPayload.ticketTypeName}"></span></strong>
                                                 </p>
                                                 <p class="fs--1 mb-0 me-2">
-                                                    <b><span>Agent: </span></b>
-                                                    <b><span class="text-primary" th:text="${ticketPayload.ticketAgent}"></span></b>
+                                                    <strong><span>Agent: </span></strong>
+                                                    <strong><span class="text-primary" th:text="${ticketPayload.ticketAgent}"></span></strong>
                                                 </p>
                                                 <p class="fs--1 mb-0 me-2">
-                                                    <b><span>SLA Expiry: </span></b>
-                                                    <b><span class="text-primary text-warning-600" th:text="${ticketPayload.slaExpiry}"></span></b>
+                                                    <strong><span>SLA Expiry: </span></strong>
+                                                    <strong><span class="text-primary text-warning-600" th:text="${ticketPayload.slaExpiry}"></span></strong>
                                                 </p>
                                                 <p class="fs--1 mb-0 me-2">
-                                                    <b><span>Status: </span></b>
-                                                    <b><span class="text-primary" th:text="${ticketPayload.status}"></span></b>
+                                                    <strong><span>Status: </span></strong>
+                                                    <strong><span class="text-primary" th:text="${ticketPayload.status}"></span></strong>
                                                 </p>
                                             </div>
                                         </div>
@@ -97,27 +97,33 @@
                                                         </div>
                                                         <div class="modal-body">
                                                             <form th:object="${ticketPayload}" th:action="@{/ticket/close}" method="POST">
-                                                                <p class="text-primary"><b>Your feedback is very important to us. Kindly rate the service</b></p>
+                                                                <p class="text-primary mb-2"><strong>Your feedback is very important to us.</strong></p>
+                                                                <p><span class="text-primary">1-Below Expectation:</span> Fails to meet minimum service standards. </p>
+                                                                <p><span class="text-primary">2-Marginal:</span> Meets minimum requirements but lacks quality and consistency.</p>
+                                                                <p><span class="text-primary">3-Average:</span> Provides service meeting expectations but lack distinction.</p>
+                                                                <p><span class="text-primary">4-Good:</span> Exceeds expectations with a strong commitment to quality service.</p>
+                                                                <p><span class="text-primary">5-Excellent:</span> Exceptional service, exceeding standards & showcasing expertise.</p>
+                                                                <p class="text-primary mt-2"><strong>Kindly rate the service.</strong></p>
                                                                 <div class="form-icon-container">
                                                                     <div class="form-check">
                                                                         <input class="form-check-input" id="highlySatisfactory" type="radio" name="rating" value="5" required="required"/>
-                                                                        <label class="form-check-label" for="highlySatisfactory">Highly Satisfactory</label>
+                                                                        <label class="form-check-label" for="highlySatisfactory">Excellent</label>
                                                                     </div>
                                                                     <div class="form-check">
                                                                         <input class="form-check-input" id="moderatelySatisfactory" type="radio" name="rating" value="4" required="required"/>
-                                                                        <label class="form-check-label" for="moderatelySatisfactory">Moderately Satisfactory</label>
+                                                                        <label class="form-check-label" for="moderatelySatisfactory">Good</label>
                                                                     </div>
                                                                     <div class="form-check">
                                                                         <input class="form-check-input" id="satisfacstory" type="radio" name="rating" value="3" required="required"/>
-                                                                        <label class="form-check-label" for="satisfactory">Satisfactory</label>
+                                                                        <label class="form-check-label" for="satisfactory">Average</label>
                                                                     </div>
                                                                     <div class="form-check">
                                                                         <input class="form-check-input" id="fairlySatisfactory" type="radio" name="rating" value="2" required="required"/>
-                                                                        <label class="form-check-label" for="fairlyatisfactory">Fairly Satisfactory</label>
+                                                                        <label class="form-check-label" for="fairlyatisfactory">Marginal</label>
                                                                     </div>
                                                                     <div class="form-check">
                                                                         <input class="form-check-input" id="notSatisfactory" type="radio" name="rating" value="1" required="required"/>
-                                                                        <label class="form-check-label" for="notatisfactory">Not Satisfactory</label>
+                                                                        <label class="form-check-label" for="notatisfactory">Below Expectation</label>
                                                                     </div>
                                                                 </div>
                                                                 <div class="form-icon-container">
@@ -152,7 +158,7 @@
                                         <div class="small" th:each="rec : ${ticketPayload.data}">
                                             <p th:if="!${rec.reply}"><b class="text-primary">
                                                     <span th:text="${rec.messageFrom}"></span>
-                                                    <span>&nbsp;&nbsp;</span></b> &nbsp; 
+                                                    <span>&nbsp;&nbsp;</span></strong> &nbsp; 
                                                 <span>[</span>
                                                 <span th:text="${rec.createdAt}"></span>
                                                 <span>]:&nbsp;</span>    
@@ -160,7 +166,7 @@
                                             </p>
                                             <p th:if="${rec.reply}"><b class="text-secondary">
                                                     <span th:text="${rec.messageFrom}"></span>
-                                                    <span>&nbsp;&nbsp;</span></b>
+                                                    <span>&nbsp;&nbsp;</span></strong>
                                                 <span>[</span>
                                                 <span th:text="${rec.createdAt}"></span>
                                                 <span>]:&nbsp;</span>    

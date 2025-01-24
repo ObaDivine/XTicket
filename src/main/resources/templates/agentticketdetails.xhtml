@@ -63,24 +63,24 @@
                                         <div class="d-flex align-items-center">
                                             <div class="d-flex flex-column flex-md-row align-items-md-center">
                                                 <p class="fs--1 mb-0 me-2" >
-                                                    <b><span>Ticket ID:</span></b>
-                                                    <b><span class="text-primary" th:text="${ticketPayload.ticketId}"></span></b>
+                                                    <strong><span>Ticket ID:</span></strong>
+                                                    <strong><span class="text-primary" th:text="${ticketPayload.ticketId}"></span></strong>
                                                 </p>
                                                 <p class="fs--1 mb-0 me-2">
-                                                    <b><span>Ticket Type:</span></b>
-                                                    <b><span class="text-primary" th:text="${ticketPayload.ticketTypeName}"></span></b>
+                                                    <strong><span>Ticket Type:</span></strong>
+                                                    <strong><span class="text-primary" th:text="${ticketPayload.ticketTypeName}"></span></strong>
                                                 </p>
                                                 <p class="fs--1 mb-0 me-2">
-                                                    <b><span>Agent: </span></b>
-                                                    <b><span class="text-primary" th:text="${ticketPayload.ticketAgent}"></span></b>
+                                                    <strong><span>Agent: </span></strong>
+                                                    <strong><span class="text-primary" th:text="${ticketPayload.ticketAgent}"></span></strong>
                                                 </p>
                                                 <p class="fs--1 mb-0 me-2">
-                                                    <b><span>SLA Expiry: </span></b>
-                                                    <b><span class="text-primary text-warning-600" th:text="${ticketPayload.slaExpiry}"></span></b>
+                                                    <strong><span>SLA Expiry: </span></strong>
+                                                    <strong><span class="text-primary text-warning-600" th:text="${ticketPayload.slaExpiry}"></span></strong>
                                                 </p>
                                                 <p class="fs--1 mb-0 me-2">
-                                                    <b><span>Status: </span></b>
-                                                    <b><span class="text-primary" th:text="${ticketPayload.status}"></span></b>
+                                                    <strong><span>Status: </span></strong>
+                                                    <strong><span class="text-primary" th:text="${ticketPayload.status}"></span></strong>
                                                 </p>
                                             </div>
                                         </div>
@@ -165,7 +165,7 @@
                                                         </div>
                                                         <div class="modal-body">
                                                             <div class="table-responsive ms-n1 ps-1 scrollbar">
-                                                                <table class="table table-responsive table-sm table-striped fs--1 mb-0 border-200">
+                                                                <table class="table table-responsive table-sm table-striped fs--1 mb-0 border-200" description="Ticket Details">
                                                                     <thead>
                                                                         <tr>
                                                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">Document</th>
@@ -195,21 +195,21 @@
                                     </div>
                                     <div class="card-body scrollbar">
                                         <div class="small" th:each="rec : ${ticketPayload.data}">
-                                            <p th:if="!${rec.reply}"><b class="text-primary">
+                                            <p th:if="!${rec.reply}"><strong class="text-primary">
                                                     <span th:text="${rec.messageFrom}"></span>
-                                                    <span>&nbsp;&nbsp;</span></b> &nbsp; 
+                                                    <span>&nbsp;&nbsp;</span></strong> &nbsp; 
                                                 <span>[</span>
                                                 <span th:text="${rec.createdAt}"></span>
                                                 <span>]:&nbsp;</span>    
-                                                <span><i th:text="${rec.message}"></i></span> 
+                                                <span><em th:text="${rec.message}"></em></span> 
                                             </p>
-                                            <p th:if="${rec.reply}"><b class="text-secondary">
+                                            <p th:if="${rec.reply}"><strong class="text-secondary">
                                                     <span th:text="${rec.messageFrom}"></span>
-                                                    <span>&nbsp;&nbsp;</span></b>
+                                                    <span>&nbsp;&nbsp;</span></strong>
                                                 <span>[</span>
                                                 <span th:text="${rec.createdAt}"></span>
                                                 <span>]:&nbsp;</span>    
-                                                <span><i th:text="${rec.message}"></i></span>  
+                                                <span><em th:text="${rec.message}"></em></span>  
                                             </p>
                                         </div>
                                     </div>

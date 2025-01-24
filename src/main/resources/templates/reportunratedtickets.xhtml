@@ -2,24 +2,25 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
-        <title>X-Ticket - Open Ticket</title>
+        <title>X-Ticket - Unrated Closed Ticket</title>
         <th:block th:insert="~{fragments/xTicketFragments :: headerfiles}"></th:block>
     </head>
     <body onload="preloaderFunction()" style="margin: 0;">
         <div id="loader"></div>
-        <main class="main animate-bottom" id="top" style="display:none;">
+        <main class="main animate-bottom" id="top" style="display:none;" >
             <div class="container-fluid px-0">
                 <th:block th:insert="~{fragments/xTicketFragments :: topMenu}"></th:block>
                 <div class="content">
                     <div class="row gy-3 mb-3 justify-content-between">
                         <div class="col-md-4 col-auto">
-                            <h5 class="text-1100 text-primary">List Open Ticket</h5>
+                            <h5 class="text-1100 text-primary">Unrated Closed Ticket</h5>
                         </div>
                         <div class="col-md-5 col-auto">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb mb-0">
-                                    <li class="breadcrumb-item"><a href="#" th:href="@{/agent/dashboard}">Dashboard</a></li>
-                                    <li class="breadcrumb-item active">Open Ticket Listing</li>
+                                    <li th:if="!${session.isAgent}" class="breadcrumb-item"><a href="#" th:href="@{/dashboard}">Dashboard</a></li>
+                                    <li th:if="${session.isAgent}"class="breadcrumb-item"><a href="#" th:href="@{/agent/dashboard}">Dashboard</a></li>
+                                    <li class="breadcrumb-item active">Unrated Closed Ticket Listing</li>
                                 </ol>
                             </nav>
                         </div>
@@ -28,7 +29,7 @@
                         </div>
                         <hr/>
                     </div>
-                    <div sec:authorize="hasRole('TICKET_AGENT')" class="row mb-6 justify-content-between">
+                    <div class="row mb-6 justify-content-between">
                         <div class="col-lg-12 col-md-12 col-sm-12" id="listTable" data-list='{"valueNames":[],"page":10,"pagination":true}'>
                             <div class="table-responsive ms-n1 ps-1 scrollbar">
                                 <div class="offset-lg-8 col-lg-4 col-md-8 col-sm-12 mb-2">
@@ -37,40 +38,67 @@
                                         <span class="fas fa-search search-box-icon"></span>
                                     </div>
                                 </div>
-                                <table class="table table-responsive table-sm table-striped fs--1 mb-0 border-200" description="Agent Open Ticket">
+                                <table class="table table-responsive table-sm table-striped fs--1 mb-0 border-200">
                                     <thead>
                                         <tr>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">Date</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="requestBy">Ticket From</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="email">Email</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">Date Created</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="createdBy">Created By</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">Date Closed</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="closedBy">Closed By</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketId">Ticket ID</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketGroup">Ticket Group</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="ticketType">Ticket Type</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="priority">Priority</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="slaExpiry">SLA Expiry</th>
+                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="sla">SLA</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="subject">Subject</th>
-                                            <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="status">Status</th>
                                             <th class="sort align-middle ps-3 text-primary" scope="col">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody class="list" id="deal-tables-body" th:if="${dataList != null}">
                                         <tr th:each="rec : ${dataList}" class="position-static">
                                             <td th:text="${rec.createdAt}" class="date align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.createdBy}" class="requestBy align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.email}" class="email align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.createdBy}" class="createdBy align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.closedAt}" class="date align-middle white-space-nowrap start ps-3"></td>
+                                            <td th:text="${rec.closedBy}" class="closedBy align-middle white-space-nowrap start ps-3"></td>
                                             <td class="ticketId align-middle white-space-nowrap start ps-3">
                                                 <a th:href="@{'/ticket/view/details?seid=' + ${rec.ticketId}}" th:text="${rec.ticketId}"></a>
                                             </td>
                                             <td th:text="${rec.ticketGroupName}" class="ticketGroup align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.ticketTypeName}" class="ticketType align-middle white-space-nowrap start ps-3"></td>
                                             <td th:text="${rec.priority}" class="priority align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.slaExpiry}" class="slaExpiry align-middle white-space-nowrap start ps-3 text-warning-600"></td>
+                                            <td th:text="${rec.slaExpiry}" class="sla align-middle white-space-nowrap start ps-3 text-warning-600"></td>
                                             <td th:text="${rec.subject}" class="subject align-middle white-space-nowrap start ps-3"></td>
-                                            <td th:text="${rec.status}" class="status align-middle white-space-nowrap start ps-3"></td>
                                             <td class="align-middle white-space-nowrap start ps-3 btn-reveal-trigger">
-                                                <a class="btn btn-sm btn-info" href="#!" th:href="@{'/agent/ticket/view?seid=' + ${rec.id}}">
-                                                    <span class="fas fa-eye" data-bs-toggle="tooltip" data-bs-placement="right" title="View Ticket Details"></span>
-                                                </a>
+                                                <button class="btn btn-icon btn-primary me-1" th:data-bs-target="'#a' + ${rec.id}" data-bs-toggle="modal">
+                                                    <span class="fas fa-paper-plane" data-bs-toggle="tooltip" data-bs-placement="right" title="Rate Service"></span>
+                                                </button>
+                                                <div class="modal fade" th:id="'a' + ${rec.id}" tabindex="-1" role="dialog" th:aria-labelledby="'a' + ${rec.id}" aria-hidden="true">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h6 class="modal-title text-primary">X-Ticket</h6>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <form th:object="${ticketPayload}" th:action="@{/report/ticket/unrated/notification}" method="POST">
+                                                                    <input type="hidden" th:field="*{id}" th:value="${rec.id}" />
+                                                                    <input type="hidden" th:field="*{batchId}" />
+                                                                    <div class="form-icon-container">
+                                                                        <textarea class="form-control form-control-sm form-icon-input" th:field="*{message}" placeholder="Your message" required="required" rows="3"></textarea>
+                                                                        <span class="text-danger asterisk">*</span>
+                                                                        <span class="fas fa-comments text-900 fs--1 form-icon text-primary"></span>
+                                                                    </div>
+                                                                    <div class="form-icon-container">
+                                                                        <input type="hidden" id="action" name="action" value="User" required="required"/>
+                                                                        <input type="hidden" id="email" name="email" th:value="${rec.email}" required="required"/>                                                                      
+                                                                    </div>
+                                                                    <p class="mt-3 mb-3">Confirm push notification to user</p>
+                                                                    <button type="submit" class="btn btn-primary btn-sm">Send</button>
+                                                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </td>
                                         </tr>
                                     </tbody>
