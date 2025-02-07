@@ -620,7 +620,7 @@ public class XTicketRepositoryImpl implements XTicketRepository {
 
     @Override
     public List<Tickets> getClosedTicketsByUser(AppUser appUser, TicketStatus ticketStatus) {
-        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.createdBy = :appUser AND p.ticketStatus = :ticketStatus ORDER BY p.id DESC", Tickets.class)
+        TypedQuery<Tickets> query = em.createQuery("SELECT p FROM Tickets p WHERE p.closedBy = :appUser AND p.ticketStatus = :ticketStatus ORDER BY p.id DESC", Tickets.class)
                 .setParameter("appUser", appUser)
                 .setParameter("ticketStatus", ticketStatus);
         List<Tickets> recordset = query.getResultList();

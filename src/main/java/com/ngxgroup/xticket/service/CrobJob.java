@@ -421,7 +421,7 @@ public class CrobJob {
         if (appUsers != null) {
             for (AppUser u : appUsers) {
                 //Check if the session is still valid
-                if (!u.getSessionId().equalsIgnoreCase("")) {
+                if (u.getSessionId() != null && !u.getSessionId().equalsIgnoreCase("")) {
                     
                     Session session = sessionRepository.findById(u.getSessionId());
                     if (session != null && session.isExpired()) {

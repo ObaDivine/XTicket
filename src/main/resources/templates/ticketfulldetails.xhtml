@@ -106,12 +106,14 @@
                                     <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.source}"></span>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-lg-6 col-md-12 col-sm-12">
+                            <div class="row mt-2">
+                                <div class="col-lg-12 col-md-12 col-sm-12">
                                     <span class="fs--1 text-800 fw-semi-bold mb-0">Subject: </span>
                                     <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.subject}"></span>
                                 </div>
-                                <div class="col-lg-6 col-md-12 col-sm-12">
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12 col-sm-12">
                                     <span class="fs--1 text-800 fw-semi-bold mb-0">Message: </span>
                                     <span class="fs--1 text-800 fw-semi-bold mb-0 text-primary" th:text="${ticketPayload.message}"></span>
                                 </div>
@@ -140,6 +142,11 @@
                                     <li class="nav-item me-3">
                                         <a class="nav-link text-nowrap" id="escalation-tab" data-bs-toggle="tab" href="#tab-escalation" role="tab" aria-controls="tab-escalation" aria-selected="true">
                                             <span class="fas fa-share-alt-square me-2"></span>Ticket Escalations <span class="text-700 fw-normal" th:text="'(' + ${escalatedTicketCount} + ')'"></span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item me-3">
+                                        <a class="nav-link text-nowrap" id="document-tab" data-bs-toggle="tab" href="#tab-document" role="tab" aria-controls="tab-document" aria-selected="true">
+                                            <span class="fas fa-upload me-2"></span>Document Upload <span class="text-700 fw-normal" th:text="'(' + ${documentCount} + ')'"></span>
                                         </a>
                                     </li>
                                 </ul>
@@ -303,6 +310,46 @@
                                                         <td th:text="${rec.escalationEmails}" class="ticketId align-middle white-space-nowrap start ps-3"></td>
                                                         <td th:text="${rec.slaExpiry}" class="ticketType align-middle white-space-nowrap start ps-3 text-warning-600"></td>
                                                         <td th:text="${rec.ticketAgent}" class="ticketGroup align-middle white-space-nowrap start ps-3"></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="row align-items-center justify-content-between py-2 pe-0 fs--1">
+                                            <div class="col-auto d-flex">
+                                                <p class="mb-0 d-none d-sm-block me-3 fw-semi-bold text-900" data-list-info="data-list-info"></p>
+                                                <a class="fw-semi-bold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                                                <a class="fw-semi-bold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                                            </div>
+                                            <div class="col-auto d-flex">
+                                                <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                                                <ul class="mb-0 pagination"></ul>
+                                                <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="tab-document" role="tabpanel" aria-labelledby="document-tab">
+                                    <div class="border-top border-bottom border-200" id="listTable" data-list='{"valueNames":[],"page":10,"pagination":true}'>
+                                        <div class="table-responsive scrollbar">
+                                            <div class="offset-lg-8 col-lg-4 col-md-8 col-sm-12 mb-2">
+                                                <div class="search-box">
+                                                    <input class="form-control search-input search" type="search" placeholder="Search record" aria-label="Search" />
+                                                    <span class="fas fa-search search-box-icon"></span>
+                                                </div>
+                                            </div>
+                                            <table class="table table-responsive table-sm table-striped fs--1 mb-0 border-200">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="date">Document</th>
+                                                        <th class="sort align-middle ps-3 text-primary" scope="col" data-sort="createdBy">Link</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="list" id="deal-tables-body" th:if="${documentList != null}">
+                                                    <tr th:each="rec : ${documentList}" class="position-static">
+                                                        <td th:text="${rec.originalFileName}" class="date align-middle white-space-nowrap start ps-3"></td>
+                                                        <td class="code align-middle white-space-nowrap start ps-3">
+                                                            <a th:href="@{${rec.documentLink}}" th:text="${rec.documentLink}" target="_blank"></a>
+                                                        </td>
                                                     </tr>
                                                 </tbody>
                                             </table>

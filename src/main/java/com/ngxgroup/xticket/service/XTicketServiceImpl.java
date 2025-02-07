@@ -2445,17 +2445,16 @@ public class XTicketServiceImpl implements XTicketService {
             if (requestPayload.getUploadedFiles() != null && !requestPayload.getUploadedFiles().isEmpty()) {
                 for (MultipartFile f : requestPayload.getUploadedFiles()) {
                     String fileExt = FilenameUtils.getExtension(f.getOriginalFilename());
-                    String newFileName = genericService.generateFileName();
                     DocumentUpload newDoc = new DocumentUpload();
                     newDoc.setCreatedAt(LocalDateTime.now());
-                    newDoc.setDocLink(host + "/xticket/document/" + newFileName + fileIndex + "." + fileExt);
+                    newDoc.setDocLink(host + "/xticket/document/" + ticketId + fileIndex + "." + fileExt);
                     newDoc.setTicket(createTicket);
-                    newDoc.setNewFileName(newFileName + "." + fileExt);
+                    newDoc.setNewFileName(ticketId + fileIndex + "." + fileExt);
                     newDoc.setOriginalFileName(f.getOriginalFilename());
                     newDoc.setUploadBy(appUser);
                     xticketRepository.createDocumentUpload(newDoc);
                     //Copy the file to destination
-                    String path = servletContext.getRealPath("/") + "WEB-INF/classes/document/" +  newFileName + fileIndex + "." + fileExt;
+                    String path = servletContext.getRealPath("/") + "WEB-INF/classes/document/" +  ticketId + fileIndex + "." + fileExt;
                     File newFile = new File(path);
                     FileCopyUtils.copy(f.getBytes(), newFile);
                     fileIndex++;
@@ -2553,14 +2552,14 @@ public class XTicketServiceImpl implements XTicketService {
                     String fileExt = FilenameUtils.getExtension(f.getOriginalFilename());
                     DocumentUpload newDoc = new DocumentUpload();
                     newDoc.setCreatedAt(LocalDateTime.now());
-                    newDoc.setDocLink(host + "/xticket/document" + "/" + newFileName + fileIndex + "." + fileExt);
+                    newDoc.setDocLink(host + "/xticket/document/" + newFileName + fileIndex + "." + fileExt);
                     newDoc.setTicket(ticket);
-                    newDoc.setNewFileName(newFileName + "." + fileExt);
+                    newDoc.setNewFileName(newFileName + fileIndex + "." + fileExt);
                     newDoc.setOriginalFileName(f.getOriginalFilename());
                     newDoc.setUploadBy(appUser);
                     xticketRepository.createDocumentUpload(newDoc);
                     //Copy the file to destination
-                    String path = servletContext.getRealPath("/") + "WEB-INF/classes/document" + "/" + newFileName + fileIndex + "." + fileExt;
+                    String path = servletContext.getRealPath("/WEB-INF/classes/document/") + newFileName + fileIndex + "." + fileExt;
                     File newFile = new File(path);
                     FileCopyUtils.copy(f.getBytes(), newFile);
                     fileIndex++;
@@ -2679,15 +2678,15 @@ public class XTicketServiceImpl implements XTicketService {
                     String fileExt = FilenameUtils.getExtension(f.getOriginalFilename());
                     DocumentUpload newDoc = new DocumentUpload();
                     newDoc.setCreatedAt(LocalDateTime.now());
-                    newDoc.setDocLink(host + "/xticket/document" + "/" + newFileName + fileIndex + "." + fileExt);
+                    newDoc.setDocLink(host + "/xticket/document/" + newFileName + fileIndex + "." + fileExt);
                     newDoc.setTicket(ticket);
-                    newDoc.setNewFileName(newFileName + "." + fileExt);
+                    newDoc.setNewFileName(newFileName + fileIndex + "." + fileExt);
                     newDoc.setOriginalFileName(f.getOriginalFilename());
                     newDoc.setUploadBy(appUser);
                     xticketRepository.createDocumentUpload(newDoc);
                     //Copy the file to destination
                     //Copy the file to destination
-                    String path = servletContext.getRealPath("/") + "WEB-INF/classes/document" + "/" + newFileName + fileIndex + "." + fileExt;
+                    String path = servletContext.getRealPath("/WEB-INF/classes/document/") +  newFileName + fileIndex + "." + fileExt;
                     File newFile = new File(path);
                     FileCopyUtils.copy(f.getBytes(), newFile);
                     fileIndex++;
@@ -4089,6 +4088,20 @@ public class XTicketServiceImpl implements XTicketService {
                     ticketEscalationRecord.add(escalation);
                 }
                 response.setTicketEscalations(ticketEscalationRecord);
+            }
+            
+            //Fetch the document uploads for the ticket
+            List<DocumentUpload> documentUploads = xticketRepository.getDocumentUploadUsingTicket(ticket);
+            List<XTicketPayload> documentUploadRecord = new ArrayList<>();
+            if (documentUploads != null) {
+                for (DocumentUpload a : documentUploads) {
+                    XTicketPayload doc = new XTicketPayload();
+                    doc.setDocumentLink(a.getDocLink());
+                    doc.setOriginalFileName(a.getOriginalFileName());
+                    doc.setCreatedAt(dtf.format(a.getCreatedAt()));
+                    documentUploadRecord.add(doc);
+                }
+                response.setUploadDocuments(documentUploadRecord);
             }
 
             response.setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
@@ -8074,7 +8087,7 @@ public class XTicketServiceImpl implements XTicketService {
                         String fileExt = FilenameUtils.getExtension(f.getOriginalFilename());
                         String newFileName = genericService.generateFileName();
                         //Copy the file to destination
-                        path = servletContext.getRealPath("/") + "WEB-INF/classes/document" + "/" + newFileName + "." + fileExt;
+                        path = servletContext.getRealPath("/WEB-INF/classes/document/") + newFileName + "." + fileExt;
                         File newFile = new File(path);
                         FileCopyUtils.copy(f.getBytes(), newFile);
                     }

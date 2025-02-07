@@ -8,6 +8,7 @@ import jakarta.persistence.EntityManagerFactory;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 import javax.sql.DataSource;
 import org.jasypt.encryption.StringEncryptor;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
@@ -21,7 +22,6 @@ import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.env.Environment;
@@ -156,6 +156,7 @@ public class AppConfig implements WebMvcConfigurer {
         cacheManager.setCaffeine(Caffeine.newBuilder()
                 .initialCapacity(200)
                 .maximumSize(500)
+                .expireAfterAccess(10, TimeUnit.MINUTES)
                 .weakKeys()
                 .recordStats());
         return cacheManager;
